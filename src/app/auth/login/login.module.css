@@ -1,0 +1,232 @@
+/* ================================
+   LOGIN PAGE - CSS MODULE
+   ================================ */
+
+.root {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ================================
+   BACKGROUND
+   ================================ */
+
+.bgImage {
+  position: fixed;
+  inset: 0;
+  background-image: url('/bg-image.jpg');
+  background-size: cover;
+  background-position: center;
+  filter: blur(4px) brightness(0.5);
+  transform: scale(1.08);
+  z-index: 0;
+}
+
+
+/* ================================
+   CARD WRAPPER
+   ================================ */
+
+.cardWrapper {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 420px;
+  padding: 0 24px;
+  animation: cardEnter 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes cardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ================================
+   CARD
+   ================================ */
+
+.card {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 40px 36px;
+  box-shadow:
+    0 24px 48px rgba(0, 0, 0, 0.35),
+    0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* ================================
+   CARD HEADER
+   ================================ */
+
+.cardHeader {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.logo {
+  margin: 0 auto 20px;
+  display: block;
+  object-fit: contain;
+}
+
+.cardTitle {
+  font-size: 22px;
+  font-weight: 700;
+  color: #111827;
+  letter-spacing: -0.3px;
+  margin: 0 0 6px 0;
+}
+
+.cardSubtitle {
+  font-size: 13.5px;
+  color: #6b7280;
+  font-weight: 400;
+  margin: 0;
+}
+
+.divider {
+  height: 1px;
+  background: #f3f4f6;
+  margin-bottom: 28px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fieldLabel {
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.inputIcon {
+  position: absolute;
+  left: 13px;
+  color: #9ca3af;
+  pointer-events: none;
+  transition: color 0.2s;
+}
+
+.inputWrapper:focus-within .inputIcon {
+  color: #19083e;
+}
+
+.fieldInput {
+  width: 100%;
+  padding: 11px 13px 11px 40px;
+  background: #f9fafb;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  color: #111827;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.fieldInput::placeholder {
+  color: #9ca3af;
+}
+
+.fieldInput:focus {
+  background: #ffffff;
+  border-color: #170b67;
+  box-shadow: 0 0 0 3px rgba(115, 101, 216, 0.471);
+}
+
+.togglePassword {
+  position: absolute;
+  right: 13px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #9ca3af;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s;
+}
+
+.togglePassword:hover {
+  color: #6b7280;
+}
+
+.submitBtn {
+  width: 100%;
+  padding: 12px;
+  background:#170b67;
+  border: none;
+  border-radius: 10px;
+  color: #ffffff;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14.5px;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.2px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.submitBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(99, 74, 168, 0.45);
+}
+
+.submitBtn:active {
+  transform: translateY(0);
+}
+
+.submitBtn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.spinner {
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.cardFooter {
+  text-align: center;
+  margin-top: 24px;
+  font-size: 12px;
+  color: #9ca3af;
+  letter-spacing: 0.2px;
+  flex-direction: column;
+  display:flex;
+}
