@@ -1,13 +1,14 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
 import { authClient } from "@/infrastructure/auth/auth-client"
-import { FileText, User, Lock, Eye, EyeOff } from "lucide-react"
-import { toast } from "sonner"
-import Image from "next/image"
-import styles from "./login.module.css"
 import { getRouteByRole } from "@/lib/routes"
+import { Eye, EyeOff, Lock, User } from "lucide-react"
+import Image from "next/image"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
+import { toast } from "sonner"
+import styles from "./login.module.css"
+import { useEffect } from "react"
 
 export default function LoginPage() {
   const router = useRouter()
@@ -16,7 +17,18 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
 
-  async function handleSubmit(e: React.FormEvent) {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (localStorage.getItem("logout_notif") === "true") {
+        localStorage.removeItem("logout_notif")
+        toast.success("Berhasil keluar")
+      }
+    }, 300) // delay 300ms agar Toaster sudah siap
+
+    return () => clearTimeout(timer)
+  }, [])
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setLoading(true)
 
@@ -56,7 +68,7 @@ export default function LoginPage() {
 
           <div className={styles.cardHeader}>
             <Image
-              src="/sipef_logo.png"
+              src="/sipef_logo.svg"
               alt="Logo SIPEF"
               width={80}
               height={80}

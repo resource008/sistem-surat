@@ -1,6 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
+  provider        = "prisma-client-js"
+  output          = "../src/generated/prisma"
 }
 
 datasource db {
@@ -15,19 +15,20 @@ enum Role {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  name      String
-  email     String   @unique
-  emailVerified  Boolean  @default(false)
-  username      String?  @unique
-  image     String?
-  password  String?
-  role      Role     @default(GUEST)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  emailVerified Boolean   @default(false) // Wajib untuk Better Auth
+  username      String?   @unique        // Ini yang tadi hilang!
+  image         String?
+  role          Role      @default(GUEST)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  sessions      Session[]
+  accounts      Account[]
 
-  sessions Session[]
-  accounts Account[]
+  @@map("users")
 }
 
 model Session {
@@ -40,6 +41,8 @@ model Session {
   userAgent String?
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
 }
 
 model Account {
@@ -57,13 +60,43 @@ model Account {
   password              String?
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
+
+  @@map("accounts")
 }
 
-model Verification {
-  id         String   @id @default(cuid())
-  identifier String
-  value      String
-  expiresAt  DateTime
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+model Department {
+  id        String   @id
+  shortName String   @map("short_name")
+  tujuan    String   @default("")        // ← tambah ini
+  isActive  Boolean  @default(true) @map("is_active")
+  
+  dataSurat    DataSurat[]
+  nomorCounter NomorCounter?
+
+  @@map("departments")
+}
+
+model DataSurat {
+  id            Int        @id @default(autoincrement())
+  nomor         String
+  deptId        String     @map("dept_id")
+  dept          Department @relation(fields: [deptId], references: [id])
+  tanggalTerima DateTime   @map("tanggal_terima")
+  asalSurat     String     @map("asal_surat")
+  perihal       String
+  tanggalSurat  DateTime   @map("tanggal_surat")
+  noSurat       String?    @map("no_surat")
+  lampiran      String?    @map("lampiran")
+  createdAt     DateTime   @default(now()) @map("created_at")
+  updatedAt     DateTime   @updatedAt @map("updated_at")
+
+  @@map("data_surat")
+}
+
+model NomorCounter {
+  deptId  String     @id @map("dept_id")
+  dept    Department @relation(fields: [deptId], references: [id])
+  counter Int        @default(0)
+
+  @@map("nomor_counter")
 }

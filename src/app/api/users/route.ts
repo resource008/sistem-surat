@@ -2,15 +2,19 @@ import { prisma } from "@/infrastructure/databases/prisma-client"
 import { auth } from "@/infrastructure/auth/better-auth"
 import { NextRequest, NextResponse } from "next/server"
 import { headers } from "next/headers"
-import { scrypt, randomBytes } from "crypto"
-import { promisify } from "util"
-
-const scryptAsync = promisify(scrypt)
+import { scryptAsync } from "@noble/hashes/scrypt"
+import { randomBytes, bytesToHex } from "@noble/hashes/utils"
 
 async function hashPassword(password: string): Promise<string> {
-  const salt = randomBytes(16).toString("hex")
-  const buf = (await scryptAsync(password, salt, 64)) as Buffer
-  return `${buf.toString("hex")}.${salt}`
+  const salt = bytesToHex(randomBytes(16))
+  const key = await scryptAsync(password.normalize("NFKC"), salt, {
+    N: 16384,
+    r: 16,
+    p: 1,
+    dkLen: 64,
+    maxmem: 128 * 16384 * 16 * 2,
+  })
+  return `${salt}:${bytesToHex(key)}`
 }
 
 export async function POST(req: NextRequest) {

@@ -1,18 +1,8 @@
-import type { Metadata } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
-import "./globals.css";
+import type { Metadata } from "next"
+import { Plus_Jakarta_Sans } from "next/font/google"
+import "./globals.css"
 import { Toaster } from "sonner"
-
-
-// const geistSans = Geist({
-//   variable: "--font-geist-sans",
-//   subsets: ["latin"],
-// });
-
-// const geistMono = Geist_Mono({
-//   variable: "--font-geist-mono",
-//   subsets: ["latin"],
-// });
+import { ThemeProvider } from "next-themes"
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -28,18 +18,24 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="id">
+    <html lang="id" suppressHydrationWarning>
       <body className={`${plusJakartaSans.className} ${plusJakartaSans.variable}`}>
-        {children}
-        <Toaster
-          position="bottom-right"
-          richColors
-          toastOptions={{
-            style: {
-              fontFamily: "var(--font-plus-jakarta-sans), sans-serif",
-            },
-          }}
-        />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+        >
+          {children}
+          <Toaster
+            position="bottom-right"
+            richColors
+            toastOptions={{
+              style: {
+                fontFamily: "var(--font-plus-jakarta-sans), sans-serif",
+              },
+            }}
+          />
+        </ThemeProvider>
       </body>
     </html>
   )

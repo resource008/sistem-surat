@@ -29,10 +29,20 @@ export type Session = $Result.DefaultSelection<Prisma.$SessionPayload>
  */
 export type Account = $Result.DefaultSelection<Prisma.$AccountPayload>
 /**
- * Model Verification
+ * Model Department
  * 
  */
-export type Verification = $Result.DefaultSelection<Prisma.$VerificationPayload>
+export type Department = $Result.DefaultSelection<Prisma.$DepartmentPayload>
+/**
+ * Model DataSurat
+ * 
+ */
+export type DataSurat = $Result.DefaultSelection<Prisma.$DataSuratPayload>
+/**
+ * Model NomorCounter
+ * 
+ */
+export type NomorCounter = $Result.DefaultSelection<Prisma.$NomorCounterPayload>
 
 /**
  * Enums
@@ -205,14 +215,34 @@ export class PrismaClient<
   get account(): Prisma.AccountDelegate<ExtArgs, ClientOptions>;
 
   /**
-   * `prisma.verification`: Exposes CRUD operations for the **Verification** model.
+   * `prisma.department`: Exposes CRUD operations for the **Department** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more Verifications
-    * const verifications = await prisma.verification.findMany()
+    * // Fetch zero or more Departments
+    * const departments = await prisma.department.findMany()
     * ```
     */
-  get verification(): Prisma.VerificationDelegate<ExtArgs, ClientOptions>;
+  get department(): Prisma.DepartmentDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.dataSurat`: Exposes CRUD operations for the **DataSurat** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more DataSurats
+    * const dataSurats = await prisma.dataSurat.findMany()
+    * ```
+    */
+  get dataSurat(): Prisma.DataSuratDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.nomorCounter`: Exposes CRUD operations for the **NomorCounter** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more NomorCounters
+    * const nomorCounters = await prisma.nomorCounter.findMany()
+    * ```
+    */
+  get nomorCounter(): Prisma.NomorCounterDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -650,7 +680,9 @@ export namespace Prisma {
     User: 'User',
     Session: 'Session',
     Account: 'Account',
-    Verification: 'Verification'
+    Department: 'Department',
+    DataSurat: 'DataSurat',
+    NomorCounter: 'NomorCounter'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -666,7 +698,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "session" | "account" | "verification"
+      modelProps: "user" | "session" | "account" | "department" | "dataSurat" | "nomorCounter"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -892,77 +924,225 @@ export namespace Prisma {
           }
         }
       }
-      Verification: {
-        payload: Prisma.$VerificationPayload<ExtArgs>
-        fields: Prisma.VerificationFieldRefs
+      Department: {
+        payload: Prisma.$DepartmentPayload<ExtArgs>
+        fields: Prisma.DepartmentFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.VerificationFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$VerificationPayload> | null
+            args: Prisma.DepartmentFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DepartmentPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.VerificationFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$VerificationPayload>
+            args: Prisma.DepartmentFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DepartmentPayload>
           }
           findFirst: {
-            args: Prisma.VerificationFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$VerificationPayload> | null
+            args: Prisma.DepartmentFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DepartmentPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.VerificationFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$VerificationPayload>
+            args: Prisma.DepartmentFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DepartmentPayload>
           }
           findMany: {
-            args: Prisma.VerificationFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$VerificationPayload>[]
+            args: Prisma.DepartmentFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DepartmentPayload>[]
           }
           create: {
-            args: Prisma.VerificationCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$VerificationPayload>
+            args: Prisma.DepartmentCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DepartmentPayload>
           }
           createMany: {
-            args: Prisma.VerificationCreateManyArgs<ExtArgs>
+            args: Prisma.DepartmentCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.VerificationCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$VerificationPayload>[]
+            args: Prisma.DepartmentCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DepartmentPayload>[]
           }
           delete: {
-            args: Prisma.VerificationDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$VerificationPayload>
+            args: Prisma.DepartmentDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DepartmentPayload>
           }
           update: {
-            args: Prisma.VerificationUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$VerificationPayload>
+            args: Prisma.DepartmentUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DepartmentPayload>
           }
           deleteMany: {
-            args: Prisma.VerificationDeleteManyArgs<ExtArgs>
+            args: Prisma.DepartmentDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.VerificationUpdateManyArgs<ExtArgs>
+            args: Prisma.DepartmentUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateManyAndReturn: {
-            args: Prisma.VerificationUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$VerificationPayload>[]
+            args: Prisma.DepartmentUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DepartmentPayload>[]
           }
           upsert: {
-            args: Prisma.VerificationUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$VerificationPayload>
+            args: Prisma.DepartmentUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DepartmentPayload>
           }
           aggregate: {
-            args: Prisma.VerificationAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateVerification>
+            args: Prisma.DepartmentAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateDepartment>
           }
           groupBy: {
-            args: Prisma.VerificationGroupByArgs<ExtArgs>
-            result: $Utils.Optional<VerificationGroupByOutputType>[]
+            args: Prisma.DepartmentGroupByArgs<ExtArgs>
+            result: $Utils.Optional<DepartmentGroupByOutputType>[]
           }
           count: {
-            args: Prisma.VerificationCountArgs<ExtArgs>
-            result: $Utils.Optional<VerificationCountAggregateOutputType> | number
+            args: Prisma.DepartmentCountArgs<ExtArgs>
+            result: $Utils.Optional<DepartmentCountAggregateOutputType> | number
+          }
+        }
+      }
+      DataSurat: {
+        payload: Prisma.$DataSuratPayload<ExtArgs>
+        fields: Prisma.DataSuratFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.DataSuratFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DataSuratPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.DataSuratFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DataSuratPayload>
+          }
+          findFirst: {
+            args: Prisma.DataSuratFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DataSuratPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.DataSuratFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DataSuratPayload>
+          }
+          findMany: {
+            args: Prisma.DataSuratFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DataSuratPayload>[]
+          }
+          create: {
+            args: Prisma.DataSuratCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DataSuratPayload>
+          }
+          createMany: {
+            args: Prisma.DataSuratCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.DataSuratCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DataSuratPayload>[]
+          }
+          delete: {
+            args: Prisma.DataSuratDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DataSuratPayload>
+          }
+          update: {
+            args: Prisma.DataSuratUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DataSuratPayload>
+          }
+          deleteMany: {
+            args: Prisma.DataSuratDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.DataSuratUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.DataSuratUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DataSuratPayload>[]
+          }
+          upsert: {
+            args: Prisma.DataSuratUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DataSuratPayload>
+          }
+          aggregate: {
+            args: Prisma.DataSuratAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateDataSurat>
+          }
+          groupBy: {
+            args: Prisma.DataSuratGroupByArgs<ExtArgs>
+            result: $Utils.Optional<DataSuratGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.DataSuratCountArgs<ExtArgs>
+            result: $Utils.Optional<DataSuratCountAggregateOutputType> | number
+          }
+        }
+      }
+      NomorCounter: {
+        payload: Prisma.$NomorCounterPayload<ExtArgs>
+        fields: Prisma.NomorCounterFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.NomorCounterFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NomorCounterPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.NomorCounterFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NomorCounterPayload>
+          }
+          findFirst: {
+            args: Prisma.NomorCounterFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NomorCounterPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.NomorCounterFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NomorCounterPayload>
+          }
+          findMany: {
+            args: Prisma.NomorCounterFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NomorCounterPayload>[]
+          }
+          create: {
+            args: Prisma.NomorCounterCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NomorCounterPayload>
+          }
+          createMany: {
+            args: Prisma.NomorCounterCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.NomorCounterCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NomorCounterPayload>[]
+          }
+          delete: {
+            args: Prisma.NomorCounterDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NomorCounterPayload>
+          }
+          update: {
+            args: Prisma.NomorCounterUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NomorCounterPayload>
+          }
+          deleteMany: {
+            args: Prisma.NomorCounterDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.NomorCounterUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.NomorCounterUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NomorCounterPayload>[]
+          }
+          upsert: {
+            args: Prisma.NomorCounterUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$NomorCounterPayload>
+          }
+          aggregate: {
+            args: Prisma.NomorCounterAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateNomorCounter>
+          }
+          groupBy: {
+            args: Prisma.NomorCounterGroupByArgs<ExtArgs>
+            result: $Utils.Optional<NomorCounterGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.NomorCounterCountArgs<ExtArgs>
+            result: $Utils.Optional<NomorCounterCountAggregateOutputType> | number
           }
         }
       }
@@ -1077,7 +1257,9 @@ export namespace Prisma {
     user?: UserOmit
     session?: SessionOmit
     account?: AccountOmit
-    verification?: VerificationOmit
+    department?: DepartmentOmit
+    dataSurat?: DataSuratOmit
+    nomorCounter?: NomorCounterOmit
   }
 
   /* Types for Logging */
@@ -1194,6 +1376,37 @@ export namespace Prisma {
 
 
   /**
+   * Count Type DepartmentCountOutputType
+   */
+
+  export type DepartmentCountOutputType = {
+    dataSurat: number
+  }
+
+  export type DepartmentCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    dataSurat?: boolean | DepartmentCountOutputTypeCountDataSuratArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * DepartmentCountOutputType without action
+   */
+  export type DepartmentCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DepartmentCountOutputType
+     */
+    select?: DepartmentCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * DepartmentCountOutputType without action
+   */
+  export type DepartmentCountOutputTypeCountDataSuratArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DataSuratWhereInput
+  }
+
+
+  /**
    * Models
    */
 
@@ -1214,7 +1427,6 @@ export namespace Prisma {
     emailVerified: boolean | null
     username: string | null
     image: string | null
-    password: string | null
     role: $Enums.Role | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -1227,7 +1439,6 @@ export namespace Prisma {
     emailVerified: boolean | null
     username: string | null
     image: string | null
-    password: string | null
     role: $Enums.Role | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -1240,7 +1451,6 @@ export namespace Prisma {
     emailVerified: number
     username: number
     image: number
-    password: number
     role: number
     createdAt: number
     updatedAt: number
@@ -1255,7 +1465,6 @@ export namespace Prisma {
     emailVerified?: true
     username?: true
     image?: true
-    password?: true
     role?: true
     createdAt?: true
     updatedAt?: true
@@ -1268,7 +1477,6 @@ export namespace Prisma {
     emailVerified?: true
     username?: true
     image?: true
-    password?: true
     role?: true
     createdAt?: true
     updatedAt?: true
@@ -1281,7 +1489,6 @@ export namespace Prisma {
     emailVerified?: true
     username?: true
     image?: true
-    password?: true
     role?: true
     createdAt?: true
     updatedAt?: true
@@ -1367,7 +1574,6 @@ export namespace Prisma {
     emailVerified: boolean
     username: string | null
     image: string | null
-    password: string | null
     role: $Enums.Role
     createdAt: Date
     updatedAt: Date
@@ -1397,7 +1603,6 @@ export namespace Prisma {
     emailVerified?: boolean
     username?: boolean
     image?: boolean
-    password?: boolean
     role?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -1413,7 +1618,6 @@ export namespace Prisma {
     emailVerified?: boolean
     username?: boolean
     image?: boolean
-    password?: boolean
     role?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -1426,7 +1630,6 @@ export namespace Prisma {
     emailVerified?: boolean
     username?: boolean
     image?: boolean
-    password?: boolean
     role?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -1439,13 +1642,12 @@ export namespace Prisma {
     emailVerified?: boolean
     username?: boolean
     image?: boolean
-    password?: boolean
     role?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "emailVerified" | "username" | "image" | "password" | "role" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "emailVerified" | "username" | "image" | "role" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     sessions?: boolean | User$sessionsArgs<ExtArgs>
     accounts?: boolean | User$accountsArgs<ExtArgs>
@@ -1467,7 +1669,6 @@ export namespace Prisma {
       emailVerified: boolean
       username: string | null
       image: string | null
-      password: string | null
       role: $Enums.Role
       createdAt: Date
       updatedAt: Date
@@ -1902,7 +2103,6 @@ export namespace Prisma {
     readonly emailVerified: FieldRef<"User", 'Boolean'>
     readonly username: FieldRef<"User", 'String'>
     readonly image: FieldRef<"User", 'String'>
-    readonly password: FieldRef<"User", 'String'>
     readonly role: FieldRef<"User", 'Role'>
     readonly createdAt: FieldRef<"User", 'DateTime'>
     readonly updatedAt: FieldRef<"User", 'DateTime'>
@@ -4635,348 +4835,337 @@ export namespace Prisma {
 
 
   /**
-   * Model Verification
+   * Model Department
    */
 
-  export type AggregateVerification = {
-    _count: VerificationCountAggregateOutputType | null
-    _min: VerificationMinAggregateOutputType | null
-    _max: VerificationMaxAggregateOutputType | null
+  export type AggregateDepartment = {
+    _count: DepartmentCountAggregateOutputType | null
+    _min: DepartmentMinAggregateOutputType | null
+    _max: DepartmentMaxAggregateOutputType | null
   }
 
-  export type VerificationMinAggregateOutputType = {
+  export type DepartmentMinAggregateOutputType = {
     id: string | null
-    identifier: string | null
-    value: string | null
-    expiresAt: Date | null
-    createdAt: Date | null
-    updatedAt: Date | null
+    shortName: string | null
+    tujuan: string | null
+    isActive: boolean | null
   }
 
-  export type VerificationMaxAggregateOutputType = {
+  export type DepartmentMaxAggregateOutputType = {
     id: string | null
-    identifier: string | null
-    value: string | null
-    expiresAt: Date | null
-    createdAt: Date | null
-    updatedAt: Date | null
+    shortName: string | null
+    tujuan: string | null
+    isActive: boolean | null
   }
 
-  export type VerificationCountAggregateOutputType = {
+  export type DepartmentCountAggregateOutputType = {
     id: number
-    identifier: number
-    value: number
-    expiresAt: number
-    createdAt: number
-    updatedAt: number
+    shortName: number
+    tujuan: number
+    isActive: number
     _all: number
   }
 
 
-  export type VerificationMinAggregateInputType = {
+  export type DepartmentMinAggregateInputType = {
     id?: true
-    identifier?: true
-    value?: true
-    expiresAt?: true
-    createdAt?: true
-    updatedAt?: true
+    shortName?: true
+    tujuan?: true
+    isActive?: true
   }
 
-  export type VerificationMaxAggregateInputType = {
+  export type DepartmentMaxAggregateInputType = {
     id?: true
-    identifier?: true
-    value?: true
-    expiresAt?: true
-    createdAt?: true
-    updatedAt?: true
+    shortName?: true
+    tujuan?: true
+    isActive?: true
   }
 
-  export type VerificationCountAggregateInputType = {
+  export type DepartmentCountAggregateInputType = {
     id?: true
-    identifier?: true
-    value?: true
-    expiresAt?: true
-    createdAt?: true
-    updatedAt?: true
+    shortName?: true
+    tujuan?: true
+    isActive?: true
     _all?: true
   }
 
-  export type VerificationAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type DepartmentAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which Verification to aggregate.
+     * Filter which Department to aggregate.
      */
-    where?: VerificationWhereInput
+    where?: DepartmentWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Verifications to fetch.
+     * Determine the order of Departments to fetch.
      */
-    orderBy?: VerificationOrderByWithRelationInput | VerificationOrderByWithRelationInput[]
+    orderBy?: DepartmentOrderByWithRelationInput | DepartmentOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: VerificationWhereUniqueInput
+    cursor?: DepartmentWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` Verifications from the position of the cursor.
+     * Take `±n` Departments from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` Verifications.
+     * Skip the first `n` Departments.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned Verifications
+     * Count returned Departments
     **/
-    _count?: true | VerificationCountAggregateInputType
+    _count?: true | DepartmentCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: VerificationMinAggregateInputType
+    _min?: DepartmentMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: VerificationMaxAggregateInputType
+    _max?: DepartmentMaxAggregateInputType
   }
 
-  export type GetVerificationAggregateType<T extends VerificationAggregateArgs> = {
-        [P in keyof T & keyof AggregateVerification]: P extends '_count' | 'count'
+  export type GetDepartmentAggregateType<T extends DepartmentAggregateArgs> = {
+        [P in keyof T & keyof AggregateDepartment]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateVerification[P]>
-      : GetScalarType<T[P], AggregateVerification[P]>
+        : GetScalarType<T[P], AggregateDepartment[P]>
+      : GetScalarType<T[P], AggregateDepartment[P]>
   }
 
 
 
 
-  export type VerificationGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: VerificationWhereInput
-    orderBy?: VerificationOrderByWithAggregationInput | VerificationOrderByWithAggregationInput[]
-    by: VerificationScalarFieldEnum[] | VerificationScalarFieldEnum
-    having?: VerificationScalarWhereWithAggregatesInput
+  export type DepartmentGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DepartmentWhereInput
+    orderBy?: DepartmentOrderByWithAggregationInput | DepartmentOrderByWithAggregationInput[]
+    by: DepartmentScalarFieldEnum[] | DepartmentScalarFieldEnum
+    having?: DepartmentScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: VerificationCountAggregateInputType | true
-    _min?: VerificationMinAggregateInputType
-    _max?: VerificationMaxAggregateInputType
+    _count?: DepartmentCountAggregateInputType | true
+    _min?: DepartmentMinAggregateInputType
+    _max?: DepartmentMaxAggregateInputType
   }
 
-  export type VerificationGroupByOutputType = {
+  export type DepartmentGroupByOutputType = {
     id: string
-    identifier: string
-    value: string
-    expiresAt: Date
-    createdAt: Date
-    updatedAt: Date
-    _count: VerificationCountAggregateOutputType | null
-    _min: VerificationMinAggregateOutputType | null
-    _max: VerificationMaxAggregateOutputType | null
+    shortName: string
+    tujuan: string
+    isActive: boolean
+    _count: DepartmentCountAggregateOutputType | null
+    _min: DepartmentMinAggregateOutputType | null
+    _max: DepartmentMaxAggregateOutputType | null
   }
 
-  type GetVerificationGroupByPayload<T extends VerificationGroupByArgs> = Prisma.PrismaPromise<
+  type GetDepartmentGroupByPayload<T extends DepartmentGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<VerificationGroupByOutputType, T['by']> &
+      PickEnumerable<DepartmentGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof VerificationGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof DepartmentGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], VerificationGroupByOutputType[P]>
-            : GetScalarType<T[P], VerificationGroupByOutputType[P]>
+              : GetScalarType<T[P], DepartmentGroupByOutputType[P]>
+            : GetScalarType<T[P], DepartmentGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type VerificationSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type DepartmentSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    identifier?: boolean
-    value?: boolean
-    expiresAt?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-  }, ExtArgs["result"]["verification"]>
+    shortName?: boolean
+    tujuan?: boolean
+    isActive?: boolean
+    dataSurat?: boolean | Department$dataSuratArgs<ExtArgs>
+    nomorCounter?: boolean | Department$nomorCounterArgs<ExtArgs>
+    _count?: boolean | DepartmentCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["department"]>
 
-  export type VerificationSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type DepartmentSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    identifier?: boolean
-    value?: boolean
-    expiresAt?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-  }, ExtArgs["result"]["verification"]>
+    shortName?: boolean
+    tujuan?: boolean
+    isActive?: boolean
+  }, ExtArgs["result"]["department"]>
 
-  export type VerificationSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type DepartmentSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    identifier?: boolean
-    value?: boolean
-    expiresAt?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-  }, ExtArgs["result"]["verification"]>
+    shortName?: boolean
+    tujuan?: boolean
+    isActive?: boolean
+  }, ExtArgs["result"]["department"]>
 
-  export type VerificationSelectScalar = {
+  export type DepartmentSelectScalar = {
     id?: boolean
-    identifier?: boolean
-    value?: boolean
-    expiresAt?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
+    shortName?: boolean
+    tujuan?: boolean
+    isActive?: boolean
   }
 
-  export type VerificationOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "identifier" | "value" | "expiresAt" | "createdAt" | "updatedAt", ExtArgs["result"]["verification"]>
+  export type DepartmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "shortName" | "tujuan" | "isActive", ExtArgs["result"]["department"]>
+  export type DepartmentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    dataSurat?: boolean | Department$dataSuratArgs<ExtArgs>
+    nomorCounter?: boolean | Department$nomorCounterArgs<ExtArgs>
+    _count?: boolean | DepartmentCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type DepartmentIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type DepartmentIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
 
-  export type $VerificationPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "Verification"
-    objects: {}
+  export type $DepartmentPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Department"
+    objects: {
+      dataSurat: Prisma.$DataSuratPayload<ExtArgs>[]
+      nomorCounter: Prisma.$NomorCounterPayload<ExtArgs> | null
+    }
     scalars: $Extensions.GetPayloadResult<{
       id: string
-      identifier: string
-      value: string
-      expiresAt: Date
-      createdAt: Date
-      updatedAt: Date
-    }, ExtArgs["result"]["verification"]>
+      shortName: string
+      tujuan: string
+      isActive: boolean
+    }, ExtArgs["result"]["department"]>
     composites: {}
   }
 
-  type VerificationGetPayload<S extends boolean | null | undefined | VerificationDefaultArgs> = $Result.GetResult<Prisma.$VerificationPayload, S>
+  type DepartmentGetPayload<S extends boolean | null | undefined | DepartmentDefaultArgs> = $Result.GetResult<Prisma.$DepartmentPayload, S>
 
-  type VerificationCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<VerificationFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: VerificationCountAggregateInputType | true
+  type DepartmentCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<DepartmentFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: DepartmentCountAggregateInputType | true
     }
 
-  export interface VerificationDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Verification'], meta: { name: 'Verification' } }
+  export interface DepartmentDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Department'], meta: { name: 'Department' } }
     /**
-     * Find zero or one Verification that matches the filter.
-     * @param {VerificationFindUniqueArgs} args - Arguments to find a Verification
+     * Find zero or one Department that matches the filter.
+     * @param {DepartmentFindUniqueArgs} args - Arguments to find a Department
      * @example
-     * // Get one Verification
-     * const verification = await prisma.verification.findUnique({
+     * // Get one Department
+     * const department = await prisma.department.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends VerificationFindUniqueArgs>(args: SelectSubset<T, VerificationFindUniqueArgs<ExtArgs>>): Prisma__VerificationClient<$Result.GetResult<Prisma.$VerificationPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findUnique<T extends DepartmentFindUniqueArgs>(args: SelectSubset<T, DepartmentFindUniqueArgs<ExtArgs>>): Prisma__DepartmentClient<$Result.GetResult<Prisma.$DepartmentPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find one Verification that matches the filter or throw an error with `error.code='P2025'`
+     * Find one Department that matches the filter or throw an error with `error.code='P2025'`
      * if no matches were found.
-     * @param {VerificationFindUniqueOrThrowArgs} args - Arguments to find a Verification
+     * @param {DepartmentFindUniqueOrThrowArgs} args - Arguments to find a Department
      * @example
-     * // Get one Verification
-     * const verification = await prisma.verification.findUniqueOrThrow({
+     * // Get one Department
+     * const department = await prisma.department.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends VerificationFindUniqueOrThrowArgs>(args: SelectSubset<T, VerificationFindUniqueOrThrowArgs<ExtArgs>>): Prisma__VerificationClient<$Result.GetResult<Prisma.$VerificationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findUniqueOrThrow<T extends DepartmentFindUniqueOrThrowArgs>(args: SelectSubset<T, DepartmentFindUniqueOrThrowArgs<ExtArgs>>): Prisma__DepartmentClient<$Result.GetResult<Prisma.$DepartmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find the first Verification that matches the filter.
+     * Find the first Department that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {VerificationFindFirstArgs} args - Arguments to find a Verification
+     * @param {DepartmentFindFirstArgs} args - Arguments to find a Department
      * @example
-     * // Get one Verification
-     * const verification = await prisma.verification.findFirst({
+     * // Get one Department
+     * const department = await prisma.department.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends VerificationFindFirstArgs>(args?: SelectSubset<T, VerificationFindFirstArgs<ExtArgs>>): Prisma__VerificationClient<$Result.GetResult<Prisma.$VerificationPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findFirst<T extends DepartmentFindFirstArgs>(args?: SelectSubset<T, DepartmentFindFirstArgs<ExtArgs>>): Prisma__DepartmentClient<$Result.GetResult<Prisma.$DepartmentPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find the first Verification that matches the filter or
+     * Find the first Department that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {VerificationFindFirstOrThrowArgs} args - Arguments to find a Verification
+     * @param {DepartmentFindFirstOrThrowArgs} args - Arguments to find a Department
      * @example
-     * // Get one Verification
-     * const verification = await prisma.verification.findFirstOrThrow({
+     * // Get one Department
+     * const department = await prisma.department.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends VerificationFindFirstOrThrowArgs>(args?: SelectSubset<T, VerificationFindFirstOrThrowArgs<ExtArgs>>): Prisma__VerificationClient<$Result.GetResult<Prisma.$VerificationPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findFirstOrThrow<T extends DepartmentFindFirstOrThrowArgs>(args?: SelectSubset<T, DepartmentFindFirstOrThrowArgs<ExtArgs>>): Prisma__DepartmentClient<$Result.GetResult<Prisma.$DepartmentPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find zero or more Verifications that matches the filter.
+     * Find zero or more Departments that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {VerificationFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {DepartmentFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all Verifications
-     * const verifications = await prisma.verification.findMany()
+     * // Get all Departments
+     * const departments = await prisma.department.findMany()
      * 
-     * // Get first 10 Verifications
-     * const verifications = await prisma.verification.findMany({ take: 10 })
+     * // Get first 10 Departments
+     * const departments = await prisma.department.findMany({ take: 10 })
      * 
      * // Only select the `id`
-     * const verificationWithIdOnly = await prisma.verification.findMany({ select: { id: true } })
+     * const departmentWithIdOnly = await prisma.department.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends VerificationFindManyArgs>(args?: SelectSubset<T, VerificationFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$VerificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+    findMany<T extends DepartmentFindManyArgs>(args?: SelectSubset<T, DepartmentFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DepartmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
     /**
-     * Create a Verification.
-     * @param {VerificationCreateArgs} args - Arguments to create a Verification.
+     * Create a Department.
+     * @param {DepartmentCreateArgs} args - Arguments to create a Department.
      * @example
-     * // Create one Verification
-     * const Verification = await prisma.verification.create({
+     * // Create one Department
+     * const Department = await prisma.department.create({
      *   data: {
-     *     // ... data to create a Verification
+     *     // ... data to create a Department
      *   }
      * })
      * 
      */
-    create<T extends VerificationCreateArgs>(args: SelectSubset<T, VerificationCreateArgs<ExtArgs>>): Prisma__VerificationClient<$Result.GetResult<Prisma.$VerificationPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    create<T extends DepartmentCreateArgs>(args: SelectSubset<T, DepartmentCreateArgs<ExtArgs>>): Prisma__DepartmentClient<$Result.GetResult<Prisma.$DepartmentPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Create many Verifications.
-     * @param {VerificationCreateManyArgs} args - Arguments to create many Verifications.
+     * Create many Departments.
+     * @param {DepartmentCreateManyArgs} args - Arguments to create many Departments.
      * @example
-     * // Create many Verifications
-     * const verification = await prisma.verification.createMany({
+     * // Create many Departments
+     * const department = await prisma.department.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends VerificationCreateManyArgs>(args?: SelectSubset<T, VerificationCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends DepartmentCreateManyArgs>(args?: SelectSubset<T, DepartmentCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many Verifications and returns the data saved in the database.
-     * @param {VerificationCreateManyAndReturnArgs} args - Arguments to create many Verifications.
+     * Create many Departments and returns the data saved in the database.
+     * @param {DepartmentCreateManyAndReturnArgs} args - Arguments to create many Departments.
      * @example
-     * // Create many Verifications
-     * const verification = await prisma.verification.createManyAndReturn({
+     * // Create many Departments
+     * const department = await prisma.department.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many Verifications and only return the `id`
-     * const verificationWithIdOnly = await prisma.verification.createManyAndReturn({
+     * // Create many Departments and only return the `id`
+     * const departmentWithIdOnly = await prisma.department.createManyAndReturn({
      *   select: { id: true },
      *   data: [
      *     // ... provide data here
@@ -4986,28 +5175,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends VerificationCreateManyAndReturnArgs>(args?: SelectSubset<T, VerificationCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$VerificationPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+    createManyAndReturn<T extends DepartmentCreateManyAndReturnArgs>(args?: SelectSubset<T, DepartmentCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DepartmentPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
     /**
-     * Delete a Verification.
-     * @param {VerificationDeleteArgs} args - Arguments to delete one Verification.
+     * Delete a Department.
+     * @param {DepartmentDeleteArgs} args - Arguments to delete one Department.
      * @example
-     * // Delete one Verification
-     * const Verification = await prisma.verification.delete({
+     * // Delete one Department
+     * const Department = await prisma.department.delete({
      *   where: {
-     *     // ... filter to delete one Verification
+     *     // ... filter to delete one Department
      *   }
      * })
      * 
      */
-    delete<T extends VerificationDeleteArgs>(args: SelectSubset<T, VerificationDeleteArgs<ExtArgs>>): Prisma__VerificationClient<$Result.GetResult<Prisma.$VerificationPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    delete<T extends DepartmentDeleteArgs>(args: SelectSubset<T, DepartmentDeleteArgs<ExtArgs>>): Prisma__DepartmentClient<$Result.GetResult<Prisma.$DepartmentPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Update one Verification.
-     * @param {VerificationUpdateArgs} args - Arguments to update one Verification.
+     * Update one Department.
+     * @param {DepartmentUpdateArgs} args - Arguments to update one Department.
      * @example
-     * // Update one Verification
-     * const verification = await prisma.verification.update({
+     * // Update one Department
+     * const department = await prisma.department.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -5017,30 +5206,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends VerificationUpdateArgs>(args: SelectSubset<T, VerificationUpdateArgs<ExtArgs>>): Prisma__VerificationClient<$Result.GetResult<Prisma.$VerificationPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    update<T extends DepartmentUpdateArgs>(args: SelectSubset<T, DepartmentUpdateArgs<ExtArgs>>): Prisma__DepartmentClient<$Result.GetResult<Prisma.$DepartmentPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Delete zero or more Verifications.
-     * @param {VerificationDeleteManyArgs} args - Arguments to filter Verifications to delete.
+     * Delete zero or more Departments.
+     * @param {DepartmentDeleteManyArgs} args - Arguments to filter Departments to delete.
      * @example
-     * // Delete a few Verifications
-     * const { count } = await prisma.verification.deleteMany({
+     * // Delete a few Departments
+     * const { count } = await prisma.department.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends VerificationDeleteManyArgs>(args?: SelectSubset<T, VerificationDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends DepartmentDeleteManyArgs>(args?: SelectSubset<T, DepartmentDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more Verifications.
+     * Update zero or more Departments.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {VerificationUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {DepartmentUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many Verifications
-     * const verification = await prisma.verification.updateMany({
+     * // Update many Departments
+     * const department = await prisma.department.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -5050,14 +5239,14 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends VerificationUpdateManyArgs>(args: SelectSubset<T, VerificationUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends DepartmentUpdateManyArgs>(args: SelectSubset<T, DepartmentUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more Verifications and returns the data updated in the database.
-     * @param {VerificationUpdateManyAndReturnArgs} args - Arguments to update many Verifications.
+     * Update zero or more Departments and returns the data updated in the database.
+     * @param {DepartmentUpdateManyAndReturnArgs} args - Arguments to update many Departments.
      * @example
-     * // Update many Verifications
-     * const verification = await prisma.verification.updateManyAndReturn({
+     * // Update many Departments
+     * const department = await prisma.department.updateManyAndReturn({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -5066,8 +5255,8 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Update zero or more Verifications and only return the `id`
-     * const verificationWithIdOnly = await prisma.verification.updateManyAndReturn({
+     * // Update zero or more Departments and only return the `id`
+     * const departmentWithIdOnly = await prisma.department.updateManyAndReturn({
      *   select: { id: true },
      *   where: {
      *     // ... provide filter here
@@ -5080,56 +5269,56 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    updateManyAndReturn<T extends VerificationUpdateManyAndReturnArgs>(args: SelectSubset<T, VerificationUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$VerificationPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+    updateManyAndReturn<T extends DepartmentUpdateManyAndReturnArgs>(args: SelectSubset<T, DepartmentUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DepartmentPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
     /**
-     * Create or update one Verification.
-     * @param {VerificationUpsertArgs} args - Arguments to update or create a Verification.
+     * Create or update one Department.
+     * @param {DepartmentUpsertArgs} args - Arguments to update or create a Department.
      * @example
-     * // Update or create a Verification
-     * const verification = await prisma.verification.upsert({
+     * // Update or create a Department
+     * const department = await prisma.department.upsert({
      *   create: {
-     *     // ... data to create a Verification
+     *     // ... data to create a Department
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the Verification we want to update
+     *     // ... the filter for the Department we want to update
      *   }
      * })
      */
-    upsert<T extends VerificationUpsertArgs>(args: SelectSubset<T, VerificationUpsertArgs<ExtArgs>>): Prisma__VerificationClient<$Result.GetResult<Prisma.$VerificationPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    upsert<T extends DepartmentUpsertArgs>(args: SelectSubset<T, DepartmentUpsertArgs<ExtArgs>>): Prisma__DepartmentClient<$Result.GetResult<Prisma.$DepartmentPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
 
     /**
-     * Count the number of Verifications.
+     * Count the number of Departments.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {VerificationCountArgs} args - Arguments to filter Verifications to count.
+     * @param {DepartmentCountArgs} args - Arguments to filter Departments to count.
      * @example
-     * // Count the number of Verifications
-     * const count = await prisma.verification.count({
+     * // Count the number of Departments
+     * const count = await prisma.department.count({
      *   where: {
-     *     // ... the filter for the Verifications we want to count
+     *     // ... the filter for the Departments we want to count
      *   }
      * })
     **/
-    count<T extends VerificationCountArgs>(
-      args?: Subset<T, VerificationCountArgs>,
+    count<T extends DepartmentCountArgs>(
+      args?: Subset<T, DepartmentCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], VerificationCountAggregateOutputType>
+          : GetScalarType<T['select'], DepartmentCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a Verification.
+     * Allows you to perform aggregations operations on a Department.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {VerificationAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {DepartmentAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -5149,13 +5338,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends VerificationAggregateArgs>(args: Subset<T, VerificationAggregateArgs>): Prisma.PrismaPromise<GetVerificationAggregateType<T>>
+    aggregate<T extends DepartmentAggregateArgs>(args: Subset<T, DepartmentAggregateArgs>): Prisma.PrismaPromise<GetDepartmentAggregateType<T>>
 
     /**
-     * Group by Verification.
+     * Group by Department.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {VerificationGroupByArgs} args - Group by arguments.
+     * @param {DepartmentGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -5170,14 +5359,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends VerificationGroupByArgs,
+      T extends DepartmentGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: VerificationGroupByArgs['orderBy'] }
-        : { orderBy?: VerificationGroupByArgs['orderBy'] },
+        ? { orderBy: DepartmentGroupByArgs['orderBy'] }
+        : { orderBy?: DepartmentGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -5226,21 +5415,23 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, VerificationGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetVerificationGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, DepartmentGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDepartmentGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the Verification model
+   * Fields of the Department model
    */
-  readonly fields: VerificationFieldRefs;
+  readonly fields: DepartmentFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for Verification.
+   * The delegate class that acts as a "Promise-like" for Department.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__VerificationClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__DepartmentClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    dataSurat<T extends Department$dataSuratArgs<ExtArgs> = {}>(args?: Subset<T, Department$dataSuratArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DataSuratPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    nomorCounter<T extends Department$nomorCounterArgs<ExtArgs> = {}>(args?: Subset<T, Department$nomorCounterArgs<ExtArgs>>): Prisma__NomorCounterClient<$Result.GetResult<Prisma.$NomorCounterPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -5267,383 +5458,2710 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the Verification model
+   * Fields of the Department model
    */
-  interface VerificationFieldRefs {
-    readonly id: FieldRef<"Verification", 'String'>
-    readonly identifier: FieldRef<"Verification", 'String'>
-    readonly value: FieldRef<"Verification", 'String'>
-    readonly expiresAt: FieldRef<"Verification", 'DateTime'>
-    readonly createdAt: FieldRef<"Verification", 'DateTime'>
-    readonly updatedAt: FieldRef<"Verification", 'DateTime'>
+  interface DepartmentFieldRefs {
+    readonly id: FieldRef<"Department", 'String'>
+    readonly shortName: FieldRef<"Department", 'String'>
+    readonly tujuan: FieldRef<"Department", 'String'>
+    readonly isActive: FieldRef<"Department", 'Boolean'>
   }
     
 
   // Custom InputTypes
   /**
-   * Verification findUnique
+   * Department findUnique
    */
-  export type VerificationFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type DepartmentFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Verification
+     * Select specific fields to fetch from the Department
      */
-    select?: VerificationSelect<ExtArgs> | null
+    select?: DepartmentSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Verification
+     * Omit specific fields from the Department
      */
-    omit?: VerificationOmit<ExtArgs> | null
+    omit?: DepartmentOmit<ExtArgs> | null
     /**
-     * Filter, which Verification to fetch.
+     * Choose, which related nodes to fetch as well
      */
-    where: VerificationWhereUniqueInput
+    include?: DepartmentInclude<ExtArgs> | null
+    /**
+     * Filter, which Department to fetch.
+     */
+    where: DepartmentWhereUniqueInput
   }
 
   /**
-   * Verification findUniqueOrThrow
+   * Department findUniqueOrThrow
    */
-  export type VerificationFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type DepartmentFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Verification
+     * Select specific fields to fetch from the Department
      */
-    select?: VerificationSelect<ExtArgs> | null
+    select?: DepartmentSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Verification
+     * Omit specific fields from the Department
      */
-    omit?: VerificationOmit<ExtArgs> | null
+    omit?: DepartmentOmit<ExtArgs> | null
     /**
-     * Filter, which Verification to fetch.
+     * Choose, which related nodes to fetch as well
      */
-    where: VerificationWhereUniqueInput
+    include?: DepartmentInclude<ExtArgs> | null
+    /**
+     * Filter, which Department to fetch.
+     */
+    where: DepartmentWhereUniqueInput
   }
 
   /**
-   * Verification findFirst
+   * Department findFirst
    */
-  export type VerificationFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type DepartmentFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Verification
+     * Select specific fields to fetch from the Department
      */
-    select?: VerificationSelect<ExtArgs> | null
+    select?: DepartmentSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Verification
+     * Omit specific fields from the Department
      */
-    omit?: VerificationOmit<ExtArgs> | null
+    omit?: DepartmentOmit<ExtArgs> | null
     /**
-     * Filter, which Verification to fetch.
+     * Choose, which related nodes to fetch as well
      */
-    where?: VerificationWhereInput
+    include?: DepartmentInclude<ExtArgs> | null
+    /**
+     * Filter, which Department to fetch.
+     */
+    where?: DepartmentWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Verifications to fetch.
+     * Determine the order of Departments to fetch.
      */
-    orderBy?: VerificationOrderByWithRelationInput | VerificationOrderByWithRelationInput[]
+    orderBy?: DepartmentOrderByWithRelationInput | DepartmentOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for Verifications.
+     * Sets the position for searching for Departments.
      */
-    cursor?: VerificationWhereUniqueInput
+    cursor?: DepartmentWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` Verifications from the position of the cursor.
+     * Take `±n` Departments from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` Verifications.
+     * Skip the first `n` Departments.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of Verifications.
+     * Filter by unique combinations of Departments.
      */
-    distinct?: VerificationScalarFieldEnum | VerificationScalarFieldEnum[]
+    distinct?: DepartmentScalarFieldEnum | DepartmentScalarFieldEnum[]
   }
 
   /**
-   * Verification findFirstOrThrow
+   * Department findFirstOrThrow
    */
-  export type VerificationFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type DepartmentFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Verification
+     * Select specific fields to fetch from the Department
      */
-    select?: VerificationSelect<ExtArgs> | null
+    select?: DepartmentSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Verification
+     * Omit specific fields from the Department
      */
-    omit?: VerificationOmit<ExtArgs> | null
+    omit?: DepartmentOmit<ExtArgs> | null
     /**
-     * Filter, which Verification to fetch.
+     * Choose, which related nodes to fetch as well
      */
-    where?: VerificationWhereInput
+    include?: DepartmentInclude<ExtArgs> | null
+    /**
+     * Filter, which Department to fetch.
+     */
+    where?: DepartmentWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Verifications to fetch.
+     * Determine the order of Departments to fetch.
      */
-    orderBy?: VerificationOrderByWithRelationInput | VerificationOrderByWithRelationInput[]
+    orderBy?: DepartmentOrderByWithRelationInput | DepartmentOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for Verifications.
+     * Sets the position for searching for Departments.
      */
-    cursor?: VerificationWhereUniqueInput
+    cursor?: DepartmentWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` Verifications from the position of the cursor.
+     * Take `±n` Departments from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` Verifications.
+     * Skip the first `n` Departments.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of Verifications.
+     * Filter by unique combinations of Departments.
      */
-    distinct?: VerificationScalarFieldEnum | VerificationScalarFieldEnum[]
+    distinct?: DepartmentScalarFieldEnum | DepartmentScalarFieldEnum[]
   }
 
   /**
-   * Verification findMany
+   * Department findMany
    */
-  export type VerificationFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type DepartmentFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Verification
+     * Select specific fields to fetch from the Department
      */
-    select?: VerificationSelect<ExtArgs> | null
+    select?: DepartmentSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Verification
+     * Omit specific fields from the Department
      */
-    omit?: VerificationOmit<ExtArgs> | null
+    omit?: DepartmentOmit<ExtArgs> | null
     /**
-     * Filter, which Verifications to fetch.
+     * Choose, which related nodes to fetch as well
      */
-    where?: VerificationWhereInput
+    include?: DepartmentInclude<ExtArgs> | null
+    /**
+     * Filter, which Departments to fetch.
+     */
+    where?: DepartmentWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Verifications to fetch.
+     * Determine the order of Departments to fetch.
      */
-    orderBy?: VerificationOrderByWithRelationInput | VerificationOrderByWithRelationInput[]
+    orderBy?: DepartmentOrderByWithRelationInput | DepartmentOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing Verifications.
+     * Sets the position for listing Departments.
      */
-    cursor?: VerificationWhereUniqueInput
+    cursor?: DepartmentWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` Verifications from the position of the cursor.
+     * Take `±n` Departments from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` Verifications.
+     * Skip the first `n` Departments.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of Verifications.
+     * Filter by unique combinations of Departments.
      */
-    distinct?: VerificationScalarFieldEnum | VerificationScalarFieldEnum[]
+    distinct?: DepartmentScalarFieldEnum | DepartmentScalarFieldEnum[]
   }
 
   /**
-   * Verification create
+   * Department create
    */
-  export type VerificationCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type DepartmentCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Verification
+     * Select specific fields to fetch from the Department
      */
-    select?: VerificationSelect<ExtArgs> | null
+    select?: DepartmentSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Verification
+     * Omit specific fields from the Department
      */
-    omit?: VerificationOmit<ExtArgs> | null
+    omit?: DepartmentOmit<ExtArgs> | null
     /**
-     * The data needed to create a Verification.
+     * Choose, which related nodes to fetch as well
      */
-    data: XOR<VerificationCreateInput, VerificationUncheckedCreateInput>
+    include?: DepartmentInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Department.
+     */
+    data: XOR<DepartmentCreateInput, DepartmentUncheckedCreateInput>
   }
 
   /**
-   * Verification createMany
+   * Department createMany
    */
-  export type VerificationCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type DepartmentCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many Verifications.
+     * The data used to create many Departments.
      */
-    data: VerificationCreateManyInput | VerificationCreateManyInput[]
+    data: DepartmentCreateManyInput | DepartmentCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * Verification createManyAndReturn
+   * Department createManyAndReturn
    */
-  export type VerificationCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type DepartmentCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Verification
+     * Select specific fields to fetch from the Department
      */
-    select?: VerificationSelectCreateManyAndReturn<ExtArgs> | null
+    select?: DepartmentSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * Omit specific fields from the Verification
+     * Omit specific fields from the Department
      */
-    omit?: VerificationOmit<ExtArgs> | null
+    omit?: DepartmentOmit<ExtArgs> | null
     /**
-     * The data used to create many Verifications.
+     * The data used to create many Departments.
      */
-    data: VerificationCreateManyInput | VerificationCreateManyInput[]
+    data: DepartmentCreateManyInput | DepartmentCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * Verification update
+   * Department update
    */
-  export type VerificationUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type DepartmentUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Verification
+     * Select specific fields to fetch from the Department
      */
-    select?: VerificationSelect<ExtArgs> | null
+    select?: DepartmentSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Verification
+     * Omit specific fields from the Department
      */
-    omit?: VerificationOmit<ExtArgs> | null
+    omit?: DepartmentOmit<ExtArgs> | null
     /**
-     * The data needed to update a Verification.
+     * Choose, which related nodes to fetch as well
      */
-    data: XOR<VerificationUpdateInput, VerificationUncheckedUpdateInput>
+    include?: DepartmentInclude<ExtArgs> | null
     /**
-     * Choose, which Verification to update.
+     * The data needed to update a Department.
      */
-    where: VerificationWhereUniqueInput
+    data: XOR<DepartmentUpdateInput, DepartmentUncheckedUpdateInput>
+    /**
+     * Choose, which Department to update.
+     */
+    where: DepartmentWhereUniqueInput
   }
 
   /**
-   * Verification updateMany
+   * Department updateMany
    */
-  export type VerificationUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type DepartmentUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update Verifications.
+     * The data used to update Departments.
      */
-    data: XOR<VerificationUpdateManyMutationInput, VerificationUncheckedUpdateManyInput>
+    data: XOR<DepartmentUpdateManyMutationInput, DepartmentUncheckedUpdateManyInput>
     /**
-     * Filter which Verifications to update
+     * Filter which Departments to update
      */
-    where?: VerificationWhereInput
+    where?: DepartmentWhereInput
     /**
-     * Limit how many Verifications to update.
+     * Limit how many Departments to update.
      */
     limit?: number
   }
 
   /**
-   * Verification updateManyAndReturn
+   * Department updateManyAndReturn
    */
-  export type VerificationUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type DepartmentUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Verification
+     * Select specific fields to fetch from the Department
      */
-    select?: VerificationSelectUpdateManyAndReturn<ExtArgs> | null
+    select?: DepartmentSelectUpdateManyAndReturn<ExtArgs> | null
     /**
-     * Omit specific fields from the Verification
+     * Omit specific fields from the Department
      */
-    omit?: VerificationOmit<ExtArgs> | null
+    omit?: DepartmentOmit<ExtArgs> | null
     /**
-     * The data used to update Verifications.
+     * The data used to update Departments.
      */
-    data: XOR<VerificationUpdateManyMutationInput, VerificationUncheckedUpdateManyInput>
+    data: XOR<DepartmentUpdateManyMutationInput, DepartmentUncheckedUpdateManyInput>
     /**
-     * Filter which Verifications to update
+     * Filter which Departments to update
      */
-    where?: VerificationWhereInput
+    where?: DepartmentWhereInput
     /**
-     * Limit how many Verifications to update.
+     * Limit how many Departments to update.
      */
     limit?: number
   }
 
   /**
-   * Verification upsert
+   * Department upsert
    */
-  export type VerificationUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type DepartmentUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Verification
+     * Select specific fields to fetch from the Department
      */
-    select?: VerificationSelect<ExtArgs> | null
+    select?: DepartmentSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Verification
+     * Omit specific fields from the Department
      */
-    omit?: VerificationOmit<ExtArgs> | null
+    omit?: DepartmentOmit<ExtArgs> | null
     /**
-     * The filter to search for the Verification to update in case it exists.
+     * Choose, which related nodes to fetch as well
      */
-    where: VerificationWhereUniqueInput
+    include?: DepartmentInclude<ExtArgs> | null
     /**
-     * In case the Verification found by the `where` argument doesn't exist, create a new Verification with this data.
+     * The filter to search for the Department to update in case it exists.
      */
-    create: XOR<VerificationCreateInput, VerificationUncheckedCreateInput>
+    where: DepartmentWhereUniqueInput
     /**
-     * In case the Verification was found with the provided `where` argument, update it with this data.
+     * In case the Department found by the `where` argument doesn't exist, create a new Department with this data.
      */
-    update: XOR<VerificationUpdateInput, VerificationUncheckedUpdateInput>
+    create: XOR<DepartmentCreateInput, DepartmentUncheckedCreateInput>
+    /**
+     * In case the Department was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<DepartmentUpdateInput, DepartmentUncheckedUpdateInput>
   }
 
   /**
-   * Verification delete
+   * Department delete
    */
-  export type VerificationDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type DepartmentDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Verification
+     * Select specific fields to fetch from the Department
      */
-    select?: VerificationSelect<ExtArgs> | null
+    select?: DepartmentSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Verification
+     * Omit specific fields from the Department
      */
-    omit?: VerificationOmit<ExtArgs> | null
+    omit?: DepartmentOmit<ExtArgs> | null
     /**
-     * Filter which Verification to delete.
+     * Choose, which related nodes to fetch as well
      */
-    where: VerificationWhereUniqueInput
+    include?: DepartmentInclude<ExtArgs> | null
+    /**
+     * Filter which Department to delete.
+     */
+    where: DepartmentWhereUniqueInput
   }
 
   /**
-   * Verification deleteMany
+   * Department deleteMany
    */
-  export type VerificationDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type DepartmentDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which Verifications to delete
+     * Filter which Departments to delete
      */
-    where?: VerificationWhereInput
+    where?: DepartmentWhereInput
     /**
-     * Limit how many Verifications to delete.
+     * Limit how many Departments to delete.
      */
     limit?: number
   }
 
   /**
-   * Verification without action
+   * Department.dataSurat
    */
-  export type VerificationDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type Department$dataSuratArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Verification
+     * Select specific fields to fetch from the DataSurat
      */
-    select?: VerificationSelect<ExtArgs> | null
+    select?: DataSuratSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the Verification
+     * Omit specific fields from the DataSurat
      */
-    omit?: VerificationOmit<ExtArgs> | null
+    omit?: DataSuratOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DataSuratInclude<ExtArgs> | null
+    where?: DataSuratWhereInput
+    orderBy?: DataSuratOrderByWithRelationInput | DataSuratOrderByWithRelationInput[]
+    cursor?: DataSuratWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: DataSuratScalarFieldEnum | DataSuratScalarFieldEnum[]
+  }
+
+  /**
+   * Department.nomorCounter
+   */
+  export type Department$nomorCounterArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NomorCounter
+     */
+    select?: NomorCounterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NomorCounter
+     */
+    omit?: NomorCounterOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NomorCounterInclude<ExtArgs> | null
+    where?: NomorCounterWhereInput
+  }
+
+  /**
+   * Department without action
+   */
+  export type DepartmentDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Department
+     */
+    select?: DepartmentSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Department
+     */
+    omit?: DepartmentOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DepartmentInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model DataSurat
+   */
+
+  export type AggregateDataSurat = {
+    _count: DataSuratCountAggregateOutputType | null
+    _avg: DataSuratAvgAggregateOutputType | null
+    _sum: DataSuratSumAggregateOutputType | null
+    _min: DataSuratMinAggregateOutputType | null
+    _max: DataSuratMaxAggregateOutputType | null
+  }
+
+  export type DataSuratAvgAggregateOutputType = {
+    id: number | null
+  }
+
+  export type DataSuratSumAggregateOutputType = {
+    id: number | null
+  }
+
+  export type DataSuratMinAggregateOutputType = {
+    id: number | null
+    nomor: string | null
+    deptId: string | null
+    tanggalTerima: Date | null
+    asalSurat: string | null
+    perihal: string | null
+    tujuan: string | null
+    tanggalSurat: Date | null
+    noSurat: string | null
+    lampiran: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type DataSuratMaxAggregateOutputType = {
+    id: number | null
+    nomor: string | null
+    deptId: string | null
+    tanggalTerima: Date | null
+    asalSurat: string | null
+    perihal: string | null
+    tujuan: string | null
+    tanggalSurat: Date | null
+    noSurat: string | null
+    lampiran: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type DataSuratCountAggregateOutputType = {
+    id: number
+    nomor: number
+    deptId: number
+    tanggalTerima: number
+    asalSurat: number
+    perihal: number
+    tujuan: number
+    tanggalSurat: number
+    noSurat: number
+    lampiran: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type DataSuratAvgAggregateInputType = {
+    id?: true
+  }
+
+  export type DataSuratSumAggregateInputType = {
+    id?: true
+  }
+
+  export type DataSuratMinAggregateInputType = {
+    id?: true
+    nomor?: true
+    deptId?: true
+    tanggalTerima?: true
+    asalSurat?: true
+    perihal?: true
+    tujuan?: true
+    tanggalSurat?: true
+    noSurat?: true
+    lampiran?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type DataSuratMaxAggregateInputType = {
+    id?: true
+    nomor?: true
+    deptId?: true
+    tanggalTerima?: true
+    asalSurat?: true
+    perihal?: true
+    tujuan?: true
+    tanggalSurat?: true
+    noSurat?: true
+    lampiran?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type DataSuratCountAggregateInputType = {
+    id?: true
+    nomor?: true
+    deptId?: true
+    tanggalTerima?: true
+    asalSurat?: true
+    perihal?: true
+    tujuan?: true
+    tanggalSurat?: true
+    noSurat?: true
+    lampiran?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type DataSuratAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DataSurat to aggregate.
+     */
+    where?: DataSuratWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DataSurats to fetch.
+     */
+    orderBy?: DataSuratOrderByWithRelationInput | DataSuratOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: DataSuratWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DataSurats from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DataSurats.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned DataSurats
+    **/
+    _count?: true | DataSuratCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: DataSuratAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: DataSuratSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: DataSuratMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: DataSuratMaxAggregateInputType
+  }
+
+  export type GetDataSuratAggregateType<T extends DataSuratAggregateArgs> = {
+        [P in keyof T & keyof AggregateDataSurat]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateDataSurat[P]>
+      : GetScalarType<T[P], AggregateDataSurat[P]>
+  }
+
+
+
+
+  export type DataSuratGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DataSuratWhereInput
+    orderBy?: DataSuratOrderByWithAggregationInput | DataSuratOrderByWithAggregationInput[]
+    by: DataSuratScalarFieldEnum[] | DataSuratScalarFieldEnum
+    having?: DataSuratScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: DataSuratCountAggregateInputType | true
+    _avg?: DataSuratAvgAggregateInputType
+    _sum?: DataSuratSumAggregateInputType
+    _min?: DataSuratMinAggregateInputType
+    _max?: DataSuratMaxAggregateInputType
+  }
+
+  export type DataSuratGroupByOutputType = {
+    id: number
+    nomor: string
+    deptId: string
+    tanggalTerima: Date
+    asalSurat: string
+    perihal: string
+    tujuan: string
+    tanggalSurat: Date
+    noSurat: string | null
+    lampiran: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: DataSuratCountAggregateOutputType | null
+    _avg: DataSuratAvgAggregateOutputType | null
+    _sum: DataSuratSumAggregateOutputType | null
+    _min: DataSuratMinAggregateOutputType | null
+    _max: DataSuratMaxAggregateOutputType | null
+  }
+
+  type GetDataSuratGroupByPayload<T extends DataSuratGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<DataSuratGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof DataSuratGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], DataSuratGroupByOutputType[P]>
+            : GetScalarType<T[P], DataSuratGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type DataSuratSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    nomor?: boolean
+    deptId?: boolean
+    tanggalTerima?: boolean
+    asalSurat?: boolean
+    perihal?: boolean
+    tujuan?: boolean
+    tanggalSurat?: boolean
+    noSurat?: boolean
+    lampiran?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    dept?: boolean | DepartmentDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["dataSurat"]>
+
+  export type DataSuratSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    nomor?: boolean
+    deptId?: boolean
+    tanggalTerima?: boolean
+    asalSurat?: boolean
+    perihal?: boolean
+    tujuan?: boolean
+    tanggalSurat?: boolean
+    noSurat?: boolean
+    lampiran?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    dept?: boolean | DepartmentDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["dataSurat"]>
+
+  export type DataSuratSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    nomor?: boolean
+    deptId?: boolean
+    tanggalTerima?: boolean
+    asalSurat?: boolean
+    perihal?: boolean
+    tujuan?: boolean
+    tanggalSurat?: boolean
+    noSurat?: boolean
+    lampiran?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    dept?: boolean | DepartmentDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["dataSurat"]>
+
+  export type DataSuratSelectScalar = {
+    id?: boolean
+    nomor?: boolean
+    deptId?: boolean
+    tanggalTerima?: boolean
+    asalSurat?: boolean
+    perihal?: boolean
+    tujuan?: boolean
+    tanggalSurat?: boolean
+    noSurat?: boolean
+    lampiran?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type DataSuratOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "nomor" | "deptId" | "tanggalTerima" | "asalSurat" | "perihal" | "tujuan" | "tanggalSurat" | "noSurat" | "lampiran" | "createdAt" | "updatedAt", ExtArgs["result"]["dataSurat"]>
+  export type DataSuratInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    dept?: boolean | DepartmentDefaultArgs<ExtArgs>
+  }
+  export type DataSuratIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    dept?: boolean | DepartmentDefaultArgs<ExtArgs>
+  }
+  export type DataSuratIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    dept?: boolean | DepartmentDefaultArgs<ExtArgs>
+  }
+
+  export type $DataSuratPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "DataSurat"
+    objects: {
+      dept: Prisma.$DepartmentPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      nomor: string
+      deptId: string
+      tanggalTerima: Date
+      asalSurat: string
+      perihal: string
+      tujuan: string
+      tanggalSurat: Date
+      noSurat: string | null
+      lampiran: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["dataSurat"]>
+    composites: {}
+  }
+
+  type DataSuratGetPayload<S extends boolean | null | undefined | DataSuratDefaultArgs> = $Result.GetResult<Prisma.$DataSuratPayload, S>
+
+  type DataSuratCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<DataSuratFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: DataSuratCountAggregateInputType | true
+    }
+
+  export interface DataSuratDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['DataSurat'], meta: { name: 'DataSurat' } }
+    /**
+     * Find zero or one DataSurat that matches the filter.
+     * @param {DataSuratFindUniqueArgs} args - Arguments to find a DataSurat
+     * @example
+     * // Get one DataSurat
+     * const dataSurat = await prisma.dataSurat.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends DataSuratFindUniqueArgs>(args: SelectSubset<T, DataSuratFindUniqueArgs<ExtArgs>>): Prisma__DataSuratClient<$Result.GetResult<Prisma.$DataSuratPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one DataSurat that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {DataSuratFindUniqueOrThrowArgs} args - Arguments to find a DataSurat
+     * @example
+     * // Get one DataSurat
+     * const dataSurat = await prisma.dataSurat.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends DataSuratFindUniqueOrThrowArgs>(args: SelectSubset<T, DataSuratFindUniqueOrThrowArgs<ExtArgs>>): Prisma__DataSuratClient<$Result.GetResult<Prisma.$DataSuratPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DataSurat that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DataSuratFindFirstArgs} args - Arguments to find a DataSurat
+     * @example
+     * // Get one DataSurat
+     * const dataSurat = await prisma.dataSurat.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends DataSuratFindFirstArgs>(args?: SelectSubset<T, DataSuratFindFirstArgs<ExtArgs>>): Prisma__DataSuratClient<$Result.GetResult<Prisma.$DataSuratPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DataSurat that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DataSuratFindFirstOrThrowArgs} args - Arguments to find a DataSurat
+     * @example
+     * // Get one DataSurat
+     * const dataSurat = await prisma.dataSurat.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends DataSuratFindFirstOrThrowArgs>(args?: SelectSubset<T, DataSuratFindFirstOrThrowArgs<ExtArgs>>): Prisma__DataSuratClient<$Result.GetResult<Prisma.$DataSuratPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more DataSurats that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DataSuratFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all DataSurats
+     * const dataSurats = await prisma.dataSurat.findMany()
+     * 
+     * // Get first 10 DataSurats
+     * const dataSurats = await prisma.dataSurat.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const dataSuratWithIdOnly = await prisma.dataSurat.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends DataSuratFindManyArgs>(args?: SelectSubset<T, DataSuratFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DataSuratPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a DataSurat.
+     * @param {DataSuratCreateArgs} args - Arguments to create a DataSurat.
+     * @example
+     * // Create one DataSurat
+     * const DataSurat = await prisma.dataSurat.create({
+     *   data: {
+     *     // ... data to create a DataSurat
+     *   }
+     * })
+     * 
+     */
+    create<T extends DataSuratCreateArgs>(args: SelectSubset<T, DataSuratCreateArgs<ExtArgs>>): Prisma__DataSuratClient<$Result.GetResult<Prisma.$DataSuratPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many DataSurats.
+     * @param {DataSuratCreateManyArgs} args - Arguments to create many DataSurats.
+     * @example
+     * // Create many DataSurats
+     * const dataSurat = await prisma.dataSurat.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends DataSuratCreateManyArgs>(args?: SelectSubset<T, DataSuratCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many DataSurats and returns the data saved in the database.
+     * @param {DataSuratCreateManyAndReturnArgs} args - Arguments to create many DataSurats.
+     * @example
+     * // Create many DataSurats
+     * const dataSurat = await prisma.dataSurat.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many DataSurats and only return the `id`
+     * const dataSuratWithIdOnly = await prisma.dataSurat.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends DataSuratCreateManyAndReturnArgs>(args?: SelectSubset<T, DataSuratCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DataSuratPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a DataSurat.
+     * @param {DataSuratDeleteArgs} args - Arguments to delete one DataSurat.
+     * @example
+     * // Delete one DataSurat
+     * const DataSurat = await prisma.dataSurat.delete({
+     *   where: {
+     *     // ... filter to delete one DataSurat
+     *   }
+     * })
+     * 
+     */
+    delete<T extends DataSuratDeleteArgs>(args: SelectSubset<T, DataSuratDeleteArgs<ExtArgs>>): Prisma__DataSuratClient<$Result.GetResult<Prisma.$DataSuratPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one DataSurat.
+     * @param {DataSuratUpdateArgs} args - Arguments to update one DataSurat.
+     * @example
+     * // Update one DataSurat
+     * const dataSurat = await prisma.dataSurat.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends DataSuratUpdateArgs>(args: SelectSubset<T, DataSuratUpdateArgs<ExtArgs>>): Prisma__DataSuratClient<$Result.GetResult<Prisma.$DataSuratPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more DataSurats.
+     * @param {DataSuratDeleteManyArgs} args - Arguments to filter DataSurats to delete.
+     * @example
+     * // Delete a few DataSurats
+     * const { count } = await prisma.dataSurat.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends DataSuratDeleteManyArgs>(args?: SelectSubset<T, DataSuratDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DataSurats.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DataSuratUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many DataSurats
+     * const dataSurat = await prisma.dataSurat.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends DataSuratUpdateManyArgs>(args: SelectSubset<T, DataSuratUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DataSurats and returns the data updated in the database.
+     * @param {DataSuratUpdateManyAndReturnArgs} args - Arguments to update many DataSurats.
+     * @example
+     * // Update many DataSurats
+     * const dataSurat = await prisma.dataSurat.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more DataSurats and only return the `id`
+     * const dataSuratWithIdOnly = await prisma.dataSurat.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends DataSuratUpdateManyAndReturnArgs>(args: SelectSubset<T, DataSuratUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DataSuratPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one DataSurat.
+     * @param {DataSuratUpsertArgs} args - Arguments to update or create a DataSurat.
+     * @example
+     * // Update or create a DataSurat
+     * const dataSurat = await prisma.dataSurat.upsert({
+     *   create: {
+     *     // ... data to create a DataSurat
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the DataSurat we want to update
+     *   }
+     * })
+     */
+    upsert<T extends DataSuratUpsertArgs>(args: SelectSubset<T, DataSuratUpsertArgs<ExtArgs>>): Prisma__DataSuratClient<$Result.GetResult<Prisma.$DataSuratPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of DataSurats.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DataSuratCountArgs} args - Arguments to filter DataSurats to count.
+     * @example
+     * // Count the number of DataSurats
+     * const count = await prisma.dataSurat.count({
+     *   where: {
+     *     // ... the filter for the DataSurats we want to count
+     *   }
+     * })
+    **/
+    count<T extends DataSuratCountArgs>(
+      args?: Subset<T, DataSuratCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], DataSuratCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a DataSurat.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DataSuratAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends DataSuratAggregateArgs>(args: Subset<T, DataSuratAggregateArgs>): Prisma.PrismaPromise<GetDataSuratAggregateType<T>>
+
+    /**
+     * Group by DataSurat.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DataSuratGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends DataSuratGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: DataSuratGroupByArgs['orderBy'] }
+        : { orderBy?: DataSuratGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, DataSuratGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDataSuratGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the DataSurat model
+   */
+  readonly fields: DataSuratFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for DataSurat.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__DataSuratClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    dept<T extends DepartmentDefaultArgs<ExtArgs> = {}>(args?: Subset<T, DepartmentDefaultArgs<ExtArgs>>): Prisma__DepartmentClient<$Result.GetResult<Prisma.$DepartmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the DataSurat model
+   */
+  interface DataSuratFieldRefs {
+    readonly id: FieldRef<"DataSurat", 'Int'>
+    readonly nomor: FieldRef<"DataSurat", 'String'>
+    readonly deptId: FieldRef<"DataSurat", 'String'>
+    readonly tanggalTerima: FieldRef<"DataSurat", 'DateTime'>
+    readonly asalSurat: FieldRef<"DataSurat", 'String'>
+    readonly perihal: FieldRef<"DataSurat", 'String'>
+    readonly tujuan: FieldRef<"DataSurat", 'String'>
+    readonly tanggalSurat: FieldRef<"DataSurat", 'DateTime'>
+    readonly noSurat: FieldRef<"DataSurat", 'String'>
+    readonly lampiran: FieldRef<"DataSurat", 'String'>
+    readonly createdAt: FieldRef<"DataSurat", 'DateTime'>
+    readonly updatedAt: FieldRef<"DataSurat", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * DataSurat findUnique
+   */
+  export type DataSuratFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DataSurat
+     */
+    select?: DataSuratSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DataSurat
+     */
+    omit?: DataSuratOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DataSuratInclude<ExtArgs> | null
+    /**
+     * Filter, which DataSurat to fetch.
+     */
+    where: DataSuratWhereUniqueInput
+  }
+
+  /**
+   * DataSurat findUniqueOrThrow
+   */
+  export type DataSuratFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DataSurat
+     */
+    select?: DataSuratSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DataSurat
+     */
+    omit?: DataSuratOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DataSuratInclude<ExtArgs> | null
+    /**
+     * Filter, which DataSurat to fetch.
+     */
+    where: DataSuratWhereUniqueInput
+  }
+
+  /**
+   * DataSurat findFirst
+   */
+  export type DataSuratFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DataSurat
+     */
+    select?: DataSuratSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DataSurat
+     */
+    omit?: DataSuratOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DataSuratInclude<ExtArgs> | null
+    /**
+     * Filter, which DataSurat to fetch.
+     */
+    where?: DataSuratWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DataSurats to fetch.
+     */
+    orderBy?: DataSuratOrderByWithRelationInput | DataSuratOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DataSurats.
+     */
+    cursor?: DataSuratWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DataSurats from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DataSurats.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DataSurats.
+     */
+    distinct?: DataSuratScalarFieldEnum | DataSuratScalarFieldEnum[]
+  }
+
+  /**
+   * DataSurat findFirstOrThrow
+   */
+  export type DataSuratFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DataSurat
+     */
+    select?: DataSuratSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DataSurat
+     */
+    omit?: DataSuratOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DataSuratInclude<ExtArgs> | null
+    /**
+     * Filter, which DataSurat to fetch.
+     */
+    where?: DataSuratWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DataSurats to fetch.
+     */
+    orderBy?: DataSuratOrderByWithRelationInput | DataSuratOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DataSurats.
+     */
+    cursor?: DataSuratWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DataSurats from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DataSurats.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DataSurats.
+     */
+    distinct?: DataSuratScalarFieldEnum | DataSuratScalarFieldEnum[]
+  }
+
+  /**
+   * DataSurat findMany
+   */
+  export type DataSuratFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DataSurat
+     */
+    select?: DataSuratSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DataSurat
+     */
+    omit?: DataSuratOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DataSuratInclude<ExtArgs> | null
+    /**
+     * Filter, which DataSurats to fetch.
+     */
+    where?: DataSuratWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DataSurats to fetch.
+     */
+    orderBy?: DataSuratOrderByWithRelationInput | DataSuratOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing DataSurats.
+     */
+    cursor?: DataSuratWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DataSurats from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DataSurats.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DataSurats.
+     */
+    distinct?: DataSuratScalarFieldEnum | DataSuratScalarFieldEnum[]
+  }
+
+  /**
+   * DataSurat create
+   */
+  export type DataSuratCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DataSurat
+     */
+    select?: DataSuratSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DataSurat
+     */
+    omit?: DataSuratOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DataSuratInclude<ExtArgs> | null
+    /**
+     * The data needed to create a DataSurat.
+     */
+    data: XOR<DataSuratCreateInput, DataSuratUncheckedCreateInput>
+  }
+
+  /**
+   * DataSurat createMany
+   */
+  export type DataSuratCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many DataSurats.
+     */
+    data: DataSuratCreateManyInput | DataSuratCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * DataSurat createManyAndReturn
+   */
+  export type DataSuratCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DataSurat
+     */
+    select?: DataSuratSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the DataSurat
+     */
+    omit?: DataSuratOmit<ExtArgs> | null
+    /**
+     * The data used to create many DataSurats.
+     */
+    data: DataSuratCreateManyInput | DataSuratCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DataSuratIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * DataSurat update
+   */
+  export type DataSuratUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DataSurat
+     */
+    select?: DataSuratSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DataSurat
+     */
+    omit?: DataSuratOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DataSuratInclude<ExtArgs> | null
+    /**
+     * The data needed to update a DataSurat.
+     */
+    data: XOR<DataSuratUpdateInput, DataSuratUncheckedUpdateInput>
+    /**
+     * Choose, which DataSurat to update.
+     */
+    where: DataSuratWhereUniqueInput
+  }
+
+  /**
+   * DataSurat updateMany
+   */
+  export type DataSuratUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update DataSurats.
+     */
+    data: XOR<DataSuratUpdateManyMutationInput, DataSuratUncheckedUpdateManyInput>
+    /**
+     * Filter which DataSurats to update
+     */
+    where?: DataSuratWhereInput
+    /**
+     * Limit how many DataSurats to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * DataSurat updateManyAndReturn
+   */
+  export type DataSuratUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DataSurat
+     */
+    select?: DataSuratSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the DataSurat
+     */
+    omit?: DataSuratOmit<ExtArgs> | null
+    /**
+     * The data used to update DataSurats.
+     */
+    data: XOR<DataSuratUpdateManyMutationInput, DataSuratUncheckedUpdateManyInput>
+    /**
+     * Filter which DataSurats to update
+     */
+    where?: DataSuratWhereInput
+    /**
+     * Limit how many DataSurats to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DataSuratIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * DataSurat upsert
+   */
+  export type DataSuratUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DataSurat
+     */
+    select?: DataSuratSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DataSurat
+     */
+    omit?: DataSuratOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DataSuratInclude<ExtArgs> | null
+    /**
+     * The filter to search for the DataSurat to update in case it exists.
+     */
+    where: DataSuratWhereUniqueInput
+    /**
+     * In case the DataSurat found by the `where` argument doesn't exist, create a new DataSurat with this data.
+     */
+    create: XOR<DataSuratCreateInput, DataSuratUncheckedCreateInput>
+    /**
+     * In case the DataSurat was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<DataSuratUpdateInput, DataSuratUncheckedUpdateInput>
+  }
+
+  /**
+   * DataSurat delete
+   */
+  export type DataSuratDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DataSurat
+     */
+    select?: DataSuratSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DataSurat
+     */
+    omit?: DataSuratOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DataSuratInclude<ExtArgs> | null
+    /**
+     * Filter which DataSurat to delete.
+     */
+    where: DataSuratWhereUniqueInput
+  }
+
+  /**
+   * DataSurat deleteMany
+   */
+  export type DataSuratDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DataSurats to delete
+     */
+    where?: DataSuratWhereInput
+    /**
+     * Limit how many DataSurats to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * DataSurat without action
+   */
+  export type DataSuratDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DataSurat
+     */
+    select?: DataSuratSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DataSurat
+     */
+    omit?: DataSuratOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DataSuratInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model NomorCounter
+   */
+
+  export type AggregateNomorCounter = {
+    _count: NomorCounterCountAggregateOutputType | null
+    _avg: NomorCounterAvgAggregateOutputType | null
+    _sum: NomorCounterSumAggregateOutputType | null
+    _min: NomorCounterMinAggregateOutputType | null
+    _max: NomorCounterMaxAggregateOutputType | null
+  }
+
+  export type NomorCounterAvgAggregateOutputType = {
+    counter: number | null
+  }
+
+  export type NomorCounterSumAggregateOutputType = {
+    counter: number | null
+  }
+
+  export type NomorCounterMinAggregateOutputType = {
+    deptId: string | null
+    counter: number | null
+  }
+
+  export type NomorCounterMaxAggregateOutputType = {
+    deptId: string | null
+    counter: number | null
+  }
+
+  export type NomorCounterCountAggregateOutputType = {
+    deptId: number
+    counter: number
+    _all: number
+  }
+
+
+  export type NomorCounterAvgAggregateInputType = {
+    counter?: true
+  }
+
+  export type NomorCounterSumAggregateInputType = {
+    counter?: true
+  }
+
+  export type NomorCounterMinAggregateInputType = {
+    deptId?: true
+    counter?: true
+  }
+
+  export type NomorCounterMaxAggregateInputType = {
+    deptId?: true
+    counter?: true
+  }
+
+  export type NomorCounterCountAggregateInputType = {
+    deptId?: true
+    counter?: true
+    _all?: true
+  }
+
+  export type NomorCounterAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which NomorCounter to aggregate.
+     */
+    where?: NomorCounterWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of NomorCounters to fetch.
+     */
+    orderBy?: NomorCounterOrderByWithRelationInput | NomorCounterOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: NomorCounterWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` NomorCounters from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` NomorCounters.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned NomorCounters
+    **/
+    _count?: true | NomorCounterCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: NomorCounterAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: NomorCounterSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: NomorCounterMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: NomorCounterMaxAggregateInputType
+  }
+
+  export type GetNomorCounterAggregateType<T extends NomorCounterAggregateArgs> = {
+        [P in keyof T & keyof AggregateNomorCounter]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateNomorCounter[P]>
+      : GetScalarType<T[P], AggregateNomorCounter[P]>
+  }
+
+
+
+
+  export type NomorCounterGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: NomorCounterWhereInput
+    orderBy?: NomorCounterOrderByWithAggregationInput | NomorCounterOrderByWithAggregationInput[]
+    by: NomorCounterScalarFieldEnum[] | NomorCounterScalarFieldEnum
+    having?: NomorCounterScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: NomorCounterCountAggregateInputType | true
+    _avg?: NomorCounterAvgAggregateInputType
+    _sum?: NomorCounterSumAggregateInputType
+    _min?: NomorCounterMinAggregateInputType
+    _max?: NomorCounterMaxAggregateInputType
+  }
+
+  export type NomorCounterGroupByOutputType = {
+    deptId: string
+    counter: number
+    _count: NomorCounterCountAggregateOutputType | null
+    _avg: NomorCounterAvgAggregateOutputType | null
+    _sum: NomorCounterSumAggregateOutputType | null
+    _min: NomorCounterMinAggregateOutputType | null
+    _max: NomorCounterMaxAggregateOutputType | null
+  }
+
+  type GetNomorCounterGroupByPayload<T extends NomorCounterGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<NomorCounterGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof NomorCounterGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], NomorCounterGroupByOutputType[P]>
+            : GetScalarType<T[P], NomorCounterGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type NomorCounterSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    deptId?: boolean
+    counter?: boolean
+    dept?: boolean | DepartmentDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["nomorCounter"]>
+
+  export type NomorCounterSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    deptId?: boolean
+    counter?: boolean
+    dept?: boolean | DepartmentDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["nomorCounter"]>
+
+  export type NomorCounterSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    deptId?: boolean
+    counter?: boolean
+    dept?: boolean | DepartmentDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["nomorCounter"]>
+
+  export type NomorCounterSelectScalar = {
+    deptId?: boolean
+    counter?: boolean
+  }
+
+  export type NomorCounterOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"deptId" | "counter", ExtArgs["result"]["nomorCounter"]>
+  export type NomorCounterInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    dept?: boolean | DepartmentDefaultArgs<ExtArgs>
+  }
+  export type NomorCounterIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    dept?: boolean | DepartmentDefaultArgs<ExtArgs>
+  }
+  export type NomorCounterIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    dept?: boolean | DepartmentDefaultArgs<ExtArgs>
+  }
+
+  export type $NomorCounterPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "NomorCounter"
+    objects: {
+      dept: Prisma.$DepartmentPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      deptId: string
+      counter: number
+    }, ExtArgs["result"]["nomorCounter"]>
+    composites: {}
+  }
+
+  type NomorCounterGetPayload<S extends boolean | null | undefined | NomorCounterDefaultArgs> = $Result.GetResult<Prisma.$NomorCounterPayload, S>
+
+  type NomorCounterCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<NomorCounterFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: NomorCounterCountAggregateInputType | true
+    }
+
+  export interface NomorCounterDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['NomorCounter'], meta: { name: 'NomorCounter' } }
+    /**
+     * Find zero or one NomorCounter that matches the filter.
+     * @param {NomorCounterFindUniqueArgs} args - Arguments to find a NomorCounter
+     * @example
+     * // Get one NomorCounter
+     * const nomorCounter = await prisma.nomorCounter.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends NomorCounterFindUniqueArgs>(args: SelectSubset<T, NomorCounterFindUniqueArgs<ExtArgs>>): Prisma__NomorCounterClient<$Result.GetResult<Prisma.$NomorCounterPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one NomorCounter that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {NomorCounterFindUniqueOrThrowArgs} args - Arguments to find a NomorCounter
+     * @example
+     * // Get one NomorCounter
+     * const nomorCounter = await prisma.nomorCounter.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends NomorCounterFindUniqueOrThrowArgs>(args: SelectSubset<T, NomorCounterFindUniqueOrThrowArgs<ExtArgs>>): Prisma__NomorCounterClient<$Result.GetResult<Prisma.$NomorCounterPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first NomorCounter that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NomorCounterFindFirstArgs} args - Arguments to find a NomorCounter
+     * @example
+     * // Get one NomorCounter
+     * const nomorCounter = await prisma.nomorCounter.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends NomorCounterFindFirstArgs>(args?: SelectSubset<T, NomorCounterFindFirstArgs<ExtArgs>>): Prisma__NomorCounterClient<$Result.GetResult<Prisma.$NomorCounterPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first NomorCounter that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NomorCounterFindFirstOrThrowArgs} args - Arguments to find a NomorCounter
+     * @example
+     * // Get one NomorCounter
+     * const nomorCounter = await prisma.nomorCounter.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends NomorCounterFindFirstOrThrowArgs>(args?: SelectSubset<T, NomorCounterFindFirstOrThrowArgs<ExtArgs>>): Prisma__NomorCounterClient<$Result.GetResult<Prisma.$NomorCounterPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more NomorCounters that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NomorCounterFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all NomorCounters
+     * const nomorCounters = await prisma.nomorCounter.findMany()
+     * 
+     * // Get first 10 NomorCounters
+     * const nomorCounters = await prisma.nomorCounter.findMany({ take: 10 })
+     * 
+     * // Only select the `deptId`
+     * const nomorCounterWithDeptIdOnly = await prisma.nomorCounter.findMany({ select: { deptId: true } })
+     * 
+     */
+    findMany<T extends NomorCounterFindManyArgs>(args?: SelectSubset<T, NomorCounterFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NomorCounterPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a NomorCounter.
+     * @param {NomorCounterCreateArgs} args - Arguments to create a NomorCounter.
+     * @example
+     * // Create one NomorCounter
+     * const NomorCounter = await prisma.nomorCounter.create({
+     *   data: {
+     *     // ... data to create a NomorCounter
+     *   }
+     * })
+     * 
+     */
+    create<T extends NomorCounterCreateArgs>(args: SelectSubset<T, NomorCounterCreateArgs<ExtArgs>>): Prisma__NomorCounterClient<$Result.GetResult<Prisma.$NomorCounterPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many NomorCounters.
+     * @param {NomorCounterCreateManyArgs} args - Arguments to create many NomorCounters.
+     * @example
+     * // Create many NomorCounters
+     * const nomorCounter = await prisma.nomorCounter.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends NomorCounterCreateManyArgs>(args?: SelectSubset<T, NomorCounterCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many NomorCounters and returns the data saved in the database.
+     * @param {NomorCounterCreateManyAndReturnArgs} args - Arguments to create many NomorCounters.
+     * @example
+     * // Create many NomorCounters
+     * const nomorCounter = await prisma.nomorCounter.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many NomorCounters and only return the `deptId`
+     * const nomorCounterWithDeptIdOnly = await prisma.nomorCounter.createManyAndReturn({
+     *   select: { deptId: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends NomorCounterCreateManyAndReturnArgs>(args?: SelectSubset<T, NomorCounterCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NomorCounterPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a NomorCounter.
+     * @param {NomorCounterDeleteArgs} args - Arguments to delete one NomorCounter.
+     * @example
+     * // Delete one NomorCounter
+     * const NomorCounter = await prisma.nomorCounter.delete({
+     *   where: {
+     *     // ... filter to delete one NomorCounter
+     *   }
+     * })
+     * 
+     */
+    delete<T extends NomorCounterDeleteArgs>(args: SelectSubset<T, NomorCounterDeleteArgs<ExtArgs>>): Prisma__NomorCounterClient<$Result.GetResult<Prisma.$NomorCounterPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one NomorCounter.
+     * @param {NomorCounterUpdateArgs} args - Arguments to update one NomorCounter.
+     * @example
+     * // Update one NomorCounter
+     * const nomorCounter = await prisma.nomorCounter.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends NomorCounterUpdateArgs>(args: SelectSubset<T, NomorCounterUpdateArgs<ExtArgs>>): Prisma__NomorCounterClient<$Result.GetResult<Prisma.$NomorCounterPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more NomorCounters.
+     * @param {NomorCounterDeleteManyArgs} args - Arguments to filter NomorCounters to delete.
+     * @example
+     * // Delete a few NomorCounters
+     * const { count } = await prisma.nomorCounter.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends NomorCounterDeleteManyArgs>(args?: SelectSubset<T, NomorCounterDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more NomorCounters.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NomorCounterUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many NomorCounters
+     * const nomorCounter = await prisma.nomorCounter.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends NomorCounterUpdateManyArgs>(args: SelectSubset<T, NomorCounterUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more NomorCounters and returns the data updated in the database.
+     * @param {NomorCounterUpdateManyAndReturnArgs} args - Arguments to update many NomorCounters.
+     * @example
+     * // Update many NomorCounters
+     * const nomorCounter = await prisma.nomorCounter.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more NomorCounters and only return the `deptId`
+     * const nomorCounterWithDeptIdOnly = await prisma.nomorCounter.updateManyAndReturn({
+     *   select: { deptId: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends NomorCounterUpdateManyAndReturnArgs>(args: SelectSubset<T, NomorCounterUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$NomorCounterPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one NomorCounter.
+     * @param {NomorCounterUpsertArgs} args - Arguments to update or create a NomorCounter.
+     * @example
+     * // Update or create a NomorCounter
+     * const nomorCounter = await prisma.nomorCounter.upsert({
+     *   create: {
+     *     // ... data to create a NomorCounter
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the NomorCounter we want to update
+     *   }
+     * })
+     */
+    upsert<T extends NomorCounterUpsertArgs>(args: SelectSubset<T, NomorCounterUpsertArgs<ExtArgs>>): Prisma__NomorCounterClient<$Result.GetResult<Prisma.$NomorCounterPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of NomorCounters.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NomorCounterCountArgs} args - Arguments to filter NomorCounters to count.
+     * @example
+     * // Count the number of NomorCounters
+     * const count = await prisma.nomorCounter.count({
+     *   where: {
+     *     // ... the filter for the NomorCounters we want to count
+     *   }
+     * })
+    **/
+    count<T extends NomorCounterCountArgs>(
+      args?: Subset<T, NomorCounterCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], NomorCounterCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a NomorCounter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NomorCounterAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends NomorCounterAggregateArgs>(args: Subset<T, NomorCounterAggregateArgs>): Prisma.PrismaPromise<GetNomorCounterAggregateType<T>>
+
+    /**
+     * Group by NomorCounter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {NomorCounterGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends NomorCounterGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: NomorCounterGroupByArgs['orderBy'] }
+        : { orderBy?: NomorCounterGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, NomorCounterGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetNomorCounterGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the NomorCounter model
+   */
+  readonly fields: NomorCounterFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for NomorCounter.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__NomorCounterClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    dept<T extends DepartmentDefaultArgs<ExtArgs> = {}>(args?: Subset<T, DepartmentDefaultArgs<ExtArgs>>): Prisma__DepartmentClient<$Result.GetResult<Prisma.$DepartmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the NomorCounter model
+   */
+  interface NomorCounterFieldRefs {
+    readonly deptId: FieldRef<"NomorCounter", 'String'>
+    readonly counter: FieldRef<"NomorCounter", 'Int'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * NomorCounter findUnique
+   */
+  export type NomorCounterFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NomorCounter
+     */
+    select?: NomorCounterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NomorCounter
+     */
+    omit?: NomorCounterOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NomorCounterInclude<ExtArgs> | null
+    /**
+     * Filter, which NomorCounter to fetch.
+     */
+    where: NomorCounterWhereUniqueInput
+  }
+
+  /**
+   * NomorCounter findUniqueOrThrow
+   */
+  export type NomorCounterFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NomorCounter
+     */
+    select?: NomorCounterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NomorCounter
+     */
+    omit?: NomorCounterOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NomorCounterInclude<ExtArgs> | null
+    /**
+     * Filter, which NomorCounter to fetch.
+     */
+    where: NomorCounterWhereUniqueInput
+  }
+
+  /**
+   * NomorCounter findFirst
+   */
+  export type NomorCounterFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NomorCounter
+     */
+    select?: NomorCounterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NomorCounter
+     */
+    omit?: NomorCounterOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NomorCounterInclude<ExtArgs> | null
+    /**
+     * Filter, which NomorCounter to fetch.
+     */
+    where?: NomorCounterWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of NomorCounters to fetch.
+     */
+    orderBy?: NomorCounterOrderByWithRelationInput | NomorCounterOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for NomorCounters.
+     */
+    cursor?: NomorCounterWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` NomorCounters from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` NomorCounters.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of NomorCounters.
+     */
+    distinct?: NomorCounterScalarFieldEnum | NomorCounterScalarFieldEnum[]
+  }
+
+  /**
+   * NomorCounter findFirstOrThrow
+   */
+  export type NomorCounterFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NomorCounter
+     */
+    select?: NomorCounterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NomorCounter
+     */
+    omit?: NomorCounterOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NomorCounterInclude<ExtArgs> | null
+    /**
+     * Filter, which NomorCounter to fetch.
+     */
+    where?: NomorCounterWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of NomorCounters to fetch.
+     */
+    orderBy?: NomorCounterOrderByWithRelationInput | NomorCounterOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for NomorCounters.
+     */
+    cursor?: NomorCounterWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` NomorCounters from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` NomorCounters.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of NomorCounters.
+     */
+    distinct?: NomorCounterScalarFieldEnum | NomorCounterScalarFieldEnum[]
+  }
+
+  /**
+   * NomorCounter findMany
+   */
+  export type NomorCounterFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NomorCounter
+     */
+    select?: NomorCounterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NomorCounter
+     */
+    omit?: NomorCounterOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NomorCounterInclude<ExtArgs> | null
+    /**
+     * Filter, which NomorCounters to fetch.
+     */
+    where?: NomorCounterWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of NomorCounters to fetch.
+     */
+    orderBy?: NomorCounterOrderByWithRelationInput | NomorCounterOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing NomorCounters.
+     */
+    cursor?: NomorCounterWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` NomorCounters from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` NomorCounters.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of NomorCounters.
+     */
+    distinct?: NomorCounterScalarFieldEnum | NomorCounterScalarFieldEnum[]
+  }
+
+  /**
+   * NomorCounter create
+   */
+  export type NomorCounterCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NomorCounter
+     */
+    select?: NomorCounterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NomorCounter
+     */
+    omit?: NomorCounterOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NomorCounterInclude<ExtArgs> | null
+    /**
+     * The data needed to create a NomorCounter.
+     */
+    data: XOR<NomorCounterCreateInput, NomorCounterUncheckedCreateInput>
+  }
+
+  /**
+   * NomorCounter createMany
+   */
+  export type NomorCounterCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many NomorCounters.
+     */
+    data: NomorCounterCreateManyInput | NomorCounterCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * NomorCounter createManyAndReturn
+   */
+  export type NomorCounterCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NomorCounter
+     */
+    select?: NomorCounterSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the NomorCounter
+     */
+    omit?: NomorCounterOmit<ExtArgs> | null
+    /**
+     * The data used to create many NomorCounters.
+     */
+    data: NomorCounterCreateManyInput | NomorCounterCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NomorCounterIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * NomorCounter update
+   */
+  export type NomorCounterUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NomorCounter
+     */
+    select?: NomorCounterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NomorCounter
+     */
+    omit?: NomorCounterOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NomorCounterInclude<ExtArgs> | null
+    /**
+     * The data needed to update a NomorCounter.
+     */
+    data: XOR<NomorCounterUpdateInput, NomorCounterUncheckedUpdateInput>
+    /**
+     * Choose, which NomorCounter to update.
+     */
+    where: NomorCounterWhereUniqueInput
+  }
+
+  /**
+   * NomorCounter updateMany
+   */
+  export type NomorCounterUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update NomorCounters.
+     */
+    data: XOR<NomorCounterUpdateManyMutationInput, NomorCounterUncheckedUpdateManyInput>
+    /**
+     * Filter which NomorCounters to update
+     */
+    where?: NomorCounterWhereInput
+    /**
+     * Limit how many NomorCounters to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * NomorCounter updateManyAndReturn
+   */
+  export type NomorCounterUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NomorCounter
+     */
+    select?: NomorCounterSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the NomorCounter
+     */
+    omit?: NomorCounterOmit<ExtArgs> | null
+    /**
+     * The data used to update NomorCounters.
+     */
+    data: XOR<NomorCounterUpdateManyMutationInput, NomorCounterUncheckedUpdateManyInput>
+    /**
+     * Filter which NomorCounters to update
+     */
+    where?: NomorCounterWhereInput
+    /**
+     * Limit how many NomorCounters to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NomorCounterIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * NomorCounter upsert
+   */
+  export type NomorCounterUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NomorCounter
+     */
+    select?: NomorCounterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NomorCounter
+     */
+    omit?: NomorCounterOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NomorCounterInclude<ExtArgs> | null
+    /**
+     * The filter to search for the NomorCounter to update in case it exists.
+     */
+    where: NomorCounterWhereUniqueInput
+    /**
+     * In case the NomorCounter found by the `where` argument doesn't exist, create a new NomorCounter with this data.
+     */
+    create: XOR<NomorCounterCreateInput, NomorCounterUncheckedCreateInput>
+    /**
+     * In case the NomorCounter was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<NomorCounterUpdateInput, NomorCounterUncheckedUpdateInput>
+  }
+
+  /**
+   * NomorCounter delete
+   */
+  export type NomorCounterDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NomorCounter
+     */
+    select?: NomorCounterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NomorCounter
+     */
+    omit?: NomorCounterOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NomorCounterInclude<ExtArgs> | null
+    /**
+     * Filter which NomorCounter to delete.
+     */
+    where: NomorCounterWhereUniqueInput
+  }
+
+  /**
+   * NomorCounter deleteMany
+   */
+  export type NomorCounterDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which NomorCounters to delete
+     */
+    where?: NomorCounterWhereInput
+    /**
+     * Limit how many NomorCounters to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * NomorCounter without action
+   */
+  export type NomorCounterDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the NomorCounter
+     */
+    select?: NomorCounterSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the NomorCounter
+     */
+    omit?: NomorCounterOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: NomorCounterInclude<ExtArgs> | null
   }
 
 
@@ -5668,7 +8186,6 @@ export namespace Prisma {
     emailVerified: 'emailVerified',
     username: 'username',
     image: 'image',
-    password: 'password',
     role: 'role',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
@@ -5710,16 +8227,40 @@ export namespace Prisma {
   export type AccountScalarFieldEnum = (typeof AccountScalarFieldEnum)[keyof typeof AccountScalarFieldEnum]
 
 
-  export const VerificationScalarFieldEnum: {
+  export const DepartmentScalarFieldEnum: {
     id: 'id',
-    identifier: 'identifier',
-    value: 'value',
-    expiresAt: 'expiresAt',
+    shortName: 'shortName',
+    tujuan: 'tujuan',
+    isActive: 'isActive'
+  };
+
+  export type DepartmentScalarFieldEnum = (typeof DepartmentScalarFieldEnum)[keyof typeof DepartmentScalarFieldEnum]
+
+
+  export const DataSuratScalarFieldEnum: {
+    id: 'id',
+    nomor: 'nomor',
+    deptId: 'deptId',
+    tanggalTerima: 'tanggalTerima',
+    asalSurat: 'asalSurat',
+    perihal: 'perihal',
+    tujuan: 'tujuan',
+    tanggalSurat: 'tanggalSurat',
+    noSurat: 'noSurat',
+    lampiran: 'lampiran',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
 
-  export type VerificationScalarFieldEnum = (typeof VerificationScalarFieldEnum)[keyof typeof VerificationScalarFieldEnum]
+  export type DataSuratScalarFieldEnum = (typeof DataSuratScalarFieldEnum)[keyof typeof DataSuratScalarFieldEnum]
+
+
+  export const NomorCounterScalarFieldEnum: {
+    deptId: 'deptId',
+    counter: 'counter'
+  };
+
+  export type NomorCounterScalarFieldEnum = (typeof NomorCounterScalarFieldEnum)[keyof typeof NomorCounterScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -5812,6 +8353,20 @@ export namespace Prisma {
    */
   export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
     
+
+
+  /**
+   * Reference to a field of type 'Float'
+   */
+  export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+    
+
+
+  /**
+   * Reference to a field of type 'Float[]'
+   */
+  export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
+    
   /**
    * Deep Input Types
    */
@@ -5827,7 +8382,6 @@ export namespace Prisma {
     emailVerified?: BoolFilter<"User"> | boolean
     username?: StringNullableFilter<"User"> | string | null
     image?: StringNullableFilter<"User"> | string | null
-    password?: StringNullableFilter<"User"> | string | null
     role?: EnumRoleFilter<"User"> | $Enums.Role
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
@@ -5842,7 +8396,6 @@ export namespace Prisma {
     emailVerified?: SortOrder
     username?: SortOrderInput | SortOrder
     image?: SortOrderInput | SortOrder
-    password?: SortOrderInput | SortOrder
     role?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -5860,7 +8413,6 @@ export namespace Prisma {
     name?: StringFilter<"User"> | string
     emailVerified?: BoolFilter<"User"> | boolean
     image?: StringNullableFilter<"User"> | string | null
-    password?: StringNullableFilter<"User"> | string | null
     role?: EnumRoleFilter<"User"> | $Enums.Role
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
@@ -5875,7 +8427,6 @@ export namespace Prisma {
     emailVerified?: SortOrder
     username?: SortOrderInput | SortOrder
     image?: SortOrderInput | SortOrder
-    password?: SortOrderInput | SortOrder
     role?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -5894,7 +8445,6 @@ export namespace Prisma {
     emailVerified?: BoolWithAggregatesFilter<"User"> | boolean
     username?: StringNullableWithAggregatesFilter<"User"> | string | null
     image?: StringNullableWithAggregatesFilter<"User"> | string | null
-    password?: StringNullableWithAggregatesFilter<"User"> | string | null
     role?: EnumRoleWithAggregatesFilter<"User"> | $Enums.Role
     createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
@@ -6065,61 +8615,191 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"Account"> | Date | string
   }
 
-  export type VerificationWhereInput = {
-    AND?: VerificationWhereInput | VerificationWhereInput[]
-    OR?: VerificationWhereInput[]
-    NOT?: VerificationWhereInput | VerificationWhereInput[]
-    id?: StringFilter<"Verification"> | string
-    identifier?: StringFilter<"Verification"> | string
-    value?: StringFilter<"Verification"> | string
-    expiresAt?: DateTimeFilter<"Verification"> | Date | string
-    createdAt?: DateTimeFilter<"Verification"> | Date | string
-    updatedAt?: DateTimeFilter<"Verification"> | Date | string
+  export type DepartmentWhereInput = {
+    AND?: DepartmentWhereInput | DepartmentWhereInput[]
+    OR?: DepartmentWhereInput[]
+    NOT?: DepartmentWhereInput | DepartmentWhereInput[]
+    id?: StringFilter<"Department"> | string
+    shortName?: StringFilter<"Department"> | string
+    tujuan?: StringFilter<"Department"> | string
+    isActive?: BoolFilter<"Department"> | boolean
+    dataSurat?: DataSuratListRelationFilter
+    nomorCounter?: XOR<NomorCounterNullableScalarRelationFilter, NomorCounterWhereInput> | null
   }
 
-  export type VerificationOrderByWithRelationInput = {
+  export type DepartmentOrderByWithRelationInput = {
     id?: SortOrder
-    identifier?: SortOrder
-    value?: SortOrder
-    expiresAt?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
+    shortName?: SortOrder
+    tujuan?: SortOrder
+    isActive?: SortOrder
+    dataSurat?: DataSuratOrderByRelationAggregateInput
+    nomorCounter?: NomorCounterOrderByWithRelationInput
   }
 
-  export type VerificationWhereUniqueInput = Prisma.AtLeast<{
+  export type DepartmentWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    AND?: VerificationWhereInput | VerificationWhereInput[]
-    OR?: VerificationWhereInput[]
-    NOT?: VerificationWhereInput | VerificationWhereInput[]
-    identifier?: StringFilter<"Verification"> | string
-    value?: StringFilter<"Verification"> | string
-    expiresAt?: DateTimeFilter<"Verification"> | Date | string
-    createdAt?: DateTimeFilter<"Verification"> | Date | string
-    updatedAt?: DateTimeFilter<"Verification"> | Date | string
+    AND?: DepartmentWhereInput | DepartmentWhereInput[]
+    OR?: DepartmentWhereInput[]
+    NOT?: DepartmentWhereInput | DepartmentWhereInput[]
+    shortName?: StringFilter<"Department"> | string
+    tujuan?: StringFilter<"Department"> | string
+    isActive?: BoolFilter<"Department"> | boolean
+    dataSurat?: DataSuratListRelationFilter
+    nomorCounter?: XOR<NomorCounterNullableScalarRelationFilter, NomorCounterWhereInput> | null
   }, "id">
 
-  export type VerificationOrderByWithAggregationInput = {
+  export type DepartmentOrderByWithAggregationInput = {
     id?: SortOrder
-    identifier?: SortOrder
-    value?: SortOrder
-    expiresAt?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-    _count?: VerificationCountOrderByAggregateInput
-    _max?: VerificationMaxOrderByAggregateInput
-    _min?: VerificationMinOrderByAggregateInput
+    shortName?: SortOrder
+    tujuan?: SortOrder
+    isActive?: SortOrder
+    _count?: DepartmentCountOrderByAggregateInput
+    _max?: DepartmentMaxOrderByAggregateInput
+    _min?: DepartmentMinOrderByAggregateInput
   }
 
-  export type VerificationScalarWhereWithAggregatesInput = {
-    AND?: VerificationScalarWhereWithAggregatesInput | VerificationScalarWhereWithAggregatesInput[]
-    OR?: VerificationScalarWhereWithAggregatesInput[]
-    NOT?: VerificationScalarWhereWithAggregatesInput | VerificationScalarWhereWithAggregatesInput[]
-    id?: StringWithAggregatesFilter<"Verification"> | string
-    identifier?: StringWithAggregatesFilter<"Verification"> | string
-    value?: StringWithAggregatesFilter<"Verification"> | string
-    expiresAt?: DateTimeWithAggregatesFilter<"Verification"> | Date | string
-    createdAt?: DateTimeWithAggregatesFilter<"Verification"> | Date | string
-    updatedAt?: DateTimeWithAggregatesFilter<"Verification"> | Date | string
+  export type DepartmentScalarWhereWithAggregatesInput = {
+    AND?: DepartmentScalarWhereWithAggregatesInput | DepartmentScalarWhereWithAggregatesInput[]
+    OR?: DepartmentScalarWhereWithAggregatesInput[]
+    NOT?: DepartmentScalarWhereWithAggregatesInput | DepartmentScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Department"> | string
+    shortName?: StringWithAggregatesFilter<"Department"> | string
+    tujuan?: StringWithAggregatesFilter<"Department"> | string
+    isActive?: BoolWithAggregatesFilter<"Department"> | boolean
+  }
+
+  export type DataSuratWhereInput = {
+    AND?: DataSuratWhereInput | DataSuratWhereInput[]
+    OR?: DataSuratWhereInput[]
+    NOT?: DataSuratWhereInput | DataSuratWhereInput[]
+    id?: IntFilter<"DataSurat"> | number
+    nomor?: StringFilter<"DataSurat"> | string
+    deptId?: StringFilter<"DataSurat"> | string
+    tanggalTerima?: DateTimeFilter<"DataSurat"> | Date | string
+    asalSurat?: StringFilter<"DataSurat"> | string
+    perihal?: StringFilter<"DataSurat"> | string
+    tujuan?: StringFilter<"DataSurat"> | string
+    tanggalSurat?: DateTimeFilter<"DataSurat"> | Date | string
+    noSurat?: StringNullableFilter<"DataSurat"> | string | null
+    lampiran?: StringNullableFilter<"DataSurat"> | string | null
+    createdAt?: DateTimeFilter<"DataSurat"> | Date | string
+    updatedAt?: DateTimeFilter<"DataSurat"> | Date | string
+    dept?: XOR<DepartmentScalarRelationFilter, DepartmentWhereInput>
+  }
+
+  export type DataSuratOrderByWithRelationInput = {
+    id?: SortOrder
+    nomor?: SortOrder
+    deptId?: SortOrder
+    tanggalTerima?: SortOrder
+    asalSurat?: SortOrder
+    perihal?: SortOrder
+    tujuan?: SortOrder
+    tanggalSurat?: SortOrder
+    noSurat?: SortOrderInput | SortOrder
+    lampiran?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    dept?: DepartmentOrderByWithRelationInput
+  }
+
+  export type DataSuratWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    AND?: DataSuratWhereInput | DataSuratWhereInput[]
+    OR?: DataSuratWhereInput[]
+    NOT?: DataSuratWhereInput | DataSuratWhereInput[]
+    nomor?: StringFilter<"DataSurat"> | string
+    deptId?: StringFilter<"DataSurat"> | string
+    tanggalTerima?: DateTimeFilter<"DataSurat"> | Date | string
+    asalSurat?: StringFilter<"DataSurat"> | string
+    perihal?: StringFilter<"DataSurat"> | string
+    tujuan?: StringFilter<"DataSurat"> | string
+    tanggalSurat?: DateTimeFilter<"DataSurat"> | Date | string
+    noSurat?: StringNullableFilter<"DataSurat"> | string | null
+    lampiran?: StringNullableFilter<"DataSurat"> | string | null
+    createdAt?: DateTimeFilter<"DataSurat"> | Date | string
+    updatedAt?: DateTimeFilter<"DataSurat"> | Date | string
+    dept?: XOR<DepartmentScalarRelationFilter, DepartmentWhereInput>
+  }, "id">
+
+  export type DataSuratOrderByWithAggregationInput = {
+    id?: SortOrder
+    nomor?: SortOrder
+    deptId?: SortOrder
+    tanggalTerima?: SortOrder
+    asalSurat?: SortOrder
+    perihal?: SortOrder
+    tujuan?: SortOrder
+    tanggalSurat?: SortOrder
+    noSurat?: SortOrderInput | SortOrder
+    lampiran?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: DataSuratCountOrderByAggregateInput
+    _avg?: DataSuratAvgOrderByAggregateInput
+    _max?: DataSuratMaxOrderByAggregateInput
+    _min?: DataSuratMinOrderByAggregateInput
+    _sum?: DataSuratSumOrderByAggregateInput
+  }
+
+  export type DataSuratScalarWhereWithAggregatesInput = {
+    AND?: DataSuratScalarWhereWithAggregatesInput | DataSuratScalarWhereWithAggregatesInput[]
+    OR?: DataSuratScalarWhereWithAggregatesInput[]
+    NOT?: DataSuratScalarWhereWithAggregatesInput | DataSuratScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"DataSurat"> | number
+    nomor?: StringWithAggregatesFilter<"DataSurat"> | string
+    deptId?: StringWithAggregatesFilter<"DataSurat"> | string
+    tanggalTerima?: DateTimeWithAggregatesFilter<"DataSurat"> | Date | string
+    asalSurat?: StringWithAggregatesFilter<"DataSurat"> | string
+    perihal?: StringWithAggregatesFilter<"DataSurat"> | string
+    tujuan?: StringWithAggregatesFilter<"DataSurat"> | string
+    tanggalSurat?: DateTimeWithAggregatesFilter<"DataSurat"> | Date | string
+    noSurat?: StringNullableWithAggregatesFilter<"DataSurat"> | string | null
+    lampiran?: StringNullableWithAggregatesFilter<"DataSurat"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"DataSurat"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"DataSurat"> | Date | string
+  }
+
+  export type NomorCounterWhereInput = {
+    AND?: NomorCounterWhereInput | NomorCounterWhereInput[]
+    OR?: NomorCounterWhereInput[]
+    NOT?: NomorCounterWhereInput | NomorCounterWhereInput[]
+    deptId?: StringFilter<"NomorCounter"> | string
+    counter?: IntFilter<"NomorCounter"> | number
+    dept?: XOR<DepartmentScalarRelationFilter, DepartmentWhereInput>
+  }
+
+  export type NomorCounterOrderByWithRelationInput = {
+    deptId?: SortOrder
+    counter?: SortOrder
+    dept?: DepartmentOrderByWithRelationInput
+  }
+
+  export type NomorCounterWhereUniqueInput = Prisma.AtLeast<{
+    deptId?: string
+    AND?: NomorCounterWhereInput | NomorCounterWhereInput[]
+    OR?: NomorCounterWhereInput[]
+    NOT?: NomorCounterWhereInput | NomorCounterWhereInput[]
+    counter?: IntFilter<"NomorCounter"> | number
+    dept?: XOR<DepartmentScalarRelationFilter, DepartmentWhereInput>
+  }, "deptId">
+
+  export type NomorCounterOrderByWithAggregationInput = {
+    deptId?: SortOrder
+    counter?: SortOrder
+    _count?: NomorCounterCountOrderByAggregateInput
+    _avg?: NomorCounterAvgOrderByAggregateInput
+    _max?: NomorCounterMaxOrderByAggregateInput
+    _min?: NomorCounterMinOrderByAggregateInput
+    _sum?: NomorCounterSumOrderByAggregateInput
+  }
+
+  export type NomorCounterScalarWhereWithAggregatesInput = {
+    AND?: NomorCounterScalarWhereWithAggregatesInput | NomorCounterScalarWhereWithAggregatesInput[]
+    OR?: NomorCounterScalarWhereWithAggregatesInput[]
+    NOT?: NomorCounterScalarWhereWithAggregatesInput | NomorCounterScalarWhereWithAggregatesInput[]
+    deptId?: StringWithAggregatesFilter<"NomorCounter"> | string
+    counter?: IntWithAggregatesFilter<"NomorCounter"> | number
   }
 
   export type UserCreateInput = {
@@ -6129,7 +8809,6 @@ export namespace Prisma {
     emailVerified?: boolean
     username?: string | null
     image?: string | null
-    password?: string | null
     role?: $Enums.Role
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -6144,7 +8823,6 @@ export namespace Prisma {
     emailVerified?: boolean
     username?: string | null
     image?: string | null
-    password?: string | null
     role?: $Enums.Role
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -6159,7 +8837,6 @@ export namespace Prisma {
     emailVerified?: BoolFieldUpdateOperationsInput | boolean
     username?: NullableStringFieldUpdateOperationsInput | string | null
     image?: NullableStringFieldUpdateOperationsInput | string | null
-    password?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -6174,7 +8851,6 @@ export namespace Prisma {
     emailVerified?: BoolFieldUpdateOperationsInput | boolean
     username?: NullableStringFieldUpdateOperationsInput | string | null
     image?: NullableStringFieldUpdateOperationsInput | string | null
-    password?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -6189,7 +8865,6 @@ export namespace Prisma {
     emailVerified?: boolean
     username?: string | null
     image?: string | null
-    password?: string | null
     role?: $Enums.Role
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -6202,7 +8877,6 @@ export namespace Prisma {
     emailVerified?: BoolFieldUpdateOperationsInput | boolean
     username?: NullableStringFieldUpdateOperationsInput | string | null
     image?: NullableStringFieldUpdateOperationsInput | string | null
-    password?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -6215,7 +8889,6 @@ export namespace Prisma {
     emailVerified?: BoolFieldUpdateOperationsInput | boolean
     username?: NullableStringFieldUpdateOperationsInput | string | null
     image?: NullableStringFieldUpdateOperationsInput | string | null
-    password?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -6408,67 +9081,196 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type VerificationCreateInput = {
-    id?: string
-    identifier: string
-    value: string
-    expiresAt: Date | string
+  export type DepartmentCreateInput = {
+    id: string
+    shortName: string
+    tujuan?: string
+    isActive?: boolean
+    dataSurat?: DataSuratCreateNestedManyWithoutDeptInput
+    nomorCounter?: NomorCounterCreateNestedOneWithoutDeptInput
+  }
+
+  export type DepartmentUncheckedCreateInput = {
+    id: string
+    shortName: string
+    tujuan?: string
+    isActive?: boolean
+    dataSurat?: DataSuratUncheckedCreateNestedManyWithoutDeptInput
+    nomorCounter?: NomorCounterUncheckedCreateNestedOneWithoutDeptInput
+  }
+
+  export type DepartmentUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    shortName?: StringFieldUpdateOperationsInput | string
+    tujuan?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    dataSurat?: DataSuratUpdateManyWithoutDeptNestedInput
+    nomorCounter?: NomorCounterUpdateOneWithoutDeptNestedInput
+  }
+
+  export type DepartmentUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    shortName?: StringFieldUpdateOperationsInput | string
+    tujuan?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    dataSurat?: DataSuratUncheckedUpdateManyWithoutDeptNestedInput
+    nomorCounter?: NomorCounterUncheckedUpdateOneWithoutDeptNestedInput
+  }
+
+  export type DepartmentCreateManyInput = {
+    id: string
+    shortName: string
+    tujuan?: string
+    isActive?: boolean
+  }
+
+  export type DepartmentUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    shortName?: StringFieldUpdateOperationsInput | string
+    tujuan?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type DepartmentUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    shortName?: StringFieldUpdateOperationsInput | string
+    tujuan?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type DataSuratCreateInput = {
+    nomor: string
+    tanggalTerima: Date | string
+    asalSurat: string
+    perihal: string
+    tujuan: string
+    tanggalSurat: Date | string
+    noSurat?: string | null
+    lampiran?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    dept: DepartmentCreateNestedOneWithoutDataSuratInput
+  }
+
+  export type DataSuratUncheckedCreateInput = {
+    id?: number
+    nomor: string
+    deptId: string
+    tanggalTerima: Date | string
+    asalSurat: string
+    perihal: string
+    tujuan: string
+    tanggalSurat: Date | string
+    noSurat?: string | null
+    lampiran?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
 
-  export type VerificationUncheckedCreateInput = {
-    id?: string
-    identifier: string
-    value: string
-    expiresAt: Date | string
+  export type DataSuratUpdateInput = {
+    nomor?: StringFieldUpdateOperationsInput | string
+    tanggalTerima?: DateTimeFieldUpdateOperationsInput | Date | string
+    asalSurat?: StringFieldUpdateOperationsInput | string
+    perihal?: StringFieldUpdateOperationsInput | string
+    tujuan?: StringFieldUpdateOperationsInput | string
+    tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
+    noSurat?: NullableStringFieldUpdateOperationsInput | string | null
+    lampiran?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dept?: DepartmentUpdateOneRequiredWithoutDataSuratNestedInput
+  }
+
+  export type DataSuratUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    nomor?: StringFieldUpdateOperationsInput | string
+    deptId?: StringFieldUpdateOperationsInput | string
+    tanggalTerima?: DateTimeFieldUpdateOperationsInput | Date | string
+    asalSurat?: StringFieldUpdateOperationsInput | string
+    perihal?: StringFieldUpdateOperationsInput | string
+    tujuan?: StringFieldUpdateOperationsInput | string
+    tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
+    noSurat?: NullableStringFieldUpdateOperationsInput | string | null
+    lampiran?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DataSuratCreateManyInput = {
+    id?: number
+    nomor: string
+    deptId: string
+    tanggalTerima: Date | string
+    asalSurat: string
+    perihal: string
+    tujuan: string
+    tanggalSurat: Date | string
+    noSurat?: string | null
+    lampiran?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
 
-  export type VerificationUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    identifier?: StringFieldUpdateOperationsInput | string
-    value?: StringFieldUpdateOperationsInput | string
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type DataSuratUpdateManyMutationInput = {
+    nomor?: StringFieldUpdateOperationsInput | string
+    tanggalTerima?: DateTimeFieldUpdateOperationsInput | Date | string
+    asalSurat?: StringFieldUpdateOperationsInput | string
+    perihal?: StringFieldUpdateOperationsInput | string
+    tujuan?: StringFieldUpdateOperationsInput | string
+    tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
+    noSurat?: NullableStringFieldUpdateOperationsInput | string | null
+    lampiran?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type VerificationUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    identifier?: StringFieldUpdateOperationsInput | string
-    value?: StringFieldUpdateOperationsInput | string
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type DataSuratUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    nomor?: StringFieldUpdateOperationsInput | string
+    deptId?: StringFieldUpdateOperationsInput | string
+    tanggalTerima?: DateTimeFieldUpdateOperationsInput | Date | string
+    asalSurat?: StringFieldUpdateOperationsInput | string
+    perihal?: StringFieldUpdateOperationsInput | string
+    tujuan?: StringFieldUpdateOperationsInput | string
+    tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
+    noSurat?: NullableStringFieldUpdateOperationsInput | string | null
+    lampiran?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type VerificationCreateManyInput = {
-    id?: string
-    identifier: string
-    value: string
-    expiresAt: Date | string
-    createdAt?: Date | string
-    updatedAt?: Date | string
+  export type NomorCounterCreateInput = {
+    counter?: number
+    dept: DepartmentCreateNestedOneWithoutNomorCounterInput
   }
 
-  export type VerificationUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    identifier?: StringFieldUpdateOperationsInput | string
-    value?: StringFieldUpdateOperationsInput | string
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type NomorCounterUncheckedCreateInput = {
+    deptId: string
+    counter?: number
   }
 
-  export type VerificationUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    identifier?: StringFieldUpdateOperationsInput | string
-    value?: StringFieldUpdateOperationsInput | string
-    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type NomorCounterUpdateInput = {
+    counter?: IntFieldUpdateOperationsInput | number
+    dept?: DepartmentUpdateOneRequiredWithoutNomorCounterNestedInput
+  }
+
+  export type NomorCounterUncheckedUpdateInput = {
+    deptId?: StringFieldUpdateOperationsInput | string
+    counter?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type NomorCounterCreateManyInput = {
+    deptId: string
+    counter?: number
+  }
+
+  export type NomorCounterUpdateManyMutationInput = {
+    counter?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type NomorCounterUncheckedUpdateManyInput = {
+    deptId?: StringFieldUpdateOperationsInput | string
+    counter?: IntFieldUpdateOperationsInput | number
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -6556,7 +9358,6 @@ export namespace Prisma {
     emailVerified?: SortOrder
     username?: SortOrder
     image?: SortOrder
-    password?: SortOrder
     role?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -6569,7 +9370,6 @@ export namespace Prisma {
     emailVerified?: SortOrder
     username?: SortOrder
     image?: SortOrder
-    password?: SortOrder
     role?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -6582,7 +9382,6 @@ export namespace Prisma {
     emailVerified?: SortOrder
     username?: SortOrder
     image?: SortOrder
-    password?: SortOrder
     role?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -6767,31 +9566,148 @@ export namespace Prisma {
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
-  export type VerificationCountOrderByAggregateInput = {
+  export type DataSuratListRelationFilter = {
+    every?: DataSuratWhereInput
+    some?: DataSuratWhereInput
+    none?: DataSuratWhereInput
+  }
+
+  export type NomorCounterNullableScalarRelationFilter = {
+    is?: NomorCounterWhereInput | null
+    isNot?: NomorCounterWhereInput | null
+  }
+
+  export type DataSuratOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type DepartmentCountOrderByAggregateInput = {
     id?: SortOrder
-    identifier?: SortOrder
-    value?: SortOrder
-    expiresAt?: SortOrder
+    shortName?: SortOrder
+    tujuan?: SortOrder
+    isActive?: SortOrder
+  }
+
+  export type DepartmentMaxOrderByAggregateInput = {
+    id?: SortOrder
+    shortName?: SortOrder
+    tujuan?: SortOrder
+    isActive?: SortOrder
+  }
+
+  export type DepartmentMinOrderByAggregateInput = {
+    id?: SortOrder
+    shortName?: SortOrder
+    tujuan?: SortOrder
+    isActive?: SortOrder
+  }
+
+  export type IntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
+  }
+
+  export type DepartmentScalarRelationFilter = {
+    is?: DepartmentWhereInput
+    isNot?: DepartmentWhereInput
+  }
+
+  export type DataSuratCountOrderByAggregateInput = {
+    id?: SortOrder
+    nomor?: SortOrder
+    deptId?: SortOrder
+    tanggalTerima?: SortOrder
+    asalSurat?: SortOrder
+    perihal?: SortOrder
+    tujuan?: SortOrder
+    tanggalSurat?: SortOrder
+    noSurat?: SortOrder
+    lampiran?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
-  export type VerificationMaxOrderByAggregateInput = {
+  export type DataSuratAvgOrderByAggregateInput = {
     id?: SortOrder
-    identifier?: SortOrder
-    value?: SortOrder
-    expiresAt?: SortOrder
+  }
+
+  export type DataSuratMaxOrderByAggregateInput = {
+    id?: SortOrder
+    nomor?: SortOrder
+    deptId?: SortOrder
+    tanggalTerima?: SortOrder
+    asalSurat?: SortOrder
+    perihal?: SortOrder
+    tujuan?: SortOrder
+    tanggalSurat?: SortOrder
+    noSurat?: SortOrder
+    lampiran?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
-  export type VerificationMinOrderByAggregateInput = {
+  export type DataSuratMinOrderByAggregateInput = {
     id?: SortOrder
-    identifier?: SortOrder
-    value?: SortOrder
-    expiresAt?: SortOrder
+    nomor?: SortOrder
+    deptId?: SortOrder
+    tanggalTerima?: SortOrder
+    asalSurat?: SortOrder
+    perihal?: SortOrder
+    tujuan?: SortOrder
+    tanggalSurat?: SortOrder
+    noSurat?: SortOrder
+    lampiran?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+  }
+
+  export type DataSuratSumOrderByAggregateInput = {
+    id?: SortOrder
+  }
+
+  export type IntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type NomorCounterCountOrderByAggregateInput = {
+    deptId?: SortOrder
+    counter?: SortOrder
+  }
+
+  export type NomorCounterAvgOrderByAggregateInput = {
+    counter?: SortOrder
+  }
+
+  export type NomorCounterMaxOrderByAggregateInput = {
+    deptId?: SortOrder
+    counter?: SortOrder
+  }
+
+  export type NomorCounterMinOrderByAggregateInput = {
+    deptId?: SortOrder
+    counter?: SortOrder
+  }
+
+  export type NomorCounterSumOrderByAggregateInput = {
+    counter?: SortOrder
   }
 
   export type SessionCreateNestedManyWithoutUserInput = {
@@ -6928,6 +9844,116 @@ export namespace Prisma {
     upsert?: UserUpsertWithoutAccountsInput
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutAccountsInput, UserUpdateWithoutAccountsInput>, UserUncheckedUpdateWithoutAccountsInput>
+  }
+
+  export type DataSuratCreateNestedManyWithoutDeptInput = {
+    create?: XOR<DataSuratCreateWithoutDeptInput, DataSuratUncheckedCreateWithoutDeptInput> | DataSuratCreateWithoutDeptInput[] | DataSuratUncheckedCreateWithoutDeptInput[]
+    connectOrCreate?: DataSuratCreateOrConnectWithoutDeptInput | DataSuratCreateOrConnectWithoutDeptInput[]
+    createMany?: DataSuratCreateManyDeptInputEnvelope
+    connect?: DataSuratWhereUniqueInput | DataSuratWhereUniqueInput[]
+  }
+
+  export type NomorCounterCreateNestedOneWithoutDeptInput = {
+    create?: XOR<NomorCounterCreateWithoutDeptInput, NomorCounterUncheckedCreateWithoutDeptInput>
+    connectOrCreate?: NomorCounterCreateOrConnectWithoutDeptInput
+    connect?: NomorCounterWhereUniqueInput
+  }
+
+  export type DataSuratUncheckedCreateNestedManyWithoutDeptInput = {
+    create?: XOR<DataSuratCreateWithoutDeptInput, DataSuratUncheckedCreateWithoutDeptInput> | DataSuratCreateWithoutDeptInput[] | DataSuratUncheckedCreateWithoutDeptInput[]
+    connectOrCreate?: DataSuratCreateOrConnectWithoutDeptInput | DataSuratCreateOrConnectWithoutDeptInput[]
+    createMany?: DataSuratCreateManyDeptInputEnvelope
+    connect?: DataSuratWhereUniqueInput | DataSuratWhereUniqueInput[]
+  }
+
+  export type NomorCounterUncheckedCreateNestedOneWithoutDeptInput = {
+    create?: XOR<NomorCounterCreateWithoutDeptInput, NomorCounterUncheckedCreateWithoutDeptInput>
+    connectOrCreate?: NomorCounterCreateOrConnectWithoutDeptInput
+    connect?: NomorCounterWhereUniqueInput
+  }
+
+  export type DataSuratUpdateManyWithoutDeptNestedInput = {
+    create?: XOR<DataSuratCreateWithoutDeptInput, DataSuratUncheckedCreateWithoutDeptInput> | DataSuratCreateWithoutDeptInput[] | DataSuratUncheckedCreateWithoutDeptInput[]
+    connectOrCreate?: DataSuratCreateOrConnectWithoutDeptInput | DataSuratCreateOrConnectWithoutDeptInput[]
+    upsert?: DataSuratUpsertWithWhereUniqueWithoutDeptInput | DataSuratUpsertWithWhereUniqueWithoutDeptInput[]
+    createMany?: DataSuratCreateManyDeptInputEnvelope
+    set?: DataSuratWhereUniqueInput | DataSuratWhereUniqueInput[]
+    disconnect?: DataSuratWhereUniqueInput | DataSuratWhereUniqueInput[]
+    delete?: DataSuratWhereUniqueInput | DataSuratWhereUniqueInput[]
+    connect?: DataSuratWhereUniqueInput | DataSuratWhereUniqueInput[]
+    update?: DataSuratUpdateWithWhereUniqueWithoutDeptInput | DataSuratUpdateWithWhereUniqueWithoutDeptInput[]
+    updateMany?: DataSuratUpdateManyWithWhereWithoutDeptInput | DataSuratUpdateManyWithWhereWithoutDeptInput[]
+    deleteMany?: DataSuratScalarWhereInput | DataSuratScalarWhereInput[]
+  }
+
+  export type NomorCounterUpdateOneWithoutDeptNestedInput = {
+    create?: XOR<NomorCounterCreateWithoutDeptInput, NomorCounterUncheckedCreateWithoutDeptInput>
+    connectOrCreate?: NomorCounterCreateOrConnectWithoutDeptInput
+    upsert?: NomorCounterUpsertWithoutDeptInput
+    disconnect?: NomorCounterWhereInput | boolean
+    delete?: NomorCounterWhereInput | boolean
+    connect?: NomorCounterWhereUniqueInput
+    update?: XOR<XOR<NomorCounterUpdateToOneWithWhereWithoutDeptInput, NomorCounterUpdateWithoutDeptInput>, NomorCounterUncheckedUpdateWithoutDeptInput>
+  }
+
+  export type DataSuratUncheckedUpdateManyWithoutDeptNestedInput = {
+    create?: XOR<DataSuratCreateWithoutDeptInput, DataSuratUncheckedCreateWithoutDeptInput> | DataSuratCreateWithoutDeptInput[] | DataSuratUncheckedCreateWithoutDeptInput[]
+    connectOrCreate?: DataSuratCreateOrConnectWithoutDeptInput | DataSuratCreateOrConnectWithoutDeptInput[]
+    upsert?: DataSuratUpsertWithWhereUniqueWithoutDeptInput | DataSuratUpsertWithWhereUniqueWithoutDeptInput[]
+    createMany?: DataSuratCreateManyDeptInputEnvelope
+    set?: DataSuratWhereUniqueInput | DataSuratWhereUniqueInput[]
+    disconnect?: DataSuratWhereUniqueInput | DataSuratWhereUniqueInput[]
+    delete?: DataSuratWhereUniqueInput | DataSuratWhereUniqueInput[]
+    connect?: DataSuratWhereUniqueInput | DataSuratWhereUniqueInput[]
+    update?: DataSuratUpdateWithWhereUniqueWithoutDeptInput | DataSuratUpdateWithWhereUniqueWithoutDeptInput[]
+    updateMany?: DataSuratUpdateManyWithWhereWithoutDeptInput | DataSuratUpdateManyWithWhereWithoutDeptInput[]
+    deleteMany?: DataSuratScalarWhereInput | DataSuratScalarWhereInput[]
+  }
+
+  export type NomorCounterUncheckedUpdateOneWithoutDeptNestedInput = {
+    create?: XOR<NomorCounterCreateWithoutDeptInput, NomorCounterUncheckedCreateWithoutDeptInput>
+    connectOrCreate?: NomorCounterCreateOrConnectWithoutDeptInput
+    upsert?: NomorCounterUpsertWithoutDeptInput
+    disconnect?: NomorCounterWhereInput | boolean
+    delete?: NomorCounterWhereInput | boolean
+    connect?: NomorCounterWhereUniqueInput
+    update?: XOR<XOR<NomorCounterUpdateToOneWithWhereWithoutDeptInput, NomorCounterUpdateWithoutDeptInput>, NomorCounterUncheckedUpdateWithoutDeptInput>
+  }
+
+  export type DepartmentCreateNestedOneWithoutDataSuratInput = {
+    create?: XOR<DepartmentCreateWithoutDataSuratInput, DepartmentUncheckedCreateWithoutDataSuratInput>
+    connectOrCreate?: DepartmentCreateOrConnectWithoutDataSuratInput
+    connect?: DepartmentWhereUniqueInput
+  }
+
+  export type DepartmentUpdateOneRequiredWithoutDataSuratNestedInput = {
+    create?: XOR<DepartmentCreateWithoutDataSuratInput, DepartmentUncheckedCreateWithoutDataSuratInput>
+    connectOrCreate?: DepartmentCreateOrConnectWithoutDataSuratInput
+    upsert?: DepartmentUpsertWithoutDataSuratInput
+    connect?: DepartmentWhereUniqueInput
+    update?: XOR<XOR<DepartmentUpdateToOneWithWhereWithoutDataSuratInput, DepartmentUpdateWithoutDataSuratInput>, DepartmentUncheckedUpdateWithoutDataSuratInput>
+  }
+
+  export type IntFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type DepartmentCreateNestedOneWithoutNomorCounterInput = {
+    create?: XOR<DepartmentCreateWithoutNomorCounterInput, DepartmentUncheckedCreateWithoutNomorCounterInput>
+    connectOrCreate?: DepartmentCreateOrConnectWithoutNomorCounterInput
+    connect?: DepartmentWhereUniqueInput
+  }
+
+  export type DepartmentUpdateOneRequiredWithoutNomorCounterNestedInput = {
+    create?: XOR<DepartmentCreateWithoutNomorCounterInput, DepartmentUncheckedCreateWithoutNomorCounterInput>
+    connectOrCreate?: DepartmentCreateOrConnectWithoutNomorCounterInput
+    upsert?: DepartmentUpsertWithoutNomorCounterInput
+    connect?: DepartmentWhereUniqueInput
+    update?: XOR<XOR<DepartmentUpdateToOneWithWhereWithoutNomorCounterInput, DepartmentUpdateWithoutNomorCounterInput>, DepartmentUncheckedUpdateWithoutNomorCounterInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -7094,6 +10120,33 @@ export namespace Prisma {
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
+  export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type NestedFloatFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
   export type SessionCreateWithoutUserInput = {
     id?: string
     expiresAt: Date | string
@@ -7236,7 +10289,6 @@ export namespace Prisma {
     emailVerified?: boolean
     username?: string | null
     image?: string | null
-    password?: string | null
     role?: $Enums.Role
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -7250,7 +10302,6 @@ export namespace Prisma {
     emailVerified?: boolean
     username?: string | null
     image?: string | null
-    password?: string | null
     role?: $Enums.Role
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -7280,7 +10331,6 @@ export namespace Prisma {
     emailVerified?: BoolFieldUpdateOperationsInput | boolean
     username?: NullableStringFieldUpdateOperationsInput | string | null
     image?: NullableStringFieldUpdateOperationsInput | string | null
-    password?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -7294,7 +10344,6 @@ export namespace Prisma {
     emailVerified?: BoolFieldUpdateOperationsInput | boolean
     username?: NullableStringFieldUpdateOperationsInput | string | null
     image?: NullableStringFieldUpdateOperationsInput | string | null
-    password?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -7308,7 +10357,6 @@ export namespace Prisma {
     emailVerified?: boolean
     username?: string | null
     image?: string | null
-    password?: string | null
     role?: $Enums.Role
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -7322,7 +10370,6 @@ export namespace Prisma {
     emailVerified?: boolean
     username?: string | null
     image?: string | null
-    password?: string | null
     role?: $Enums.Role
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -7352,7 +10399,6 @@ export namespace Prisma {
     emailVerified?: BoolFieldUpdateOperationsInput | boolean
     username?: NullableStringFieldUpdateOperationsInput | string | null
     image?: NullableStringFieldUpdateOperationsInput | string | null
-    password?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -7366,11 +10412,209 @@ export namespace Prisma {
     emailVerified?: BoolFieldUpdateOperationsInput | boolean
     username?: NullableStringFieldUpdateOperationsInput | string | null
     image?: NullableStringFieldUpdateOperationsInput | string | null
-    password?: NullableStringFieldUpdateOperationsInput | string | null
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type DataSuratCreateWithoutDeptInput = {
+    nomor: string
+    tanggalTerima: Date | string
+    asalSurat: string
+    perihal: string
+    tujuan: string
+    tanggalSurat: Date | string
+    noSurat?: string | null
+    lampiran?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DataSuratUncheckedCreateWithoutDeptInput = {
+    id?: number
+    nomor: string
+    tanggalTerima: Date | string
+    asalSurat: string
+    perihal: string
+    tujuan: string
+    tanggalSurat: Date | string
+    noSurat?: string | null
+    lampiran?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DataSuratCreateOrConnectWithoutDeptInput = {
+    where: DataSuratWhereUniqueInput
+    create: XOR<DataSuratCreateWithoutDeptInput, DataSuratUncheckedCreateWithoutDeptInput>
+  }
+
+  export type DataSuratCreateManyDeptInputEnvelope = {
+    data: DataSuratCreateManyDeptInput | DataSuratCreateManyDeptInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type NomorCounterCreateWithoutDeptInput = {
+    counter?: number
+  }
+
+  export type NomorCounterUncheckedCreateWithoutDeptInput = {
+    counter?: number
+  }
+
+  export type NomorCounterCreateOrConnectWithoutDeptInput = {
+    where: NomorCounterWhereUniqueInput
+    create: XOR<NomorCounterCreateWithoutDeptInput, NomorCounterUncheckedCreateWithoutDeptInput>
+  }
+
+  export type DataSuratUpsertWithWhereUniqueWithoutDeptInput = {
+    where: DataSuratWhereUniqueInput
+    update: XOR<DataSuratUpdateWithoutDeptInput, DataSuratUncheckedUpdateWithoutDeptInput>
+    create: XOR<DataSuratCreateWithoutDeptInput, DataSuratUncheckedCreateWithoutDeptInput>
+  }
+
+  export type DataSuratUpdateWithWhereUniqueWithoutDeptInput = {
+    where: DataSuratWhereUniqueInput
+    data: XOR<DataSuratUpdateWithoutDeptInput, DataSuratUncheckedUpdateWithoutDeptInput>
+  }
+
+  export type DataSuratUpdateManyWithWhereWithoutDeptInput = {
+    where: DataSuratScalarWhereInput
+    data: XOR<DataSuratUpdateManyMutationInput, DataSuratUncheckedUpdateManyWithoutDeptInput>
+  }
+
+  export type DataSuratScalarWhereInput = {
+    AND?: DataSuratScalarWhereInput | DataSuratScalarWhereInput[]
+    OR?: DataSuratScalarWhereInput[]
+    NOT?: DataSuratScalarWhereInput | DataSuratScalarWhereInput[]
+    id?: IntFilter<"DataSurat"> | number
+    nomor?: StringFilter<"DataSurat"> | string
+    deptId?: StringFilter<"DataSurat"> | string
+    tanggalTerima?: DateTimeFilter<"DataSurat"> | Date | string
+    asalSurat?: StringFilter<"DataSurat"> | string
+    perihal?: StringFilter<"DataSurat"> | string
+    tujuan?: StringFilter<"DataSurat"> | string
+    tanggalSurat?: DateTimeFilter<"DataSurat"> | Date | string
+    noSurat?: StringNullableFilter<"DataSurat"> | string | null
+    lampiran?: StringNullableFilter<"DataSurat"> | string | null
+    createdAt?: DateTimeFilter<"DataSurat"> | Date | string
+    updatedAt?: DateTimeFilter<"DataSurat"> | Date | string
+  }
+
+  export type NomorCounterUpsertWithoutDeptInput = {
+    update: XOR<NomorCounterUpdateWithoutDeptInput, NomorCounterUncheckedUpdateWithoutDeptInput>
+    create: XOR<NomorCounterCreateWithoutDeptInput, NomorCounterUncheckedCreateWithoutDeptInput>
+    where?: NomorCounterWhereInput
+  }
+
+  export type NomorCounterUpdateToOneWithWhereWithoutDeptInput = {
+    where?: NomorCounterWhereInput
+    data: XOR<NomorCounterUpdateWithoutDeptInput, NomorCounterUncheckedUpdateWithoutDeptInput>
+  }
+
+  export type NomorCounterUpdateWithoutDeptInput = {
+    counter?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type NomorCounterUncheckedUpdateWithoutDeptInput = {
+    counter?: IntFieldUpdateOperationsInput | number
+  }
+
+  export type DepartmentCreateWithoutDataSuratInput = {
+    id: string
+    shortName: string
+    tujuan?: string
+    isActive?: boolean
+    nomorCounter?: NomorCounterCreateNestedOneWithoutDeptInput
+  }
+
+  export type DepartmentUncheckedCreateWithoutDataSuratInput = {
+    id: string
+    shortName: string
+    tujuan?: string
+    isActive?: boolean
+    nomorCounter?: NomorCounterUncheckedCreateNestedOneWithoutDeptInput
+  }
+
+  export type DepartmentCreateOrConnectWithoutDataSuratInput = {
+    where: DepartmentWhereUniqueInput
+    create: XOR<DepartmentCreateWithoutDataSuratInput, DepartmentUncheckedCreateWithoutDataSuratInput>
+  }
+
+  export type DepartmentUpsertWithoutDataSuratInput = {
+    update: XOR<DepartmentUpdateWithoutDataSuratInput, DepartmentUncheckedUpdateWithoutDataSuratInput>
+    create: XOR<DepartmentCreateWithoutDataSuratInput, DepartmentUncheckedCreateWithoutDataSuratInput>
+    where?: DepartmentWhereInput
+  }
+
+  export type DepartmentUpdateToOneWithWhereWithoutDataSuratInput = {
+    where?: DepartmentWhereInput
+    data: XOR<DepartmentUpdateWithoutDataSuratInput, DepartmentUncheckedUpdateWithoutDataSuratInput>
+  }
+
+  export type DepartmentUpdateWithoutDataSuratInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    shortName?: StringFieldUpdateOperationsInput | string
+    tujuan?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    nomorCounter?: NomorCounterUpdateOneWithoutDeptNestedInput
+  }
+
+  export type DepartmentUncheckedUpdateWithoutDataSuratInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    shortName?: StringFieldUpdateOperationsInput | string
+    tujuan?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    nomorCounter?: NomorCounterUncheckedUpdateOneWithoutDeptNestedInput
+  }
+
+  export type DepartmentCreateWithoutNomorCounterInput = {
+    id: string
+    shortName: string
+    tujuan?: string
+    isActive?: boolean
+    dataSurat?: DataSuratCreateNestedManyWithoutDeptInput
+  }
+
+  export type DepartmentUncheckedCreateWithoutNomorCounterInput = {
+    id: string
+    shortName: string
+    tujuan?: string
+    isActive?: boolean
+    dataSurat?: DataSuratUncheckedCreateNestedManyWithoutDeptInput
+  }
+
+  export type DepartmentCreateOrConnectWithoutNomorCounterInput = {
+    where: DepartmentWhereUniqueInput
+    create: XOR<DepartmentCreateWithoutNomorCounterInput, DepartmentUncheckedCreateWithoutNomorCounterInput>
+  }
+
+  export type DepartmentUpsertWithoutNomorCounterInput = {
+    update: XOR<DepartmentUpdateWithoutNomorCounterInput, DepartmentUncheckedUpdateWithoutNomorCounterInput>
+    create: XOR<DepartmentCreateWithoutNomorCounterInput, DepartmentUncheckedCreateWithoutNomorCounterInput>
+    where?: DepartmentWhereInput
+  }
+
+  export type DepartmentUpdateToOneWithWhereWithoutNomorCounterInput = {
+    where?: DepartmentWhereInput
+    data: XOR<DepartmentUpdateWithoutNomorCounterInput, DepartmentUncheckedUpdateWithoutNomorCounterInput>
+  }
+
+  export type DepartmentUpdateWithoutNomorCounterInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    shortName?: StringFieldUpdateOperationsInput | string
+    tujuan?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    dataSurat?: DataSuratUpdateManyWithoutDeptNestedInput
+  }
+
+  export type DepartmentUncheckedUpdateWithoutNomorCounterInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    shortName?: StringFieldUpdateOperationsInput | string
+    tujuan?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    dataSurat?: DataSuratUncheckedUpdateManyWithoutDeptNestedInput
   }
 
   export type SessionCreateManyUserInput = {
@@ -7469,6 +10713,61 @@ export namespace Prisma {
     refreshTokenExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     scope?: NullableStringFieldUpdateOperationsInput | string | null
     password?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DataSuratCreateManyDeptInput = {
+    id?: number
+    nomor: string
+    tanggalTerima: Date | string
+    asalSurat: string
+    perihal: string
+    tujuan: string
+    tanggalSurat: Date | string
+    noSurat?: string | null
+    lampiran?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DataSuratUpdateWithoutDeptInput = {
+    nomor?: StringFieldUpdateOperationsInput | string
+    tanggalTerima?: DateTimeFieldUpdateOperationsInput | Date | string
+    asalSurat?: StringFieldUpdateOperationsInput | string
+    perihal?: StringFieldUpdateOperationsInput | string
+    tujuan?: StringFieldUpdateOperationsInput | string
+    tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
+    noSurat?: NullableStringFieldUpdateOperationsInput | string | null
+    lampiran?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DataSuratUncheckedUpdateWithoutDeptInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    nomor?: StringFieldUpdateOperationsInput | string
+    tanggalTerima?: DateTimeFieldUpdateOperationsInput | Date | string
+    asalSurat?: StringFieldUpdateOperationsInput | string
+    perihal?: StringFieldUpdateOperationsInput | string
+    tujuan?: StringFieldUpdateOperationsInput | string
+    tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
+    noSurat?: NullableStringFieldUpdateOperationsInput | string | null
+    lampiran?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DataSuratUncheckedUpdateManyWithoutDeptInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    nomor?: StringFieldUpdateOperationsInput | string
+    tanggalTerima?: DateTimeFieldUpdateOperationsInput | Date | string
+    asalSurat?: StringFieldUpdateOperationsInput | string
+    perihal?: StringFieldUpdateOperationsInput | string
+    tujuan?: StringFieldUpdateOperationsInput | string
+    tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
+    noSurat?: NullableStringFieldUpdateOperationsInput | string | null
+    lampiran?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

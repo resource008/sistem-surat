@@ -127,7 +127,6 @@ exports.Prisma.UserScalarFieldEnum = {
   emailVerified: 'emailVerified',
   username: 'username',
   image: 'image',
-  password: 'password',
   role: 'role',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -160,13 +159,31 @@ exports.Prisma.AccountScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
-exports.Prisma.VerificationScalarFieldEnum = {
+exports.Prisma.DepartmentScalarFieldEnum = {
   id: 'id',
-  identifier: 'identifier',
-  value: 'value',
-  expiresAt: 'expiresAt',
+  shortName: 'shortName',
+  tujuan: 'tujuan',
+  isActive: 'isActive'
+};
+
+exports.Prisma.DataSuratScalarFieldEnum = {
+  id: 'id',
+  nomor: 'nomor',
+  deptId: 'deptId',
+  tanggalTerima: 'tanggalTerima',
+  asalSurat: 'asalSurat',
+  perihal: 'perihal',
+  tujuan: 'tujuan',
+  tanggalSurat: 'tanggalSurat',
+  noSurat: 'noSurat',
+  lampiran: 'lampiran',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
+};
+
+exports.Prisma.NomorCounterScalarFieldEnum = {
+  deptId: 'deptId',
+  counter: 'counter'
 };
 
 exports.Prisma.SortOrder = {
@@ -194,7 +211,9 @@ exports.Prisma.ModelName = {
   User: 'User',
   Session: 'Session',
   Account: 'Account',
-  Verification: 'Verification'
+  Department: 'Department',
+  DataSurat: 'DataSurat',
+  NomorCounter: 'NomorCounter'
 };
 
 /**

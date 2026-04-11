@@ -1,11 +1,13 @@
 export const routes = {
   login: "/auth/login",
   dashboard: {
-    admin: "/dashboard/admin",
+    admin: "/admin/dashboard",
   },
   dataSurat: {
-    staff: "/data-surat/staff",
-    pkl: "/data-surat/pkl",
+    staff: "/staff/data-surat",
+    cetak: "/staff/cetak",
+    track: "/staff/track",
+    akun: "/staff/akun",
   },
   trackSurat: {
     guest: "/track-surat/guest",
@@ -16,7 +18,7 @@ export function getRouteByRole(role: string): string {
   switch (role) {
     case "ADMIN": return routes.dashboard.admin
     case "STAFF": return routes.dataSurat.staff
-    case "PKL": return routes.dataSurat.pkl
+    case "PKL": return routes.dataSurat.staff
     default: return routes.trackSurat.guest
   }
 }
