@@ -3,14 +3,14 @@
 import { authClient } from "@/infrastructure/auth/auth-client"
 import { routes } from "@/lib/routes"
 import {
-  FileText, LogOut, Printer, RefreshCcw, Settings,
-  ArrowRightCircle, ArrowLeftCircle, Menu, X, Plus, ChevronRight,
+  LogOut, Menu, X, Plus, ChevronRight,
+  ArrowRightCircle, ArrowLeftCircle,
 } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
-import styles from "./layout.module.css"
+import styles from "@/app/layout.module.css"
 import TopbarFilter from "@/components/ui/topbar-filter"
 import { ThemeToggle } from "@/components/ui/theme-toogle"
 import {
@@ -18,37 +18,32 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader,
   AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-
-const menuItems = [
-  { label: "Data Surat",      icon: FileText,   href: routes.dataSurat.staff, badge: null },
-  { label: "Cetak",           icon: Printer,    href: routes.dataSurat.cetak, badge: null },
-  { label: "Track Surat",     icon: RefreshCcw, href: routes.dataSurat.track, badge: "3"  },
-  { label: "Pengaturan Akun", icon: Settings,   href: routes.dataSurat.akun,  badge: null },
-]
+import { getMenuItems } from "@/app/_components/surat/menu-items"
+import type { Role } from "@/app/_components/surat/shared"
 
 const ICON_SIZE = 18
 
 export default function StaffLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  
-  // -- STATE UNTUK PERSISTENCE --
-  const [collapsed, setCollapsed]   = useState(false)
-  const [isMounted, setIsMounted]   = useState(false) // Untuk handle hydration
-  
-  const [mobileOpen, setMobileOpen] = useState(false)
-  const [isMobile, setIsMobile]     = useState(false)
-  const [subtitle, setSubtitle] = useState<string | null>(null)
-  const [userData, setUserData]     = useState({
-    name: "Loading...",
-    role: "Staff",
-    initials: "??",
+  const router   = useRouter()
+
+  const [collapsed,   setCollapsed]   = useState(false)
+  const [isMounted,   setIsMounted]   = useState(false)
+  const [mobileOpen,  setMobileOpen]  = useState(false)
+  const [isMobile,    setIsMobile]    = useState(false)
+  const [subtitle,    setSubtitle]    = useState<string | null>(null)
+  const [subsubtitle, setSubsubtitle] = useState<string | null>(null)
+  const [role,        setRole]        = useState<Role>("STAFF")
+  const [userData,    setUserData]    = useState({
+    name: "Loading...", role: "Staff", initials: "??",
   })
   const [filters, setFilters] = useState<{
     date: string | null
     departments: string[]
   }>({ date: null, departments: [] })
 
-  // 1. LOAD STATE: Ambil dari localStorage saat pertama kali mount
+  const menuItems = getMenuItems(role)
+
   useEffect(() => {
     const savedState = localStorage.getItem("sidebar_collapsed")
     if (savedState !== null && window.innerWidth >= 768) {
@@ -57,7 +52,6 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
     setIsMounted(true)
   }, [])
 
-  // 2. SAVE STATE: Simpan ke localStorage setiap kali status collapsed berubah
   useEffect(() => {
     if (isMounted && !isMobile) {
       localStorage.setItem("sidebar_collapsed", JSON.stringify(collapsed))
@@ -65,20 +59,14 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
   }, [collapsed, isMounted, isMobile])
 
   useEffect(() => {
-    window.dispatchEvent(
-      new CustomEvent("filter:change", { detail: filters })
-    )
+    window.dispatchEvent(new CustomEvent("filter:change", { detail: filters }))
   }, [filters])
 
-  /* resize */
   useEffect(() => {
     const checkMobile = () => {
       const mobile = window.innerWidth < 768
       setIsMobile(mobile)
-      if (mobile) { 
-        setCollapsed(false) 
-        setMobileOpen(false) 
-      }
+      if (mobile) { setCollapsed(false); setMobileOpen(false) }
     }
     checkMobile()
     window.addEventListener("resize", checkMobile)
@@ -88,6 +76,7 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
   useEffect(() => {
     setMobileOpen(false)
     setSubtitle(null)
+    setSubsubtitle(null)
   }, [pathname])
 
   useEffect(() => {
@@ -101,11 +90,15 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
   }, [mobileOpen])
 
   useEffect(() => {
-    const handler = (e: Event) => {
-      setSubtitle((e as CustomEvent<string | null>).detail)
-    }
+    const handler = (e: Event) => setSubtitle((e as CustomEvent<string | null>).detail)
     window.addEventListener("breadcrumb:sub", handler)
     return () => window.removeEventListener("breadcrumb:sub", handler)
+  }, [])
+
+  useEffect(() => {
+    const handler = (e: Event) => setSubsubtitle((e as CustomEvent<string | null>).detail)
+    window.addEventListener("breadcrumb:subsub", handler)
+    return () => window.removeEventListener("breadcrumb:subsub", handler)
   }, [])
 
   useEffect(() => {
@@ -119,9 +112,11 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
           .join("")
           .toUpperCase()
           .substring(0, 2)
+        const userRole = ((data.user as any).role as Role) ?? "STAFF"
+        setRole(userRole)
         setUserData({
           name: fullName,
-          role: (data.user as any).role || "Staff Administrasi",
+          role: userRole,
           initials,
         })
       }
@@ -139,11 +134,10 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
     })
   }
 
-  // JANGAN RENDER sebelum mount selesai untuk menghindari lompatan visual (flicker)
   if (!isMounted) return <div className="min-h-screen bg-background" />
 
   const currentPage = (() => {
-  const matched = menuItems.find((item) => item.href === pathname)
+    const matched = menuItems.find((item) => item.href === pathname)
     if (matched) return matched.label
     if (pathname.includes("/staff/view/")) return "Data Surat"
     if (pathname.includes("/staff/edit/")) return "Data Surat"
@@ -304,13 +298,29 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
             )}
 
             <nav className={styles.breadcrumb} aria-label="breadcrumb">
-              {subtitle ? (
+              {subtitle && subsubtitle ? (
                 <>
                   <button
                     className={styles.breadcrumbParent}
-                    onClick={() =>
-                      window.dispatchEvent(new CustomEvent("breadcrumb:back"))
-                    }
+                    onClick={() => router.push(routes.dataSurat.staff)}
+                  >
+                    {currentPage}
+                  </button>
+                  <ChevronRight size={14} className={styles.breadcrumbSep} />
+                  <button
+                    className={styles.breadcrumbParent}
+                    onClick={() => router.back()}
+                  >
+                    {subtitle}
+                  </button>
+                  <ChevronRight size={14} className={styles.breadcrumbSep} />
+                  <span className={styles.breadcrumbSub}>{subsubtitle}</span>
+                </>
+              ) : subtitle ? (
+                <>
+                  <button
+                    className={styles.breadcrumbParent}
+                    onClick={() => router.push(routes.dataSurat.staff)}
                   >
                     {currentPage}
                   </button>
@@ -325,7 +335,7 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
 
           {pathname === routes.dataSurat.staff && (
             <button
-              onClick={() => window.dispatchEvent(new CustomEvent("surat:tambah"))}
+              onClick={() => router.push(`/staff/add`)}
               className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1.5 px-3 h-[34px] rounded-lg text-[13px] font-semibold transition-colors shrink-0"
             >
               <Plus size={15} />
@@ -333,7 +343,10 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
             </button>
           )}
 
-          <TopbarFilter onFilterChange={setFilters} />
+          <TopbarFilter 
+            onFilterChange={setFilters}
+            disabled={pathname === `/staff/add`}
+          />
         </div>
 
         <div className={styles.content}>{children}</div>

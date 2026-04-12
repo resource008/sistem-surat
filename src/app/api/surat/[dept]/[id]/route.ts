@@ -1,16 +1,22 @@
 // app/api/surat/[dept]/[id]/route.ts
 import { NextResponse } from "next/server"
-import { prisma } from "@/lib/prisma"
+import { prisma } from "@/infrastructure/databases/prisma-client"
 
 type Params = { params: Promise<{ dept: string; id: string }> }
 
 export async function GET(_: Request, { params }: Params) {
   const { dept, id } = await params
 
+  // dept dari URL bisa shortName, cari id-nya dulu
+  const deptData = await prisma.department.findFirst({
+    where: { OR: [{ id: dept }, { shortName: dept }] },
+    select: { id: true },
+  })
+
   const surat = await prisma.dataSurat.findFirst({
     where: {
       id:     Number(id),
-      deptId: dept,
+      deptId: deptData?.id ?? dept,
     },
     include: { dept: true },
   })
@@ -29,28 +35,39 @@ export async function PATCH(req: Request, { params }: Params) {
     })
     if (!existing) throw new Error("Surat tidak ditemukan")
 
-    const deptBerubah = body.deptId && body.deptId !== existing.deptId
+    // Konversi shortName → id jika body.deptId berisi shortName
+    let targetDeptId = existing.deptId
+    if (body.deptId) {
+      const deptData = await tx.department.findFirst({
+        where: { shortName: body.deptId },
+        select: { id: true },
+      })
+      targetDeptId = deptData?.id ?? existing.deptId
+    }
+
+    const deptBerubah = targetDeptId !== existing.deptId
 
     let nomor = existing.nomor
 
     if (deptBerubah) {
-      const counter = await tx.nomorCounter.upsert({
-        where:  { deptId: body.deptId },
-        update: { counter: { increment: 1 } },
-        create: { deptId: body.deptId, counter: 1 },
+      const suratDeptBaru = await tx.dataSurat.findMany({
+        where: { deptId: targetDeptId },
+        select: { nomor: true },
       })
 
-      const deptData = await tx.department.findUnique({ where: { id: body.deptId } })
-      const year     = new Date().getFullYear()
-      const bulan    = String(new Date().getMonth() + 1).padStart(2, "0")
-      nomor = `${String(counter.counter).padStart(3, "0")}/${deptData!.shortName}/${bulan}/${year}`
+      const max = suratDeptBaru.reduce((acc: number, s: { nomor: string }) => {
+        const n = parseInt(s.nomor, 10)
+        return isNaN(n) ? acc : Math.max(acc, n)
+      }, 0)
+
+      nomor = String(max + 1).padStart(4, "0")
     }
 
     const surat = await tx.dataSurat.update({
       where: { id: Number(id) },
       data: {
         nomor,
-        deptId:        body.deptId        ?? existing.deptId,
+        deptId:        targetDeptId,  // ← pakai id, bukan shortName
         perihal:       body.perihal        ?? existing.perihal,
         asalSurat:     body.asalSurat      ?? existing.asalSurat,
         tujuan:        body.tujuan         ?? existing.tujuan,

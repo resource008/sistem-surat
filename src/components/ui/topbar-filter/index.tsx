@@ -6,7 +6,7 @@ import { usePanel } from "./use-panel"
 import { FilterDesktop } from "./filter-desktop"
 import { FilterSheet } from "./filter-sheet"
 
-export default function TopbarFilter({ onFilterChange }: { onFilterChange?: any }) {
+export default function TopbarFilter({ onFilterChange, disabled }: { onFilterChange?: any; disabled?: boolean }) {
   const {
     date, setDate,
     selectedDepts, toggleDept,
@@ -28,14 +28,16 @@ export default function TopbarFilter({ onFilterChange }: { onFilterChange?: any 
     <>
       {/* Tombol trigger */}
       <button
-        onClick={handleTriggerClick}
+        onClick={disabled ? undefined : handleTriggerClick}
         style={{
           display: "flex", alignItems: "center", gap: "6px",
           padding: "0 12px", height: "34px", borderRadius: "8px",
           border: `1px solid ${hasFilter ? "#2563eb" : "var(--border)"}`,
           background: hasFilter ? "#2563eb" : "transparent",
           color: hasFilter ? "#ffffff" : "var(--muted-foreground)",
-          cursor: "pointer", fontSize: "13px", fontFamily: "inherit",
+          cursor: disabled ? "not-allowed" : "pointer",
+          opacity: disabled ? 0.4 : 1,
+          fontSize: "13px", fontFamily: "inherit",
           fontWeight: 500, whiteSpace: "nowrap", flexShrink: 0,
           transition: "all 0.2s ease",
         }}

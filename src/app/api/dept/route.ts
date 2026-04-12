@@ -9,6 +9,7 @@ export async function GET() {
       select: {
         id:        true,
         shortName: true,
+        tujuan: true,
       },
       orderBy: { shortName: "asc" },
     })
