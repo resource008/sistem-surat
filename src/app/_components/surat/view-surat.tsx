@@ -44,7 +44,7 @@ export default function ViewSuratPage({ role, basePath }: Props) {
       .then(data => {
         setSurat(data)
         window.dispatchEvent(new CustomEvent("breadcrumb:sub", {
-          detail: `${data.dept.shortName} - ${data.nomor}`,
+          detail: `View Data Surat - ${data.dept.shortName}`,
         }))
         window.dispatchEvent(new CustomEvent("breadcrumb:subsub", { detail: null }))
       })
@@ -75,7 +75,7 @@ export default function ViewSuratPage({ role, basePath }: Props) {
   return (
     <div className="max-w-2xl mx-auto flex flex-col gap-3.5">
       <div className="flex items-center justify-between">
-        <button onClick={() => router.push(`${basePath}/data-surat`)}
+        <button onClick={() => router.push(basePath)}
           className="inline-flex items-center gap-1.5 text-[13px] font-medium text-slate-500 border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors">
           <ArrowLeft size={14} /> Kembali
         </button>

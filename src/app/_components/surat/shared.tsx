@@ -73,14 +73,28 @@ export function formatTanggal(iso: string) {
 // ─── FormField ────────────────────────────────────────────────────────────────
 
 export function FormField({
-  label, optional = false, hint, children,
+  label,
+  optional = false,
+  hint,
+  error,       // ✅ Tambah prop error
+  children,
 }: {
-  label: string; optional?: boolean; hint?: string; children: React.ReactNode
+  label:     string
+  optional?: boolean
+  hint?:     string
+  error?:    string    // ✅ Tipe error
+  children:  React.ReactNode
 }) {
   return (
     <div className="flex flex-col gap-1.5">
       <div className="flex items-center gap-1.5">
-        <label className="text-[10px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+        <label className={cn(
+          "text-[10px] font-medium uppercase tracking-wider",
+          // ✅ Warna label berubah merah saat error
+          error
+            ? "text-red-500 dark:text-red-400"
+            : "text-slate-500 dark:text-slate-400"
+        )}>
           {label}
         </label>
         {optional && (
@@ -95,6 +109,12 @@ export function FormField({
         )}
       </div>
       {children}
+      {/* ✅ Tampilkan pesan error di bawah field */}
+      {error && (
+        <span className="text-[11px] text-red-500 dark:text-red-400 font-medium -mt-0.5">
+          {error}
+        </span>
+      )}
     </div>
   )
 }

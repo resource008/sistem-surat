@@ -11,6 +11,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar"
 import { Button } from "@/components/ui/button"
 import { FormField, FormState, inputClass, readonlyClass, formatTanggal, Role, EMPTY_FORM } from "./shared"
+import { toast } from "sonner"
 
 interface SuratMeta { nomor: string; tanggalTerima: string }
 
@@ -30,12 +31,10 @@ export default function EditSuratPage({ role, basePath }: Props) {
   const [saving,        setSaving]        = useState(false)
   const [error,         setError]         = useState<string | null>(null)
 
-  // Track dept awal & preview nomor baru
   const [originalDept,  setOriginalDept]  = useState<string>("")
   const [previewNomor,  setPreviewNomor]  = useState<string | null>(null)
   const [fetchingNomor, setFetchingNomor] = useState(false)
 
-  // Load data surat + daftar dept
   useEffect(() => {
     Promise.all([
       fetch(`/api/surat/${dept}/${id}`).then(r => {
@@ -45,38 +44,35 @@ export default function EditSuratPage({ role, basePath }: Props) {
       fetch("/api/dept").then(r => r.json()),
     ])
       .then(([data, depts]: [any, any[]]) => {
-      const deptsMapped = depts.map((d: any) => ({ id: d.id, shortName: d.shortName }))
-      setDeptList(deptsMapped)
+        const deptsMapped = depts.map((d: any) => ({ id: d.id, shortName: d.shortName }))
+        setDeptList(deptsMapped)
 
-      // Konversi deptId (id) → shortName agar konsisten dengan value di Select
-      const deptShortName = deptsMapped.find(d => d.id === data.deptId)?.shortName ?? data.deptId
+        const deptShortName = deptsMapped.find(d => d.id === data.deptId)?.shortName ?? data.deptId
 
-      setForm({
-        perihal:       data.perihal,
-        asalSurat:     data.asalSurat,
-        tujuan:        data.tujuan,
-        noSurat:       data.noSurat      ?? "",
-        lampiran:      data.lampiran     ?? "",
-        tanggalSurat:  data.tanggalSurat?.slice(0, 10)  ?? "",
-        tanggalTerima: data.tanggalTerima?.slice(0, 10) ?? "",
-        deptId:        deptShortName,  // ← shortName, bukan id
-        nomor:         data.nomor      ?? "",
+        setForm({
+          perihal:       data.perihal,
+          asalSurat:     data.asalSurat,
+          tujuan:        data.tujuan,
+          noSurat:       data.noSurat      ?? "",
+          lampiran:      data.lampiran     ?? "",
+          tanggalSurat:  data.tanggalSurat?.slice(0, 10)  ?? "",
+          tanggalTerima: data.tanggalTerima?.slice(0, 10) ?? "",
+          deptId:        deptShortName,
+          nomor:         data.nomor      ?? "",
+        })
+        setMeta({ nomor: data.nomor, tanggalTerima: data.tanggalTerima })
+        setOriginalDept(deptShortName)
+
+        window.dispatchEvent(new CustomEvent("breadcrumb:sub", {
+          detail: `View Data Surat - ${deptShortName} `,
+        }))
+        window.dispatchEvent(new CustomEvent("breadcrumb:subsub", { detail: "Edit Data Surat" }))
       })
-      setMeta({ nomor: data.nomor, tanggalTerima: data.tanggalTerima })
-      setOriginalDept(deptShortName)  // ← shortName, bukan id
-      
-      window.dispatchEvent(new CustomEvent("breadcrumb:sub", {
-        detail: `${data.deptId} - ${data.nomor}`,
-      }))
-      window.dispatchEvent(new CustomEvent("breadcrumb:subsub", { detail: "Edit Data" }))
-    })
       .catch(e => setError((e as Error).message))
       .finally(() => setLoading(false))
   }, [dept, id])
 
-  // Watch perubahan dept → fetch nomor kosong pertama di dept baru
   useEffect(() => {
-    // Jika dept kembali ke semula, reset preview
     if (!form.deptId || form.deptId === originalDept) {
       setPreviewNomor(null)
       return
@@ -108,31 +104,68 @@ export default function EditSuratPage({ role, basePath }: Props) {
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
       setForm(prev => ({ ...prev, [field]: e.target.value }))
 
+  // ✅ Validasi hanya pakai sonner toast
+  function validateForm(): boolean {
+    const missing: string[] = []
+
+    if (!form.deptId)              missing.push("Departemen")
+    if (!form.perihal.trim())      missing.push("Perihal surat")
+    if (!form.asalSurat.trim())    missing.push("Asal surat")
+    if (!form.tanggalSurat)        missing.push("Tanggal surat")
+    if (!form.lampiran.trim())     missing.push("Lampiran")
+
+    if (missing.length > 0) {
+      toast.error("Tidak dapat menyimpan data", {
+        description: `${missing.join(", ")} wajib diisi.`,
+      })
+      return false
+    }
+
+    return true
+  }
+
   async function handleUpdate(e: React.FormEvent) {
     e.preventDefault()
+
+    if (!validateForm()) return
+
     setSaving(true)
     setError(null)
     try {
+      const payload = {
+        deptId:        form.deptId,
+        perihal:       form.perihal,
+        asalSurat:     form.asalSurat,
+        tujuan:        form.tujuan,
+        noSurat:       form.noSurat  || null,
+        lampiran:      form.lampiran || null,
+        tanggalSurat:  form.tanggalSurat  ? new Date(form.tanggalSurat).toISOString()  : undefined,
+        tanggalTerima: form.tanggalTerima ? new Date(form.tanggalTerima).toISOString() : undefined,
+      }
+
       const res = await fetch(`/api/surat/${dept}/${id}`, {
         method:  "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          deptId:        form.deptId,
-          perihal:       form.perihal,
-          asalSurat:     form.asalSurat,
-          tujuan:        form.tujuan,
-          noSurat:       form.noSurat  || null,
-          lampiran:      form.lampiran || null,
-          tanggalSurat:  form.tanggalSurat  ? new Date(form.tanggalSurat).toISOString()  : undefined,
-          tanggalTerima: form.tanggalTerima ? new Date(form.tanggalTerima).toISOString() : undefined,
-        }),
+        body:    JSON.stringify(payload),
       })
-      if (!res.ok) throw new Error("Gagal menyimpan perubahan")
-      await res.json()
-      // Gunakan deptId dari response (mungkin nomor berubah)
+
+      const resBody = await res.json()
+
+      if (!res.ok) {
+        throw new Error(resBody.error || "Gagal menyimpan perubahan")
+      }
+
+      toast.success("Berhasil Diperbarui", {
+        description: `Data surat ${dept || ""} berhasil diperbarui.`,
+      })
+
       router.push(basePath)
     } catch (e) {
-      setError((e as Error).message)
+      const msg = (e as Error).message
+      toast.error("Gagal Menyimpan", {
+        description: msg,
+      })
+      setError(msg)
     } finally {
       setSaving(false)
     }
@@ -157,7 +190,6 @@ export default function EditSuratPage({ role, basePath }: Props) {
     <div className="max-w-2xl mx-auto flex flex-col gap-4">
       <div className="border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-950 overflow-hidden shadow-sm">
         <div className="flex items-center justify-between px-5 py-4 bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-800">
-          {/* Nomor Registrasi — tampilkan preview jika dept berubah */}
           <div className="flex flex-col gap-1">
             <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               Nomor Registrasi
@@ -203,22 +235,20 @@ export default function EditSuratPage({ role, basePath }: Props) {
 
         <form onSubmit={handleUpdate}>
           <div className="p-5 flex flex-col gap-5">
-            {error && (
-              <div className="px-4 py-3 rounded-lg border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-950/50 text-[13px] text-red-600 dark:text-red-400">
-                {error}
-              </div>
-            )}
 
             <div className="grid grid-cols-2 gap-4">
               <FormField label="Departemen">
-                <Select value={form.deptId} onValueChange={v => {
-                  const selected = deptList.find(d => d.shortName === v)
-                  setForm(prev => ({
-                    ...prev,
-                    deptId: v,
-                    tujuan: selected?.shortName ?? prev.tujuan,
-                  }))
-                }}>
+                <Select
+                  value={form.deptId}
+                  onValueChange={v => {
+                    const selected = deptList.find(d => d.shortName === v)
+                    setForm(prev => ({
+                      ...prev,
+                      deptId: v,
+                      tujuan: selected?.shortName ?? prev.tujuan,
+                    }))
+                  }}
+                >
                   <SelectTrigger className={cn(
                     inputClass, "h-10 shadow-none",
                     deptChanged && "border-amber-300 dark:border-amber-700 focus:ring-amber-200 dark:focus:ring-amber-800"
@@ -235,7 +265,8 @@ export default function EditSuratPage({ role, basePath }: Props) {
                   </SelectContent>
                 </Select>
               </FormField>
-              <FormField label="Tanggal terima" hint="· otomatis">
+
+              <FormField label="Tanggal terima">
                 <div className={readonlyClass}>
                   {meta?.tanggalTerima ? formatTanggal(meta.tanggalTerima) : "—"}
                 </div>
@@ -246,8 +277,10 @@ export default function EditSuratPage({ role, basePath }: Props) {
               <FormField label="Tanggal surat">
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button variant="outline" className={cn(inputClass, "h-10 justify-start text-left shadow-none",
-                      !form.tanggalSurat && "text-slate-400 dark:text-slate-500")}>
+                    <Button variant="outline" className={cn(
+                      inputClass, "h-10 justify-start text-left shadow-none",
+                      !form.tanggalSurat && "text-slate-400 dark:text-slate-500"
+                    )}>
                       <CalendarIcon className="mr-2 h-4 w-4 text-slate-500" />
                       {form.tanggalSurat
                         ? format(new Date(form.tanggalSurat), "dd MMMM yyyy", { locale: localeID })
@@ -262,32 +295,35 @@ export default function EditSuratPage({ role, basePath }: Props) {
                   </PopoverContent>
                 </Popover>
               </FormField>
+
               <FormField label="No. surat" optional>
                 <input className={inputClass} value={form.noSurat} onChange={set("noSurat")}
-                  placeholder="Nomor surat dari pengirim" />
+                  placeholder="Masukkan nomor surat" />
               </FormField>
             </div>
 
             <FormField label="Perihal surat">
               <textarea className={cn(inputClass, "resize-none leading-relaxed min-h-20")}
                 rows={3} value={form.perihal} onChange={set("perihal")}
-                placeholder="Ringkasan isi surat..." required />
+                placeholder="Masukkan perihal surat" />
             </FormField>
 
             <div className="grid grid-cols-2 gap-4">
               <FormField label="Asal surat">
                 <input className={inputClass} value={form.asalSurat} onChange={set("asalSurat")}
-                  placeholder="Instansi pengirim" required />
+                  placeholder="Masukkan asal surat" />
               </FormField>
+
               <FormField label="Tujuan">
-                <input className={inputClass} value={form.tujuan} onChange={set("tujuan")}
-                  placeholder="Penerima di dalam perusahaan" required />
+                <div className={readonlyClass}>
+                  {form.tujuan || "—"}
+                </div>
               </FormField>
             </div>
 
-            <FormField label="Lampiran" optional>
+            <FormField label="Lampiran">
               <input className={inputClass} value={form.lampiran} onChange={set("lampiran")}
-                placeholder="Misal: 2 Lembar, 1 Berkas" />
+                placeholder="Masukkan lampiran bentuk set" />
             </FormField>
           </div>
 

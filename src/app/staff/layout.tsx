@@ -334,19 +334,19 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
           </div>
 
           {pathname === routes.dataSurat.staff && (
-            <button
-              onClick={() => router.push(`/staff/add`)}
-              className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1.5 px-3 h-[34px] rounded-lg text-[13px] font-semibold transition-colors shrink-0"
-            >
-              <Plus size={15} />
-              {!isMobile && "Tambah"}
-            </button>
+          <>
+              <button
+                onClick={() => router.push(`/staff/add`)}
+                className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1.5 px-3 h-8.5 rounded-lg text-[13px] font-semibold transition-colors shrink-0"
+              >
+                <Plus size={15} />
+                {!isMobile && "Tambah"}
+              </button>
+
+              <TopbarFilter onFilterChange={setFilters} />
+            </>
           )}
 
-          <TopbarFilter 
-            onFilterChange={setFilters}
-            disabled={pathname === `/staff/add`}
-          />
         </div>
 
         <div className={styles.content}>{children}</div>
