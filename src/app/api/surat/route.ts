@@ -66,7 +66,7 @@ export async function POST(req: Request) {
         },
         perihal,
         asalSurat,
-        tujuan:        tujuan || dept.tujuan,
+        tujuan:        tujuan || "-",
         noSurat:       noSurat   || null,
         lampiran:      lampiran  || null,
         tanggalSurat:  new Date(tanggalSurat),
