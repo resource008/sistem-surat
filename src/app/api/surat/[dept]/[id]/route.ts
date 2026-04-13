@@ -70,7 +70,6 @@ export async function PATCH(req: Request, { params }: Params) {
         deptId:        targetDeptId,  // ← pakai id, bukan shortName
         perihal:       body.perihal        ?? existing.perihal,
         asalSurat:     body.asalSurat      ?? existing.asalSurat,
-        tujuan:        body.tujuan         ?? existing.tujuan,
         noSurat:       body.noSurat        ?? existing.noSurat,
         lampiran:      body.lampiran       ?? existing.lampiran,
         tanggalSurat:  body.tanggalSurat
