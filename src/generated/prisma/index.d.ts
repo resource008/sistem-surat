@@ -4847,21 +4847,18 @@ export namespace Prisma {
   export type DepartmentMinAggregateOutputType = {
     id: string | null
     shortName: string | null
-    tujuan: string | null
     isActive: boolean | null
   }
 
   export type DepartmentMaxAggregateOutputType = {
     id: string | null
     shortName: string | null
-    tujuan: string | null
     isActive: boolean | null
   }
 
   export type DepartmentCountAggregateOutputType = {
     id: number
     shortName: number
-    tujuan: number
     isActive: number
     _all: number
   }
@@ -4870,21 +4867,18 @@ export namespace Prisma {
   export type DepartmentMinAggregateInputType = {
     id?: true
     shortName?: true
-    tujuan?: true
     isActive?: true
   }
 
   export type DepartmentMaxAggregateInputType = {
     id?: true
     shortName?: true
-    tujuan?: true
     isActive?: true
   }
 
   export type DepartmentCountAggregateInputType = {
     id?: true
     shortName?: true
-    tujuan?: true
     isActive?: true
     _all?: true
   }
@@ -4964,7 +4958,6 @@ export namespace Prisma {
   export type DepartmentGroupByOutputType = {
     id: string
     shortName: string
-    tujuan: string
     isActive: boolean
     _count: DepartmentCountAggregateOutputType | null
     _min: DepartmentMinAggregateOutputType | null
@@ -4988,7 +4981,6 @@ export namespace Prisma {
   export type DepartmentSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     shortName?: boolean
-    tujuan?: boolean
     isActive?: boolean
     dataSurat?: boolean | Department$dataSuratArgs<ExtArgs>
     nomorCounter?: boolean | Department$nomorCounterArgs<ExtArgs>
@@ -4998,25 +4990,22 @@ export namespace Prisma {
   export type DepartmentSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     shortName?: boolean
-    tujuan?: boolean
     isActive?: boolean
   }, ExtArgs["result"]["department"]>
 
   export type DepartmentSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     shortName?: boolean
-    tujuan?: boolean
     isActive?: boolean
   }, ExtArgs["result"]["department"]>
 
   export type DepartmentSelectScalar = {
     id?: boolean
     shortName?: boolean
-    tujuan?: boolean
     isActive?: boolean
   }
 
-  export type DepartmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "shortName" | "tujuan" | "isActive", ExtArgs["result"]["department"]>
+  export type DepartmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "shortName" | "isActive", ExtArgs["result"]["department"]>
   export type DepartmentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     dataSurat?: boolean | Department$dataSuratArgs<ExtArgs>
     nomorCounter?: boolean | Department$nomorCounterArgs<ExtArgs>
@@ -5034,7 +5023,6 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: string
       shortName: string
-      tujuan: string
       isActive: boolean
     }, ExtArgs["result"]["department"]>
     composites: {}
@@ -5463,7 +5451,6 @@ export namespace Prisma {
   interface DepartmentFieldRefs {
     readonly id: FieldRef<"Department", 'String'>
     readonly shortName: FieldRef<"Department", 'String'>
-    readonly tujuan: FieldRef<"Department", 'String'>
     readonly isActive: FieldRef<"Department", 'Boolean'>
   }
     
@@ -5946,8 +5933,8 @@ export namespace Prisma {
     tanggalTerima: Date | null
     asalSurat: string | null
     perihal: string | null
-    tujuan: string | null
     tanggalSurat: Date | null
+    tujuan: string | null
     noSurat: string | null
     lampiran: string | null
     createdAt: Date | null
@@ -5961,8 +5948,8 @@ export namespace Prisma {
     tanggalTerima: Date | null
     asalSurat: string | null
     perihal: string | null
-    tujuan: string | null
     tanggalSurat: Date | null
+    tujuan: string | null
     noSurat: string | null
     lampiran: string | null
     createdAt: Date | null
@@ -5976,8 +5963,8 @@ export namespace Prisma {
     tanggalTerima: number
     asalSurat: number
     perihal: number
-    tujuan: number
     tanggalSurat: number
+    tujuan: number
     noSurat: number
     lampiran: number
     createdAt: number
@@ -6001,8 +5988,8 @@ export namespace Prisma {
     tanggalTerima?: true
     asalSurat?: true
     perihal?: true
-    tujuan?: true
     tanggalSurat?: true
+    tujuan?: true
     noSurat?: true
     lampiran?: true
     createdAt?: true
@@ -6016,8 +6003,8 @@ export namespace Prisma {
     tanggalTerima?: true
     asalSurat?: true
     perihal?: true
-    tujuan?: true
     tanggalSurat?: true
+    tujuan?: true
     noSurat?: true
     lampiran?: true
     createdAt?: true
@@ -6031,8 +6018,8 @@ export namespace Prisma {
     tanggalTerima?: true
     asalSurat?: true
     perihal?: true
-    tujuan?: true
     tanggalSurat?: true
+    tujuan?: true
     noSurat?: true
     lampiran?: true
     createdAt?: true
@@ -6133,8 +6120,8 @@ export namespace Prisma {
     tanggalTerima: Date
     asalSurat: string
     perihal: string
-    tujuan: string
     tanggalSurat: Date
+    tujuan: string
     noSurat: string | null
     lampiran: string | null
     createdAt: Date
@@ -6167,8 +6154,8 @@ export namespace Prisma {
     tanggalTerima?: boolean
     asalSurat?: boolean
     perihal?: boolean
-    tujuan?: boolean
     tanggalSurat?: boolean
+    tujuan?: boolean
     noSurat?: boolean
     lampiran?: boolean
     createdAt?: boolean
@@ -6183,8 +6170,8 @@ export namespace Prisma {
     tanggalTerima?: boolean
     asalSurat?: boolean
     perihal?: boolean
-    tujuan?: boolean
     tanggalSurat?: boolean
+    tujuan?: boolean
     noSurat?: boolean
     lampiran?: boolean
     createdAt?: boolean
@@ -6199,8 +6186,8 @@ export namespace Prisma {
     tanggalTerima?: boolean
     asalSurat?: boolean
     perihal?: boolean
-    tujuan?: boolean
     tanggalSurat?: boolean
+    tujuan?: boolean
     noSurat?: boolean
     lampiran?: boolean
     createdAt?: boolean
@@ -6215,15 +6202,15 @@ export namespace Prisma {
     tanggalTerima?: boolean
     asalSurat?: boolean
     perihal?: boolean
-    tujuan?: boolean
     tanggalSurat?: boolean
+    tujuan?: boolean
     noSurat?: boolean
     lampiran?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type DataSuratOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "nomor" | "deptId" | "tanggalTerima" | "asalSurat" | "perihal" | "tujuan" | "tanggalSurat" | "noSurat" | "lampiran" | "createdAt" | "updatedAt", ExtArgs["result"]["dataSurat"]>
+  export type DataSuratOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "nomor" | "deptId" | "tanggalTerima" | "asalSurat" | "perihal" | "tanggalSurat" | "tujuan" | "noSurat" | "lampiran" | "createdAt" | "updatedAt", ExtArgs["result"]["dataSurat"]>
   export type DataSuratInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     dept?: boolean | DepartmentDefaultArgs<ExtArgs>
   }
@@ -6246,8 +6233,8 @@ export namespace Prisma {
       tanggalTerima: Date
       asalSurat: string
       perihal: string
-      tujuan: string
       tanggalSurat: Date
+      tujuan: string
       noSurat: string | null
       lampiran: string | null
       createdAt: Date
@@ -6682,8 +6669,8 @@ export namespace Prisma {
     readonly tanggalTerima: FieldRef<"DataSurat", 'DateTime'>
     readonly asalSurat: FieldRef<"DataSurat", 'String'>
     readonly perihal: FieldRef<"DataSurat", 'String'>
-    readonly tujuan: FieldRef<"DataSurat", 'String'>
     readonly tanggalSurat: FieldRef<"DataSurat", 'DateTime'>
+    readonly tujuan: FieldRef<"DataSurat", 'String'>
     readonly noSurat: FieldRef<"DataSurat", 'String'>
     readonly lampiran: FieldRef<"DataSurat", 'String'>
     readonly createdAt: FieldRef<"DataSurat", 'DateTime'>
@@ -8230,7 +8217,6 @@ export namespace Prisma {
   export const DepartmentScalarFieldEnum: {
     id: 'id',
     shortName: 'shortName',
-    tujuan: 'tujuan',
     isActive: 'isActive'
   };
 
@@ -8244,8 +8230,8 @@ export namespace Prisma {
     tanggalTerima: 'tanggalTerima',
     asalSurat: 'asalSurat',
     perihal: 'perihal',
-    tujuan: 'tujuan',
     tanggalSurat: 'tanggalSurat',
+    tujuan: 'tujuan',
     noSurat: 'noSurat',
     lampiran: 'lampiran',
     createdAt: 'createdAt',
@@ -8621,7 +8607,6 @@ export namespace Prisma {
     NOT?: DepartmentWhereInput | DepartmentWhereInput[]
     id?: StringFilter<"Department"> | string
     shortName?: StringFilter<"Department"> | string
-    tujuan?: StringFilter<"Department"> | string
     isActive?: BoolFilter<"Department"> | boolean
     dataSurat?: DataSuratListRelationFilter
     nomorCounter?: XOR<NomorCounterNullableScalarRelationFilter, NomorCounterWhereInput> | null
@@ -8630,7 +8615,6 @@ export namespace Prisma {
   export type DepartmentOrderByWithRelationInput = {
     id?: SortOrder
     shortName?: SortOrder
-    tujuan?: SortOrder
     isActive?: SortOrder
     dataSurat?: DataSuratOrderByRelationAggregateInput
     nomorCounter?: NomorCounterOrderByWithRelationInput
@@ -8642,7 +8626,6 @@ export namespace Prisma {
     OR?: DepartmentWhereInput[]
     NOT?: DepartmentWhereInput | DepartmentWhereInput[]
     shortName?: StringFilter<"Department"> | string
-    tujuan?: StringFilter<"Department"> | string
     isActive?: BoolFilter<"Department"> | boolean
     dataSurat?: DataSuratListRelationFilter
     nomorCounter?: XOR<NomorCounterNullableScalarRelationFilter, NomorCounterWhereInput> | null
@@ -8651,7 +8634,6 @@ export namespace Prisma {
   export type DepartmentOrderByWithAggregationInput = {
     id?: SortOrder
     shortName?: SortOrder
-    tujuan?: SortOrder
     isActive?: SortOrder
     _count?: DepartmentCountOrderByAggregateInput
     _max?: DepartmentMaxOrderByAggregateInput
@@ -8664,7 +8646,6 @@ export namespace Prisma {
     NOT?: DepartmentScalarWhereWithAggregatesInput | DepartmentScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Department"> | string
     shortName?: StringWithAggregatesFilter<"Department"> | string
-    tujuan?: StringWithAggregatesFilter<"Department"> | string
     isActive?: BoolWithAggregatesFilter<"Department"> | boolean
   }
 
@@ -8678,8 +8659,8 @@ export namespace Prisma {
     tanggalTerima?: DateTimeFilter<"DataSurat"> | Date | string
     asalSurat?: StringFilter<"DataSurat"> | string
     perihal?: StringFilter<"DataSurat"> | string
-    tujuan?: StringFilter<"DataSurat"> | string
     tanggalSurat?: DateTimeFilter<"DataSurat"> | Date | string
+    tujuan?: StringFilter<"DataSurat"> | string
     noSurat?: StringNullableFilter<"DataSurat"> | string | null
     lampiran?: StringNullableFilter<"DataSurat"> | string | null
     createdAt?: DateTimeFilter<"DataSurat"> | Date | string
@@ -8694,8 +8675,8 @@ export namespace Prisma {
     tanggalTerima?: SortOrder
     asalSurat?: SortOrder
     perihal?: SortOrder
-    tujuan?: SortOrder
     tanggalSurat?: SortOrder
+    tujuan?: SortOrder
     noSurat?: SortOrderInput | SortOrder
     lampiran?: SortOrderInput | SortOrder
     createdAt?: SortOrder
@@ -8713,8 +8694,8 @@ export namespace Prisma {
     tanggalTerima?: DateTimeFilter<"DataSurat"> | Date | string
     asalSurat?: StringFilter<"DataSurat"> | string
     perihal?: StringFilter<"DataSurat"> | string
-    tujuan?: StringFilter<"DataSurat"> | string
     tanggalSurat?: DateTimeFilter<"DataSurat"> | Date | string
+    tujuan?: StringFilter<"DataSurat"> | string
     noSurat?: StringNullableFilter<"DataSurat"> | string | null
     lampiran?: StringNullableFilter<"DataSurat"> | string | null
     createdAt?: DateTimeFilter<"DataSurat"> | Date | string
@@ -8729,8 +8710,8 @@ export namespace Prisma {
     tanggalTerima?: SortOrder
     asalSurat?: SortOrder
     perihal?: SortOrder
-    tujuan?: SortOrder
     tanggalSurat?: SortOrder
+    tujuan?: SortOrder
     noSurat?: SortOrderInput | SortOrder
     lampiran?: SortOrderInput | SortOrder
     createdAt?: SortOrder
@@ -8752,8 +8733,8 @@ export namespace Prisma {
     tanggalTerima?: DateTimeWithAggregatesFilter<"DataSurat"> | Date | string
     asalSurat?: StringWithAggregatesFilter<"DataSurat"> | string
     perihal?: StringWithAggregatesFilter<"DataSurat"> | string
-    tujuan?: StringWithAggregatesFilter<"DataSurat"> | string
     tanggalSurat?: DateTimeWithAggregatesFilter<"DataSurat"> | Date | string
+    tujuan?: StringWithAggregatesFilter<"DataSurat"> | string
     noSurat?: StringNullableWithAggregatesFilter<"DataSurat"> | string | null
     lampiran?: StringNullableWithAggregatesFilter<"DataSurat"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"DataSurat"> | Date | string
@@ -9084,7 +9065,6 @@ export namespace Prisma {
   export type DepartmentCreateInput = {
     id: string
     shortName: string
-    tujuan?: string
     isActive?: boolean
     dataSurat?: DataSuratCreateNestedManyWithoutDeptInput
     nomorCounter?: NomorCounterCreateNestedOneWithoutDeptInput
@@ -9093,7 +9073,6 @@ export namespace Prisma {
   export type DepartmentUncheckedCreateInput = {
     id: string
     shortName: string
-    tujuan?: string
     isActive?: boolean
     dataSurat?: DataSuratUncheckedCreateNestedManyWithoutDeptInput
     nomorCounter?: NomorCounterUncheckedCreateNestedOneWithoutDeptInput
@@ -9102,7 +9081,6 @@ export namespace Prisma {
   export type DepartmentUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     shortName?: StringFieldUpdateOperationsInput | string
-    tujuan?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     dataSurat?: DataSuratUpdateManyWithoutDeptNestedInput
     nomorCounter?: NomorCounterUpdateOneWithoutDeptNestedInput
@@ -9111,7 +9089,6 @@ export namespace Prisma {
   export type DepartmentUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     shortName?: StringFieldUpdateOperationsInput | string
-    tujuan?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     dataSurat?: DataSuratUncheckedUpdateManyWithoutDeptNestedInput
     nomorCounter?: NomorCounterUncheckedUpdateOneWithoutDeptNestedInput
@@ -9120,21 +9097,18 @@ export namespace Prisma {
   export type DepartmentCreateManyInput = {
     id: string
     shortName: string
-    tujuan?: string
     isActive?: boolean
   }
 
   export type DepartmentUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     shortName?: StringFieldUpdateOperationsInput | string
-    tujuan?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type DepartmentUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     shortName?: StringFieldUpdateOperationsInput | string
-    tujuan?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
   }
 
@@ -9143,8 +9117,8 @@ export namespace Prisma {
     tanggalTerima: Date | string
     asalSurat: string
     perihal: string
-    tujuan: string
     tanggalSurat: Date | string
+    tujuan?: string
     noSurat?: string | null
     lampiran?: string | null
     createdAt?: Date | string
@@ -9159,8 +9133,8 @@ export namespace Prisma {
     tanggalTerima: Date | string
     asalSurat: string
     perihal: string
-    tujuan: string
     tanggalSurat: Date | string
+    tujuan?: string
     noSurat?: string | null
     lampiran?: string | null
     createdAt?: Date | string
@@ -9172,8 +9146,8 @@ export namespace Prisma {
     tanggalTerima?: DateTimeFieldUpdateOperationsInput | Date | string
     asalSurat?: StringFieldUpdateOperationsInput | string
     perihal?: StringFieldUpdateOperationsInput | string
-    tujuan?: StringFieldUpdateOperationsInput | string
     tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
+    tujuan?: StringFieldUpdateOperationsInput | string
     noSurat?: NullableStringFieldUpdateOperationsInput | string | null
     lampiran?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -9188,8 +9162,8 @@ export namespace Prisma {
     tanggalTerima?: DateTimeFieldUpdateOperationsInput | Date | string
     asalSurat?: StringFieldUpdateOperationsInput | string
     perihal?: StringFieldUpdateOperationsInput | string
-    tujuan?: StringFieldUpdateOperationsInput | string
     tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
+    tujuan?: StringFieldUpdateOperationsInput | string
     noSurat?: NullableStringFieldUpdateOperationsInput | string | null
     lampiran?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -9203,8 +9177,8 @@ export namespace Prisma {
     tanggalTerima: Date | string
     asalSurat: string
     perihal: string
-    tujuan: string
     tanggalSurat: Date | string
+    tujuan?: string
     noSurat?: string | null
     lampiran?: string | null
     createdAt?: Date | string
@@ -9216,8 +9190,8 @@ export namespace Prisma {
     tanggalTerima?: DateTimeFieldUpdateOperationsInput | Date | string
     asalSurat?: StringFieldUpdateOperationsInput | string
     perihal?: StringFieldUpdateOperationsInput | string
-    tujuan?: StringFieldUpdateOperationsInput | string
     tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
+    tujuan?: StringFieldUpdateOperationsInput | string
     noSurat?: NullableStringFieldUpdateOperationsInput | string | null
     lampiran?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -9231,8 +9205,8 @@ export namespace Prisma {
     tanggalTerima?: DateTimeFieldUpdateOperationsInput | Date | string
     asalSurat?: StringFieldUpdateOperationsInput | string
     perihal?: StringFieldUpdateOperationsInput | string
-    tujuan?: StringFieldUpdateOperationsInput | string
     tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
+    tujuan?: StringFieldUpdateOperationsInput | string
     noSurat?: NullableStringFieldUpdateOperationsInput | string | null
     lampiran?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -9584,21 +9558,18 @@ export namespace Prisma {
   export type DepartmentCountOrderByAggregateInput = {
     id?: SortOrder
     shortName?: SortOrder
-    tujuan?: SortOrder
     isActive?: SortOrder
   }
 
   export type DepartmentMaxOrderByAggregateInput = {
     id?: SortOrder
     shortName?: SortOrder
-    tujuan?: SortOrder
     isActive?: SortOrder
   }
 
   export type DepartmentMinOrderByAggregateInput = {
     id?: SortOrder
     shortName?: SortOrder
-    tujuan?: SortOrder
     isActive?: SortOrder
   }
 
@@ -9625,8 +9596,8 @@ export namespace Prisma {
     tanggalTerima?: SortOrder
     asalSurat?: SortOrder
     perihal?: SortOrder
-    tujuan?: SortOrder
     tanggalSurat?: SortOrder
+    tujuan?: SortOrder
     noSurat?: SortOrder
     lampiran?: SortOrder
     createdAt?: SortOrder
@@ -9644,8 +9615,8 @@ export namespace Prisma {
     tanggalTerima?: SortOrder
     asalSurat?: SortOrder
     perihal?: SortOrder
-    tujuan?: SortOrder
     tanggalSurat?: SortOrder
+    tujuan?: SortOrder
     noSurat?: SortOrder
     lampiran?: SortOrder
     createdAt?: SortOrder
@@ -9659,8 +9630,8 @@ export namespace Prisma {
     tanggalTerima?: SortOrder
     asalSurat?: SortOrder
     perihal?: SortOrder
-    tujuan?: SortOrder
     tanggalSurat?: SortOrder
+    tujuan?: SortOrder
     noSurat?: SortOrder
     lampiran?: SortOrder
     createdAt?: SortOrder
@@ -10423,8 +10394,8 @@ export namespace Prisma {
     tanggalTerima: Date | string
     asalSurat: string
     perihal: string
-    tujuan: string
     tanggalSurat: Date | string
+    tujuan?: string
     noSurat?: string | null
     lampiran?: string | null
     createdAt?: Date | string
@@ -10437,8 +10408,8 @@ export namespace Prisma {
     tanggalTerima: Date | string
     asalSurat: string
     perihal: string
-    tujuan: string
     tanggalSurat: Date | string
+    tujuan?: string
     noSurat?: string | null
     lampiran?: string | null
     createdAt?: Date | string
@@ -10494,8 +10465,8 @@ export namespace Prisma {
     tanggalTerima?: DateTimeFilter<"DataSurat"> | Date | string
     asalSurat?: StringFilter<"DataSurat"> | string
     perihal?: StringFilter<"DataSurat"> | string
-    tujuan?: StringFilter<"DataSurat"> | string
     tanggalSurat?: DateTimeFilter<"DataSurat"> | Date | string
+    tujuan?: StringFilter<"DataSurat"> | string
     noSurat?: StringNullableFilter<"DataSurat"> | string | null
     lampiran?: StringNullableFilter<"DataSurat"> | string | null
     createdAt?: DateTimeFilter<"DataSurat"> | Date | string
@@ -10524,7 +10495,6 @@ export namespace Prisma {
   export type DepartmentCreateWithoutDataSuratInput = {
     id: string
     shortName: string
-    tujuan?: string
     isActive?: boolean
     nomorCounter?: NomorCounterCreateNestedOneWithoutDeptInput
   }
@@ -10532,7 +10502,6 @@ export namespace Prisma {
   export type DepartmentUncheckedCreateWithoutDataSuratInput = {
     id: string
     shortName: string
-    tujuan?: string
     isActive?: boolean
     nomorCounter?: NomorCounterUncheckedCreateNestedOneWithoutDeptInput
   }
@@ -10556,7 +10525,6 @@ export namespace Prisma {
   export type DepartmentUpdateWithoutDataSuratInput = {
     id?: StringFieldUpdateOperationsInput | string
     shortName?: StringFieldUpdateOperationsInput | string
-    tujuan?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     nomorCounter?: NomorCounterUpdateOneWithoutDeptNestedInput
   }
@@ -10564,7 +10532,6 @@ export namespace Prisma {
   export type DepartmentUncheckedUpdateWithoutDataSuratInput = {
     id?: StringFieldUpdateOperationsInput | string
     shortName?: StringFieldUpdateOperationsInput | string
-    tujuan?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     nomorCounter?: NomorCounterUncheckedUpdateOneWithoutDeptNestedInput
   }
@@ -10572,7 +10539,6 @@ export namespace Prisma {
   export type DepartmentCreateWithoutNomorCounterInput = {
     id: string
     shortName: string
-    tujuan?: string
     isActive?: boolean
     dataSurat?: DataSuratCreateNestedManyWithoutDeptInput
   }
@@ -10580,7 +10546,6 @@ export namespace Prisma {
   export type DepartmentUncheckedCreateWithoutNomorCounterInput = {
     id: string
     shortName: string
-    tujuan?: string
     isActive?: boolean
     dataSurat?: DataSuratUncheckedCreateNestedManyWithoutDeptInput
   }
@@ -10604,7 +10569,6 @@ export namespace Prisma {
   export type DepartmentUpdateWithoutNomorCounterInput = {
     id?: StringFieldUpdateOperationsInput | string
     shortName?: StringFieldUpdateOperationsInput | string
-    tujuan?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     dataSurat?: DataSuratUpdateManyWithoutDeptNestedInput
   }
@@ -10612,7 +10576,6 @@ export namespace Prisma {
   export type DepartmentUncheckedUpdateWithoutNomorCounterInput = {
     id?: StringFieldUpdateOperationsInput | string
     shortName?: StringFieldUpdateOperationsInput | string
-    tujuan?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     dataSurat?: DataSuratUncheckedUpdateManyWithoutDeptNestedInput
   }
@@ -10723,8 +10686,8 @@ export namespace Prisma {
     tanggalTerima: Date | string
     asalSurat: string
     perihal: string
-    tujuan: string
     tanggalSurat: Date | string
+    tujuan?: string
     noSurat?: string | null
     lampiran?: string | null
     createdAt?: Date | string
@@ -10736,8 +10699,8 @@ export namespace Prisma {
     tanggalTerima?: DateTimeFieldUpdateOperationsInput | Date | string
     asalSurat?: StringFieldUpdateOperationsInput | string
     perihal?: StringFieldUpdateOperationsInput | string
-    tujuan?: StringFieldUpdateOperationsInput | string
     tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
+    tujuan?: StringFieldUpdateOperationsInput | string
     noSurat?: NullableStringFieldUpdateOperationsInput | string | null
     lampiran?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -10750,8 +10713,8 @@ export namespace Prisma {
     tanggalTerima?: DateTimeFieldUpdateOperationsInput | Date | string
     asalSurat?: StringFieldUpdateOperationsInput | string
     perihal?: StringFieldUpdateOperationsInput | string
-    tujuan?: StringFieldUpdateOperationsInput | string
     tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
+    tujuan?: StringFieldUpdateOperationsInput | string
     noSurat?: NullableStringFieldUpdateOperationsInput | string | null
     lampiran?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -10764,8 +10727,8 @@ export namespace Prisma {
     tanggalTerima?: DateTimeFieldUpdateOperationsInput | Date | string
     asalSurat?: StringFieldUpdateOperationsInput | string
     perihal?: StringFieldUpdateOperationsInput | string
-    tujuan?: StringFieldUpdateOperationsInput | string
     tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
+    tujuan?: StringFieldUpdateOperationsInput | string
     noSurat?: NullableStringFieldUpdateOperationsInput | string | null
     lampiran?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string

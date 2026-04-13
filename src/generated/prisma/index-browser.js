@@ -162,7 +162,6 @@ exports.Prisma.AccountScalarFieldEnum = {
 exports.Prisma.DepartmentScalarFieldEnum = {
   id: 'id',
   shortName: 'shortName',
-  tujuan: 'tujuan',
   isActive: 'isActive'
 };
 
@@ -173,8 +172,8 @@ exports.Prisma.DataSuratScalarFieldEnum = {
   tanggalTerima: 'tanggalTerima',
   asalSurat: 'asalSurat',
   perihal: 'perihal',
-  tujuan: 'tujuan',
   tanggalSurat: 'tanggalSurat',
+  tujuan: 'tujuan',
   noSurat: 'noSurat',
   lampiran: 'lampiran',
   createdAt: 'createdAt',

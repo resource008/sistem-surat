@@ -67,7 +67,6 @@ model Account {
 model Department {
   id        String  @id
   shortName String  @map("short_name")
-  tujuan    String  @default("") // ← tambah ini
   isActive  Boolean @default(true) @map("is_active")
 
   dataSurat    DataSurat[]
@@ -84,8 +83,8 @@ model DataSurat {
   tanggalTerima DateTime   @map("tanggal_terima")
   asalSurat     String     @map("asal_surat")
   perihal       String
-  tujuan        String
   tanggalSurat  DateTime   @map("tanggal_surat")
+  tujuan        String     @default("")
   noSurat       String?    @map("no_surat")
   lampiran      String?    @map("lampiran")
   createdAt     DateTime   @default(now()) @map("created_at")
