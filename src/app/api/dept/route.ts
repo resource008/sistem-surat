@@ -9,7 +9,9 @@ export async function GET() {
       select: {
         id:        true,
         shortName: true,
-        tujuan: true,
+        dataSurat: {
+          select: { tujuan: true }
+        },
       },
       orderBy: { shortName: "asc" },
     })
