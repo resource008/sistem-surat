@@ -1,14 +1,14 @@
 import type { Metadata } from "next"
-import { Plus_Jakarta_Sans } from "next/font/google"
+import { Figtree } from "next/font/google"
 import "./globals.css"
 import { Toaster } from "sonner"
 import { ThemeProvider } from "next-themes"
 
-const plusJakartaSans = Plus_Jakarta_Sans({
+const figtree = Figtree({
   subsets: ["latin"],
-  weight: ["200", "300", "400", "500", "600", "700", "800"],
+  weight: ["300", "400", "500", "600", "700", "800"],
   style: ["normal", "italic"],
-  variable: "--font-plus-jakarta-sans",
+  variable: "--font-figtree",
 })
 
 export const metadata: Metadata = {
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="id" suppressHydrationWarning>
-      <body className={`${plusJakartaSans.className} ${plusJakartaSans.variable}`}>
+      <body className={`${figtree.className} ${figtree.variable}`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -31,7 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             richColors
             toastOptions={{
               style: {
-                fontFamily: "var(--font-plus-jakarta-sans), sans-serif",
+                fontFamily: "var(--font-figtree), sans-serif",
               },
             }}
           />

@@ -173,10 +173,10 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
               className={`${styles.collapseBtn} ${collapsed ? styles.collapseBtnCollapsed : ""}`}
               onClick={() => setCollapsed(true)}
             >
-              <ArrowRightCircle size={14} />
+              <ArrowLeftCircle size={14} />
             </button>
             <button className={styles.expandBtn} onClick={() => setCollapsed(false)}>
-              <ArrowLeftCircle size={14} />
+              <ArrowRightCircle size={14} />
             </button>
           </>
         )}

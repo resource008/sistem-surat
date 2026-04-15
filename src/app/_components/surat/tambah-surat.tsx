@@ -93,8 +93,7 @@ export default function TambahSuratPage({ role, basePath }: Props) {
     if (!form.asalSurat.trim())    missing.push("Asal surat")
     if (!form.tanggalSurat)        missing.push("Tanggal surat")
     if (!form.tanggalTerima)       missing.push("Tanggal terima")
-    if (!form.lampiran.trim())     missing.push("Lampiran")
-
+    if (!form.lampiran)            missing.push("Lampiran")
     if (missing.length > 0) {
       toast.error("Tidak dapat menyimpan", {
         description: `${missing.join(", ")} wajib diisi.`,
@@ -119,7 +118,7 @@ export default function TambahSuratPage({ role, basePath }: Props) {
         asalSurat:     form.asalSurat,
         tujuan:        form.tujuan,
         noSurat:       form.noSurat  || null,
-        lampiran:      form.lampiran || null,
+        lampiran:      form.lampiran ? `${form.lampiran} SET` : null,
         tanggalSurat:  form.tanggalSurat
           ? parseLocalDate(form.tanggalSurat).toISOString()
           : undefined,
@@ -280,8 +279,25 @@ export default function TambahSuratPage({ role, basePath }: Props) {
             </div>
 
             <FormField label="Lampiran">
-              <input className={inputClass} value={form.lampiran} onChange={set("lampiran")}
-                placeholder="Masukkan lampiran dalam bentuk set" />
+              <div className="relative">
+                <input 
+                  type="text" 
+                  inputMode="numeric" // Memunculkan keyboard angka di HP
+                  className={cn(inputClass, "pr-12")} // Tambah padding kanan agar angka tidak menabrak tulisan SET
+                  value={form.lampiran} 
+                  onChange={(e) => {
+                    // Hanya izinkan angka menggunakan regex
+                    const onlyNumbers = e.target.value.replace(/\D/g, "");
+                    setForm(prev => ({ ...prev, lampiran: onlyNumbers }));
+                  }}
+                  placeholder="0" 
+                />
+                <div className="absolute inset-y-0 right-0 flex items-center pr-3.5 pointer-events-none">
+                  <span className="text-[13px] font-medium text-slate-400 dark:text-slate-500">
+                    SET
+                  </span>
+                </div>
+              </div>
             </FormField>
 
           </div>

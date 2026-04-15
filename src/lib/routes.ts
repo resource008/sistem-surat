@@ -7,7 +7,6 @@ export const routes = {
     staff: "/staff/data-surat",
     cetak: "/staff/cetak",
     track: "/staff/track",
-    akun: "/staff/akun",
   },
   trackSurat: {
     guest: "/track-surat/guest",

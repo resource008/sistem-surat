@@ -50,13 +50,14 @@ export async function POST(req: Request) {
       );
     }
 
-    const counter = await prisma.nomorCounter.upsert({
+    const lastSurat = await prisma.dataSurat.findFirst({
       where: { deptId },
-      update: { counter: { increment: 1 } },
-      create: { deptId, counter: 1 },
-    });
+      orderBy: { nomor: "desc" },
+      select: { nomor: true },
+    })
 
-    const nomor = `${String(counter.counter).padStart(4, "0")}`;
+    const lastNumber = lastSurat ? parseInt(lastSurat.nomor, 10) : 0
+    const nomor = String(lastNumber + 1).padStart(4, "0")
 
     const created = await prisma.dataSurat.create({
       data: {
@@ -66,7 +67,7 @@ export async function POST(req: Request) {
         },
         perihal,
         asalSurat,
-        tujuan:        tujuan || null,
+        tujuan:        tujuan    || "",
         noSurat:       noSurat   || null,
         lampiran:      lampiran  || null,
         tanggalSurat:  new Date(tanggalSurat),
@@ -78,10 +79,11 @@ export async function POST(req: Request) {
     return NextResponse.json(created, { status: 201 });
 
   } catch (error) {
-    console.error("Gagal menyimpan data surat:", error);
+    console.error("Gagal menyimpan data surat:", error)
+    console.error("Error detail:", JSON.stringify(error, Object.getOwnPropertyNames(error)))
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }
-    );
+    )
   }
 }
