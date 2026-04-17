@@ -132,7 +132,6 @@ export default function LoginPage() {
 
           <div className={styles.cardFooter}>
             <span>PT Tolan Tiga Indonesia</span>
-            <span>© {new Date().getFullYear()}</span>
           </div>
         </div>
       </div>

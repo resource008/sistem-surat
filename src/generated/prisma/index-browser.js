@@ -162,20 +162,28 @@ exports.Prisma.AccountScalarFieldEnum = {
 exports.Prisma.DepartmentScalarFieldEnum = {
   id: 'id',
   shortName: 'shortName',
+  tujuan: 'tujuan',
   isActive: 'isActive'
 };
 
-exports.Prisma.DataSuratScalarFieldEnum = {
+exports.Prisma.RegisterSuratScalarFieldEnum = {
   id: 'id',
   nomor: 'nomor',
   deptId: 'deptId',
   tanggalTerima: 'tanggalTerima',
   asalSurat: 'asalSurat',
-  perihal: 'perihal',
-  tanggalSurat: 'tanggalSurat',
   tujuan: 'tujuan',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.DetailSuratScalarFieldEnum = {
+  id: 'id',
+  registerId: 'registerId',
+  perihal: 'perihal',
   noSurat: 'noSurat',
   lampiran: 'lampiran',
+  tanggalSurat: 'tanggalSurat',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -211,7 +219,8 @@ exports.Prisma.ModelName = {
   Session: 'Session',
   Account: 'Account',
   Department: 'Department',
-  DataSurat: 'DataSurat',
+  RegisterSurat: 'RegisterSurat',
+  DetailSurat: 'DetailSurat',
   NomorCounter: 'NomorCounter'
 };
 

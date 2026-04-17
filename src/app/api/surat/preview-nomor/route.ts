@@ -9,13 +9,13 @@ export async function GET(req: Request) {
   const dept = await prisma.department.findUnique({ where: { id: deptId } })
   if (!dept) return NextResponse.json({ nomor: null })
 
-  const lastSurat = await prisma.dataSurat.findFirst({
+  const lastRegister = await prisma.registerSurat.findFirst({
     where: { deptId },
     orderBy: { nomor: "desc" },
     select: { nomor: true },
   })
 
-  const lastNumber = lastSurat ? parseInt(lastSurat.nomor, 10) : 0
+  const lastNumber = lastRegister ? parseInt(lastRegister.nomor, 10) : 0
   const nomor = String(lastNumber + 1).padStart(4, "0")
 
   return NextResponse.json({ nomor })

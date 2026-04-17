@@ -238,9 +238,26 @@ for (const d of depts) {
   ]
 
   for (const s of dataSurat) {
-    await prisma.dataSurat.create({ data: s })
-  }
-  console.log(`   ✅ ${dataSurat.length} surat berhasil dibuat`)
+  const register = await prisma.registerSurat.create({
+    data: {
+      nomor:         s.nomor,
+      deptId:        s.deptId,
+      tanggalTerima: s.tanggalTerima,
+      asalSurat:     s.asalSurat,
+      tujuan:        s.tujuan,
+    },
+  })
+
+  await prisma.detailSurat.create({
+    data: {
+      registerId:   register.id,
+      perihal:      s.perihal,
+      noSurat:      s.noSurat,
+      lampiran:     s.lampiran,
+      tanggalSurat: s.tanggalSurat,
+    },
+  })
+}
 
   // ─── 4. NOMOR COUNTER ─────────────────────────────────────────────────────
   console.log("🔢 Mengatur counter penomoran...")

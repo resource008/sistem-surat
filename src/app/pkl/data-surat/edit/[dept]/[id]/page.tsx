@@ -1,0 +1,1 @@
+export {default} from "@/app/staff/data-surat/edit/[dept]/[id]/page"

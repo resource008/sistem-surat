@@ -2,347 +2,480 @@
 
 import { useEffect, useState } from "react"
 import { useRouter, useParams } from "next/navigation"
-import { ArrowLeft, Loader2, Save, Calendar as CalendarIcon, ArrowRight } from "lucide-react"
-import { format } from "date-fns"
-import { id as localeID } from "date-fns/locale"
+import {
+  ArrowLeft, Loader2, Save, Plus,
+  Trash2, FileText, AlertTriangle,
+  X,
+} from "lucide-react"
 import { cn } from "@/lib/utils"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { Calendar } from "@/components/ui/calendar"
-import { Button } from "@/components/ui/button"
-import { FormField, FormState, inputClass, readonlyClass, formatTanggal, Role, EMPTY_FORM } from "./shared"
-import { toast } from "sonner"
 
-interface SuratMeta { nomor: string; tanggalTerima: string }
+import { Button }  from "@/components/ui/button"
+import { Input }   from "@/components/ui/input"
+import { Badge }   from "@/components/ui/badge"
+import {
+  Select, SelectContent, SelectItem,
+  SelectTrigger, SelectValue,
+} from "@/components/ui/select"
 
-interface Props {
-  role: Role
-  basePath: string
-}
+import {
+  RegisterSurat, SuratItem, FormState,
+  EMPTY_SURAT_ITEM, FormField, DatePicker, Role,
+} from "./shared"
+
+interface Props { role: Role; basePath: string }
+
+const DEPT_OPTIONS = [
+  "HRD","IT","ENG","BPA","SND","SMD","IAD",
+  "MD","GIS","FAD","TAX","PS","ERP","CID","MED",
+]
+
+const getLampiranNum = (val: string) => val.replace(/[^0-9]/g, "")
 
 export default function EditSuratPage({ role, basePath }: Props) {
-  const router = useRouter()
   const { dept, id } = useParams<{ dept: string; id: string }>()
+  const router = useRouter()
 
-  const [form,          setForm]          = useState<FormState>(EMPTY_FORM)
-  const [meta,          setMeta]          = useState<SuratMeta | null>(null)
-  const [deptList,      setDeptList]      = useState<{ id: string; shortName: string }[]>([])
-  const [loading,       setLoading]       = useState(true)
-  const [saving,        setSaving]        = useState(false)
-  const [error,         setError]         = useState<string | null>(null)
+  const [original,   setOriginal]   = useState<RegisterSurat | null>(null)
+  const [loading,    setLoading]    = useState(true)
+  const [saving,     setSaving]     = useState(false)
+  const [error,      setError]      = useState<string | null>(null)
+  const [form,       setForm]       = useState<FormState>({
+    deptId:        "",
+    asalSurat:     "",
+    tujuan:        "",
+    tanggalTerima: new Date().toISOString().slice(0, 10),
+  })
+  const [suratList,  setSuratList]  = useState<SuratItem[]>([])
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({})
+  const [focusedLampiran, setFocusedLampiran] = useState<number | null>(null)
 
-  const [originalDept,  setOriginalDept]  = useState<string>("")
-  const [previewNomor,  setPreviewNomor]  = useState<string | null>(null)
-  const [fetchingNomor, setFetchingNomor] = useState(false)
-
+  // ── Fetch ──────────────────────────────────────────────────────────────
   useEffect(() => {
-    Promise.all([
-      fetch(`/api/surat/${dept}/${id}`).then(r => {
-        if (!r.ok) throw new Error("Surat tidak ditemukan")
-        return r.json()
-      }),
-      fetch("/api/dept").then(r => r.json()),
-    ])
-      .then(([data, depts]: [any, any[]]) => {
-        const deptsMapped = depts.map((d: any) => ({ id: d.id, shortName: d.shortName }))
-        setDeptList(deptsMapped)
-
-        const deptShortName = deptsMapped.find(d => d.id === data.deptId)?.shortName ?? data.deptId
-
+    fetch(`/api/surat/${dept}/${id}`)
+      .then(r => { if (!r.ok) throw new Error("Data tidak ditemukan"); return r.json() })
+      .then((data: RegisterSurat) => {
+        setOriginal(data)
         setForm({
-          perihal:       data.perihal,
+          deptId:        data.dept.shortName,
           asalSurat:     data.asalSurat,
           tujuan:        data.tujuan,
-          noSurat:       data.noSurat      ?? "",
-          lampiran:      data.lampiran     ?? "",
-          tanggalSurat:  data.tanggalSurat?.slice(0, 10)  ?? "",
-          tanggalTerima: data.tanggalTerima?.slice(0, 10) ?? "",
-          deptId:        deptShortName,
-          nomor:         data.nomor      ?? "",
+          tanggalTerima: data.tanggalTerima.slice(0, 10),
         })
-        setMeta({ nomor: data.nomor, tanggalTerima: data.tanggalTerima })
-        setOriginalDept(deptShortName)
-
+        setSuratList(data.detailSurat.map(d => ({
+          id:           String(d.id),
+          perihal:      d.perihal,
+          noSurat:      d.noSurat      ?? "",
+          lampiran:     d.lampiran     ?? "",
+          tanggalSurat: d.tanggalSurat.slice(0, 10),
+        })))
         window.dispatchEvent(new CustomEvent("breadcrumb:sub", {
-          detail: `View Data Surat - ${deptShortName} `,
+          detail: `Edit · ${data.dept.shortName} / ${data.nomor}`,
         }))
-        window.dispatchEvent(new CustomEvent("breadcrumb:subsub", { detail: "Edit Data Surat" }))
       })
-      .catch(e => setError((e as Error).message))
+      .catch(e => setError(e.message))
       .finally(() => setLoading(false))
   }, [dept, id])
 
-  useEffect(() => {
-    if (!form.deptId || form.deptId === originalDept) {
-      setPreviewNomor(null)
-      return
-    }
-
-    let cancelled = false
-    setFetchingNomor(true)
-    setPreviewNomor(null)
-
-    fetch(`/api/surat/next-nomor?deptId=${form.deptId}`)
-      .then(r => {
-        if (!r.ok) throw new Error("Gagal fetch nomor")
-        return r.json()
-      })
-      .then(data => {
-        if (!cancelled) setPreviewNomor(data.nomor)
-      })
-      .catch(() => {
-        if (!cancelled) setPreviewNomor(null)
-      })
-      .finally(() => {
-        if (!cancelled) setFetchingNomor(false)
-      })
-
-    return () => { cancelled = true }
-  }, [form.deptId, originalDept])
-
-  const set = (field: keyof FormState) =>
-    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-      setForm(prev => ({ ...prev, [field]: e.target.value }))
-
-  // ✅ Validasi hanya pakai sonner toast
-  function validateForm(): boolean {
-    const missing: string[] = []
-
-    if (!form.deptId)              missing.push("Departemen")
-    if (!form.perihal.trim())      missing.push("Perihal surat")
-    if (!form.asalSurat.trim())    missing.push("Asal surat")
-    if (!form.tanggalSurat)        missing.push("Tanggal surat")
-    if (!form.lampiran.trim())     missing.push("Lampiran")
-
-    if (missing.length > 0) {
-      toast.error("Tidak dapat menyimpan data", {
-        description: `${missing.join(", ")} wajib diisi.`,
-      })
-      return false
-    }
-
-    return true
+  // ── Helpers ────────────────────────────────────────────────────────────
+  const setField = (key: keyof FormState, value: string) => {
+    setForm(prev => {
+      const next = { ...prev, [key]: value }
+      if (key === "deptId" && value) next.tujuan = value
+      return next
+    })
+    setFormErrors(prev => { const n = { ...prev }; delete n[key]; return n })
   }
 
-  async function handleUpdate(e: React.FormEvent) {
-    e.preventDefault()
+  const setSuratField = (idx: number, key: keyof SuratItem, value: string) => {
+    setSuratList(prev => prev.map((s, i) => i === idx ? { ...s, [key]: value } : s))
+    setFormErrors(prev => { const n = { ...prev }; delete n[`surat_${idx}_${key}`]; return n })
+  }
 
-    if (!validateForm()) return
+  const setLampiranNum = (idx: number, raw: string) => {
+    const num = raw.replace(/[^0-9]/g, "")
+    setSuratList(prev => prev.map((s, i) =>
+      i === idx ? { ...s, lampiran: num ? `${num} SET` : "" } : s
+    ))
+  }
 
+  const addSurat    = () => setSuratList(p => [...p, EMPTY_SURAT_ITEM()])
+  const removeSurat = (idx: number) => setSuratList(p => p.filter((_, i) => i !== idx))
+
+  // ── Preview nomor ──────────────────────────────────────────────────────
+  const deptChanged  = !!original && form.deptId !== original.dept.shortName
+  const nomorPreview = (() => {
+    if (!original || !deptChanged) return original?.nomor ?? ""
+    const counter = original.nomor.split("/")[0] ?? "????"
+    const now     = new Date()
+    return `${counter.padStart(4, "0")}`
+  })()
+
+  // ── Validate ───────────────────────────────────────────────────────────
+  function validate(): boolean {
+    const errs: Record<string, string> = {}
+    if (!form.deptId)    errs.deptId    = "Departemen wajib dipilih"
+    if (!form.asalSurat) errs.asalSurat = "Asal surat wajib diisi"
+    if (suratList.length === 0) {
+      errs.suratList = "Minimal 1 surat harus ada"
+    } else {
+      suratList.forEach((s, i) => {
+        if (!s.perihal)      errs[`surat_${i}_perihal`]      = "Perihal wajib diisi"
+        if (!s.tanggalSurat) errs[`surat_${i}_tanggalSurat`] = "Tanggal surat wajib diisi"
+      })
+    }
+    setFormErrors(errs)
+    return Object.keys(errs).length === 0
+  }
+
+  // ── Submit ─────────────────────────────────────────────────────────────
+  async function handleSave() {
+    if (!validate()) return
     setSaving(true)
-    setError(null)
     try {
-      const payload = {
-        deptId:        form.deptId,
-        perihal:       form.perihal,
-        asalSurat:     form.asalSurat,
-        tujuan:        form.tujuan,
-        noSurat:       form.noSurat  || null,
-        lampiran:      form.lampiran || null,
-        tanggalSurat:  form.tanggalSurat  ? new Date(form.tanggalSurat).toISOString()  : undefined,
-        tanggalTerima: form.tanggalTerima ? new Date(form.tanggalTerima).toISOString() : undefined,
-      }
-
       const res = await fetch(`/api/surat/${dept}/${id}`, {
         method:  "PATCH",
         headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify(payload),
+        body: JSON.stringify({
+          deptId:        form.deptId,
+          asalSurat:     form.asalSurat,
+          tujuan:        form.tujuan,
+          tanggalTerima: form.tanggalTerima,
+          suratList:     suratList.map(s => ({
+            perihal:      s.perihal,
+            noSurat:      s.noSurat      || null,
+            lampiran:     s.lampiran     || null,
+            tanggalSurat: s.tanggalSurat,
+          })),
+        }),
       })
-
-      const resBody = await res.json()
-
-      if (!res.ok) {
-        throw new Error(resBody.error || "Gagal menyimpan perubahan")
-      }
-
-      toast.success("Berhasil Diperbarui", {
-        description: `Data surat ${dept || ""} berhasil diperbarui.`,
-      })
-
-      router.push(basePath)
-    } catch (e) {
-      const msg = (e as Error).message
-      toast.error("Gagal Menyimpan", {
-        description: msg,
-      })
-      setError(msg)
+      if (!res.ok) throw new Error("Gagal menyimpan perubahan")
+      const result: RegisterSurat = await res.json()
+      router.push(`${basePath}/view/${result.dept.id}/${result.id}`)
+    } catch (e: any) {
+      alert(e.message ?? "Terjadi kesalahan")
     } finally {
       setSaving(false)
     }
   }
 
+  // ── Guards ─────────────────────────────────────────────────────────────
   if (loading) return (
-    <div className="flex h-[60vh] w-full flex-col items-center justify-center gap-3">
-      <Loader2 className="h-6 w-6 animate-spin text-slate-400" />
-      <p className="text-[10px] font-medium text-slate-400 tracking-[0.2em] uppercase">Memuat data...</p>
+    <div className="flex h-full w-full flex-col items-center justify-center gap-3">
+      <div className="w-10 h-10 rounded-2xl bg-slate-100 dark:bg-slate-900 flex items-center justify-center">
+        <Loader2 className="h-5 w-5 animate-spin text-slate-400" />
+      </div>
+      <p className="text-[11px] font-medium text-slate-400 tracking-[0.2em] uppercase">
+        Memuat data...
+      </p>
     </div>
   )
 
-  if (error && form.perihal === "") return (
-    <div className="flex h-[60vh] w-full items-center justify-center">
-      <p className="text-[13px] text-red-500 bg-red-50 dark:bg-red-950 px-4 py-2 rounded-lg">{error}</p>
+  if (error || !original) return (
+    <div className="flex h-full w-full flex-col items-center justify-center gap-3">
+      <div className="w-10 h-10 rounded-2xl bg-red-50 dark:bg-red-900/20 flex items-center justify-center">
+        <AlertTriangle className="h-5 w-5 text-red-400" />
+      </div>
+      <p className="text-[13px] text-red-400 font-medium">
+        {error ?? "Data tidak ditemukan"}
+      </p>
     </div>
   )
 
-  const deptChanged = form.deptId !== originalDept
-
+  // ── UI ─────────────────────────────────────────────────────────────────
   return (
-    <div className="max-w-2xl mx-auto flex flex-col gap-4">
-      <div className="border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-950 overflow-hidden shadow-sm">
-        <div className="flex items-center justify-between px-5 py-4 bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-800">
-          <div className="flex flex-col gap-1">
-            <span className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Nomor Registrasi
-            </span>
-            <div className="flex items-center gap-2">
-              <span className={cn(
-                "text-[14px] font-medium transition-colors",
-                deptChanged
-                  ? "text-slate-400 dark:text-slate-600 line-through"
-                  : "text-slate-900 dark:text-slate-100"
-              )}>
-                {meta?.nomor ?? "—"}
-              </span>
+    <>
+      {/* ════════════════════════════════════════════════════════════
+          ACTION BAR — fixed bawah tengah, selalu tampil
+      ════════════════════════════════════════════════════════════ */}
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
+        <div className="inline-flex items-center gap-1 p-1.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/60 bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl shadow-2xl shadow-slate-900/10 dark:shadow-black/50">
 
-              {fetchingNomor && (
-                <Loader2 className="h-3.5 w-3.5 animate-spin text-slate-400" />
-              )}
+          {/* Batal */}
+          <Button
+            variant="ghost"
+            onClick={() => router.push(`${basePath}/view/${dept}/${id}`)}
+            className="gap-2 h-10 px-4 rounded-xl text-[13px] font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800"
+          >
+            <X size={14} /> Batal
+          </Button>
 
-              {deptChanged && previewNomor && !fetchingNomor && (
-                <span className="inline-flex items-center gap-1.5 text-[14px] font-semibold text-blue-600 dark:text-blue-400">
-                  <ArrowRight size={13} className="text-slate-400" />
-                  {previewNomor}
-                </span>
-              )}
+          <div className="w-px h-5 bg-slate-200 dark:bg-slate-700 mx-0.5" />
+
+          {/* Tambah Surat */}
+          <Button
+            variant="ghost"
+            onClick={addSurat}
+            className="gap-2 h-10 px-4 rounded-xl text-[13px] font-medium text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
+          >
+            <Plus size={14} strokeWidth={2.5} /> Tambah
+          </Button>
+
+          <div className="w-px h-5 bg-slate-200 dark:bg-slate-700 mx-0.5" />
+
+          {/* Simpan */}
+          <Button
+            disabled={saving}
+            onClick={handleSave}
+            className="gap-2 h-10 px-5 rounded-xl text-[13px] font-semibold bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white"
+          >
+            {saving
+              ? <><Loader2 size={14} className="animate-spin" /> Menyimpan...</>
+              : <><Save    size={14} /> Simpan</>
+            }
+          </Button>
+
+        </div>
+      </div>
+
+      {/* ── Konten ─────────────────────────────────────────────────── */}
+      <div className="max-w-2xl mx-auto flex flex-col gap-4 animate-in fade-in duration-300">
+
+        {/* ── Section 1: Data Amplop ──────────────────────────────── */}
+        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 overflow-hidden shadow-sm">
+
+          {/* Header nomor register */}
+          <div className="px-6 py-4 bg-gradient-to-r from-slate-50 to-white dark:from-slate-900 dark:to-slate-950 border-b border-slate-200 dark:border-slate-800">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex flex-col gap-1 min-w-0">
+                <p className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                  Nomor Register
+                </p>
+                {deptChanged ? (
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[13px] font-mono text-slate-400 dark:text-slate-600 line-through">
+                      {original.nomor}
+                    </span>
+                    <span className="text-[22px] font-mono font-bold text-blue-600 dark:text-blue-400 leading-none">
+                      {nomorPreview}
+                    </span>
+                    <Badge className="w-fit mt-1 text-[10px] font-medium px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border-0">
+                      Nomor diubah otomatis
+                    </Badge>
+                  </div>
+                ) : (
+                  <span className="text-[22px] font-mono font-bold text-slate-800 dark:text-slate-100 leading-none">
+                    {original.nomor}
+                  </span>
+                )}
+              </div>
+              <Badge className="shrink-0 mt-0.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border-0">
+                {form.deptId || original.dept.shortName}
+              </Badge>
             </div>
-
-            {deptChanged && previewNomor && !fetchingNomor && (
-              <span className="text-[10px] text-amber-600 dark:text-amber-400 font-medium mt-0.5">
-                Nomor akan berubah saat disimpan
-              </span>
-            )}
           </div>
 
-          <span className={cn(
-            "text-[11px] font-medium rounded-full px-3 py-1 border transition-colors",
-            deptChanged
-              ? "text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-900/30 border-amber-200 dark:border-amber-800"
-              : "text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800"
-          )}>
-            {form.deptId || "—"}
-          </span>
+          {/* Body form amplop */}
+          <div className="px-6 py-5 flex flex-col gap-4">
+
+            {/* Departemen */}
+            <FormField label="Departemen" error={formErrors.deptId}>
+              <Select value={form.deptId} onValueChange={val => setField("deptId", val)}>
+                <SelectTrigger className={cn(
+                  "text-[13px] rounded-xl h-10",
+                  formErrors.deptId && "border-red-500 dark:border-red-500"
+                )}>
+                  <SelectValue placeholder="Pilih departemen..." />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl">
+                  {DEPT_OPTIONS.map(d => (
+                    <SelectItem
+                      key={d} value={d}
+                      className="text-[13px] cursor-pointer rounded-lg focus:bg-blue-50 dark:focus:bg-blue-900/40 focus:text-slate-900 dark:focus:text-white"
+                    >
+                      {d}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </FormField>
+
+            {/* Asal Surat + Tujuan */}
+            <div className="grid grid-cols-2 gap-3">
+              <FormField label="Asal Surat" error={formErrors.asalSurat}>
+                <Input
+                  value={form.asalSurat}
+                  onChange={e => setField("asalSurat", e.target.value)}
+                  placeholder="Contoh: PT. Maju Mundur"
+                  className={cn(
+                    "text-[13px] rounded-xl h-10",
+                    formErrors.asalSurat && "border-red-500 focus-visible:ring-red-500"
+                  )}
+                />
+              </FormField>
+              <FormField label="Tujuan">
+                <Input
+                  value={form.tujuan}
+                  onChange={e => setField("tujuan", e.target.value)}
+                  placeholder="Contoh: HRD"
+                  className="text-[13px] rounded-xl h-10"
+                />
+              </FormField>
+            </div>
+
+            {/* Tanggal Terima — readonly */}
+            <FormField label="Tanggal Terima">
+              <div className={cn(
+                "w-full px-3.5 h-10 flex items-center rounded-xl border text-[13px] font-medium",
+                "border-slate-100 dark:border-slate-800/50",
+                "bg-slate-50 dark:bg-slate-900/40",
+                "text-slate-400 dark:text-slate-500 cursor-not-allowed select-none"
+              )}>
+                {new Date(original.tanggalTerima).toLocaleDateString("id-ID", {
+                  day: "2-digit", month: "long", year: "numeric",
+                })}
+              </div>
+            </FormField>
+
+          </div>
         </div>
 
-        <form onSubmit={handleUpdate}>
-          <div className="p-5 flex flex-col gap-5">
+        {/* ── Section 2: Daftar Surat ─────────────────────────────── */}
+        <div className="flex flex-col gap-3">
 
-            <div className="grid grid-cols-2 gap-4">
-              <FormField label="Departemen">
-                <Select
-                  value={form.deptId}
-                  onValueChange={v => {
-                    const selected = deptList.find(d => d.shortName === v)
-                    setForm(prev => ({
-                      ...prev,
-                      deptId: v,
-                      tujuan: selected?.shortName ?? prev.tujuan,
-                    }))
-                  }}
+          {/* Error surat list */}
+          {formErrors.suratList && (
+            <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+              <AlertTriangle size={13} className="text-red-500 shrink-0" />
+              <p className="text-[12px] text-red-600 dark:text-red-400 font-medium">
+                {formErrors.suratList}
+              </p>
+            </div>
+          )}
+
+          {/* Tiap item surat */}
+          {suratList.map((surat, idx) => (
+            <div key={surat.id}
+              className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 overflow-hidden shadow-sm">
+
+              {/* Sub-header */}
+              <div className="flex items-center justify-between px-5 py-3 bg-slate-50/80 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-800">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-6 h-6 rounded-lg bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center">
+                    <FileText size={12} className="text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <span className="text-[12px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                    Surat {idx + 1}
+                  </span>
+                </div>
+                <Button
+                  type="button" variant="ghost" size="sm"
+                  onClick={() => removeSurat(idx)}
+                  className="h-7 px-2.5 text-[11px] gap-1 rounded-lg text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
                 >
-                  <SelectTrigger className={cn(
-                    inputClass, "h-10 shadow-none",
-                    deptChanged && "border-amber-300 dark:border-amber-700 focus:ring-amber-200 dark:focus:ring-amber-800"
-                  )}>
-                    <SelectValue placeholder="Pilih departemen" />
-                  </SelectTrigger>
-                  <SelectContent className="dark:bg-slate-950 border-slate-200 dark:border-slate-800">
-                    {deptList.map(d => (
-                      <SelectItem key={d.id} value={d.shortName}
-                        className="text-[13px] cursor-pointer focus:bg-blue-50 dark:focus:bg-blue-900/20 focus:text-blue-700 dark:focus:text-blue-300">
-                        {d.shortName}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormField>
+                  <Trash2 size={11} /> Hapus
+                </Button>
+              </div>
 
-              <FormField label="Tanggal terima">
-                <div className={readonlyClass}>
-                  {meta?.tanggalTerima ? formatTanggal(meta.tanggalTerima) : "—"}
-                </div>
-              </FormField>
-            </div>
+              {/* Form surat */}
+              <div className="px-5 py-4 flex flex-col gap-4">
 
-            <div className="grid grid-cols-2 gap-4">
-              <FormField label="Tanggal surat">
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button variant="outline" className={cn(
-                      inputClass, "h-10 justify-start text-left shadow-none",
-                      !form.tanggalSurat && "text-slate-400 dark:text-slate-500"
+                {/* Perihal */}
+                <FormField label="Perihal Surat" error={formErrors[`surat_${idx}_perihal`]}>
+                  <Input
+                    value={surat.perihal}
+                    onChange={e => setSuratField(idx, "perihal", e.target.value)}
+                    placeholder="Isi perihal / pokok surat..."
+                    className={cn(
+                      "text-[13px] rounded-xl h-10",
+                      formErrors[`surat_${idx}_perihal`] && "border-red-500 focus-visible:ring-red-500"
+                    )}
+                  />
+                </FormField>
+
+                <div className="grid grid-cols-2 gap-3">
+
+                  {/* Nomor Surat */}
+                  <FormField label="Nomor Surat" >
+                    <Input
+                      value={surat.noSurat}
+                      onChange={e => setSuratField(idx, "noSurat", e.target.value)}
+                      placeholder="Masukkan nomor surat"
+                      className="text-[13px] rounded-xl h-10 font-mono"
+                    />
+                  </FormField>
+
+                  {/* Lampiran */}
+                  <FormField label="Lampiran">
+                    <div className={cn(
+                      "relative flex h-10 rounded-xl overflow-hidden",
+                      "border border-slate-200 dark:border-slate-800",
+                      "bg-white dark:bg-slate-950",
+                      "transition-all",
+                      "focus-within:ring-2 focus-within:ring-blue-500/20",
+                      "focus-within:border-blue-500 dark:focus-within:border-blue-500",
                     )}>
-                      <CalendarIcon className="mr-2 h-4 w-4 text-slate-500" />
-                      {form.tanggalSurat
-                        ? format(new Date(form.tanggalSurat), "dd MMMM yyyy", { locale: localeID })
-                        : "Pilih tanggal"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0 border-slate-200 dark:border-slate-800" align="start">
-                    <Calendar mode="single"
-                      selected={form.tanggalSurat ? new Date(form.tanggalSurat) : undefined}
-                      onSelect={d => setForm(prev => ({ ...prev, tanggalSurat: d?.toISOString() || "" }))}
-                      initialFocus className="bg-white dark:bg-slate-950" />
-                  </PopoverContent>
-                </Popover>
-              </FormField>
 
-              <FormField label="No. surat" optional>
-                <input className={inputClass} value={form.noSurat} onChange={set("noSurat")}
-                  placeholder="Masukkan nomor surat" />
-              </FormField>
-            </div>
+                      {/* Hilang saat fokus ATAU saat ada nilai */}
+                      {!getLampiranNum(surat.lampiran) && focusedLampiran !== idx && (
+                        <div className="absolute inset-y-0 left-0 right-[52px] flex items-center justify-center pointer-events-none z-10">
+                          <span className="text-[13px] text-slate-400 dark:text-slate-500">
+                            Masukkan jumlah
+                          </span>
+                        </div>
+                      )}
 
-            <FormField label="Perihal surat">
-              <textarea className={cn(inputClass, "resize-none leading-relaxed min-h-20")}
-                rows={3} value={form.perihal} onChange={set("perihal")}
-                placeholder="Masukkan perihal surat" />
-            </FormField>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        value={getLampiranNum(surat.lampiran)}
+                        onChange={e => setLampiranNum(idx, e.target.value)}
+                        onFocus={() => setFocusedLampiran(idx)}   // ← catat index yg fokus
+                        onBlur={()  => setFocusedLampiran(null)}  // ← reset saat blur
+                        className={cn(
+                          "flex-1 min-w-0 px-3.5 h-full",
+                          "bg-transparent border-0 outline-none",
+                          "text-[13px] text-center font-medium",
+                          "text-slate-700 dark:text-slate-300",
+                        )}
+                      />
 
-            <div className="grid grid-cols-2 gap-4">
-              <FormField label="Asal surat">
-                <input className={inputClass} value={form.asalSurat} onChange={set("asalSurat")}
-                  placeholder="Masukkan asal surat" />
-              </FormField>
+                      <div className={cn(
+                        "flex items-center justify-center px-3.5 shrink-0",
+                        "border-l border-slate-200 dark:border-slate-800",
+                        "bg-slate-50 dark:bg-slate-900",
+                        "text-[11px] font-bold tracking-widest",
+                        "text-slate-400 dark:text-slate-500 select-none",
+                      )}>
+                        SET
+                      </div>
 
-              <FormField label="Tujuan">
-                <div className={readonlyClass}>
-                  {form.tujuan || "—"}
+                    </div>
+                  </FormField>
+
                 </div>
-              </FormField>
+
+                {/* Tanggal Surat */}
+                <FormField
+                  label="Tanggal Surat"
+                  error={formErrors[`surat_${idx}_tanggalSurat`]}
+                >
+                  <DatePicker
+                    value={surat.tanggalSurat}
+                    onChange={val => setSuratField(idx, "tanggalSurat", val)}
+                    hasError={!!formErrors[`surat_${idx}_tanggalSurat`]}
+                  />
+                </FormField>
+
+              </div>
             </div>
+          ))}
 
-            <FormField label="Lampiran">
-              <input className={inputClass} value={form.lampiran} onChange={set("lampiran")}
-                placeholder="Masukkan lampiran bentuk set" />
-            </FormField>
-          </div>
+          {/* Empty state saat belum ada surat */}
+          {suratList.length === 0 && (
+            <div className="rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 px-6 py-10 text-center">
+              <FileText className="mx-auto mb-3 h-8 w-8 text-slate-300 dark:text-slate-700" />
+              <p className="text-[13px] text-slate-400 dark:text-slate-500">
+                Belum ada surat. Klik <span className="font-semibold">Tambah</span> untuk menambahkan.
+              </p>
+            </div>
+          )}
 
-          <div className="px-5 py-4 bg-slate-50/50 dark:bg-slate-900/50 border-t border-slate-200 dark:border-slate-800 flex items-center justify-end gap-3">
-            <button type="button"
-              onClick={() => router.push(basePath)}
-              className="inline-flex items-center gap-2 text-[13px] font-medium text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-4 py-2 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors">
-              Batal
-            </button>
-            <button type="submit" disabled={saving}
-              className="inline-flex items-center gap-2 text-[13px] font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:bg-blue-600/60 disabled:cursor-not-allowed rounded-lg px-5 py-2 transition-colors shadow-sm">
-              {saving
-                ? <><Loader2 size={14} className="animate-spin" /> Menyimpan...</>
-                : <><Save size={14} /> Simpan Perubahan</>
-              }
-            </button>
-          </div>
-        </form>
+          {/* Spacer agar tidak tertutup action bar */}
+          <div className="h-20" />
+
+        </div>
       </div>
-    </div>
+    </>
   )
 }

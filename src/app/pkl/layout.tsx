@@ -1,29 +1,33 @@
 "use client"
 
+import { getMenuItems } from "@/app/_components/surat/menu-items"
+import type { Role } from "@/app/_components/surat/shared"
+import styles from "@/app/layout.module.css"
+import {
+    AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+    AlertDialogDescription, AlertDialogFooter, AlertDialogHeader,
+    AlertDialogTitle, AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { ThemeToggle } from "@/components/ui/theme-toogle"
+import TopbarFilter from "@/components/ui/topbar-filter"
 import { authClient } from "@/infrastructure/auth/auth-client"
 import { routes } from "@/lib/routes"
 import {
-  LogOut, Menu, X, Plus, ChevronRight,
-  ArrowRightCircle, ArrowLeftCircle,
+    ArrowLeftCircle,
+    ArrowRightCircle,
+    ChevronRight,
+    LogOut, Menu,
+    Plus,
+    X,
 } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { useState, useEffect } from "react"
-import styles from "@/app/layout.module.css"
-import TopbarFilter from "@/components/ui/topbar-filter"
-import { ThemeToggle } from "@/components/ui/theme-toogle"
-import {
-  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
-  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader,
-  AlertDialogTitle, AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
-import { getMenuItems } from "@/app/_components/surat/menu-items"
-import type { Role } from "@/app/_components/surat/shared"
+import { useEffect, useState } from "react"
 
 const ICON_SIZE = 18
 
-export default function StaffLayout({ children }: { children: React.ReactNode }) {
+export default function PKLLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router   = useRouter()
 
@@ -33,9 +37,9 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
   const [isMobile,    setIsMobile]    = useState(false)
   const [subtitle,    setSubtitle]    = useState<string | null>(null)
   const [subsubtitle, setSubsubtitle] = useState<string | null>(null)
-  const [role,        setRole]        = useState<Role>("STAFF")
+  const [role,        setRole]        = useState<Role>("PKL")
   const [userData,    setUserData]    = useState({
-    name: "Loading...", role: "Staff", initials: "??",
+    name: "Loading...", role: "PKL", initials: "??",
   })
   const [filters, setFilters] = useState<{
     date: string | null
@@ -112,7 +116,7 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
           .join("")
           .toUpperCase()
           .substring(0, 2)
-        const userRole = ((data.user as any).role as Role) ?? "STAFF"
+        const userRole = ((data.user as any).role as Role) ?? "PKL"
         setRole(userRole)
         setUserData({
           name: fullName,

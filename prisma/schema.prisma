@@ -65,32 +65,45 @@ model Account {
 }
 
 model Department {
-  id        String   @id
-  shortName String   @map("short_name")
-  isActive  Boolean  @default(true) @map("is_active")
-  
-  dataSurat    DataSurat[]
-  nomorCounter NomorCounter?
+  id             String          @id
+  shortName      String          @map("short_name")
+  tujuan         String          @default("")
+  isActive       Boolean         @default(true) @map("is_active")
+
+  registerSurat  RegisterSurat[]
+  nomorCounter   NomorCounter?
 
   @@map("departments")
 }
 
-model DataSurat {
-  id            Int        @id @default(autoincrement())
+model RegisterSurat {
+  id            Int           @id @default(autoincrement())
   nomor         String
-  deptId        String     @map("dept_id")
-  dept          Department @relation(fields: [deptId], references: [id])
-  tanggalTerima DateTime   @map("tanggal_terima")
-  asalSurat     String     @map("asal_surat")
-  perihal       String
-  tanggalSurat  DateTime   @map("tanggal_surat")
-  tujuan        String     @default("")
-  noSurat       String?    @map("no_surat")
-  lampiran      String?    @map("lampiran")
-  createdAt     DateTime   @default(now()) @map("created_at")
-  updatedAt     DateTime   @updatedAt @map("updated_at")
+  deptId        String        @map("dept_id")
+  dept          Department    @relation(fields: [deptId], references: [id])
+  tanggalTerima DateTime      @map("tanggal_terima")
+  asalSurat     String        @map("asal_surat")
+  tujuan        String        @default("")
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
 
-  @@map("data_surat")
+  detailSurat   DetailSurat[]
+
+  @@map("register_surat")
+}
+
+model DetailSurat {
+  id              Int            @id @default(autoincrement())
+  registerId      Int            @map("register_id")
+  register        RegisterSurat  @relation(fields: [registerId], references: [id], onDelete: Cascade)
+  perihal         String
+  noSurat         String?        @map("no_surat")
+  lampiran        String?
+  tanggalSurat    DateTime       @map("tanggal_surat")
+  createdAt       DateTime       @default(now()) @map("created_at")
+  updatedAt       DateTime       @updatedAt @map("updated_at")
+
+  @@map("detail_surat")
 }
 
 model NomorCounter {

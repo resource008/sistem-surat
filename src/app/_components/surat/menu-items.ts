@@ -1,19 +1,20 @@
-import { FileText, Printer, RefreshCcw, Settings } from "lucide-react"
-import { routes } from "@/lib/routes"
+import { FileText, Printer, RefreshCcw } from "lucide-react"
+import { getBasePathByRole } from "@/lib/routes"
 import type { Role } from "./shared"
 
-export function getMenuItems(role: Role) {
-  const base = [
-    { label: "Data Surat",      icon: FileText,   href: routes.dataSurat.staff, badge: null },
-    { label: "Cetak",           icon: Printer,    href: routes.dataSurat.cetak, badge: null },
-    { label: "Track Surat",     icon: RefreshCcw, href: routes.dataSurat.track, badge: null },
+export type MenuItem = {
+  label: string
+  icon: React.ComponentType<{ size?: number; strokeWidth?: number }>
+  href: string
+  badge: null | number | string
+}
+
+export function getMenuItems(role: Role): MenuItem[] {
+  const base = getBasePathByRole(role)
+
+  return [
+    { label: "Data Surat",  icon: FileText,   href: `${base}/data-surat`, badge: null },
+    { label: "Cetak",       icon: Printer,    href: `${base}/cetak`,      badge: null },
+    { label: "Track Surat", icon: RefreshCcw, href: `${base}/track`,      badge: null },
   ]
-
-  if (role === "ADMIN") {
-    // Tambah menu khusus admin nanti di sini
-    return base
-  }
-
-  // STAFF & PKL — sama
-  return base
 }

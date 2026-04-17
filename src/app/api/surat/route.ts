@@ -1,89 +1,61 @@
-import { NextResponse } from "next/server";
-import { prisma } from "@/infrastructure/databases/prisma-client";
+import { NextResponse } from "next/server"
+import { prisma } from "@/infrastructure/databases/prisma-client"
 
 export async function GET() {
   try {
-    const data = await prisma.dataSurat.findMany({
-      include: { dept: true },
+    const data = await prisma.registerSurat.findMany({
+      include: { dept: true, detailSurat: true },
       orderBy: { nomor: "asc" },
-    });
-    return NextResponse.json(data);
+    })
+    return NextResponse.json(data)
   } catch (error) {
-    console.error("Gagal mengambil data surat:", error);
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 }
-    );
+    console.error("Gagal mengambil data:", error)
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
   }
 }
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
+    const body = await req.json()
+    const { deptId, asalSurat, tujuan, tanggalTerima, suratList } = body
 
-    const {
-      deptId,
-      perihal,
-      asalSurat,
-      tujuan,
-      noSurat,
-      lampiran,
-      tanggalSurat,
-      tanggalTerima,
-    } = body;
-
-    if (!deptId || !perihal || !asalSurat || !tanggalSurat || !tanggalTerima) {
-      return NextResponse.json(
-        { error: "Field wajib tidak lengkap" },
-        { status: 400 }
-      );
+    if (!deptId || !asalSurat || !tanggalTerima || !Array.isArray(suratList) || suratList.length === 0) {
+      return NextResponse.json({ error: "Field wajib tidak lengkap" }, { status: 400 })
     }
 
-    const dept = await prisma.department.findUnique({
-      where: { id: deptId },
-    });
+    const dept = await prisma.department.findUnique({ where: { id: deptId } })
+    if (!dept) return NextResponse.json({ error: "Departemen tidak ditemukan" }, { status: 404 })
 
-    if (!dept) {
-      return NextResponse.json(
-        { error: "Departemen tidak ditemukan" },
-        { status: 404 }
-      );
-    }
-
-    const lastSurat = await prisma.dataSurat.findFirst({
+    const lastRegister = await prisma.registerSurat.findFirst({
       where: { deptId },
       orderBy: { nomor: "desc" },
       select: { nomor: true },
     })
-
-    const lastNumber = lastSurat ? parseInt(lastSurat.nomor, 10) : 0
+    const lastNumber = lastRegister ? parseInt(lastRegister.nomor, 10) : 0
     const nomor = String(lastNumber + 1).padStart(4, "0")
 
-    const created = await prisma.dataSurat.create({
+    const created = await prisma.registerSurat.create({
       data: {
         nomor,
-        dept: {
-          connect: { id: deptId },
-        },
-        perihal,
+        dept:          { connect: { id: deptId } },
         asalSurat,
-        tujuan:        tujuan    || "",
-        noSurat:       noSurat   || null,
-        lampiran:      lampiran  || null,
-        tanggalSurat:  new Date(tanggalSurat),
+        tujuan:        tujuan || "",
         tanggalTerima: new Date(tanggalTerima),
+        detailSurat: {
+          create: suratList.map((s: any) => ({
+            perihal:      s.perihal,
+            noSurat:      s.noSurat  || null,
+            lampiran:     s.lampiran || null,
+            tanggalSurat: new Date(s.tanggalSurat),
+          })),
+        },
       },
-      include: { dept: true },
-    });
+      include: { dept: true, detailSurat: true },
+    })
 
-    return NextResponse.json(created, { status: 201 });
-
+    return NextResponse.json(created, { status: 201 })
   } catch (error) {
-    console.error("Gagal menyimpan data surat:", error)
-    console.error("Error detail:", JSON.stringify(error, Object.getOwnPropertyNames(error)))
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 }
-    )
+    console.error("Gagal menyimpan:", error)
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
   }
 }

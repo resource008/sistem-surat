@@ -34,10 +34,15 @@ export type Account = $Result.DefaultSelection<Prisma.$AccountPayload>
  */
 export type Department = $Result.DefaultSelection<Prisma.$DepartmentPayload>
 /**
- * Model DataSurat
+ * Model RegisterSurat
  * 
  */
-export type DataSurat = $Result.DefaultSelection<Prisma.$DataSuratPayload>
+export type RegisterSurat = $Result.DefaultSelection<Prisma.$RegisterSuratPayload>
+/**
+ * Model DetailSurat
+ * 
+ */
+export type DetailSurat = $Result.DefaultSelection<Prisma.$DetailSuratPayload>
 /**
  * Model NomorCounter
  * 
@@ -225,14 +230,24 @@ export class PrismaClient<
   get department(): Prisma.DepartmentDelegate<ExtArgs, ClientOptions>;
 
   /**
-   * `prisma.dataSurat`: Exposes CRUD operations for the **DataSurat** model.
+   * `prisma.registerSurat`: Exposes CRUD operations for the **RegisterSurat** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more DataSurats
-    * const dataSurats = await prisma.dataSurat.findMany()
+    * // Fetch zero or more RegisterSurats
+    * const registerSurats = await prisma.registerSurat.findMany()
     * ```
     */
-  get dataSurat(): Prisma.DataSuratDelegate<ExtArgs, ClientOptions>;
+  get registerSurat(): Prisma.RegisterSuratDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.detailSurat`: Exposes CRUD operations for the **DetailSurat** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more DetailSurats
+    * const detailSurats = await prisma.detailSurat.findMany()
+    * ```
+    */
+  get detailSurat(): Prisma.DetailSuratDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.nomorCounter`: Exposes CRUD operations for the **NomorCounter** model.
@@ -681,7 +696,8 @@ export namespace Prisma {
     Session: 'Session',
     Account: 'Account',
     Department: 'Department',
-    DataSurat: 'DataSurat',
+    RegisterSurat: 'RegisterSurat',
+    DetailSurat: 'DetailSurat',
     NomorCounter: 'NomorCounter'
   };
 
@@ -698,7 +714,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "session" | "account" | "department" | "dataSurat" | "nomorCounter"
+      modelProps: "user" | "session" | "account" | "department" | "registerSurat" | "detailSurat" | "nomorCounter"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -998,77 +1014,151 @@ export namespace Prisma {
           }
         }
       }
-      DataSurat: {
-        payload: Prisma.$DataSuratPayload<ExtArgs>
-        fields: Prisma.DataSuratFieldRefs
+      RegisterSurat: {
+        payload: Prisma.$RegisterSuratPayload<ExtArgs>
+        fields: Prisma.RegisterSuratFieldRefs
         operations: {
           findUnique: {
-            args: Prisma.DataSuratFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DataSuratPayload> | null
+            args: Prisma.RegisterSuratFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegisterSuratPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.DataSuratFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DataSuratPayload>
+            args: Prisma.RegisterSuratFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegisterSuratPayload>
           }
           findFirst: {
-            args: Prisma.DataSuratFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DataSuratPayload> | null
+            args: Prisma.RegisterSuratFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegisterSuratPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.DataSuratFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DataSuratPayload>
+            args: Prisma.RegisterSuratFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegisterSuratPayload>
           }
           findMany: {
-            args: Prisma.DataSuratFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DataSuratPayload>[]
+            args: Prisma.RegisterSuratFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegisterSuratPayload>[]
           }
           create: {
-            args: Prisma.DataSuratCreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DataSuratPayload>
+            args: Prisma.RegisterSuratCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegisterSuratPayload>
           }
           createMany: {
-            args: Prisma.DataSuratCreateManyArgs<ExtArgs>
+            args: Prisma.RegisterSuratCreateManyArgs<ExtArgs>
             result: BatchPayload
           }
           createManyAndReturn: {
-            args: Prisma.DataSuratCreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DataSuratPayload>[]
+            args: Prisma.RegisterSuratCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegisterSuratPayload>[]
           }
           delete: {
-            args: Prisma.DataSuratDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DataSuratPayload>
+            args: Prisma.RegisterSuratDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegisterSuratPayload>
           }
           update: {
-            args: Prisma.DataSuratUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DataSuratPayload>
+            args: Prisma.RegisterSuratUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegisterSuratPayload>
           }
           deleteMany: {
-            args: Prisma.DataSuratDeleteManyArgs<ExtArgs>
+            args: Prisma.RegisterSuratDeleteManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateMany: {
-            args: Prisma.DataSuratUpdateManyArgs<ExtArgs>
+            args: Prisma.RegisterSuratUpdateManyArgs<ExtArgs>
             result: BatchPayload
           }
           updateManyAndReturn: {
-            args: Prisma.DataSuratUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DataSuratPayload>[]
+            args: Prisma.RegisterSuratUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegisterSuratPayload>[]
           }
           upsert: {
-            args: Prisma.DataSuratUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DataSuratPayload>
+            args: Prisma.RegisterSuratUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$RegisterSuratPayload>
           }
           aggregate: {
-            args: Prisma.DataSuratAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateDataSurat>
+            args: Prisma.RegisterSuratAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateRegisterSurat>
           }
           groupBy: {
-            args: Prisma.DataSuratGroupByArgs<ExtArgs>
-            result: $Utils.Optional<DataSuratGroupByOutputType>[]
+            args: Prisma.RegisterSuratGroupByArgs<ExtArgs>
+            result: $Utils.Optional<RegisterSuratGroupByOutputType>[]
           }
           count: {
-            args: Prisma.DataSuratCountArgs<ExtArgs>
-            result: $Utils.Optional<DataSuratCountAggregateOutputType> | number
+            args: Prisma.RegisterSuratCountArgs<ExtArgs>
+            result: $Utils.Optional<RegisterSuratCountAggregateOutputType> | number
+          }
+        }
+      }
+      DetailSurat: {
+        payload: Prisma.$DetailSuratPayload<ExtArgs>
+        fields: Prisma.DetailSuratFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.DetailSuratFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DetailSuratPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.DetailSuratFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DetailSuratPayload>
+          }
+          findFirst: {
+            args: Prisma.DetailSuratFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DetailSuratPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.DetailSuratFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DetailSuratPayload>
+          }
+          findMany: {
+            args: Prisma.DetailSuratFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DetailSuratPayload>[]
+          }
+          create: {
+            args: Prisma.DetailSuratCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DetailSuratPayload>
+          }
+          createMany: {
+            args: Prisma.DetailSuratCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.DetailSuratCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DetailSuratPayload>[]
+          }
+          delete: {
+            args: Prisma.DetailSuratDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DetailSuratPayload>
+          }
+          update: {
+            args: Prisma.DetailSuratUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DetailSuratPayload>
+          }
+          deleteMany: {
+            args: Prisma.DetailSuratDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.DetailSuratUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.DetailSuratUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DetailSuratPayload>[]
+          }
+          upsert: {
+            args: Prisma.DetailSuratUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DetailSuratPayload>
+          }
+          aggregate: {
+            args: Prisma.DetailSuratAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateDetailSurat>
+          }
+          groupBy: {
+            args: Prisma.DetailSuratGroupByArgs<ExtArgs>
+            result: $Utils.Optional<DetailSuratGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.DetailSuratCountArgs<ExtArgs>
+            result: $Utils.Optional<DetailSuratCountAggregateOutputType> | number
           }
         }
       }
@@ -1258,7 +1348,8 @@ export namespace Prisma {
     session?: SessionOmit
     account?: AccountOmit
     department?: DepartmentOmit
-    dataSurat?: DataSuratOmit
+    registerSurat?: RegisterSuratOmit
+    detailSurat?: DetailSuratOmit
     nomorCounter?: NomorCounterOmit
   }
 
@@ -1380,11 +1471,11 @@ export namespace Prisma {
    */
 
   export type DepartmentCountOutputType = {
-    dataSurat: number
+    registerSurat: number
   }
 
   export type DepartmentCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    dataSurat?: boolean | DepartmentCountOutputTypeCountDataSuratArgs
+    registerSurat?: boolean | DepartmentCountOutputTypeCountRegisterSuratArgs
   }
 
   // Custom InputTypes
@@ -1401,8 +1492,39 @@ export namespace Prisma {
   /**
    * DepartmentCountOutputType without action
    */
-  export type DepartmentCountOutputTypeCountDataSuratArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: DataSuratWhereInput
+  export type DepartmentCountOutputTypeCountRegisterSuratArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: RegisterSuratWhereInput
+  }
+
+
+  /**
+   * Count Type RegisterSuratCountOutputType
+   */
+
+  export type RegisterSuratCountOutputType = {
+    detailSurat: number
+  }
+
+  export type RegisterSuratCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    detailSurat?: boolean | RegisterSuratCountOutputTypeCountDetailSuratArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * RegisterSuratCountOutputType without action
+   */
+  export type RegisterSuratCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RegisterSuratCountOutputType
+     */
+    select?: RegisterSuratCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * RegisterSuratCountOutputType without action
+   */
+  export type RegisterSuratCountOutputTypeCountDetailSuratArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DetailSuratWhereInput
   }
 
 
@@ -4847,18 +4969,21 @@ export namespace Prisma {
   export type DepartmentMinAggregateOutputType = {
     id: string | null
     shortName: string | null
+    tujuan: string | null
     isActive: boolean | null
   }
 
   export type DepartmentMaxAggregateOutputType = {
     id: string | null
     shortName: string | null
+    tujuan: string | null
     isActive: boolean | null
   }
 
   export type DepartmentCountAggregateOutputType = {
     id: number
     shortName: number
+    tujuan: number
     isActive: number
     _all: number
   }
@@ -4867,18 +4992,21 @@ export namespace Prisma {
   export type DepartmentMinAggregateInputType = {
     id?: true
     shortName?: true
+    tujuan?: true
     isActive?: true
   }
 
   export type DepartmentMaxAggregateInputType = {
     id?: true
     shortName?: true
+    tujuan?: true
     isActive?: true
   }
 
   export type DepartmentCountAggregateInputType = {
     id?: true
     shortName?: true
+    tujuan?: true
     isActive?: true
     _all?: true
   }
@@ -4958,6 +5086,7 @@ export namespace Prisma {
   export type DepartmentGroupByOutputType = {
     id: string
     shortName: string
+    tujuan: string
     isActive: boolean
     _count: DepartmentCountAggregateOutputType | null
     _min: DepartmentMinAggregateOutputType | null
@@ -4981,8 +5110,9 @@ export namespace Prisma {
   export type DepartmentSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     shortName?: boolean
+    tujuan?: boolean
     isActive?: boolean
-    dataSurat?: boolean | Department$dataSuratArgs<ExtArgs>
+    registerSurat?: boolean | Department$registerSuratArgs<ExtArgs>
     nomorCounter?: boolean | Department$nomorCounterArgs<ExtArgs>
     _count?: boolean | DepartmentCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["department"]>
@@ -4990,24 +5120,27 @@ export namespace Prisma {
   export type DepartmentSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     shortName?: boolean
+    tujuan?: boolean
     isActive?: boolean
   }, ExtArgs["result"]["department"]>
 
   export type DepartmentSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     shortName?: boolean
+    tujuan?: boolean
     isActive?: boolean
   }, ExtArgs["result"]["department"]>
 
   export type DepartmentSelectScalar = {
     id?: boolean
     shortName?: boolean
+    tujuan?: boolean
     isActive?: boolean
   }
 
-  export type DepartmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "shortName" | "isActive", ExtArgs["result"]["department"]>
+  export type DepartmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "shortName" | "tujuan" | "isActive", ExtArgs["result"]["department"]>
   export type DepartmentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    dataSurat?: boolean | Department$dataSuratArgs<ExtArgs>
+    registerSurat?: boolean | Department$registerSuratArgs<ExtArgs>
     nomorCounter?: boolean | Department$nomorCounterArgs<ExtArgs>
     _count?: boolean | DepartmentCountOutputTypeDefaultArgs<ExtArgs>
   }
@@ -5017,12 +5150,13 @@ export namespace Prisma {
   export type $DepartmentPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Department"
     objects: {
-      dataSurat: Prisma.$DataSuratPayload<ExtArgs>[]
+      registerSurat: Prisma.$RegisterSuratPayload<ExtArgs>[]
       nomorCounter: Prisma.$NomorCounterPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       shortName: string
+      tujuan: string
       isActive: boolean
     }, ExtArgs["result"]["department"]>
     composites: {}
@@ -5418,7 +5552,7 @@ export namespace Prisma {
    */
   export interface Prisma__DepartmentClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    dataSurat<T extends Department$dataSuratArgs<ExtArgs> = {}>(args?: Subset<T, Department$dataSuratArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DataSuratPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    registerSurat<T extends Department$registerSuratArgs<ExtArgs> = {}>(args?: Subset<T, Department$registerSuratArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RegisterSuratPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     nomorCounter<T extends Department$nomorCounterArgs<ExtArgs> = {}>(args?: Subset<T, Department$nomorCounterArgs<ExtArgs>>): Prisma__NomorCounterClient<$Result.GetResult<Prisma.$NomorCounterPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -5451,6 +5585,7 @@ export namespace Prisma {
   interface DepartmentFieldRefs {
     readonly id: FieldRef<"Department", 'String'>
     readonly shortName: FieldRef<"Department", 'String'>
+    readonly tujuan: FieldRef<"Department", 'String'>
     readonly isActive: FieldRef<"Department", 'Boolean'>
   }
     
@@ -5845,27 +5980,27 @@ export namespace Prisma {
   }
 
   /**
-   * Department.dataSurat
+   * Department.registerSurat
    */
-  export type Department$dataSuratArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type Department$registerSuratArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the DataSurat
+     * Select specific fields to fetch from the RegisterSurat
      */
-    select?: DataSuratSelect<ExtArgs> | null
+    select?: RegisterSuratSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the DataSurat
+     * Omit specific fields from the RegisterSurat
      */
-    omit?: DataSuratOmit<ExtArgs> | null
+    omit?: RegisterSuratOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: DataSuratInclude<ExtArgs> | null
-    where?: DataSuratWhereInput
-    orderBy?: DataSuratOrderByWithRelationInput | DataSuratOrderByWithRelationInput[]
-    cursor?: DataSuratWhereUniqueInput
+    include?: RegisterSuratInclude<ExtArgs> | null
+    where?: RegisterSuratWhereInput
+    orderBy?: RegisterSuratOrderByWithRelationInput | RegisterSuratOrderByWithRelationInput[]
+    cursor?: RegisterSuratWhereUniqueInput
     take?: number
     skip?: number
-    distinct?: DataSuratScalarFieldEnum | DataSuratScalarFieldEnum[]
+    distinct?: RegisterSuratScalarFieldEnum | RegisterSuratScalarFieldEnum[]
   }
 
   /**
@@ -5907,324 +6042,285 @@ export namespace Prisma {
 
 
   /**
-   * Model DataSurat
+   * Model RegisterSurat
    */
 
-  export type AggregateDataSurat = {
-    _count: DataSuratCountAggregateOutputType | null
-    _avg: DataSuratAvgAggregateOutputType | null
-    _sum: DataSuratSumAggregateOutputType | null
-    _min: DataSuratMinAggregateOutputType | null
-    _max: DataSuratMaxAggregateOutputType | null
+  export type AggregateRegisterSurat = {
+    _count: RegisterSuratCountAggregateOutputType | null
+    _avg: RegisterSuratAvgAggregateOutputType | null
+    _sum: RegisterSuratSumAggregateOutputType | null
+    _min: RegisterSuratMinAggregateOutputType | null
+    _max: RegisterSuratMaxAggregateOutputType | null
   }
 
-  export type DataSuratAvgAggregateOutputType = {
+  export type RegisterSuratAvgAggregateOutputType = {
     id: number | null
   }
 
-  export type DataSuratSumAggregateOutputType = {
+  export type RegisterSuratSumAggregateOutputType = {
     id: number | null
   }
 
-  export type DataSuratMinAggregateOutputType = {
-    id: number | null
-    nomor: string | null
-    deptId: string | null
-    tanggalTerima: Date | null
-    asalSurat: string | null
-    perihal: string | null
-    tanggalSurat: Date | null
-    tujuan: string | null
-    noSurat: string | null
-    lampiran: string | null
-    createdAt: Date | null
-    updatedAt: Date | null
-  }
-
-  export type DataSuratMaxAggregateOutputType = {
+  export type RegisterSuratMinAggregateOutputType = {
     id: number | null
     nomor: string | null
     deptId: string | null
     tanggalTerima: Date | null
     asalSurat: string | null
-    perihal: string | null
-    tanggalSurat: Date | null
     tujuan: string | null
-    noSurat: string | null
-    lampiran: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
 
-  export type DataSuratCountAggregateOutputType = {
+  export type RegisterSuratMaxAggregateOutputType = {
+    id: number | null
+    nomor: string | null
+    deptId: string | null
+    tanggalTerima: Date | null
+    asalSurat: string | null
+    tujuan: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type RegisterSuratCountAggregateOutputType = {
     id: number
     nomor: number
     deptId: number
     tanggalTerima: number
     asalSurat: number
-    perihal: number
-    tanggalSurat: number
     tujuan: number
-    noSurat: number
-    lampiran: number
     createdAt: number
     updatedAt: number
     _all: number
   }
 
 
-  export type DataSuratAvgAggregateInputType = {
+  export type RegisterSuratAvgAggregateInputType = {
     id?: true
   }
 
-  export type DataSuratSumAggregateInputType = {
+  export type RegisterSuratSumAggregateInputType = {
     id?: true
   }
 
-  export type DataSuratMinAggregateInputType = {
+  export type RegisterSuratMinAggregateInputType = {
     id?: true
     nomor?: true
     deptId?: true
     tanggalTerima?: true
     asalSurat?: true
-    perihal?: true
-    tanggalSurat?: true
     tujuan?: true
-    noSurat?: true
-    lampiran?: true
     createdAt?: true
     updatedAt?: true
   }
 
-  export type DataSuratMaxAggregateInputType = {
+  export type RegisterSuratMaxAggregateInputType = {
     id?: true
     nomor?: true
     deptId?: true
     tanggalTerima?: true
     asalSurat?: true
-    perihal?: true
-    tanggalSurat?: true
     tujuan?: true
-    noSurat?: true
-    lampiran?: true
     createdAt?: true
     updatedAt?: true
   }
 
-  export type DataSuratCountAggregateInputType = {
+  export type RegisterSuratCountAggregateInputType = {
     id?: true
     nomor?: true
     deptId?: true
     tanggalTerima?: true
     asalSurat?: true
-    perihal?: true
-    tanggalSurat?: true
     tujuan?: true
-    noSurat?: true
-    lampiran?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
   }
 
-  export type DataSuratAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegisterSuratAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which DataSurat to aggregate.
+     * Filter which RegisterSurat to aggregate.
      */
-    where?: DataSuratWhereInput
+    where?: RegisterSuratWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of DataSurats to fetch.
+     * Determine the order of RegisterSurats to fetch.
      */
-    orderBy?: DataSuratOrderByWithRelationInput | DataSuratOrderByWithRelationInput[]
+    orderBy?: RegisterSuratOrderByWithRelationInput | RegisterSuratOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: DataSuratWhereUniqueInput
+    cursor?: RegisterSuratWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` DataSurats from the position of the cursor.
+     * Take `±n` RegisterSurats from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` DataSurats.
+     * Skip the first `n` RegisterSurats.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned DataSurats
+     * Count returned RegisterSurats
     **/
-    _count?: true | DataSuratCountAggregateInputType
+    _count?: true | RegisterSuratCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to average
     **/
-    _avg?: DataSuratAvgAggregateInputType
+    _avg?: RegisterSuratAvgAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to sum
     **/
-    _sum?: DataSuratSumAggregateInputType
+    _sum?: RegisterSuratSumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: DataSuratMinAggregateInputType
+    _min?: RegisterSuratMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: DataSuratMaxAggregateInputType
+    _max?: RegisterSuratMaxAggregateInputType
   }
 
-  export type GetDataSuratAggregateType<T extends DataSuratAggregateArgs> = {
-        [P in keyof T & keyof AggregateDataSurat]: P extends '_count' | 'count'
+  export type GetRegisterSuratAggregateType<T extends RegisterSuratAggregateArgs> = {
+        [P in keyof T & keyof AggregateRegisterSurat]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateDataSurat[P]>
-      : GetScalarType<T[P], AggregateDataSurat[P]>
+        : GetScalarType<T[P], AggregateRegisterSurat[P]>
+      : GetScalarType<T[P], AggregateRegisterSurat[P]>
   }
 
 
 
 
-  export type DataSuratGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: DataSuratWhereInput
-    orderBy?: DataSuratOrderByWithAggregationInput | DataSuratOrderByWithAggregationInput[]
-    by: DataSuratScalarFieldEnum[] | DataSuratScalarFieldEnum
-    having?: DataSuratScalarWhereWithAggregatesInput
+  export type RegisterSuratGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: RegisterSuratWhereInput
+    orderBy?: RegisterSuratOrderByWithAggregationInput | RegisterSuratOrderByWithAggregationInput[]
+    by: RegisterSuratScalarFieldEnum[] | RegisterSuratScalarFieldEnum
+    having?: RegisterSuratScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: DataSuratCountAggregateInputType | true
-    _avg?: DataSuratAvgAggregateInputType
-    _sum?: DataSuratSumAggregateInputType
-    _min?: DataSuratMinAggregateInputType
-    _max?: DataSuratMaxAggregateInputType
+    _count?: RegisterSuratCountAggregateInputType | true
+    _avg?: RegisterSuratAvgAggregateInputType
+    _sum?: RegisterSuratSumAggregateInputType
+    _min?: RegisterSuratMinAggregateInputType
+    _max?: RegisterSuratMaxAggregateInputType
   }
 
-  export type DataSuratGroupByOutputType = {
+  export type RegisterSuratGroupByOutputType = {
     id: number
     nomor: string
     deptId: string
     tanggalTerima: Date
     asalSurat: string
-    perihal: string
-    tanggalSurat: Date
     tujuan: string
-    noSurat: string | null
-    lampiran: string | null
     createdAt: Date
     updatedAt: Date
-    _count: DataSuratCountAggregateOutputType | null
-    _avg: DataSuratAvgAggregateOutputType | null
-    _sum: DataSuratSumAggregateOutputType | null
-    _min: DataSuratMinAggregateOutputType | null
-    _max: DataSuratMaxAggregateOutputType | null
+    _count: RegisterSuratCountAggregateOutputType | null
+    _avg: RegisterSuratAvgAggregateOutputType | null
+    _sum: RegisterSuratSumAggregateOutputType | null
+    _min: RegisterSuratMinAggregateOutputType | null
+    _max: RegisterSuratMaxAggregateOutputType | null
   }
 
-  type GetDataSuratGroupByPayload<T extends DataSuratGroupByArgs> = Prisma.PrismaPromise<
+  type GetRegisterSuratGroupByPayload<T extends RegisterSuratGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickEnumerable<DataSuratGroupByOutputType, T['by']> &
+      PickEnumerable<RegisterSuratGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof DataSuratGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof RegisterSuratGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], DataSuratGroupByOutputType[P]>
-            : GetScalarType<T[P], DataSuratGroupByOutputType[P]>
+              : GetScalarType<T[P], RegisterSuratGroupByOutputType[P]>
+            : GetScalarType<T[P], RegisterSuratGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type DataSuratSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type RegisterSuratSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     nomor?: boolean
     deptId?: boolean
     tanggalTerima?: boolean
     asalSurat?: boolean
-    perihal?: boolean
-    tanggalSurat?: boolean
     tujuan?: boolean
-    noSurat?: boolean
-    lampiran?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     dept?: boolean | DepartmentDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["dataSurat"]>
+    detailSurat?: boolean | RegisterSurat$detailSuratArgs<ExtArgs>
+    _count?: boolean | RegisterSuratCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["registerSurat"]>
 
-  export type DataSuratSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type RegisterSuratSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     nomor?: boolean
     deptId?: boolean
     tanggalTerima?: boolean
     asalSurat?: boolean
-    perihal?: boolean
-    tanggalSurat?: boolean
     tujuan?: boolean
-    noSurat?: boolean
-    lampiran?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     dept?: boolean | DepartmentDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["dataSurat"]>
+  }, ExtArgs["result"]["registerSurat"]>
 
-  export type DataSuratSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type RegisterSuratSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     nomor?: boolean
     deptId?: boolean
     tanggalTerima?: boolean
     asalSurat?: boolean
-    perihal?: boolean
-    tanggalSurat?: boolean
     tujuan?: boolean
-    noSurat?: boolean
-    lampiran?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     dept?: boolean | DepartmentDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["dataSurat"]>
+  }, ExtArgs["result"]["registerSurat"]>
 
-  export type DataSuratSelectScalar = {
+  export type RegisterSuratSelectScalar = {
     id?: boolean
     nomor?: boolean
     deptId?: boolean
     tanggalTerima?: boolean
     asalSurat?: boolean
-    perihal?: boolean
-    tanggalSurat?: boolean
     tujuan?: boolean
-    noSurat?: boolean
-    lampiran?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type DataSuratOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "nomor" | "deptId" | "tanggalTerima" | "asalSurat" | "perihal" | "tanggalSurat" | "tujuan" | "noSurat" | "lampiran" | "createdAt" | "updatedAt", ExtArgs["result"]["dataSurat"]>
-  export type DataSuratInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegisterSuratOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "nomor" | "deptId" | "tanggalTerima" | "asalSurat" | "tujuan" | "createdAt" | "updatedAt", ExtArgs["result"]["registerSurat"]>
+  export type RegisterSuratInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    dept?: boolean | DepartmentDefaultArgs<ExtArgs>
+    detailSurat?: boolean | RegisterSurat$detailSuratArgs<ExtArgs>
+    _count?: boolean | RegisterSuratCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type RegisterSuratIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     dept?: boolean | DepartmentDefaultArgs<ExtArgs>
   }
-  export type DataSuratIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    dept?: boolean | DepartmentDefaultArgs<ExtArgs>
-  }
-  export type DataSuratIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegisterSuratIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     dept?: boolean | DepartmentDefaultArgs<ExtArgs>
   }
 
-  export type $DataSuratPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "DataSurat"
+  export type $RegisterSuratPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "RegisterSurat"
     objects: {
       dept: Prisma.$DepartmentPayload<ExtArgs>
+      detailSurat: Prisma.$DetailSuratPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
@@ -6232,143 +6328,139 @@ export namespace Prisma {
       deptId: string
       tanggalTerima: Date
       asalSurat: string
-      perihal: string
-      tanggalSurat: Date
       tujuan: string
-      noSurat: string | null
-      lampiran: string | null
       createdAt: Date
       updatedAt: Date
-    }, ExtArgs["result"]["dataSurat"]>
+    }, ExtArgs["result"]["registerSurat"]>
     composites: {}
   }
 
-  type DataSuratGetPayload<S extends boolean | null | undefined | DataSuratDefaultArgs> = $Result.GetResult<Prisma.$DataSuratPayload, S>
+  type RegisterSuratGetPayload<S extends boolean | null | undefined | RegisterSuratDefaultArgs> = $Result.GetResult<Prisma.$RegisterSuratPayload, S>
 
-  type DataSuratCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<DataSuratFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: DataSuratCountAggregateInputType | true
+  type RegisterSuratCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<RegisterSuratFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: RegisterSuratCountAggregateInputType | true
     }
 
-  export interface DataSuratDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['DataSurat'], meta: { name: 'DataSurat' } }
+  export interface RegisterSuratDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['RegisterSurat'], meta: { name: 'RegisterSurat' } }
     /**
-     * Find zero or one DataSurat that matches the filter.
-     * @param {DataSuratFindUniqueArgs} args - Arguments to find a DataSurat
+     * Find zero or one RegisterSurat that matches the filter.
+     * @param {RegisterSuratFindUniqueArgs} args - Arguments to find a RegisterSurat
      * @example
-     * // Get one DataSurat
-     * const dataSurat = await prisma.dataSurat.findUnique({
+     * // Get one RegisterSurat
+     * const registerSurat = await prisma.registerSurat.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUnique<T extends DataSuratFindUniqueArgs>(args: SelectSubset<T, DataSuratFindUniqueArgs<ExtArgs>>): Prisma__DataSuratClient<$Result.GetResult<Prisma.$DataSuratPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findUnique<T extends RegisterSuratFindUniqueArgs>(args: SelectSubset<T, RegisterSuratFindUniqueArgs<ExtArgs>>): Prisma__RegisterSuratClient<$Result.GetResult<Prisma.$RegisterSuratPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find one DataSurat that matches the filter or throw an error with `error.code='P2025'`
+     * Find one RegisterSurat that matches the filter or throw an error with `error.code='P2025'`
      * if no matches were found.
-     * @param {DataSuratFindUniqueOrThrowArgs} args - Arguments to find a DataSurat
+     * @param {RegisterSuratFindUniqueOrThrowArgs} args - Arguments to find a RegisterSurat
      * @example
-     * // Get one DataSurat
-     * const dataSurat = await prisma.dataSurat.findUniqueOrThrow({
+     * // Get one RegisterSurat
+     * const registerSurat = await prisma.registerSurat.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findUniqueOrThrow<T extends DataSuratFindUniqueOrThrowArgs>(args: SelectSubset<T, DataSuratFindUniqueOrThrowArgs<ExtArgs>>): Prisma__DataSuratClient<$Result.GetResult<Prisma.$DataSuratPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findUniqueOrThrow<T extends RegisterSuratFindUniqueOrThrowArgs>(args: SelectSubset<T, RegisterSuratFindUniqueOrThrowArgs<ExtArgs>>): Prisma__RegisterSuratClient<$Result.GetResult<Prisma.$RegisterSuratPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find the first DataSurat that matches the filter.
+     * Find the first RegisterSurat that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {DataSuratFindFirstArgs} args - Arguments to find a DataSurat
+     * @param {RegisterSuratFindFirstArgs} args - Arguments to find a RegisterSurat
      * @example
-     * // Get one DataSurat
-     * const dataSurat = await prisma.dataSurat.findFirst({
+     * // Get one RegisterSurat
+     * const registerSurat = await prisma.registerSurat.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirst<T extends DataSuratFindFirstArgs>(args?: SelectSubset<T, DataSuratFindFirstArgs<ExtArgs>>): Prisma__DataSuratClient<$Result.GetResult<Prisma.$DataSuratPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    findFirst<T extends RegisterSuratFindFirstArgs>(args?: SelectSubset<T, RegisterSuratFindFirstArgs<ExtArgs>>): Prisma__RegisterSuratClient<$Result.GetResult<Prisma.$RegisterSuratPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find the first DataSurat that matches the filter or
+     * Find the first RegisterSurat that matches the filter or
      * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {DataSuratFindFirstOrThrowArgs} args - Arguments to find a DataSurat
+     * @param {RegisterSuratFindFirstOrThrowArgs} args - Arguments to find a RegisterSurat
      * @example
-     * // Get one DataSurat
-     * const dataSurat = await prisma.dataSurat.findFirstOrThrow({
+     * // Get one RegisterSurat
+     * const registerSurat = await prisma.registerSurat.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      */
-    findFirstOrThrow<T extends DataSuratFindFirstOrThrowArgs>(args?: SelectSubset<T, DataSuratFindFirstOrThrowArgs<ExtArgs>>): Prisma__DataSuratClient<$Result.GetResult<Prisma.$DataSuratPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    findFirstOrThrow<T extends RegisterSuratFindFirstOrThrowArgs>(args?: SelectSubset<T, RegisterSuratFindFirstOrThrowArgs<ExtArgs>>): Prisma__RegisterSuratClient<$Result.GetResult<Prisma.$RegisterSuratPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Find zero or more DataSurats that matches the filter.
+     * Find zero or more RegisterSurats that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {DataSuratFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @param {RegisterSuratFindManyArgs} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all DataSurats
-     * const dataSurats = await prisma.dataSurat.findMany()
+     * // Get all RegisterSurats
+     * const registerSurats = await prisma.registerSurat.findMany()
      * 
-     * // Get first 10 DataSurats
-     * const dataSurats = await prisma.dataSurat.findMany({ take: 10 })
+     * // Get first 10 RegisterSurats
+     * const registerSurats = await prisma.registerSurat.findMany({ take: 10 })
      * 
      * // Only select the `id`
-     * const dataSuratWithIdOnly = await prisma.dataSurat.findMany({ select: { id: true } })
+     * const registerSuratWithIdOnly = await prisma.registerSurat.findMany({ select: { id: true } })
      * 
      */
-    findMany<T extends DataSuratFindManyArgs>(args?: SelectSubset<T, DataSuratFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DataSuratPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+    findMany<T extends RegisterSuratFindManyArgs>(args?: SelectSubset<T, RegisterSuratFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RegisterSuratPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
 
     /**
-     * Create a DataSurat.
-     * @param {DataSuratCreateArgs} args - Arguments to create a DataSurat.
+     * Create a RegisterSurat.
+     * @param {RegisterSuratCreateArgs} args - Arguments to create a RegisterSurat.
      * @example
-     * // Create one DataSurat
-     * const DataSurat = await prisma.dataSurat.create({
+     * // Create one RegisterSurat
+     * const RegisterSurat = await prisma.registerSurat.create({
      *   data: {
-     *     // ... data to create a DataSurat
+     *     // ... data to create a RegisterSurat
      *   }
      * })
      * 
      */
-    create<T extends DataSuratCreateArgs>(args: SelectSubset<T, DataSuratCreateArgs<ExtArgs>>): Prisma__DataSuratClient<$Result.GetResult<Prisma.$DataSuratPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    create<T extends RegisterSuratCreateArgs>(args: SelectSubset<T, RegisterSuratCreateArgs<ExtArgs>>): Prisma__RegisterSuratClient<$Result.GetResult<Prisma.$RegisterSuratPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Create many DataSurats.
-     * @param {DataSuratCreateManyArgs} args - Arguments to create many DataSurats.
+     * Create many RegisterSurats.
+     * @param {RegisterSuratCreateManyArgs} args - Arguments to create many RegisterSurats.
      * @example
-     * // Create many DataSurats
-     * const dataSurat = await prisma.dataSurat.createMany({
+     * // Create many RegisterSurats
+     * const registerSurat = await prisma.registerSurat.createMany({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      *     
      */
-    createMany<T extends DataSuratCreateManyArgs>(args?: SelectSubset<T, DataSuratCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    createMany<T extends RegisterSuratCreateManyArgs>(args?: SelectSubset<T, RegisterSuratCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create many DataSurats and returns the data saved in the database.
-     * @param {DataSuratCreateManyAndReturnArgs} args - Arguments to create many DataSurats.
+     * Create many RegisterSurats and returns the data saved in the database.
+     * @param {RegisterSuratCreateManyAndReturnArgs} args - Arguments to create many RegisterSurats.
      * @example
-     * // Create many DataSurats
-     * const dataSurat = await prisma.dataSurat.createManyAndReturn({
+     * // Create many RegisterSurats
+     * const registerSurat = await prisma.registerSurat.createManyAndReturn({
      *   data: [
      *     // ... provide data here
      *   ]
      * })
      * 
-     * // Create many DataSurats and only return the `id`
-     * const dataSuratWithIdOnly = await prisma.dataSurat.createManyAndReturn({
+     * // Create many RegisterSurats and only return the `id`
+     * const registerSuratWithIdOnly = await prisma.registerSurat.createManyAndReturn({
      *   select: { id: true },
      *   data: [
      *     // ... provide data here
@@ -6378,28 +6470,28 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    createManyAndReturn<T extends DataSuratCreateManyAndReturnArgs>(args?: SelectSubset<T, DataSuratCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DataSuratPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+    createManyAndReturn<T extends RegisterSuratCreateManyAndReturnArgs>(args?: SelectSubset<T, RegisterSuratCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RegisterSuratPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
     /**
-     * Delete a DataSurat.
-     * @param {DataSuratDeleteArgs} args - Arguments to delete one DataSurat.
+     * Delete a RegisterSurat.
+     * @param {RegisterSuratDeleteArgs} args - Arguments to delete one RegisterSurat.
      * @example
-     * // Delete one DataSurat
-     * const DataSurat = await prisma.dataSurat.delete({
+     * // Delete one RegisterSurat
+     * const RegisterSurat = await prisma.registerSurat.delete({
      *   where: {
-     *     // ... filter to delete one DataSurat
+     *     // ... filter to delete one RegisterSurat
      *   }
      * })
      * 
      */
-    delete<T extends DataSuratDeleteArgs>(args: SelectSubset<T, DataSuratDeleteArgs<ExtArgs>>): Prisma__DataSuratClient<$Result.GetResult<Prisma.$DataSuratPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    delete<T extends RegisterSuratDeleteArgs>(args: SelectSubset<T, RegisterSuratDeleteArgs<ExtArgs>>): Prisma__RegisterSuratClient<$Result.GetResult<Prisma.$RegisterSuratPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Update one DataSurat.
-     * @param {DataSuratUpdateArgs} args - Arguments to update one DataSurat.
+     * Update one RegisterSurat.
+     * @param {RegisterSuratUpdateArgs} args - Arguments to update one RegisterSurat.
      * @example
-     * // Update one DataSurat
-     * const dataSurat = await prisma.dataSurat.update({
+     * // Update one RegisterSurat
+     * const registerSurat = await prisma.registerSurat.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -6409,30 +6501,30 @@ export namespace Prisma {
      * })
      * 
      */
-    update<T extends DataSuratUpdateArgs>(args: SelectSubset<T, DataSuratUpdateArgs<ExtArgs>>): Prisma__DataSuratClient<$Result.GetResult<Prisma.$DataSuratPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    update<T extends RegisterSuratUpdateArgs>(args: SelectSubset<T, RegisterSuratUpdateArgs<ExtArgs>>): Prisma__RegisterSuratClient<$Result.GetResult<Prisma.$RegisterSuratPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
     /**
-     * Delete zero or more DataSurats.
-     * @param {DataSuratDeleteManyArgs} args - Arguments to filter DataSurats to delete.
+     * Delete zero or more RegisterSurats.
+     * @param {RegisterSuratDeleteManyArgs} args - Arguments to filter RegisterSurats to delete.
      * @example
-     * // Delete a few DataSurats
-     * const { count } = await prisma.dataSurat.deleteMany({
+     * // Delete a few RegisterSurats
+     * const { count } = await prisma.registerSurat.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
      */
-    deleteMany<T extends DataSuratDeleteManyArgs>(args?: SelectSubset<T, DataSuratDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    deleteMany<T extends RegisterSuratDeleteManyArgs>(args?: SelectSubset<T, RegisterSuratDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more DataSurats.
+     * Update zero or more RegisterSurats.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {DataSuratUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {RegisterSuratUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many DataSurats
-     * const dataSurat = await prisma.dataSurat.updateMany({
+     * // Update many RegisterSurats
+     * const registerSurat = await prisma.registerSurat.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -6442,14 +6534,14 @@ export namespace Prisma {
      * })
      * 
      */
-    updateMany<T extends DataSuratUpdateManyArgs>(args: SelectSubset<T, DataSuratUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+    updateMany<T extends RegisterSuratUpdateManyArgs>(args: SelectSubset<T, RegisterSuratUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more DataSurats and returns the data updated in the database.
-     * @param {DataSuratUpdateManyAndReturnArgs} args - Arguments to update many DataSurats.
+     * Update zero or more RegisterSurats and returns the data updated in the database.
+     * @param {RegisterSuratUpdateManyAndReturnArgs} args - Arguments to update many RegisterSurats.
      * @example
-     * // Update many DataSurats
-     * const dataSurat = await prisma.dataSurat.updateManyAndReturn({
+     * // Update many RegisterSurats
+     * const registerSurat = await prisma.registerSurat.updateManyAndReturn({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -6458,8 +6550,8 @@ export namespace Prisma {
      *   ]
      * })
      * 
-     * // Update zero or more DataSurats and only return the `id`
-     * const dataSuratWithIdOnly = await prisma.dataSurat.updateManyAndReturn({
+     * // Update zero or more RegisterSurats and only return the `id`
+     * const registerSuratWithIdOnly = await prisma.registerSurat.updateManyAndReturn({
      *   select: { id: true },
      *   where: {
      *     // ... provide filter here
@@ -6472,56 +6564,56 @@ export namespace Prisma {
      * Read more here: https://pris.ly/d/null-undefined
      * 
      */
-    updateManyAndReturn<T extends DataSuratUpdateManyAndReturnArgs>(args: SelectSubset<T, DataSuratUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DataSuratPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+    updateManyAndReturn<T extends RegisterSuratUpdateManyAndReturnArgs>(args: SelectSubset<T, RegisterSuratUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RegisterSuratPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
     /**
-     * Create or update one DataSurat.
-     * @param {DataSuratUpsertArgs} args - Arguments to update or create a DataSurat.
+     * Create or update one RegisterSurat.
+     * @param {RegisterSuratUpsertArgs} args - Arguments to update or create a RegisterSurat.
      * @example
-     * // Update or create a DataSurat
-     * const dataSurat = await prisma.dataSurat.upsert({
+     * // Update or create a RegisterSurat
+     * const registerSurat = await prisma.registerSurat.upsert({
      *   create: {
-     *     // ... data to create a DataSurat
+     *     // ... data to create a RegisterSurat
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the DataSurat we want to update
+     *     // ... the filter for the RegisterSurat we want to update
      *   }
      * })
      */
-    upsert<T extends DataSuratUpsertArgs>(args: SelectSubset<T, DataSuratUpsertArgs<ExtArgs>>): Prisma__DataSuratClient<$Result.GetResult<Prisma.$DataSuratPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+    upsert<T extends RegisterSuratUpsertArgs>(args: SelectSubset<T, RegisterSuratUpsertArgs<ExtArgs>>): Prisma__RegisterSuratClient<$Result.GetResult<Prisma.$RegisterSuratPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
 
 
     /**
-     * Count the number of DataSurats.
+     * Count the number of RegisterSurats.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {DataSuratCountArgs} args - Arguments to filter DataSurats to count.
+     * @param {RegisterSuratCountArgs} args - Arguments to filter RegisterSurats to count.
      * @example
-     * // Count the number of DataSurats
-     * const count = await prisma.dataSurat.count({
+     * // Count the number of RegisterSurats
+     * const count = await prisma.registerSurat.count({
      *   where: {
-     *     // ... the filter for the DataSurats we want to count
+     *     // ... the filter for the RegisterSurats we want to count
      *   }
      * })
     **/
-    count<T extends DataSuratCountArgs>(
-      args?: Subset<T, DataSuratCountArgs>,
+    count<T extends RegisterSuratCountArgs>(
+      args?: Subset<T, RegisterSuratCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], DataSuratCountAggregateOutputType>
+          : GetScalarType<T['select'], RegisterSuratCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a DataSurat.
+     * Allows you to perform aggregations operations on a RegisterSurat.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {DataSuratAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {RegisterSuratAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -6541,13 +6633,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends DataSuratAggregateArgs>(args: Subset<T, DataSuratAggregateArgs>): Prisma.PrismaPromise<GetDataSuratAggregateType<T>>
+    aggregate<T extends RegisterSuratAggregateArgs>(args: Subset<T, RegisterSuratAggregateArgs>): Prisma.PrismaPromise<GetRegisterSuratAggregateType<T>>
 
     /**
-     * Group by DataSurat.
+     * Group by RegisterSurat.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {DataSuratGroupByArgs} args - Group by arguments.
+     * @param {RegisterSuratGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -6562,14 +6654,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends DataSuratGroupByArgs,
+      T extends RegisterSuratGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: DataSuratGroupByArgs['orderBy'] }
-        : { orderBy?: DataSuratGroupByArgs['orderBy'] },
+        ? { orderBy: RegisterSuratGroupByArgs['orderBy'] }
+        : { orderBy?: RegisterSuratGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends MaybeTupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -6618,22 +6710,23 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, DataSuratGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDataSuratGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, RegisterSuratGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetRegisterSuratGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
   /**
-   * Fields of the DataSurat model
+   * Fields of the RegisterSurat model
    */
-  readonly fields: DataSuratFieldRefs;
+  readonly fields: RegisterSuratFieldRefs;
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for DataSurat.
+   * The delegate class that acts as a "Promise-like" for RegisterSurat.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export interface Prisma__DataSuratClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+  export interface Prisma__RegisterSuratClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     dept<T extends DepartmentDefaultArgs<ExtArgs> = {}>(args?: Subset<T, DepartmentDefaultArgs<ExtArgs>>): Prisma__DepartmentClient<$Result.GetResult<Prisma.$DepartmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    detailSurat<T extends RegisterSurat$detailSuratArgs<ExtArgs> = {}>(args?: Subset<T, RegisterSurat$detailSuratArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DetailSuratPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -6660,437 +6753,1597 @@ export namespace Prisma {
 
 
   /**
-   * Fields of the DataSurat model
+   * Fields of the RegisterSurat model
    */
-  interface DataSuratFieldRefs {
-    readonly id: FieldRef<"DataSurat", 'Int'>
-    readonly nomor: FieldRef<"DataSurat", 'String'>
-    readonly deptId: FieldRef<"DataSurat", 'String'>
-    readonly tanggalTerima: FieldRef<"DataSurat", 'DateTime'>
-    readonly asalSurat: FieldRef<"DataSurat", 'String'>
-    readonly perihal: FieldRef<"DataSurat", 'String'>
-    readonly tanggalSurat: FieldRef<"DataSurat", 'DateTime'>
-    readonly tujuan: FieldRef<"DataSurat", 'String'>
-    readonly noSurat: FieldRef<"DataSurat", 'String'>
-    readonly lampiran: FieldRef<"DataSurat", 'String'>
-    readonly createdAt: FieldRef<"DataSurat", 'DateTime'>
-    readonly updatedAt: FieldRef<"DataSurat", 'DateTime'>
+  interface RegisterSuratFieldRefs {
+    readonly id: FieldRef<"RegisterSurat", 'Int'>
+    readonly nomor: FieldRef<"RegisterSurat", 'String'>
+    readonly deptId: FieldRef<"RegisterSurat", 'String'>
+    readonly tanggalTerima: FieldRef<"RegisterSurat", 'DateTime'>
+    readonly asalSurat: FieldRef<"RegisterSurat", 'String'>
+    readonly tujuan: FieldRef<"RegisterSurat", 'String'>
+    readonly createdAt: FieldRef<"RegisterSurat", 'DateTime'>
+    readonly updatedAt: FieldRef<"RegisterSurat", 'DateTime'>
   }
     
 
   // Custom InputTypes
   /**
-   * DataSurat findUnique
+   * RegisterSurat findUnique
    */
-  export type DataSuratFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegisterSuratFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the DataSurat
+     * Select specific fields to fetch from the RegisterSurat
      */
-    select?: DataSuratSelect<ExtArgs> | null
+    select?: RegisterSuratSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the DataSurat
+     * Omit specific fields from the RegisterSurat
      */
-    omit?: DataSuratOmit<ExtArgs> | null
+    omit?: RegisterSuratOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: DataSuratInclude<ExtArgs> | null
+    include?: RegisterSuratInclude<ExtArgs> | null
     /**
-     * Filter, which DataSurat to fetch.
+     * Filter, which RegisterSurat to fetch.
      */
-    where: DataSuratWhereUniqueInput
+    where: RegisterSuratWhereUniqueInput
   }
 
   /**
-   * DataSurat findUniqueOrThrow
+   * RegisterSurat findUniqueOrThrow
    */
-  export type DataSuratFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegisterSuratFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the DataSurat
+     * Select specific fields to fetch from the RegisterSurat
      */
-    select?: DataSuratSelect<ExtArgs> | null
+    select?: RegisterSuratSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the DataSurat
+     * Omit specific fields from the RegisterSurat
      */
-    omit?: DataSuratOmit<ExtArgs> | null
+    omit?: RegisterSuratOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: DataSuratInclude<ExtArgs> | null
+    include?: RegisterSuratInclude<ExtArgs> | null
     /**
-     * Filter, which DataSurat to fetch.
+     * Filter, which RegisterSurat to fetch.
      */
-    where: DataSuratWhereUniqueInput
+    where: RegisterSuratWhereUniqueInput
   }
 
   /**
-   * DataSurat findFirst
+   * RegisterSurat findFirst
    */
-  export type DataSuratFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegisterSuratFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the DataSurat
+     * Select specific fields to fetch from the RegisterSurat
      */
-    select?: DataSuratSelect<ExtArgs> | null
+    select?: RegisterSuratSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the DataSurat
+     * Omit specific fields from the RegisterSurat
      */
-    omit?: DataSuratOmit<ExtArgs> | null
+    omit?: RegisterSuratOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: DataSuratInclude<ExtArgs> | null
+    include?: RegisterSuratInclude<ExtArgs> | null
     /**
-     * Filter, which DataSurat to fetch.
+     * Filter, which RegisterSurat to fetch.
      */
-    where?: DataSuratWhereInput
+    where?: RegisterSuratWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of DataSurats to fetch.
+     * Determine the order of RegisterSurats to fetch.
      */
-    orderBy?: DataSuratOrderByWithRelationInput | DataSuratOrderByWithRelationInput[]
+    orderBy?: RegisterSuratOrderByWithRelationInput | RegisterSuratOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for DataSurats.
+     * Sets the position for searching for RegisterSurats.
      */
-    cursor?: DataSuratWhereUniqueInput
+    cursor?: RegisterSuratWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` DataSurats from the position of the cursor.
+     * Take `±n` RegisterSurats from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` DataSurats.
+     * Skip the first `n` RegisterSurats.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of DataSurats.
+     * Filter by unique combinations of RegisterSurats.
      */
-    distinct?: DataSuratScalarFieldEnum | DataSuratScalarFieldEnum[]
+    distinct?: RegisterSuratScalarFieldEnum | RegisterSuratScalarFieldEnum[]
   }
 
   /**
-   * DataSurat findFirstOrThrow
+   * RegisterSurat findFirstOrThrow
    */
-  export type DataSuratFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegisterSuratFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the DataSurat
+     * Select specific fields to fetch from the RegisterSurat
      */
-    select?: DataSuratSelect<ExtArgs> | null
+    select?: RegisterSuratSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the DataSurat
+     * Omit specific fields from the RegisterSurat
      */
-    omit?: DataSuratOmit<ExtArgs> | null
+    omit?: RegisterSuratOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: DataSuratInclude<ExtArgs> | null
+    include?: RegisterSuratInclude<ExtArgs> | null
     /**
-     * Filter, which DataSurat to fetch.
+     * Filter, which RegisterSurat to fetch.
      */
-    where?: DataSuratWhereInput
+    where?: RegisterSuratWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of DataSurats to fetch.
+     * Determine the order of RegisterSurats to fetch.
      */
-    orderBy?: DataSuratOrderByWithRelationInput | DataSuratOrderByWithRelationInput[]
+    orderBy?: RegisterSuratOrderByWithRelationInput | RegisterSuratOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for DataSurats.
+     * Sets the position for searching for RegisterSurats.
      */
-    cursor?: DataSuratWhereUniqueInput
+    cursor?: RegisterSuratWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` DataSurats from the position of the cursor.
+     * Take `±n` RegisterSurats from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` DataSurats.
+     * Skip the first `n` RegisterSurats.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of DataSurats.
+     * Filter by unique combinations of RegisterSurats.
      */
-    distinct?: DataSuratScalarFieldEnum | DataSuratScalarFieldEnum[]
+    distinct?: RegisterSuratScalarFieldEnum | RegisterSuratScalarFieldEnum[]
   }
 
   /**
-   * DataSurat findMany
+   * RegisterSurat findMany
    */
-  export type DataSuratFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegisterSuratFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the DataSurat
+     * Select specific fields to fetch from the RegisterSurat
      */
-    select?: DataSuratSelect<ExtArgs> | null
+    select?: RegisterSuratSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the DataSurat
+     * Omit specific fields from the RegisterSurat
      */
-    omit?: DataSuratOmit<ExtArgs> | null
+    omit?: RegisterSuratOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: DataSuratInclude<ExtArgs> | null
+    include?: RegisterSuratInclude<ExtArgs> | null
     /**
-     * Filter, which DataSurats to fetch.
+     * Filter, which RegisterSurats to fetch.
      */
-    where?: DataSuratWhereInput
+    where?: RegisterSuratWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of DataSurats to fetch.
+     * Determine the order of RegisterSurats to fetch.
      */
-    orderBy?: DataSuratOrderByWithRelationInput | DataSuratOrderByWithRelationInput[]
+    orderBy?: RegisterSuratOrderByWithRelationInput | RegisterSuratOrderByWithRelationInput[]
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing DataSurats.
+     * Sets the position for listing RegisterSurats.
      */
-    cursor?: DataSuratWhereUniqueInput
+    cursor?: RegisterSuratWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` DataSurats from the position of the cursor.
+     * Take `±n` RegisterSurats from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` DataSurats.
+     * Skip the first `n` RegisterSurats.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of DataSurats.
+     * Filter by unique combinations of RegisterSurats.
      */
-    distinct?: DataSuratScalarFieldEnum | DataSuratScalarFieldEnum[]
+    distinct?: RegisterSuratScalarFieldEnum | RegisterSuratScalarFieldEnum[]
   }
 
   /**
-   * DataSurat create
+   * RegisterSurat create
    */
-  export type DataSuratCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegisterSuratCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the DataSurat
+     * Select specific fields to fetch from the RegisterSurat
      */
-    select?: DataSuratSelect<ExtArgs> | null
+    select?: RegisterSuratSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the DataSurat
+     * Omit specific fields from the RegisterSurat
      */
-    omit?: DataSuratOmit<ExtArgs> | null
+    omit?: RegisterSuratOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: DataSuratInclude<ExtArgs> | null
+    include?: RegisterSuratInclude<ExtArgs> | null
     /**
-     * The data needed to create a DataSurat.
+     * The data needed to create a RegisterSurat.
      */
-    data: XOR<DataSuratCreateInput, DataSuratUncheckedCreateInput>
+    data: XOR<RegisterSuratCreateInput, RegisterSuratUncheckedCreateInput>
   }
 
   /**
-   * DataSurat createMany
+   * RegisterSurat createMany
    */
-  export type DataSuratCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegisterSuratCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many DataSurats.
+     * The data used to create many RegisterSurats.
      */
-    data: DataSuratCreateManyInput | DataSuratCreateManyInput[]
+    data: RegisterSuratCreateManyInput | RegisterSuratCreateManyInput[]
     skipDuplicates?: boolean
   }
 
   /**
-   * DataSurat createManyAndReturn
+   * RegisterSurat createManyAndReturn
    */
-  export type DataSuratCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegisterSuratCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the DataSurat
+     * Select specific fields to fetch from the RegisterSurat
      */
-    select?: DataSuratSelectCreateManyAndReturn<ExtArgs> | null
+    select?: RegisterSuratSelectCreateManyAndReturn<ExtArgs> | null
     /**
-     * Omit specific fields from the DataSurat
+     * Omit specific fields from the RegisterSurat
      */
-    omit?: DataSuratOmit<ExtArgs> | null
+    omit?: RegisterSuratOmit<ExtArgs> | null
     /**
-     * The data used to create many DataSurats.
+     * The data used to create many RegisterSurats.
      */
-    data: DataSuratCreateManyInput | DataSuratCreateManyInput[]
+    data: RegisterSuratCreateManyInput | RegisterSuratCreateManyInput[]
     skipDuplicates?: boolean
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: DataSuratIncludeCreateManyAndReturn<ExtArgs> | null
+    include?: RegisterSuratIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
   /**
-   * DataSurat update
+   * RegisterSurat update
    */
-  export type DataSuratUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegisterSuratUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the DataSurat
+     * Select specific fields to fetch from the RegisterSurat
      */
-    select?: DataSuratSelect<ExtArgs> | null
+    select?: RegisterSuratSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the DataSurat
+     * Omit specific fields from the RegisterSurat
      */
-    omit?: DataSuratOmit<ExtArgs> | null
+    omit?: RegisterSuratOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: DataSuratInclude<ExtArgs> | null
+    include?: RegisterSuratInclude<ExtArgs> | null
     /**
-     * The data needed to update a DataSurat.
+     * The data needed to update a RegisterSurat.
      */
-    data: XOR<DataSuratUpdateInput, DataSuratUncheckedUpdateInput>
+    data: XOR<RegisterSuratUpdateInput, RegisterSuratUncheckedUpdateInput>
     /**
-     * Choose, which DataSurat to update.
+     * Choose, which RegisterSurat to update.
      */
-    where: DataSuratWhereUniqueInput
+    where: RegisterSuratWhereUniqueInput
   }
 
   /**
-   * DataSurat updateMany
+   * RegisterSurat updateMany
    */
-  export type DataSuratUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegisterSuratUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update DataSurats.
+     * The data used to update RegisterSurats.
      */
-    data: XOR<DataSuratUpdateManyMutationInput, DataSuratUncheckedUpdateManyInput>
+    data: XOR<RegisterSuratUpdateManyMutationInput, RegisterSuratUncheckedUpdateManyInput>
     /**
-     * Filter which DataSurats to update
+     * Filter which RegisterSurats to update
      */
-    where?: DataSuratWhereInput
+    where?: RegisterSuratWhereInput
     /**
-     * Limit how many DataSurats to update.
+     * Limit how many RegisterSurats to update.
      */
     limit?: number
   }
 
   /**
-   * DataSurat updateManyAndReturn
+   * RegisterSurat updateManyAndReturn
    */
-  export type DataSuratUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegisterSuratUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the DataSurat
+     * Select specific fields to fetch from the RegisterSurat
      */
-    select?: DataSuratSelectUpdateManyAndReturn<ExtArgs> | null
+    select?: RegisterSuratSelectUpdateManyAndReturn<ExtArgs> | null
     /**
-     * Omit specific fields from the DataSurat
+     * Omit specific fields from the RegisterSurat
      */
-    omit?: DataSuratOmit<ExtArgs> | null
+    omit?: RegisterSuratOmit<ExtArgs> | null
     /**
-     * The data used to update DataSurats.
+     * The data used to update RegisterSurats.
      */
-    data: XOR<DataSuratUpdateManyMutationInput, DataSuratUncheckedUpdateManyInput>
+    data: XOR<RegisterSuratUpdateManyMutationInput, RegisterSuratUncheckedUpdateManyInput>
     /**
-     * Filter which DataSurats to update
+     * Filter which RegisterSurats to update
      */
-    where?: DataSuratWhereInput
+    where?: RegisterSuratWhereInput
     /**
-     * Limit how many DataSurats to update.
+     * Limit how many RegisterSurats to update.
      */
     limit?: number
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: DataSuratIncludeUpdateManyAndReturn<ExtArgs> | null
+    include?: RegisterSuratIncludeUpdateManyAndReturn<ExtArgs> | null
   }
 
   /**
-   * DataSurat upsert
+   * RegisterSurat upsert
    */
-  export type DataSuratUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegisterSuratUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the DataSurat
+     * Select specific fields to fetch from the RegisterSurat
      */
-    select?: DataSuratSelect<ExtArgs> | null
+    select?: RegisterSuratSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the DataSurat
+     * Omit specific fields from the RegisterSurat
      */
-    omit?: DataSuratOmit<ExtArgs> | null
+    omit?: RegisterSuratOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: DataSuratInclude<ExtArgs> | null
+    include?: RegisterSuratInclude<ExtArgs> | null
     /**
-     * The filter to search for the DataSurat to update in case it exists.
+     * The filter to search for the RegisterSurat to update in case it exists.
      */
-    where: DataSuratWhereUniqueInput
+    where: RegisterSuratWhereUniqueInput
     /**
-     * In case the DataSurat found by the `where` argument doesn't exist, create a new DataSurat with this data.
+     * In case the RegisterSurat found by the `where` argument doesn't exist, create a new RegisterSurat with this data.
      */
-    create: XOR<DataSuratCreateInput, DataSuratUncheckedCreateInput>
+    create: XOR<RegisterSuratCreateInput, RegisterSuratUncheckedCreateInput>
     /**
-     * In case the DataSurat was found with the provided `where` argument, update it with this data.
+     * In case the RegisterSurat was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<DataSuratUpdateInput, DataSuratUncheckedUpdateInput>
+    update: XOR<RegisterSuratUpdateInput, RegisterSuratUncheckedUpdateInput>
   }
 
   /**
-   * DataSurat delete
+   * RegisterSurat delete
    */
-  export type DataSuratDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegisterSuratDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the DataSurat
+     * Select specific fields to fetch from the RegisterSurat
      */
-    select?: DataSuratSelect<ExtArgs> | null
+    select?: RegisterSuratSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the DataSurat
+     * Omit specific fields from the RegisterSurat
      */
-    omit?: DataSuratOmit<ExtArgs> | null
+    omit?: RegisterSuratOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: DataSuratInclude<ExtArgs> | null
+    include?: RegisterSuratInclude<ExtArgs> | null
     /**
-     * Filter which DataSurat to delete.
+     * Filter which RegisterSurat to delete.
      */
-    where: DataSuratWhereUniqueInput
+    where: RegisterSuratWhereUniqueInput
   }
 
   /**
-   * DataSurat deleteMany
+   * RegisterSurat deleteMany
    */
-  export type DataSuratDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegisterSuratDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Filter which DataSurats to delete
+     * Filter which RegisterSurats to delete
      */
-    where?: DataSuratWhereInput
+    where?: RegisterSuratWhereInput
     /**
-     * Limit how many DataSurats to delete.
+     * Limit how many RegisterSurats to delete.
      */
     limit?: number
   }
 
   /**
-   * DataSurat without action
+   * RegisterSurat.detailSurat
    */
-  export type DataSuratDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+  export type RegisterSurat$detailSuratArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the DataSurat
+     * Select specific fields to fetch from the DetailSurat
      */
-    select?: DataSuratSelect<ExtArgs> | null
+    select?: DetailSuratSelect<ExtArgs> | null
     /**
-     * Omit specific fields from the DataSurat
+     * Omit specific fields from the DetailSurat
      */
-    omit?: DataSuratOmit<ExtArgs> | null
+    omit?: DetailSuratOmit<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well
      */
-    include?: DataSuratInclude<ExtArgs> | null
+    include?: DetailSuratInclude<ExtArgs> | null
+    where?: DetailSuratWhereInput
+    orderBy?: DetailSuratOrderByWithRelationInput | DetailSuratOrderByWithRelationInput[]
+    cursor?: DetailSuratWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: DetailSuratScalarFieldEnum | DetailSuratScalarFieldEnum[]
+  }
+
+  /**
+   * RegisterSurat without action
+   */
+  export type RegisterSuratDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the RegisterSurat
+     */
+    select?: RegisterSuratSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the RegisterSurat
+     */
+    omit?: RegisterSuratOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: RegisterSuratInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model DetailSurat
+   */
+
+  export type AggregateDetailSurat = {
+    _count: DetailSuratCountAggregateOutputType | null
+    _avg: DetailSuratAvgAggregateOutputType | null
+    _sum: DetailSuratSumAggregateOutputType | null
+    _min: DetailSuratMinAggregateOutputType | null
+    _max: DetailSuratMaxAggregateOutputType | null
+  }
+
+  export type DetailSuratAvgAggregateOutputType = {
+    id: number | null
+    registerId: number | null
+  }
+
+  export type DetailSuratSumAggregateOutputType = {
+    id: number | null
+    registerId: number | null
+  }
+
+  export type DetailSuratMinAggregateOutputType = {
+    id: number | null
+    registerId: number | null
+    perihal: string | null
+    noSurat: string | null
+    lampiran: string | null
+    tanggalSurat: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type DetailSuratMaxAggregateOutputType = {
+    id: number | null
+    registerId: number | null
+    perihal: string | null
+    noSurat: string | null
+    lampiran: string | null
+    tanggalSurat: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type DetailSuratCountAggregateOutputType = {
+    id: number
+    registerId: number
+    perihal: number
+    noSurat: number
+    lampiran: number
+    tanggalSurat: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type DetailSuratAvgAggregateInputType = {
+    id?: true
+    registerId?: true
+  }
+
+  export type DetailSuratSumAggregateInputType = {
+    id?: true
+    registerId?: true
+  }
+
+  export type DetailSuratMinAggregateInputType = {
+    id?: true
+    registerId?: true
+    perihal?: true
+    noSurat?: true
+    lampiran?: true
+    tanggalSurat?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type DetailSuratMaxAggregateInputType = {
+    id?: true
+    registerId?: true
+    perihal?: true
+    noSurat?: true
+    lampiran?: true
+    tanggalSurat?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type DetailSuratCountAggregateInputType = {
+    id?: true
+    registerId?: true
+    perihal?: true
+    noSurat?: true
+    lampiran?: true
+    tanggalSurat?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type DetailSuratAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DetailSurat to aggregate.
+     */
+    where?: DetailSuratWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DetailSurats to fetch.
+     */
+    orderBy?: DetailSuratOrderByWithRelationInput | DetailSuratOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: DetailSuratWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DetailSurats from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DetailSurats.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned DetailSurats
+    **/
+    _count?: true | DetailSuratCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: DetailSuratAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: DetailSuratSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: DetailSuratMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: DetailSuratMaxAggregateInputType
+  }
+
+  export type GetDetailSuratAggregateType<T extends DetailSuratAggregateArgs> = {
+        [P in keyof T & keyof AggregateDetailSurat]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateDetailSurat[P]>
+      : GetScalarType<T[P], AggregateDetailSurat[P]>
+  }
+
+
+
+
+  export type DetailSuratGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DetailSuratWhereInput
+    orderBy?: DetailSuratOrderByWithAggregationInput | DetailSuratOrderByWithAggregationInput[]
+    by: DetailSuratScalarFieldEnum[] | DetailSuratScalarFieldEnum
+    having?: DetailSuratScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: DetailSuratCountAggregateInputType | true
+    _avg?: DetailSuratAvgAggregateInputType
+    _sum?: DetailSuratSumAggregateInputType
+    _min?: DetailSuratMinAggregateInputType
+    _max?: DetailSuratMaxAggregateInputType
+  }
+
+  export type DetailSuratGroupByOutputType = {
+    id: number
+    registerId: number
+    perihal: string
+    noSurat: string | null
+    lampiran: string | null
+    tanggalSurat: Date
+    createdAt: Date
+    updatedAt: Date
+    _count: DetailSuratCountAggregateOutputType | null
+    _avg: DetailSuratAvgAggregateOutputType | null
+    _sum: DetailSuratSumAggregateOutputType | null
+    _min: DetailSuratMinAggregateOutputType | null
+    _max: DetailSuratMaxAggregateOutputType | null
+  }
+
+  type GetDetailSuratGroupByPayload<T extends DetailSuratGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<DetailSuratGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof DetailSuratGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], DetailSuratGroupByOutputType[P]>
+            : GetScalarType<T[P], DetailSuratGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type DetailSuratSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    registerId?: boolean
+    perihal?: boolean
+    noSurat?: boolean
+    lampiran?: boolean
+    tanggalSurat?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    register?: boolean | RegisterSuratDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["detailSurat"]>
+
+  export type DetailSuratSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    registerId?: boolean
+    perihal?: boolean
+    noSurat?: boolean
+    lampiran?: boolean
+    tanggalSurat?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    register?: boolean | RegisterSuratDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["detailSurat"]>
+
+  export type DetailSuratSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    registerId?: boolean
+    perihal?: boolean
+    noSurat?: boolean
+    lampiran?: boolean
+    tanggalSurat?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    register?: boolean | RegisterSuratDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["detailSurat"]>
+
+  export type DetailSuratSelectScalar = {
+    id?: boolean
+    registerId?: boolean
+    perihal?: boolean
+    noSurat?: boolean
+    lampiran?: boolean
+    tanggalSurat?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type DetailSuratOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "registerId" | "perihal" | "noSurat" | "lampiran" | "tanggalSurat" | "createdAt" | "updatedAt", ExtArgs["result"]["detailSurat"]>
+  export type DetailSuratInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    register?: boolean | RegisterSuratDefaultArgs<ExtArgs>
+  }
+  export type DetailSuratIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    register?: boolean | RegisterSuratDefaultArgs<ExtArgs>
+  }
+  export type DetailSuratIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    register?: boolean | RegisterSuratDefaultArgs<ExtArgs>
+  }
+
+  export type $DetailSuratPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "DetailSurat"
+    objects: {
+      register: Prisma.$RegisterSuratPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      registerId: number
+      perihal: string
+      noSurat: string | null
+      lampiran: string | null
+      tanggalSurat: Date
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["detailSurat"]>
+    composites: {}
+  }
+
+  type DetailSuratGetPayload<S extends boolean | null | undefined | DetailSuratDefaultArgs> = $Result.GetResult<Prisma.$DetailSuratPayload, S>
+
+  type DetailSuratCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<DetailSuratFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: DetailSuratCountAggregateInputType | true
+    }
+
+  export interface DetailSuratDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['DetailSurat'], meta: { name: 'DetailSurat' } }
+    /**
+     * Find zero or one DetailSurat that matches the filter.
+     * @param {DetailSuratFindUniqueArgs} args - Arguments to find a DetailSurat
+     * @example
+     * // Get one DetailSurat
+     * const detailSurat = await prisma.detailSurat.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends DetailSuratFindUniqueArgs>(args: SelectSubset<T, DetailSuratFindUniqueArgs<ExtArgs>>): Prisma__DetailSuratClient<$Result.GetResult<Prisma.$DetailSuratPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one DetailSurat that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {DetailSuratFindUniqueOrThrowArgs} args - Arguments to find a DetailSurat
+     * @example
+     * // Get one DetailSurat
+     * const detailSurat = await prisma.detailSurat.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends DetailSuratFindUniqueOrThrowArgs>(args: SelectSubset<T, DetailSuratFindUniqueOrThrowArgs<ExtArgs>>): Prisma__DetailSuratClient<$Result.GetResult<Prisma.$DetailSuratPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DetailSurat that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DetailSuratFindFirstArgs} args - Arguments to find a DetailSurat
+     * @example
+     * // Get one DetailSurat
+     * const detailSurat = await prisma.detailSurat.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends DetailSuratFindFirstArgs>(args?: SelectSubset<T, DetailSuratFindFirstArgs<ExtArgs>>): Prisma__DetailSuratClient<$Result.GetResult<Prisma.$DetailSuratPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DetailSurat that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DetailSuratFindFirstOrThrowArgs} args - Arguments to find a DetailSurat
+     * @example
+     * // Get one DetailSurat
+     * const detailSurat = await prisma.detailSurat.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends DetailSuratFindFirstOrThrowArgs>(args?: SelectSubset<T, DetailSuratFindFirstOrThrowArgs<ExtArgs>>): Prisma__DetailSuratClient<$Result.GetResult<Prisma.$DetailSuratPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more DetailSurats that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DetailSuratFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all DetailSurats
+     * const detailSurats = await prisma.detailSurat.findMany()
+     * 
+     * // Get first 10 DetailSurats
+     * const detailSurats = await prisma.detailSurat.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const detailSuratWithIdOnly = await prisma.detailSurat.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends DetailSuratFindManyArgs>(args?: SelectSubset<T, DetailSuratFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DetailSuratPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a DetailSurat.
+     * @param {DetailSuratCreateArgs} args - Arguments to create a DetailSurat.
+     * @example
+     * // Create one DetailSurat
+     * const DetailSurat = await prisma.detailSurat.create({
+     *   data: {
+     *     // ... data to create a DetailSurat
+     *   }
+     * })
+     * 
+     */
+    create<T extends DetailSuratCreateArgs>(args: SelectSubset<T, DetailSuratCreateArgs<ExtArgs>>): Prisma__DetailSuratClient<$Result.GetResult<Prisma.$DetailSuratPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many DetailSurats.
+     * @param {DetailSuratCreateManyArgs} args - Arguments to create many DetailSurats.
+     * @example
+     * // Create many DetailSurats
+     * const detailSurat = await prisma.detailSurat.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends DetailSuratCreateManyArgs>(args?: SelectSubset<T, DetailSuratCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many DetailSurats and returns the data saved in the database.
+     * @param {DetailSuratCreateManyAndReturnArgs} args - Arguments to create many DetailSurats.
+     * @example
+     * // Create many DetailSurats
+     * const detailSurat = await prisma.detailSurat.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many DetailSurats and only return the `id`
+     * const detailSuratWithIdOnly = await prisma.detailSurat.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends DetailSuratCreateManyAndReturnArgs>(args?: SelectSubset<T, DetailSuratCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DetailSuratPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a DetailSurat.
+     * @param {DetailSuratDeleteArgs} args - Arguments to delete one DetailSurat.
+     * @example
+     * // Delete one DetailSurat
+     * const DetailSurat = await prisma.detailSurat.delete({
+     *   where: {
+     *     // ... filter to delete one DetailSurat
+     *   }
+     * })
+     * 
+     */
+    delete<T extends DetailSuratDeleteArgs>(args: SelectSubset<T, DetailSuratDeleteArgs<ExtArgs>>): Prisma__DetailSuratClient<$Result.GetResult<Prisma.$DetailSuratPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one DetailSurat.
+     * @param {DetailSuratUpdateArgs} args - Arguments to update one DetailSurat.
+     * @example
+     * // Update one DetailSurat
+     * const detailSurat = await prisma.detailSurat.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends DetailSuratUpdateArgs>(args: SelectSubset<T, DetailSuratUpdateArgs<ExtArgs>>): Prisma__DetailSuratClient<$Result.GetResult<Prisma.$DetailSuratPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more DetailSurats.
+     * @param {DetailSuratDeleteManyArgs} args - Arguments to filter DetailSurats to delete.
+     * @example
+     * // Delete a few DetailSurats
+     * const { count } = await prisma.detailSurat.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends DetailSuratDeleteManyArgs>(args?: SelectSubset<T, DetailSuratDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DetailSurats.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DetailSuratUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many DetailSurats
+     * const detailSurat = await prisma.detailSurat.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends DetailSuratUpdateManyArgs>(args: SelectSubset<T, DetailSuratUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DetailSurats and returns the data updated in the database.
+     * @param {DetailSuratUpdateManyAndReturnArgs} args - Arguments to update many DetailSurats.
+     * @example
+     * // Update many DetailSurats
+     * const detailSurat = await prisma.detailSurat.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more DetailSurats and only return the `id`
+     * const detailSuratWithIdOnly = await prisma.detailSurat.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends DetailSuratUpdateManyAndReturnArgs>(args: SelectSubset<T, DetailSuratUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DetailSuratPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one DetailSurat.
+     * @param {DetailSuratUpsertArgs} args - Arguments to update or create a DetailSurat.
+     * @example
+     * // Update or create a DetailSurat
+     * const detailSurat = await prisma.detailSurat.upsert({
+     *   create: {
+     *     // ... data to create a DetailSurat
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the DetailSurat we want to update
+     *   }
+     * })
+     */
+    upsert<T extends DetailSuratUpsertArgs>(args: SelectSubset<T, DetailSuratUpsertArgs<ExtArgs>>): Prisma__DetailSuratClient<$Result.GetResult<Prisma.$DetailSuratPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of DetailSurats.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DetailSuratCountArgs} args - Arguments to filter DetailSurats to count.
+     * @example
+     * // Count the number of DetailSurats
+     * const count = await prisma.detailSurat.count({
+     *   where: {
+     *     // ... the filter for the DetailSurats we want to count
+     *   }
+     * })
+    **/
+    count<T extends DetailSuratCountArgs>(
+      args?: Subset<T, DetailSuratCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], DetailSuratCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a DetailSurat.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DetailSuratAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends DetailSuratAggregateArgs>(args: Subset<T, DetailSuratAggregateArgs>): Prisma.PrismaPromise<GetDetailSuratAggregateType<T>>
+
+    /**
+     * Group by DetailSurat.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DetailSuratGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends DetailSuratGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: DetailSuratGroupByArgs['orderBy'] }
+        : { orderBy?: DetailSuratGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, DetailSuratGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDetailSuratGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the DetailSurat model
+   */
+  readonly fields: DetailSuratFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for DetailSurat.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__DetailSuratClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    register<T extends RegisterSuratDefaultArgs<ExtArgs> = {}>(args?: Subset<T, RegisterSuratDefaultArgs<ExtArgs>>): Prisma__RegisterSuratClient<$Result.GetResult<Prisma.$RegisterSuratPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the DetailSurat model
+   */
+  interface DetailSuratFieldRefs {
+    readonly id: FieldRef<"DetailSurat", 'Int'>
+    readonly registerId: FieldRef<"DetailSurat", 'Int'>
+    readonly perihal: FieldRef<"DetailSurat", 'String'>
+    readonly noSurat: FieldRef<"DetailSurat", 'String'>
+    readonly lampiran: FieldRef<"DetailSurat", 'String'>
+    readonly tanggalSurat: FieldRef<"DetailSurat", 'DateTime'>
+    readonly createdAt: FieldRef<"DetailSurat", 'DateTime'>
+    readonly updatedAt: FieldRef<"DetailSurat", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * DetailSurat findUnique
+   */
+  export type DetailSuratFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DetailSurat
+     */
+    select?: DetailSuratSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DetailSurat
+     */
+    omit?: DetailSuratOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DetailSuratInclude<ExtArgs> | null
+    /**
+     * Filter, which DetailSurat to fetch.
+     */
+    where: DetailSuratWhereUniqueInput
+  }
+
+  /**
+   * DetailSurat findUniqueOrThrow
+   */
+  export type DetailSuratFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DetailSurat
+     */
+    select?: DetailSuratSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DetailSurat
+     */
+    omit?: DetailSuratOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DetailSuratInclude<ExtArgs> | null
+    /**
+     * Filter, which DetailSurat to fetch.
+     */
+    where: DetailSuratWhereUniqueInput
+  }
+
+  /**
+   * DetailSurat findFirst
+   */
+  export type DetailSuratFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DetailSurat
+     */
+    select?: DetailSuratSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DetailSurat
+     */
+    omit?: DetailSuratOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DetailSuratInclude<ExtArgs> | null
+    /**
+     * Filter, which DetailSurat to fetch.
+     */
+    where?: DetailSuratWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DetailSurats to fetch.
+     */
+    orderBy?: DetailSuratOrderByWithRelationInput | DetailSuratOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DetailSurats.
+     */
+    cursor?: DetailSuratWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DetailSurats from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DetailSurats.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DetailSurats.
+     */
+    distinct?: DetailSuratScalarFieldEnum | DetailSuratScalarFieldEnum[]
+  }
+
+  /**
+   * DetailSurat findFirstOrThrow
+   */
+  export type DetailSuratFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DetailSurat
+     */
+    select?: DetailSuratSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DetailSurat
+     */
+    omit?: DetailSuratOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DetailSuratInclude<ExtArgs> | null
+    /**
+     * Filter, which DetailSurat to fetch.
+     */
+    where?: DetailSuratWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DetailSurats to fetch.
+     */
+    orderBy?: DetailSuratOrderByWithRelationInput | DetailSuratOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DetailSurats.
+     */
+    cursor?: DetailSuratWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DetailSurats from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DetailSurats.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DetailSurats.
+     */
+    distinct?: DetailSuratScalarFieldEnum | DetailSuratScalarFieldEnum[]
+  }
+
+  /**
+   * DetailSurat findMany
+   */
+  export type DetailSuratFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DetailSurat
+     */
+    select?: DetailSuratSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DetailSurat
+     */
+    omit?: DetailSuratOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DetailSuratInclude<ExtArgs> | null
+    /**
+     * Filter, which DetailSurats to fetch.
+     */
+    where?: DetailSuratWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DetailSurats to fetch.
+     */
+    orderBy?: DetailSuratOrderByWithRelationInput | DetailSuratOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing DetailSurats.
+     */
+    cursor?: DetailSuratWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DetailSurats from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DetailSurats.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DetailSurats.
+     */
+    distinct?: DetailSuratScalarFieldEnum | DetailSuratScalarFieldEnum[]
+  }
+
+  /**
+   * DetailSurat create
+   */
+  export type DetailSuratCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DetailSurat
+     */
+    select?: DetailSuratSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DetailSurat
+     */
+    omit?: DetailSuratOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DetailSuratInclude<ExtArgs> | null
+    /**
+     * The data needed to create a DetailSurat.
+     */
+    data: XOR<DetailSuratCreateInput, DetailSuratUncheckedCreateInput>
+  }
+
+  /**
+   * DetailSurat createMany
+   */
+  export type DetailSuratCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many DetailSurats.
+     */
+    data: DetailSuratCreateManyInput | DetailSuratCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * DetailSurat createManyAndReturn
+   */
+  export type DetailSuratCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DetailSurat
+     */
+    select?: DetailSuratSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the DetailSurat
+     */
+    omit?: DetailSuratOmit<ExtArgs> | null
+    /**
+     * The data used to create many DetailSurats.
+     */
+    data: DetailSuratCreateManyInput | DetailSuratCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DetailSuratIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * DetailSurat update
+   */
+  export type DetailSuratUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DetailSurat
+     */
+    select?: DetailSuratSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DetailSurat
+     */
+    omit?: DetailSuratOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DetailSuratInclude<ExtArgs> | null
+    /**
+     * The data needed to update a DetailSurat.
+     */
+    data: XOR<DetailSuratUpdateInput, DetailSuratUncheckedUpdateInput>
+    /**
+     * Choose, which DetailSurat to update.
+     */
+    where: DetailSuratWhereUniqueInput
+  }
+
+  /**
+   * DetailSurat updateMany
+   */
+  export type DetailSuratUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update DetailSurats.
+     */
+    data: XOR<DetailSuratUpdateManyMutationInput, DetailSuratUncheckedUpdateManyInput>
+    /**
+     * Filter which DetailSurats to update
+     */
+    where?: DetailSuratWhereInput
+    /**
+     * Limit how many DetailSurats to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * DetailSurat updateManyAndReturn
+   */
+  export type DetailSuratUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DetailSurat
+     */
+    select?: DetailSuratSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the DetailSurat
+     */
+    omit?: DetailSuratOmit<ExtArgs> | null
+    /**
+     * The data used to update DetailSurats.
+     */
+    data: XOR<DetailSuratUpdateManyMutationInput, DetailSuratUncheckedUpdateManyInput>
+    /**
+     * Filter which DetailSurats to update
+     */
+    where?: DetailSuratWhereInput
+    /**
+     * Limit how many DetailSurats to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DetailSuratIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * DetailSurat upsert
+   */
+  export type DetailSuratUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DetailSurat
+     */
+    select?: DetailSuratSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DetailSurat
+     */
+    omit?: DetailSuratOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DetailSuratInclude<ExtArgs> | null
+    /**
+     * The filter to search for the DetailSurat to update in case it exists.
+     */
+    where: DetailSuratWhereUniqueInput
+    /**
+     * In case the DetailSurat found by the `where` argument doesn't exist, create a new DetailSurat with this data.
+     */
+    create: XOR<DetailSuratCreateInput, DetailSuratUncheckedCreateInput>
+    /**
+     * In case the DetailSurat was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<DetailSuratUpdateInput, DetailSuratUncheckedUpdateInput>
+  }
+
+  /**
+   * DetailSurat delete
+   */
+  export type DetailSuratDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DetailSurat
+     */
+    select?: DetailSuratSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DetailSurat
+     */
+    omit?: DetailSuratOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DetailSuratInclude<ExtArgs> | null
+    /**
+     * Filter which DetailSurat to delete.
+     */
+    where: DetailSuratWhereUniqueInput
+  }
+
+  /**
+   * DetailSurat deleteMany
+   */
+  export type DetailSuratDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DetailSurats to delete
+     */
+    where?: DetailSuratWhereInput
+    /**
+     * Limit how many DetailSurats to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * DetailSurat without action
+   */
+  export type DetailSuratDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DetailSurat
+     */
+    select?: DetailSuratSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DetailSurat
+     */
+    omit?: DetailSuratOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DetailSuratInclude<ExtArgs> | null
   }
 
 
@@ -8217,28 +9470,39 @@ export namespace Prisma {
   export const DepartmentScalarFieldEnum: {
     id: 'id',
     shortName: 'shortName',
+    tujuan: 'tujuan',
     isActive: 'isActive'
   };
 
   export type DepartmentScalarFieldEnum = (typeof DepartmentScalarFieldEnum)[keyof typeof DepartmentScalarFieldEnum]
 
 
-  export const DataSuratScalarFieldEnum: {
+  export const RegisterSuratScalarFieldEnum: {
     id: 'id',
     nomor: 'nomor',
     deptId: 'deptId',
     tanggalTerima: 'tanggalTerima',
     asalSurat: 'asalSurat',
-    perihal: 'perihal',
-    tanggalSurat: 'tanggalSurat',
     tujuan: 'tujuan',
-    noSurat: 'noSurat',
-    lampiran: 'lampiran',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
 
-  export type DataSuratScalarFieldEnum = (typeof DataSuratScalarFieldEnum)[keyof typeof DataSuratScalarFieldEnum]
+  export type RegisterSuratScalarFieldEnum = (typeof RegisterSuratScalarFieldEnum)[keyof typeof RegisterSuratScalarFieldEnum]
+
+
+  export const DetailSuratScalarFieldEnum: {
+    id: 'id',
+    registerId: 'registerId',
+    perihal: 'perihal',
+    noSurat: 'noSurat',
+    lampiran: 'lampiran',
+    tanggalSurat: 'tanggalSurat',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type DetailSuratScalarFieldEnum = (typeof DetailSuratScalarFieldEnum)[keyof typeof DetailSuratScalarFieldEnum]
 
 
   export const NomorCounterScalarFieldEnum: {
@@ -8607,16 +9871,18 @@ export namespace Prisma {
     NOT?: DepartmentWhereInput | DepartmentWhereInput[]
     id?: StringFilter<"Department"> | string
     shortName?: StringFilter<"Department"> | string
+    tujuan?: StringFilter<"Department"> | string
     isActive?: BoolFilter<"Department"> | boolean
-    dataSurat?: DataSuratListRelationFilter
+    registerSurat?: RegisterSuratListRelationFilter
     nomorCounter?: XOR<NomorCounterNullableScalarRelationFilter, NomorCounterWhereInput> | null
   }
 
   export type DepartmentOrderByWithRelationInput = {
     id?: SortOrder
     shortName?: SortOrder
+    tujuan?: SortOrder
     isActive?: SortOrder
-    dataSurat?: DataSuratOrderByRelationAggregateInput
+    registerSurat?: RegisterSuratOrderByRelationAggregateInput
     nomorCounter?: NomorCounterOrderByWithRelationInput
   }
 
@@ -8626,14 +9892,16 @@ export namespace Prisma {
     OR?: DepartmentWhereInput[]
     NOT?: DepartmentWhereInput | DepartmentWhereInput[]
     shortName?: StringFilter<"Department"> | string
+    tujuan?: StringFilter<"Department"> | string
     isActive?: BoolFilter<"Department"> | boolean
-    dataSurat?: DataSuratListRelationFilter
+    registerSurat?: RegisterSuratListRelationFilter
     nomorCounter?: XOR<NomorCounterNullableScalarRelationFilter, NomorCounterWhereInput> | null
   }, "id">
 
   export type DepartmentOrderByWithAggregationInput = {
     id?: SortOrder
     shortName?: SortOrder
+    tujuan?: SortOrder
     isActive?: SortOrder
     _count?: DepartmentCountOrderByAggregateInput
     _max?: DepartmentMaxOrderByAggregateInput
@@ -8646,99 +9914,155 @@ export namespace Prisma {
     NOT?: DepartmentScalarWhereWithAggregatesInput | DepartmentScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Department"> | string
     shortName?: StringWithAggregatesFilter<"Department"> | string
+    tujuan?: StringWithAggregatesFilter<"Department"> | string
     isActive?: BoolWithAggregatesFilter<"Department"> | boolean
   }
 
-  export type DataSuratWhereInput = {
-    AND?: DataSuratWhereInput | DataSuratWhereInput[]
-    OR?: DataSuratWhereInput[]
-    NOT?: DataSuratWhereInput | DataSuratWhereInput[]
-    id?: IntFilter<"DataSurat"> | number
-    nomor?: StringFilter<"DataSurat"> | string
-    deptId?: StringFilter<"DataSurat"> | string
-    tanggalTerima?: DateTimeFilter<"DataSurat"> | Date | string
-    asalSurat?: StringFilter<"DataSurat"> | string
-    perihal?: StringFilter<"DataSurat"> | string
-    tanggalSurat?: DateTimeFilter<"DataSurat"> | Date | string
-    tujuan?: StringFilter<"DataSurat"> | string
-    noSurat?: StringNullableFilter<"DataSurat"> | string | null
-    lampiran?: StringNullableFilter<"DataSurat"> | string | null
-    createdAt?: DateTimeFilter<"DataSurat"> | Date | string
-    updatedAt?: DateTimeFilter<"DataSurat"> | Date | string
+  export type RegisterSuratWhereInput = {
+    AND?: RegisterSuratWhereInput | RegisterSuratWhereInput[]
+    OR?: RegisterSuratWhereInput[]
+    NOT?: RegisterSuratWhereInput | RegisterSuratWhereInput[]
+    id?: IntFilter<"RegisterSurat"> | number
+    nomor?: StringFilter<"RegisterSurat"> | string
+    deptId?: StringFilter<"RegisterSurat"> | string
+    tanggalTerima?: DateTimeFilter<"RegisterSurat"> | Date | string
+    asalSurat?: StringFilter<"RegisterSurat"> | string
+    tujuan?: StringFilter<"RegisterSurat"> | string
+    createdAt?: DateTimeFilter<"RegisterSurat"> | Date | string
+    updatedAt?: DateTimeFilter<"RegisterSurat"> | Date | string
     dept?: XOR<DepartmentScalarRelationFilter, DepartmentWhereInput>
+    detailSurat?: DetailSuratListRelationFilter
   }
 
-  export type DataSuratOrderByWithRelationInput = {
+  export type RegisterSuratOrderByWithRelationInput = {
     id?: SortOrder
     nomor?: SortOrder
     deptId?: SortOrder
     tanggalTerima?: SortOrder
     asalSurat?: SortOrder
-    perihal?: SortOrder
-    tanggalSurat?: SortOrder
     tujuan?: SortOrder
-    noSurat?: SortOrderInput | SortOrder
-    lampiran?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     dept?: DepartmentOrderByWithRelationInput
+    detailSurat?: DetailSuratOrderByRelationAggregateInput
   }
 
-  export type DataSuratWhereUniqueInput = Prisma.AtLeast<{
+  export type RegisterSuratWhereUniqueInput = Prisma.AtLeast<{
     id?: number
-    AND?: DataSuratWhereInput | DataSuratWhereInput[]
-    OR?: DataSuratWhereInput[]
-    NOT?: DataSuratWhereInput | DataSuratWhereInput[]
-    nomor?: StringFilter<"DataSurat"> | string
-    deptId?: StringFilter<"DataSurat"> | string
-    tanggalTerima?: DateTimeFilter<"DataSurat"> | Date | string
-    asalSurat?: StringFilter<"DataSurat"> | string
-    perihal?: StringFilter<"DataSurat"> | string
-    tanggalSurat?: DateTimeFilter<"DataSurat"> | Date | string
-    tujuan?: StringFilter<"DataSurat"> | string
-    noSurat?: StringNullableFilter<"DataSurat"> | string | null
-    lampiran?: StringNullableFilter<"DataSurat"> | string | null
-    createdAt?: DateTimeFilter<"DataSurat"> | Date | string
-    updatedAt?: DateTimeFilter<"DataSurat"> | Date | string
+    AND?: RegisterSuratWhereInput | RegisterSuratWhereInput[]
+    OR?: RegisterSuratWhereInput[]
+    NOT?: RegisterSuratWhereInput | RegisterSuratWhereInput[]
+    nomor?: StringFilter<"RegisterSurat"> | string
+    deptId?: StringFilter<"RegisterSurat"> | string
+    tanggalTerima?: DateTimeFilter<"RegisterSurat"> | Date | string
+    asalSurat?: StringFilter<"RegisterSurat"> | string
+    tujuan?: StringFilter<"RegisterSurat"> | string
+    createdAt?: DateTimeFilter<"RegisterSurat"> | Date | string
+    updatedAt?: DateTimeFilter<"RegisterSurat"> | Date | string
     dept?: XOR<DepartmentScalarRelationFilter, DepartmentWhereInput>
+    detailSurat?: DetailSuratListRelationFilter
   }, "id">
 
-  export type DataSuratOrderByWithAggregationInput = {
+  export type RegisterSuratOrderByWithAggregationInput = {
     id?: SortOrder
     nomor?: SortOrder
     deptId?: SortOrder
     tanggalTerima?: SortOrder
     asalSurat?: SortOrder
-    perihal?: SortOrder
-    tanggalSurat?: SortOrder
     tujuan?: SortOrder
-    noSurat?: SortOrderInput | SortOrder
-    lampiran?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    _count?: DataSuratCountOrderByAggregateInput
-    _avg?: DataSuratAvgOrderByAggregateInput
-    _max?: DataSuratMaxOrderByAggregateInput
-    _min?: DataSuratMinOrderByAggregateInput
-    _sum?: DataSuratSumOrderByAggregateInput
+    _count?: RegisterSuratCountOrderByAggregateInput
+    _avg?: RegisterSuratAvgOrderByAggregateInput
+    _max?: RegisterSuratMaxOrderByAggregateInput
+    _min?: RegisterSuratMinOrderByAggregateInput
+    _sum?: RegisterSuratSumOrderByAggregateInput
   }
 
-  export type DataSuratScalarWhereWithAggregatesInput = {
-    AND?: DataSuratScalarWhereWithAggregatesInput | DataSuratScalarWhereWithAggregatesInput[]
-    OR?: DataSuratScalarWhereWithAggregatesInput[]
-    NOT?: DataSuratScalarWhereWithAggregatesInput | DataSuratScalarWhereWithAggregatesInput[]
-    id?: IntWithAggregatesFilter<"DataSurat"> | number
-    nomor?: StringWithAggregatesFilter<"DataSurat"> | string
-    deptId?: StringWithAggregatesFilter<"DataSurat"> | string
-    tanggalTerima?: DateTimeWithAggregatesFilter<"DataSurat"> | Date | string
-    asalSurat?: StringWithAggregatesFilter<"DataSurat"> | string
-    perihal?: StringWithAggregatesFilter<"DataSurat"> | string
-    tanggalSurat?: DateTimeWithAggregatesFilter<"DataSurat"> | Date | string
-    tujuan?: StringWithAggregatesFilter<"DataSurat"> | string
-    noSurat?: StringNullableWithAggregatesFilter<"DataSurat"> | string | null
-    lampiran?: StringNullableWithAggregatesFilter<"DataSurat"> | string | null
-    createdAt?: DateTimeWithAggregatesFilter<"DataSurat"> | Date | string
-    updatedAt?: DateTimeWithAggregatesFilter<"DataSurat"> | Date | string
+  export type RegisterSuratScalarWhereWithAggregatesInput = {
+    AND?: RegisterSuratScalarWhereWithAggregatesInput | RegisterSuratScalarWhereWithAggregatesInput[]
+    OR?: RegisterSuratScalarWhereWithAggregatesInput[]
+    NOT?: RegisterSuratScalarWhereWithAggregatesInput | RegisterSuratScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"RegisterSurat"> | number
+    nomor?: StringWithAggregatesFilter<"RegisterSurat"> | string
+    deptId?: StringWithAggregatesFilter<"RegisterSurat"> | string
+    tanggalTerima?: DateTimeWithAggregatesFilter<"RegisterSurat"> | Date | string
+    asalSurat?: StringWithAggregatesFilter<"RegisterSurat"> | string
+    tujuan?: StringWithAggregatesFilter<"RegisterSurat"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"RegisterSurat"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"RegisterSurat"> | Date | string
+  }
+
+  export type DetailSuratWhereInput = {
+    AND?: DetailSuratWhereInput | DetailSuratWhereInput[]
+    OR?: DetailSuratWhereInput[]
+    NOT?: DetailSuratWhereInput | DetailSuratWhereInput[]
+    id?: IntFilter<"DetailSurat"> | number
+    registerId?: IntFilter<"DetailSurat"> | number
+    perihal?: StringFilter<"DetailSurat"> | string
+    noSurat?: StringNullableFilter<"DetailSurat"> | string | null
+    lampiran?: StringNullableFilter<"DetailSurat"> | string | null
+    tanggalSurat?: DateTimeFilter<"DetailSurat"> | Date | string
+    createdAt?: DateTimeFilter<"DetailSurat"> | Date | string
+    updatedAt?: DateTimeFilter<"DetailSurat"> | Date | string
+    register?: XOR<RegisterSuratScalarRelationFilter, RegisterSuratWhereInput>
+  }
+
+  export type DetailSuratOrderByWithRelationInput = {
+    id?: SortOrder
+    registerId?: SortOrder
+    perihal?: SortOrder
+    noSurat?: SortOrderInput | SortOrder
+    lampiran?: SortOrderInput | SortOrder
+    tanggalSurat?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    register?: RegisterSuratOrderByWithRelationInput
+  }
+
+  export type DetailSuratWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    AND?: DetailSuratWhereInput | DetailSuratWhereInput[]
+    OR?: DetailSuratWhereInput[]
+    NOT?: DetailSuratWhereInput | DetailSuratWhereInput[]
+    registerId?: IntFilter<"DetailSurat"> | number
+    perihal?: StringFilter<"DetailSurat"> | string
+    noSurat?: StringNullableFilter<"DetailSurat"> | string | null
+    lampiran?: StringNullableFilter<"DetailSurat"> | string | null
+    tanggalSurat?: DateTimeFilter<"DetailSurat"> | Date | string
+    createdAt?: DateTimeFilter<"DetailSurat"> | Date | string
+    updatedAt?: DateTimeFilter<"DetailSurat"> | Date | string
+    register?: XOR<RegisterSuratScalarRelationFilter, RegisterSuratWhereInput>
+  }, "id">
+
+  export type DetailSuratOrderByWithAggregationInput = {
+    id?: SortOrder
+    registerId?: SortOrder
+    perihal?: SortOrder
+    noSurat?: SortOrderInput | SortOrder
+    lampiran?: SortOrderInput | SortOrder
+    tanggalSurat?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: DetailSuratCountOrderByAggregateInput
+    _avg?: DetailSuratAvgOrderByAggregateInput
+    _max?: DetailSuratMaxOrderByAggregateInput
+    _min?: DetailSuratMinOrderByAggregateInput
+    _sum?: DetailSuratSumOrderByAggregateInput
+  }
+
+  export type DetailSuratScalarWhereWithAggregatesInput = {
+    AND?: DetailSuratScalarWhereWithAggregatesInput | DetailSuratScalarWhereWithAggregatesInput[]
+    OR?: DetailSuratScalarWhereWithAggregatesInput[]
+    NOT?: DetailSuratScalarWhereWithAggregatesInput | DetailSuratScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"DetailSurat"> | number
+    registerId?: IntWithAggregatesFilter<"DetailSurat"> | number
+    perihal?: StringWithAggregatesFilter<"DetailSurat"> | string
+    noSurat?: StringNullableWithAggregatesFilter<"DetailSurat"> | string | null
+    lampiran?: StringNullableWithAggregatesFilter<"DetailSurat"> | string | null
+    tanggalSurat?: DateTimeWithAggregatesFilter<"DetailSurat"> | Date | string
+    createdAt?: DateTimeWithAggregatesFilter<"DetailSurat"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"DetailSurat"> | Date | string
   }
 
   export type NomorCounterWhereInput = {
@@ -9065,150 +10389,206 @@ export namespace Prisma {
   export type DepartmentCreateInput = {
     id: string
     shortName: string
+    tujuan?: string
     isActive?: boolean
-    dataSurat?: DataSuratCreateNestedManyWithoutDeptInput
+    registerSurat?: RegisterSuratCreateNestedManyWithoutDeptInput
     nomorCounter?: NomorCounterCreateNestedOneWithoutDeptInput
   }
 
   export type DepartmentUncheckedCreateInput = {
     id: string
     shortName: string
+    tujuan?: string
     isActive?: boolean
-    dataSurat?: DataSuratUncheckedCreateNestedManyWithoutDeptInput
+    registerSurat?: RegisterSuratUncheckedCreateNestedManyWithoutDeptInput
     nomorCounter?: NomorCounterUncheckedCreateNestedOneWithoutDeptInput
   }
 
   export type DepartmentUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     shortName?: StringFieldUpdateOperationsInput | string
+    tujuan?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
-    dataSurat?: DataSuratUpdateManyWithoutDeptNestedInput
+    registerSurat?: RegisterSuratUpdateManyWithoutDeptNestedInput
     nomorCounter?: NomorCounterUpdateOneWithoutDeptNestedInput
   }
 
   export type DepartmentUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     shortName?: StringFieldUpdateOperationsInput | string
+    tujuan?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
-    dataSurat?: DataSuratUncheckedUpdateManyWithoutDeptNestedInput
+    registerSurat?: RegisterSuratUncheckedUpdateManyWithoutDeptNestedInput
     nomorCounter?: NomorCounterUncheckedUpdateOneWithoutDeptNestedInput
   }
 
   export type DepartmentCreateManyInput = {
     id: string
     shortName: string
+    tujuan?: string
     isActive?: boolean
   }
 
   export type DepartmentUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     shortName?: StringFieldUpdateOperationsInput | string
+    tujuan?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type DepartmentUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     shortName?: StringFieldUpdateOperationsInput | string
+    tujuan?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
   }
 
-  export type DataSuratCreateInput = {
+  export type RegisterSuratCreateInput = {
     nomor: string
     tanggalTerima: Date | string
     asalSurat: string
-    perihal: string
-    tanggalSurat: Date | string
     tujuan?: string
-    noSurat?: string | null
-    lampiran?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    dept: DepartmentCreateNestedOneWithoutDataSuratInput
+    dept: DepartmentCreateNestedOneWithoutRegisterSuratInput
+    detailSurat?: DetailSuratCreateNestedManyWithoutRegisterInput
   }
 
-  export type DataSuratUncheckedCreateInput = {
+  export type RegisterSuratUncheckedCreateInput = {
     id?: number
     nomor: string
     deptId: string
     tanggalTerima: Date | string
     asalSurat: string
-    perihal: string
-    tanggalSurat: Date | string
     tujuan?: string
-    noSurat?: string | null
-    lampiran?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    detailSurat?: DetailSuratUncheckedCreateNestedManyWithoutRegisterInput
   }
 
-  export type DataSuratUpdateInput = {
+  export type RegisterSuratUpdateInput = {
     nomor?: StringFieldUpdateOperationsInput | string
     tanggalTerima?: DateTimeFieldUpdateOperationsInput | Date | string
     asalSurat?: StringFieldUpdateOperationsInput | string
-    perihal?: StringFieldUpdateOperationsInput | string
-    tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
     tujuan?: StringFieldUpdateOperationsInput | string
-    noSurat?: NullableStringFieldUpdateOperationsInput | string | null
-    lampiran?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    dept?: DepartmentUpdateOneRequiredWithoutDataSuratNestedInput
+    dept?: DepartmentUpdateOneRequiredWithoutRegisterSuratNestedInput
+    detailSurat?: DetailSuratUpdateManyWithoutRegisterNestedInput
   }
 
-  export type DataSuratUncheckedUpdateInput = {
+  export type RegisterSuratUncheckedUpdateInput = {
     id?: IntFieldUpdateOperationsInput | number
     nomor?: StringFieldUpdateOperationsInput | string
     deptId?: StringFieldUpdateOperationsInput | string
     tanggalTerima?: DateTimeFieldUpdateOperationsInput | Date | string
     asalSurat?: StringFieldUpdateOperationsInput | string
-    perihal?: StringFieldUpdateOperationsInput | string
-    tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
     tujuan?: StringFieldUpdateOperationsInput | string
-    noSurat?: NullableStringFieldUpdateOperationsInput | string | null
-    lampiran?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    detailSurat?: DetailSuratUncheckedUpdateManyWithoutRegisterNestedInput
   }
 
-  export type DataSuratCreateManyInput = {
+  export type RegisterSuratCreateManyInput = {
     id?: number
     nomor: string
     deptId: string
     tanggalTerima: Date | string
     asalSurat: string
-    perihal: string
-    tanggalSurat: Date | string
     tujuan?: string
-    noSurat?: string | null
-    lampiran?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
 
-  export type DataSuratUpdateManyMutationInput = {
+  export type RegisterSuratUpdateManyMutationInput = {
     nomor?: StringFieldUpdateOperationsInput | string
     tanggalTerima?: DateTimeFieldUpdateOperationsInput | Date | string
     asalSurat?: StringFieldUpdateOperationsInput | string
-    perihal?: StringFieldUpdateOperationsInput | string
-    tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
     tujuan?: StringFieldUpdateOperationsInput | string
-    noSurat?: NullableStringFieldUpdateOperationsInput | string | null
-    lampiran?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type DataSuratUncheckedUpdateManyInput = {
+  export type RegisterSuratUncheckedUpdateManyInput = {
     id?: IntFieldUpdateOperationsInput | number
     nomor?: StringFieldUpdateOperationsInput | string
     deptId?: StringFieldUpdateOperationsInput | string
     tanggalTerima?: DateTimeFieldUpdateOperationsInput | Date | string
     asalSurat?: StringFieldUpdateOperationsInput | string
-    perihal?: StringFieldUpdateOperationsInput | string
-    tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
     tujuan?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DetailSuratCreateInput = {
+    perihal: string
+    noSurat?: string | null
+    lampiran?: string | null
+    tanggalSurat: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    register: RegisterSuratCreateNestedOneWithoutDetailSuratInput
+  }
+
+  export type DetailSuratUncheckedCreateInput = {
+    id?: number
+    registerId: number
+    perihal: string
+    noSurat?: string | null
+    lampiran?: string | null
+    tanggalSurat: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DetailSuratUpdateInput = {
+    perihal?: StringFieldUpdateOperationsInput | string
     noSurat?: NullableStringFieldUpdateOperationsInput | string | null
     lampiran?: NullableStringFieldUpdateOperationsInput | string | null
+    tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    register?: RegisterSuratUpdateOneRequiredWithoutDetailSuratNestedInput
+  }
+
+  export type DetailSuratUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    registerId?: IntFieldUpdateOperationsInput | number
+    perihal?: StringFieldUpdateOperationsInput | string
+    noSurat?: NullableStringFieldUpdateOperationsInput | string | null
+    lampiran?: NullableStringFieldUpdateOperationsInput | string | null
+    tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DetailSuratCreateManyInput = {
+    id?: number
+    registerId: number
+    perihal: string
+    noSurat?: string | null
+    lampiran?: string | null
+    tanggalSurat: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DetailSuratUpdateManyMutationInput = {
+    perihal?: StringFieldUpdateOperationsInput | string
+    noSurat?: NullableStringFieldUpdateOperationsInput | string | null
+    lampiran?: NullableStringFieldUpdateOperationsInput | string | null
+    tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DetailSuratUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    registerId?: IntFieldUpdateOperationsInput | number
+    perihal?: StringFieldUpdateOperationsInput | string
+    noSurat?: NullableStringFieldUpdateOperationsInput | string | null
+    lampiran?: NullableStringFieldUpdateOperationsInput | string | null
+    tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -9540,10 +10920,10 @@ export namespace Prisma {
     _max?: NestedDateTimeNullableFilter<$PrismaModel>
   }
 
-  export type DataSuratListRelationFilter = {
-    every?: DataSuratWhereInput
-    some?: DataSuratWhereInput
-    none?: DataSuratWhereInput
+  export type RegisterSuratListRelationFilter = {
+    every?: RegisterSuratWhereInput
+    some?: RegisterSuratWhereInput
+    none?: RegisterSuratWhereInput
   }
 
   export type NomorCounterNullableScalarRelationFilter = {
@@ -9551,25 +10931,28 @@ export namespace Prisma {
     isNot?: NomorCounterWhereInput | null
   }
 
-  export type DataSuratOrderByRelationAggregateInput = {
+  export type RegisterSuratOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
   export type DepartmentCountOrderByAggregateInput = {
     id?: SortOrder
     shortName?: SortOrder
+    tujuan?: SortOrder
     isActive?: SortOrder
   }
 
   export type DepartmentMaxOrderByAggregateInput = {
     id?: SortOrder
     shortName?: SortOrder
+    tujuan?: SortOrder
     isActive?: SortOrder
   }
 
   export type DepartmentMinOrderByAggregateInput = {
     id?: SortOrder
     shortName?: SortOrder
+    tujuan?: SortOrder
     isActive?: SortOrder
   }
 
@@ -9589,56 +10972,54 @@ export namespace Prisma {
     isNot?: DepartmentWhereInput
   }
 
-  export type DataSuratCountOrderByAggregateInput = {
+  export type DetailSuratListRelationFilter = {
+    every?: DetailSuratWhereInput
+    some?: DetailSuratWhereInput
+    none?: DetailSuratWhereInput
+  }
+
+  export type DetailSuratOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type RegisterSuratCountOrderByAggregateInput = {
     id?: SortOrder
     nomor?: SortOrder
     deptId?: SortOrder
     tanggalTerima?: SortOrder
     asalSurat?: SortOrder
-    perihal?: SortOrder
-    tanggalSurat?: SortOrder
     tujuan?: SortOrder
-    noSurat?: SortOrder
-    lampiran?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
-  export type DataSuratAvgOrderByAggregateInput = {
+  export type RegisterSuratAvgOrderByAggregateInput = {
     id?: SortOrder
   }
 
-  export type DataSuratMaxOrderByAggregateInput = {
+  export type RegisterSuratMaxOrderByAggregateInput = {
     id?: SortOrder
     nomor?: SortOrder
     deptId?: SortOrder
     tanggalTerima?: SortOrder
     asalSurat?: SortOrder
-    perihal?: SortOrder
-    tanggalSurat?: SortOrder
     tujuan?: SortOrder
-    noSurat?: SortOrder
-    lampiran?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
-  export type DataSuratMinOrderByAggregateInput = {
+  export type RegisterSuratMinOrderByAggregateInput = {
     id?: SortOrder
     nomor?: SortOrder
     deptId?: SortOrder
     tanggalTerima?: SortOrder
     asalSurat?: SortOrder
-    perihal?: SortOrder
-    tanggalSurat?: SortOrder
     tujuan?: SortOrder
-    noSurat?: SortOrder
-    lampiran?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
-  export type DataSuratSumOrderByAggregateInput = {
+  export type RegisterSuratSumOrderByAggregateInput = {
     id?: SortOrder
   }
 
@@ -9656,6 +11037,54 @@ export namespace Prisma {
     _sum?: NestedIntFilter<$PrismaModel>
     _min?: NestedIntFilter<$PrismaModel>
     _max?: NestedIntFilter<$PrismaModel>
+  }
+
+  export type RegisterSuratScalarRelationFilter = {
+    is?: RegisterSuratWhereInput
+    isNot?: RegisterSuratWhereInput
+  }
+
+  export type DetailSuratCountOrderByAggregateInput = {
+    id?: SortOrder
+    registerId?: SortOrder
+    perihal?: SortOrder
+    noSurat?: SortOrder
+    lampiran?: SortOrder
+    tanggalSurat?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DetailSuratAvgOrderByAggregateInput = {
+    id?: SortOrder
+    registerId?: SortOrder
+  }
+
+  export type DetailSuratMaxOrderByAggregateInput = {
+    id?: SortOrder
+    registerId?: SortOrder
+    perihal?: SortOrder
+    noSurat?: SortOrder
+    lampiran?: SortOrder
+    tanggalSurat?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DetailSuratMinOrderByAggregateInput = {
+    id?: SortOrder
+    registerId?: SortOrder
+    perihal?: SortOrder
+    noSurat?: SortOrder
+    lampiran?: SortOrder
+    tanggalSurat?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DetailSuratSumOrderByAggregateInput = {
+    id?: SortOrder
+    registerId?: SortOrder
   }
 
   export type NomorCounterCountOrderByAggregateInput = {
@@ -9817,11 +11246,11 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutAccountsInput, UserUpdateWithoutAccountsInput>, UserUncheckedUpdateWithoutAccountsInput>
   }
 
-  export type DataSuratCreateNestedManyWithoutDeptInput = {
-    create?: XOR<DataSuratCreateWithoutDeptInput, DataSuratUncheckedCreateWithoutDeptInput> | DataSuratCreateWithoutDeptInput[] | DataSuratUncheckedCreateWithoutDeptInput[]
-    connectOrCreate?: DataSuratCreateOrConnectWithoutDeptInput | DataSuratCreateOrConnectWithoutDeptInput[]
-    createMany?: DataSuratCreateManyDeptInputEnvelope
-    connect?: DataSuratWhereUniqueInput | DataSuratWhereUniqueInput[]
+  export type RegisterSuratCreateNestedManyWithoutDeptInput = {
+    create?: XOR<RegisterSuratCreateWithoutDeptInput, RegisterSuratUncheckedCreateWithoutDeptInput> | RegisterSuratCreateWithoutDeptInput[] | RegisterSuratUncheckedCreateWithoutDeptInput[]
+    connectOrCreate?: RegisterSuratCreateOrConnectWithoutDeptInput | RegisterSuratCreateOrConnectWithoutDeptInput[]
+    createMany?: RegisterSuratCreateManyDeptInputEnvelope
+    connect?: RegisterSuratWhereUniqueInput | RegisterSuratWhereUniqueInput[]
   }
 
   export type NomorCounterCreateNestedOneWithoutDeptInput = {
@@ -9830,11 +11259,11 @@ export namespace Prisma {
     connect?: NomorCounterWhereUniqueInput
   }
 
-  export type DataSuratUncheckedCreateNestedManyWithoutDeptInput = {
-    create?: XOR<DataSuratCreateWithoutDeptInput, DataSuratUncheckedCreateWithoutDeptInput> | DataSuratCreateWithoutDeptInput[] | DataSuratUncheckedCreateWithoutDeptInput[]
-    connectOrCreate?: DataSuratCreateOrConnectWithoutDeptInput | DataSuratCreateOrConnectWithoutDeptInput[]
-    createMany?: DataSuratCreateManyDeptInputEnvelope
-    connect?: DataSuratWhereUniqueInput | DataSuratWhereUniqueInput[]
+  export type RegisterSuratUncheckedCreateNestedManyWithoutDeptInput = {
+    create?: XOR<RegisterSuratCreateWithoutDeptInput, RegisterSuratUncheckedCreateWithoutDeptInput> | RegisterSuratCreateWithoutDeptInput[] | RegisterSuratUncheckedCreateWithoutDeptInput[]
+    connectOrCreate?: RegisterSuratCreateOrConnectWithoutDeptInput | RegisterSuratCreateOrConnectWithoutDeptInput[]
+    createMany?: RegisterSuratCreateManyDeptInputEnvelope
+    connect?: RegisterSuratWhereUniqueInput | RegisterSuratWhereUniqueInput[]
   }
 
   export type NomorCounterUncheckedCreateNestedOneWithoutDeptInput = {
@@ -9843,18 +11272,18 @@ export namespace Prisma {
     connect?: NomorCounterWhereUniqueInput
   }
 
-  export type DataSuratUpdateManyWithoutDeptNestedInput = {
-    create?: XOR<DataSuratCreateWithoutDeptInput, DataSuratUncheckedCreateWithoutDeptInput> | DataSuratCreateWithoutDeptInput[] | DataSuratUncheckedCreateWithoutDeptInput[]
-    connectOrCreate?: DataSuratCreateOrConnectWithoutDeptInput | DataSuratCreateOrConnectWithoutDeptInput[]
-    upsert?: DataSuratUpsertWithWhereUniqueWithoutDeptInput | DataSuratUpsertWithWhereUniqueWithoutDeptInput[]
-    createMany?: DataSuratCreateManyDeptInputEnvelope
-    set?: DataSuratWhereUniqueInput | DataSuratWhereUniqueInput[]
-    disconnect?: DataSuratWhereUniqueInput | DataSuratWhereUniqueInput[]
-    delete?: DataSuratWhereUniqueInput | DataSuratWhereUniqueInput[]
-    connect?: DataSuratWhereUniqueInput | DataSuratWhereUniqueInput[]
-    update?: DataSuratUpdateWithWhereUniqueWithoutDeptInput | DataSuratUpdateWithWhereUniqueWithoutDeptInput[]
-    updateMany?: DataSuratUpdateManyWithWhereWithoutDeptInput | DataSuratUpdateManyWithWhereWithoutDeptInput[]
-    deleteMany?: DataSuratScalarWhereInput | DataSuratScalarWhereInput[]
+  export type RegisterSuratUpdateManyWithoutDeptNestedInput = {
+    create?: XOR<RegisterSuratCreateWithoutDeptInput, RegisterSuratUncheckedCreateWithoutDeptInput> | RegisterSuratCreateWithoutDeptInput[] | RegisterSuratUncheckedCreateWithoutDeptInput[]
+    connectOrCreate?: RegisterSuratCreateOrConnectWithoutDeptInput | RegisterSuratCreateOrConnectWithoutDeptInput[]
+    upsert?: RegisterSuratUpsertWithWhereUniqueWithoutDeptInput | RegisterSuratUpsertWithWhereUniqueWithoutDeptInput[]
+    createMany?: RegisterSuratCreateManyDeptInputEnvelope
+    set?: RegisterSuratWhereUniqueInput | RegisterSuratWhereUniqueInput[]
+    disconnect?: RegisterSuratWhereUniqueInput | RegisterSuratWhereUniqueInput[]
+    delete?: RegisterSuratWhereUniqueInput | RegisterSuratWhereUniqueInput[]
+    connect?: RegisterSuratWhereUniqueInput | RegisterSuratWhereUniqueInput[]
+    update?: RegisterSuratUpdateWithWhereUniqueWithoutDeptInput | RegisterSuratUpdateWithWhereUniqueWithoutDeptInput[]
+    updateMany?: RegisterSuratUpdateManyWithWhereWithoutDeptInput | RegisterSuratUpdateManyWithWhereWithoutDeptInput[]
+    deleteMany?: RegisterSuratScalarWhereInput | RegisterSuratScalarWhereInput[]
   }
 
   export type NomorCounterUpdateOneWithoutDeptNestedInput = {
@@ -9867,18 +11296,18 @@ export namespace Prisma {
     update?: XOR<XOR<NomorCounterUpdateToOneWithWhereWithoutDeptInput, NomorCounterUpdateWithoutDeptInput>, NomorCounterUncheckedUpdateWithoutDeptInput>
   }
 
-  export type DataSuratUncheckedUpdateManyWithoutDeptNestedInput = {
-    create?: XOR<DataSuratCreateWithoutDeptInput, DataSuratUncheckedCreateWithoutDeptInput> | DataSuratCreateWithoutDeptInput[] | DataSuratUncheckedCreateWithoutDeptInput[]
-    connectOrCreate?: DataSuratCreateOrConnectWithoutDeptInput | DataSuratCreateOrConnectWithoutDeptInput[]
-    upsert?: DataSuratUpsertWithWhereUniqueWithoutDeptInput | DataSuratUpsertWithWhereUniqueWithoutDeptInput[]
-    createMany?: DataSuratCreateManyDeptInputEnvelope
-    set?: DataSuratWhereUniqueInput | DataSuratWhereUniqueInput[]
-    disconnect?: DataSuratWhereUniqueInput | DataSuratWhereUniqueInput[]
-    delete?: DataSuratWhereUniqueInput | DataSuratWhereUniqueInput[]
-    connect?: DataSuratWhereUniqueInput | DataSuratWhereUniqueInput[]
-    update?: DataSuratUpdateWithWhereUniqueWithoutDeptInput | DataSuratUpdateWithWhereUniqueWithoutDeptInput[]
-    updateMany?: DataSuratUpdateManyWithWhereWithoutDeptInput | DataSuratUpdateManyWithWhereWithoutDeptInput[]
-    deleteMany?: DataSuratScalarWhereInput | DataSuratScalarWhereInput[]
+  export type RegisterSuratUncheckedUpdateManyWithoutDeptNestedInput = {
+    create?: XOR<RegisterSuratCreateWithoutDeptInput, RegisterSuratUncheckedCreateWithoutDeptInput> | RegisterSuratCreateWithoutDeptInput[] | RegisterSuratUncheckedCreateWithoutDeptInput[]
+    connectOrCreate?: RegisterSuratCreateOrConnectWithoutDeptInput | RegisterSuratCreateOrConnectWithoutDeptInput[]
+    upsert?: RegisterSuratUpsertWithWhereUniqueWithoutDeptInput | RegisterSuratUpsertWithWhereUniqueWithoutDeptInput[]
+    createMany?: RegisterSuratCreateManyDeptInputEnvelope
+    set?: RegisterSuratWhereUniqueInput | RegisterSuratWhereUniqueInput[]
+    disconnect?: RegisterSuratWhereUniqueInput | RegisterSuratWhereUniqueInput[]
+    delete?: RegisterSuratWhereUniqueInput | RegisterSuratWhereUniqueInput[]
+    connect?: RegisterSuratWhereUniqueInput | RegisterSuratWhereUniqueInput[]
+    update?: RegisterSuratUpdateWithWhereUniqueWithoutDeptInput | RegisterSuratUpdateWithWhereUniqueWithoutDeptInput[]
+    updateMany?: RegisterSuratUpdateManyWithWhereWithoutDeptInput | RegisterSuratUpdateManyWithWhereWithoutDeptInput[]
+    deleteMany?: RegisterSuratScalarWhereInput | RegisterSuratScalarWhereInput[]
   }
 
   export type NomorCounterUncheckedUpdateOneWithoutDeptNestedInput = {
@@ -9891,18 +11320,46 @@ export namespace Prisma {
     update?: XOR<XOR<NomorCounterUpdateToOneWithWhereWithoutDeptInput, NomorCounterUpdateWithoutDeptInput>, NomorCounterUncheckedUpdateWithoutDeptInput>
   }
 
-  export type DepartmentCreateNestedOneWithoutDataSuratInput = {
-    create?: XOR<DepartmentCreateWithoutDataSuratInput, DepartmentUncheckedCreateWithoutDataSuratInput>
-    connectOrCreate?: DepartmentCreateOrConnectWithoutDataSuratInput
+  export type DepartmentCreateNestedOneWithoutRegisterSuratInput = {
+    create?: XOR<DepartmentCreateWithoutRegisterSuratInput, DepartmentUncheckedCreateWithoutRegisterSuratInput>
+    connectOrCreate?: DepartmentCreateOrConnectWithoutRegisterSuratInput
     connect?: DepartmentWhereUniqueInput
   }
 
-  export type DepartmentUpdateOneRequiredWithoutDataSuratNestedInput = {
-    create?: XOR<DepartmentCreateWithoutDataSuratInput, DepartmentUncheckedCreateWithoutDataSuratInput>
-    connectOrCreate?: DepartmentCreateOrConnectWithoutDataSuratInput
-    upsert?: DepartmentUpsertWithoutDataSuratInput
+  export type DetailSuratCreateNestedManyWithoutRegisterInput = {
+    create?: XOR<DetailSuratCreateWithoutRegisterInput, DetailSuratUncheckedCreateWithoutRegisterInput> | DetailSuratCreateWithoutRegisterInput[] | DetailSuratUncheckedCreateWithoutRegisterInput[]
+    connectOrCreate?: DetailSuratCreateOrConnectWithoutRegisterInput | DetailSuratCreateOrConnectWithoutRegisterInput[]
+    createMany?: DetailSuratCreateManyRegisterInputEnvelope
+    connect?: DetailSuratWhereUniqueInput | DetailSuratWhereUniqueInput[]
+  }
+
+  export type DetailSuratUncheckedCreateNestedManyWithoutRegisterInput = {
+    create?: XOR<DetailSuratCreateWithoutRegisterInput, DetailSuratUncheckedCreateWithoutRegisterInput> | DetailSuratCreateWithoutRegisterInput[] | DetailSuratUncheckedCreateWithoutRegisterInput[]
+    connectOrCreate?: DetailSuratCreateOrConnectWithoutRegisterInput | DetailSuratCreateOrConnectWithoutRegisterInput[]
+    createMany?: DetailSuratCreateManyRegisterInputEnvelope
+    connect?: DetailSuratWhereUniqueInput | DetailSuratWhereUniqueInput[]
+  }
+
+  export type DepartmentUpdateOneRequiredWithoutRegisterSuratNestedInput = {
+    create?: XOR<DepartmentCreateWithoutRegisterSuratInput, DepartmentUncheckedCreateWithoutRegisterSuratInput>
+    connectOrCreate?: DepartmentCreateOrConnectWithoutRegisterSuratInput
+    upsert?: DepartmentUpsertWithoutRegisterSuratInput
     connect?: DepartmentWhereUniqueInput
-    update?: XOR<XOR<DepartmentUpdateToOneWithWhereWithoutDataSuratInput, DepartmentUpdateWithoutDataSuratInput>, DepartmentUncheckedUpdateWithoutDataSuratInput>
+    update?: XOR<XOR<DepartmentUpdateToOneWithWhereWithoutRegisterSuratInput, DepartmentUpdateWithoutRegisterSuratInput>, DepartmentUncheckedUpdateWithoutRegisterSuratInput>
+  }
+
+  export type DetailSuratUpdateManyWithoutRegisterNestedInput = {
+    create?: XOR<DetailSuratCreateWithoutRegisterInput, DetailSuratUncheckedCreateWithoutRegisterInput> | DetailSuratCreateWithoutRegisterInput[] | DetailSuratUncheckedCreateWithoutRegisterInput[]
+    connectOrCreate?: DetailSuratCreateOrConnectWithoutRegisterInput | DetailSuratCreateOrConnectWithoutRegisterInput[]
+    upsert?: DetailSuratUpsertWithWhereUniqueWithoutRegisterInput | DetailSuratUpsertWithWhereUniqueWithoutRegisterInput[]
+    createMany?: DetailSuratCreateManyRegisterInputEnvelope
+    set?: DetailSuratWhereUniqueInput | DetailSuratWhereUniqueInput[]
+    disconnect?: DetailSuratWhereUniqueInput | DetailSuratWhereUniqueInput[]
+    delete?: DetailSuratWhereUniqueInput | DetailSuratWhereUniqueInput[]
+    connect?: DetailSuratWhereUniqueInput | DetailSuratWhereUniqueInput[]
+    update?: DetailSuratUpdateWithWhereUniqueWithoutRegisterInput | DetailSuratUpdateWithWhereUniqueWithoutRegisterInput[]
+    updateMany?: DetailSuratUpdateManyWithWhereWithoutRegisterInput | DetailSuratUpdateManyWithWhereWithoutRegisterInput[]
+    deleteMany?: DetailSuratScalarWhereInput | DetailSuratScalarWhereInput[]
   }
 
   export type IntFieldUpdateOperationsInput = {
@@ -9911,6 +11368,34 @@ export namespace Prisma {
     decrement?: number
     multiply?: number
     divide?: number
+  }
+
+  export type DetailSuratUncheckedUpdateManyWithoutRegisterNestedInput = {
+    create?: XOR<DetailSuratCreateWithoutRegisterInput, DetailSuratUncheckedCreateWithoutRegisterInput> | DetailSuratCreateWithoutRegisterInput[] | DetailSuratUncheckedCreateWithoutRegisterInput[]
+    connectOrCreate?: DetailSuratCreateOrConnectWithoutRegisterInput | DetailSuratCreateOrConnectWithoutRegisterInput[]
+    upsert?: DetailSuratUpsertWithWhereUniqueWithoutRegisterInput | DetailSuratUpsertWithWhereUniqueWithoutRegisterInput[]
+    createMany?: DetailSuratCreateManyRegisterInputEnvelope
+    set?: DetailSuratWhereUniqueInput | DetailSuratWhereUniqueInput[]
+    disconnect?: DetailSuratWhereUniqueInput | DetailSuratWhereUniqueInput[]
+    delete?: DetailSuratWhereUniqueInput | DetailSuratWhereUniqueInput[]
+    connect?: DetailSuratWhereUniqueInput | DetailSuratWhereUniqueInput[]
+    update?: DetailSuratUpdateWithWhereUniqueWithoutRegisterInput | DetailSuratUpdateWithWhereUniqueWithoutRegisterInput[]
+    updateMany?: DetailSuratUpdateManyWithWhereWithoutRegisterInput | DetailSuratUpdateManyWithWhereWithoutRegisterInput[]
+    deleteMany?: DetailSuratScalarWhereInput | DetailSuratScalarWhereInput[]
+  }
+
+  export type RegisterSuratCreateNestedOneWithoutDetailSuratInput = {
+    create?: XOR<RegisterSuratCreateWithoutDetailSuratInput, RegisterSuratUncheckedCreateWithoutDetailSuratInput>
+    connectOrCreate?: RegisterSuratCreateOrConnectWithoutDetailSuratInput
+    connect?: RegisterSuratWhereUniqueInput
+  }
+
+  export type RegisterSuratUpdateOneRequiredWithoutDetailSuratNestedInput = {
+    create?: XOR<RegisterSuratCreateWithoutDetailSuratInput, RegisterSuratUncheckedCreateWithoutDetailSuratInput>
+    connectOrCreate?: RegisterSuratCreateOrConnectWithoutDetailSuratInput
+    upsert?: RegisterSuratUpsertWithoutDetailSuratInput
+    connect?: RegisterSuratWhereUniqueInput
+    update?: XOR<XOR<RegisterSuratUpdateToOneWithWhereWithoutDetailSuratInput, RegisterSuratUpdateWithoutDetailSuratInput>, RegisterSuratUncheckedUpdateWithoutDetailSuratInput>
   }
 
   export type DepartmentCreateNestedOneWithoutNomorCounterInput = {
@@ -10389,40 +11874,34 @@ export namespace Prisma {
     sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
   }
 
-  export type DataSuratCreateWithoutDeptInput = {
+  export type RegisterSuratCreateWithoutDeptInput = {
     nomor: string
     tanggalTerima: Date | string
     asalSurat: string
-    perihal: string
-    tanggalSurat: Date | string
     tujuan?: string
-    noSurat?: string | null
-    lampiran?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    detailSurat?: DetailSuratCreateNestedManyWithoutRegisterInput
   }
 
-  export type DataSuratUncheckedCreateWithoutDeptInput = {
+  export type RegisterSuratUncheckedCreateWithoutDeptInput = {
     id?: number
     nomor: string
     tanggalTerima: Date | string
     asalSurat: string
-    perihal: string
-    tanggalSurat: Date | string
     tujuan?: string
-    noSurat?: string | null
-    lampiran?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    detailSurat?: DetailSuratUncheckedCreateNestedManyWithoutRegisterInput
   }
 
-  export type DataSuratCreateOrConnectWithoutDeptInput = {
-    where: DataSuratWhereUniqueInput
-    create: XOR<DataSuratCreateWithoutDeptInput, DataSuratUncheckedCreateWithoutDeptInput>
+  export type RegisterSuratCreateOrConnectWithoutDeptInput = {
+    where: RegisterSuratWhereUniqueInput
+    create: XOR<RegisterSuratCreateWithoutDeptInput, RegisterSuratUncheckedCreateWithoutDeptInput>
   }
 
-  export type DataSuratCreateManyDeptInputEnvelope = {
-    data: DataSuratCreateManyDeptInput | DataSuratCreateManyDeptInput[]
+  export type RegisterSuratCreateManyDeptInputEnvelope = {
+    data: RegisterSuratCreateManyDeptInput | RegisterSuratCreateManyDeptInput[]
     skipDuplicates?: boolean
   }
 
@@ -10439,38 +11918,34 @@ export namespace Prisma {
     create: XOR<NomorCounterCreateWithoutDeptInput, NomorCounterUncheckedCreateWithoutDeptInput>
   }
 
-  export type DataSuratUpsertWithWhereUniqueWithoutDeptInput = {
-    where: DataSuratWhereUniqueInput
-    update: XOR<DataSuratUpdateWithoutDeptInput, DataSuratUncheckedUpdateWithoutDeptInput>
-    create: XOR<DataSuratCreateWithoutDeptInput, DataSuratUncheckedCreateWithoutDeptInput>
+  export type RegisterSuratUpsertWithWhereUniqueWithoutDeptInput = {
+    where: RegisterSuratWhereUniqueInput
+    update: XOR<RegisterSuratUpdateWithoutDeptInput, RegisterSuratUncheckedUpdateWithoutDeptInput>
+    create: XOR<RegisterSuratCreateWithoutDeptInput, RegisterSuratUncheckedCreateWithoutDeptInput>
   }
 
-  export type DataSuratUpdateWithWhereUniqueWithoutDeptInput = {
-    where: DataSuratWhereUniqueInput
-    data: XOR<DataSuratUpdateWithoutDeptInput, DataSuratUncheckedUpdateWithoutDeptInput>
+  export type RegisterSuratUpdateWithWhereUniqueWithoutDeptInput = {
+    where: RegisterSuratWhereUniqueInput
+    data: XOR<RegisterSuratUpdateWithoutDeptInput, RegisterSuratUncheckedUpdateWithoutDeptInput>
   }
 
-  export type DataSuratUpdateManyWithWhereWithoutDeptInput = {
-    where: DataSuratScalarWhereInput
-    data: XOR<DataSuratUpdateManyMutationInput, DataSuratUncheckedUpdateManyWithoutDeptInput>
+  export type RegisterSuratUpdateManyWithWhereWithoutDeptInput = {
+    where: RegisterSuratScalarWhereInput
+    data: XOR<RegisterSuratUpdateManyMutationInput, RegisterSuratUncheckedUpdateManyWithoutDeptInput>
   }
 
-  export type DataSuratScalarWhereInput = {
-    AND?: DataSuratScalarWhereInput | DataSuratScalarWhereInput[]
-    OR?: DataSuratScalarWhereInput[]
-    NOT?: DataSuratScalarWhereInput | DataSuratScalarWhereInput[]
-    id?: IntFilter<"DataSurat"> | number
-    nomor?: StringFilter<"DataSurat"> | string
-    deptId?: StringFilter<"DataSurat"> | string
-    tanggalTerima?: DateTimeFilter<"DataSurat"> | Date | string
-    asalSurat?: StringFilter<"DataSurat"> | string
-    perihal?: StringFilter<"DataSurat"> | string
-    tanggalSurat?: DateTimeFilter<"DataSurat"> | Date | string
-    tujuan?: StringFilter<"DataSurat"> | string
-    noSurat?: StringNullableFilter<"DataSurat"> | string | null
-    lampiran?: StringNullableFilter<"DataSurat"> | string | null
-    createdAt?: DateTimeFilter<"DataSurat"> | Date | string
-    updatedAt?: DateTimeFilter<"DataSurat"> | Date | string
+  export type RegisterSuratScalarWhereInput = {
+    AND?: RegisterSuratScalarWhereInput | RegisterSuratScalarWhereInput[]
+    OR?: RegisterSuratScalarWhereInput[]
+    NOT?: RegisterSuratScalarWhereInput | RegisterSuratScalarWhereInput[]
+    id?: IntFilter<"RegisterSurat"> | number
+    nomor?: StringFilter<"RegisterSurat"> | string
+    deptId?: StringFilter<"RegisterSurat"> | string
+    tanggalTerima?: DateTimeFilter<"RegisterSurat"> | Date | string
+    asalSurat?: StringFilter<"RegisterSurat"> | string
+    tujuan?: StringFilter<"RegisterSurat"> | string
+    createdAt?: DateTimeFilter<"RegisterSurat"> | Date | string
+    updatedAt?: DateTimeFilter<"RegisterSurat"> | Date | string
   }
 
   export type NomorCounterUpsertWithoutDeptInput = {
@@ -10492,62 +11967,185 @@ export namespace Prisma {
     counter?: IntFieldUpdateOperationsInput | number
   }
 
-  export type DepartmentCreateWithoutDataSuratInput = {
+  export type DepartmentCreateWithoutRegisterSuratInput = {
     id: string
     shortName: string
+    tujuan?: string
     isActive?: boolean
     nomorCounter?: NomorCounterCreateNestedOneWithoutDeptInput
   }
 
-  export type DepartmentUncheckedCreateWithoutDataSuratInput = {
+  export type DepartmentUncheckedCreateWithoutRegisterSuratInput = {
     id: string
     shortName: string
+    tujuan?: string
     isActive?: boolean
     nomorCounter?: NomorCounterUncheckedCreateNestedOneWithoutDeptInput
   }
 
-  export type DepartmentCreateOrConnectWithoutDataSuratInput = {
+  export type DepartmentCreateOrConnectWithoutRegisterSuratInput = {
     where: DepartmentWhereUniqueInput
-    create: XOR<DepartmentCreateWithoutDataSuratInput, DepartmentUncheckedCreateWithoutDataSuratInput>
+    create: XOR<DepartmentCreateWithoutRegisterSuratInput, DepartmentUncheckedCreateWithoutRegisterSuratInput>
   }
 
-  export type DepartmentUpsertWithoutDataSuratInput = {
-    update: XOR<DepartmentUpdateWithoutDataSuratInput, DepartmentUncheckedUpdateWithoutDataSuratInput>
-    create: XOR<DepartmentCreateWithoutDataSuratInput, DepartmentUncheckedCreateWithoutDataSuratInput>
+  export type DetailSuratCreateWithoutRegisterInput = {
+    perihal: string
+    noSurat?: string | null
+    lampiran?: string | null
+    tanggalSurat: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DetailSuratUncheckedCreateWithoutRegisterInput = {
+    id?: number
+    perihal: string
+    noSurat?: string | null
+    lampiran?: string | null
+    tanggalSurat: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DetailSuratCreateOrConnectWithoutRegisterInput = {
+    where: DetailSuratWhereUniqueInput
+    create: XOR<DetailSuratCreateWithoutRegisterInput, DetailSuratUncheckedCreateWithoutRegisterInput>
+  }
+
+  export type DetailSuratCreateManyRegisterInputEnvelope = {
+    data: DetailSuratCreateManyRegisterInput | DetailSuratCreateManyRegisterInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type DepartmentUpsertWithoutRegisterSuratInput = {
+    update: XOR<DepartmentUpdateWithoutRegisterSuratInput, DepartmentUncheckedUpdateWithoutRegisterSuratInput>
+    create: XOR<DepartmentCreateWithoutRegisterSuratInput, DepartmentUncheckedCreateWithoutRegisterSuratInput>
     where?: DepartmentWhereInput
   }
 
-  export type DepartmentUpdateToOneWithWhereWithoutDataSuratInput = {
+  export type DepartmentUpdateToOneWithWhereWithoutRegisterSuratInput = {
     where?: DepartmentWhereInput
-    data: XOR<DepartmentUpdateWithoutDataSuratInput, DepartmentUncheckedUpdateWithoutDataSuratInput>
+    data: XOR<DepartmentUpdateWithoutRegisterSuratInput, DepartmentUncheckedUpdateWithoutRegisterSuratInput>
   }
 
-  export type DepartmentUpdateWithoutDataSuratInput = {
+  export type DepartmentUpdateWithoutRegisterSuratInput = {
     id?: StringFieldUpdateOperationsInput | string
     shortName?: StringFieldUpdateOperationsInput | string
+    tujuan?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     nomorCounter?: NomorCounterUpdateOneWithoutDeptNestedInput
   }
 
-  export type DepartmentUncheckedUpdateWithoutDataSuratInput = {
+  export type DepartmentUncheckedUpdateWithoutRegisterSuratInput = {
     id?: StringFieldUpdateOperationsInput | string
     shortName?: StringFieldUpdateOperationsInput | string
+    tujuan?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     nomorCounter?: NomorCounterUncheckedUpdateOneWithoutDeptNestedInput
+  }
+
+  export type DetailSuratUpsertWithWhereUniqueWithoutRegisterInput = {
+    where: DetailSuratWhereUniqueInput
+    update: XOR<DetailSuratUpdateWithoutRegisterInput, DetailSuratUncheckedUpdateWithoutRegisterInput>
+    create: XOR<DetailSuratCreateWithoutRegisterInput, DetailSuratUncheckedCreateWithoutRegisterInput>
+  }
+
+  export type DetailSuratUpdateWithWhereUniqueWithoutRegisterInput = {
+    where: DetailSuratWhereUniqueInput
+    data: XOR<DetailSuratUpdateWithoutRegisterInput, DetailSuratUncheckedUpdateWithoutRegisterInput>
+  }
+
+  export type DetailSuratUpdateManyWithWhereWithoutRegisterInput = {
+    where: DetailSuratScalarWhereInput
+    data: XOR<DetailSuratUpdateManyMutationInput, DetailSuratUncheckedUpdateManyWithoutRegisterInput>
+  }
+
+  export type DetailSuratScalarWhereInput = {
+    AND?: DetailSuratScalarWhereInput | DetailSuratScalarWhereInput[]
+    OR?: DetailSuratScalarWhereInput[]
+    NOT?: DetailSuratScalarWhereInput | DetailSuratScalarWhereInput[]
+    id?: IntFilter<"DetailSurat"> | number
+    registerId?: IntFilter<"DetailSurat"> | number
+    perihal?: StringFilter<"DetailSurat"> | string
+    noSurat?: StringNullableFilter<"DetailSurat"> | string | null
+    lampiran?: StringNullableFilter<"DetailSurat"> | string | null
+    tanggalSurat?: DateTimeFilter<"DetailSurat"> | Date | string
+    createdAt?: DateTimeFilter<"DetailSurat"> | Date | string
+    updatedAt?: DateTimeFilter<"DetailSurat"> | Date | string
+  }
+
+  export type RegisterSuratCreateWithoutDetailSuratInput = {
+    nomor: string
+    tanggalTerima: Date | string
+    asalSurat: string
+    tujuan?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    dept: DepartmentCreateNestedOneWithoutRegisterSuratInput
+  }
+
+  export type RegisterSuratUncheckedCreateWithoutDetailSuratInput = {
+    id?: number
+    nomor: string
+    deptId: string
+    tanggalTerima: Date | string
+    asalSurat: string
+    tujuan?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type RegisterSuratCreateOrConnectWithoutDetailSuratInput = {
+    where: RegisterSuratWhereUniqueInput
+    create: XOR<RegisterSuratCreateWithoutDetailSuratInput, RegisterSuratUncheckedCreateWithoutDetailSuratInput>
+  }
+
+  export type RegisterSuratUpsertWithoutDetailSuratInput = {
+    update: XOR<RegisterSuratUpdateWithoutDetailSuratInput, RegisterSuratUncheckedUpdateWithoutDetailSuratInput>
+    create: XOR<RegisterSuratCreateWithoutDetailSuratInput, RegisterSuratUncheckedCreateWithoutDetailSuratInput>
+    where?: RegisterSuratWhereInput
+  }
+
+  export type RegisterSuratUpdateToOneWithWhereWithoutDetailSuratInput = {
+    where?: RegisterSuratWhereInput
+    data: XOR<RegisterSuratUpdateWithoutDetailSuratInput, RegisterSuratUncheckedUpdateWithoutDetailSuratInput>
+  }
+
+  export type RegisterSuratUpdateWithoutDetailSuratInput = {
+    nomor?: StringFieldUpdateOperationsInput | string
+    tanggalTerima?: DateTimeFieldUpdateOperationsInput | Date | string
+    asalSurat?: StringFieldUpdateOperationsInput | string
+    tujuan?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dept?: DepartmentUpdateOneRequiredWithoutRegisterSuratNestedInput
+  }
+
+  export type RegisterSuratUncheckedUpdateWithoutDetailSuratInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    nomor?: StringFieldUpdateOperationsInput | string
+    deptId?: StringFieldUpdateOperationsInput | string
+    tanggalTerima?: DateTimeFieldUpdateOperationsInput | Date | string
+    asalSurat?: StringFieldUpdateOperationsInput | string
+    tujuan?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type DepartmentCreateWithoutNomorCounterInput = {
     id: string
     shortName: string
+    tujuan?: string
     isActive?: boolean
-    dataSurat?: DataSuratCreateNestedManyWithoutDeptInput
+    registerSurat?: RegisterSuratCreateNestedManyWithoutDeptInput
   }
 
   export type DepartmentUncheckedCreateWithoutNomorCounterInput = {
     id: string
     shortName: string
+    tujuan?: string
     isActive?: boolean
-    dataSurat?: DataSuratUncheckedCreateNestedManyWithoutDeptInput
+    registerSurat?: RegisterSuratUncheckedCreateNestedManyWithoutDeptInput
   }
 
   export type DepartmentCreateOrConnectWithoutNomorCounterInput = {
@@ -10569,15 +12167,17 @@ export namespace Prisma {
   export type DepartmentUpdateWithoutNomorCounterInput = {
     id?: StringFieldUpdateOperationsInput | string
     shortName?: StringFieldUpdateOperationsInput | string
+    tujuan?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
-    dataSurat?: DataSuratUpdateManyWithoutDeptNestedInput
+    registerSurat?: RegisterSuratUpdateManyWithoutDeptNestedInput
   }
 
   export type DepartmentUncheckedUpdateWithoutNomorCounterInput = {
     id?: StringFieldUpdateOperationsInput | string
     shortName?: StringFieldUpdateOperationsInput | string
+    tujuan?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
-    dataSurat?: DataSuratUncheckedUpdateManyWithoutDeptNestedInput
+    registerSurat?: RegisterSuratUncheckedUpdateManyWithoutDeptNestedInput
   }
 
   export type SessionCreateManyUserInput = {
@@ -10680,57 +12280,82 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type DataSuratCreateManyDeptInput = {
+  export type RegisterSuratCreateManyDeptInput = {
     id?: number
     nomor: string
     tanggalTerima: Date | string
     asalSurat: string
-    perihal: string
-    tanggalSurat: Date | string
     tujuan?: string
-    noSurat?: string | null
-    lampiran?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
 
-  export type DataSuratUpdateWithoutDeptInput = {
+  export type RegisterSuratUpdateWithoutDeptInput = {
     nomor?: StringFieldUpdateOperationsInput | string
     tanggalTerima?: DateTimeFieldUpdateOperationsInput | Date | string
     asalSurat?: StringFieldUpdateOperationsInput | string
-    perihal?: StringFieldUpdateOperationsInput | string
-    tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
     tujuan?: StringFieldUpdateOperationsInput | string
-    noSurat?: NullableStringFieldUpdateOperationsInput | string | null
-    lampiran?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    detailSurat?: DetailSuratUpdateManyWithoutRegisterNestedInput
   }
 
-  export type DataSuratUncheckedUpdateWithoutDeptInput = {
+  export type RegisterSuratUncheckedUpdateWithoutDeptInput = {
     id?: IntFieldUpdateOperationsInput | number
     nomor?: StringFieldUpdateOperationsInput | string
     tanggalTerima?: DateTimeFieldUpdateOperationsInput | Date | string
     asalSurat?: StringFieldUpdateOperationsInput | string
-    perihal?: StringFieldUpdateOperationsInput | string
-    tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
     tujuan?: StringFieldUpdateOperationsInput | string
-    noSurat?: NullableStringFieldUpdateOperationsInput | string | null
-    lampiran?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    detailSurat?: DetailSuratUncheckedUpdateManyWithoutRegisterNestedInput
   }
 
-  export type DataSuratUncheckedUpdateManyWithoutDeptInput = {
+  export type RegisterSuratUncheckedUpdateManyWithoutDeptInput = {
     id?: IntFieldUpdateOperationsInput | number
     nomor?: StringFieldUpdateOperationsInput | string
     tanggalTerima?: DateTimeFieldUpdateOperationsInput | Date | string
     asalSurat?: StringFieldUpdateOperationsInput | string
-    perihal?: StringFieldUpdateOperationsInput | string
-    tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
     tujuan?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DetailSuratCreateManyRegisterInput = {
+    id?: number
+    perihal: string
+    noSurat?: string | null
+    lampiran?: string | null
+    tanggalSurat: Date | string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DetailSuratUpdateWithoutRegisterInput = {
+    perihal?: StringFieldUpdateOperationsInput | string
     noSurat?: NullableStringFieldUpdateOperationsInput | string | null
     lampiran?: NullableStringFieldUpdateOperationsInput | string | null
+    tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DetailSuratUncheckedUpdateWithoutRegisterInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    perihal?: StringFieldUpdateOperationsInput | string
+    noSurat?: NullableStringFieldUpdateOperationsInput | string | null
+    lampiran?: NullableStringFieldUpdateOperationsInput | string | null
+    tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DetailSuratUncheckedUpdateManyWithoutRegisterInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    perihal?: StringFieldUpdateOperationsInput | string
+    noSurat?: NullableStringFieldUpdateOperationsInput | string | null
+    lampiran?: NullableStringFieldUpdateOperationsInput | string | null
+    tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
