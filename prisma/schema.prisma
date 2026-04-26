@@ -71,6 +71,7 @@ model Department {
   isActive       Boolean         @default(true) @map("is_active")
 
   registerSurat  RegisterSurat[]
+  registerPI     RegisterPI[]
   nomorCounter   NomorCounter?
 
   @@map("departments")
@@ -90,6 +91,37 @@ model RegisterSurat {
   detailSurat   DetailSurat[]
 
   @@map("register_surat")
+}
+
+model RegisterPI {
+  id            Int          @id @default(autoincrement())
+  nomor         String
+  deptId        String       @map("dept_id")
+  dept          Department   @relation(fields: [deptId], references: [id])
+  tanggalTerima DateTime     @map("tanggal_terima")
+  asalSurat     String       @map("asal_surat")
+  createdAt     DateTime     @default(now()) @map("created_at")
+  updatedAt     DateTime     @updatedAt @map("updated_at")
+
+  detailPI      DetailPI[]
+
+  @@map("register_pi")
+}
+
+model DetailPI {
+  id           Int        @id @default(autoincrement())
+  registerId   Int        @map("register_id")
+  register     RegisterPI @relation(fields: [registerId], references: [id], onDelete: Cascade)
+  namaSupplier String     @map("nama_supplier")
+  noInvoice    String?    @map("no_invoice")
+  nomorSurat   String?    @map("nomor_surat")
+  tanggalSurat DateTime   @map("tanggal_surat")
+  tujuan       String?
+  cc           String?
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+
+  @@map("detail_pi")
 }
 
 model DetailSurat {

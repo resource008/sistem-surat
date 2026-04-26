@@ -1,99 +1,76 @@
-import { NextResponse } from "next/server"
-import { prisma } from "@/infrastructure/databases/prisma-client"
+import { NextRequest, NextResponse } from "next/server"
+import { SuratRepository } from "@/infrastructure/repositories/surat-repositories"
 
 type Params = { params: Promise<{ dept: string; id: string }> }
 
-export async function GET(_: Request, { params }: Params) {
-  const { dept, id } = await params
+export async function GET(_req: NextRequest, { params }: Params) {
+  try {
+    const { dept, id } = await params
+    const numId = parseInt(id, 10)
+    if (isNaN(numId)) {
+      return NextResponse.json({ error: "ID tidak valid" }, { status: 400 })
+    }
 
-  const deptData = await prisma.department.findFirst({
-    where: { OR: [{ id: dept }, { shortName: dept }] },
-    select: { id: true },
-  })
+    const data = await SuratRepository.findByIdAndDept(numId, dept)
+    if (!data) {
+      return NextResponse.json({ error: "Data tidak ditemukan" }, { status: 404 })
+    }
 
-  const register = await prisma.registerSurat.findFirst({
-    where: { id: Number(id), deptId: deptData?.id ?? dept },
-    include: { dept: true, detailSurat: true },
-  })
-
-  if (!register) return NextResponse.json({ error: "Tidak ditemukan" }, { status: 404 })
-  return NextResponse.json(register)
+    return NextResponse.json(data)
+  } catch (error) {
+    console.error("GET /api/surat/[dept]/[id]:", error)
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
+  }
 }
 
-export async function PATCH(req: Request, { params }: Params) {
-  const { dept, id } = await params
-  const body = await req.json()
-
-  const result = await prisma.$transaction(async (tx) => {
-    const existing = await tx.registerSurat.findFirst({
-      where: { id: Number(id), deptId: dept },
-      include: { detailSurat: true },
-    })
-    if (!existing) throw new Error("Register tidak ditemukan")
-
-    let targetDeptId = existing.deptId
-    if (body.deptId) {
-      const deptData = await tx.department.findFirst({
-        where: { shortName: body.deptId },
-        select: { id: true },
-      })
-      targetDeptId = deptData?.id ?? existing.deptId
+export async function PATCH(req: NextRequest, { params }: Params) {
+  try {
+    const { dept, id } = await params
+    const numId = parseInt(id, 10)
+    if (isNaN(numId)) {
+      return NextResponse.json({ error: "ID tidak valid" }, { status: 400 })
     }
 
-    const deptBerubah = targetDeptId !== existing.deptId
-    let nomor = existing.nomor
+    const body = await req.json()
+    const { asalSurat, tujuan, tanggalTerima, suratList } = body
 
-    if (deptBerubah) {
-      const list = await tx.registerSurat.findMany({
-        where: { deptId: targetDeptId },
-        select: { nomor: true },
-      })
-      const max = list.reduce((acc, s) => {
-        const n = parseInt(s.nomor, 10)
-        return isNaN(n) ? acc : Math.max(acc, n)
-      }, 0)
-      nomor = String(max + 1).padStart(4, "0")
-    }
-
-    // Update data amplop
-    const updated = await tx.registerSurat.update({
-      where: { id: Number(id) },
-      data: {
-        nomor,
-        deptId:        targetDeptId,
-        asalSurat:     body.asalSurat     ?? existing.asalSurat,
-        tujuan:        body.tujuan        ?? existing.tujuan,
-        tanggalTerima: body.tanggalTerima ? new Date(body.tanggalTerima) : existing.tanggalTerima,
-      },
+    const updated = await SuratRepository.update(numId, dept, {
+      asalSurat,
+      tujuan,
+      tanggalTerima: tanggalTerima ? new Date(tanggalTerima) : undefined,
+      detailSurat:   suratList?.map((s: any) => ({
+        perihal:      s.perihal,
+        noSurat:      s.noSurat   || null,
+        lampiran:     s.lampiran  || null,
+        tanggalSurat: new Date(s.tanggalSurat),
+      })),
     })
 
-    // Update detail surat jika dikirim
-    if (Array.isArray(body.suratList)) {
-      // Hapus semua detail lama, buat ulang
-      await tx.detailSurat.deleteMany({ where: { registerId: Number(id) } })
-      await tx.detailSurat.createMany({
-        data: body.suratList.map((s: any) => ({
-          registerId:   Number(id),
-          perihal:      s.perihal,
-          noSurat:      s.noSurat  || null,
-          lampiran:     s.lampiran || null,
-          tanggalSurat: new Date(s.tanggalSurat),
-        })),
-      })
+    return NextResponse.json(updated)
+  } catch (error: any) {
+    console.error("PATCH /api/surat/[dept]/[id]:", error)
+    if (error.code === "P2025") {
+      return NextResponse.json({ error: "Data tidak ditemukan" }, { status: 404 })
     }
-
-    return tx.registerSurat.findUnique({
-      where: { id: Number(id) },
-      include: { dept: true, detailSurat: true },
-    })
-  })
-
-  return NextResponse.json(result)
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
+  }
 }
 
-export async function DELETE(_: Request, { params }: Params) {
-  const { id } = await params
-  // detailSurat terhapus otomatis karena onDelete: Cascade
-  await prisma.registerSurat.delete({ where: { id: Number(id) } })
-  return NextResponse.json({ success: true })
+export async function DELETE(_req: NextRequest, { params }: Params) {
+  try {
+    const { dept, id } = await params
+    const numId = parseInt(id, 10)
+    if (isNaN(numId)) {
+      return NextResponse.json({ error: "ID tidak valid" }, { status: 400 })
+    }
+
+    await SuratRepository.delete(numId, dept)
+    return NextResponse.json({ success: true })
+  } catch (error: any) {
+    console.error("DELETE /api/surat/[dept]/[id]:", error)
+    if (error.code === "P2025") {
+      return NextResponse.json({ error: "Data tidak ditemukan" }, { status: 404 })
+    }
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
+  }
 }

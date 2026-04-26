@@ -1,83 +1,109 @@
 import { prisma } from "@/infrastructure/databases/prisma-client"
 
-const deptSelect = {
-  dept: {
-    select: { id: true, name: true, shortName: true },
-  },
+const includeAll = {
+  dept:        true,
+  detailSurat: true,
 } as const
+
+type DetailInput = {
+  perihal:      string
+  noSurat?:     string | null
+  lampiran?:    string | null
+  tanggalSurat: Date
+}
+
+type CreateInput = {
+  nomor:         string
+  asalSurat:     string
+  tujuan?:       string | null
+  tanggalTerima: Date
+  deptId:        string
+  detailSurat:   DetailInput[]
+}
+
+type UpdateInput = {
+  nomor?:         string
+  asalSurat?:     string
+  tujuan?:        string | null
+  tanggalTerima?: Date
+  detailSurat?:   DetailInput[]
+}
+
+// null → undefined agar kompatibel dengan Prisma String? field
+function toStr(v: string | null | undefined): string | undefined {
+  return v ?? undefined
+}
+
+// mapping detail — null field dibuang
+function mapDetail(d: DetailInput) {
+  return {
+    perihal:      d.perihal,
+    noSurat:      toStr(d.noSurat),
+    lampiran:     toStr(d.lampiran),
+    tanggalSurat: d.tanggalSurat,
+  }
+}
 
 export class SuratRepository {
 
-  // Cari surat berdasarkan id DAN deptId sekaligus
-  // Ini mencegah user dept A bisa akses surat dept B hanya dengan ganti id
+  static async findAllByDept(deptId: string) {
+    return prisma.registerSurat.findMany({
+      where:   { deptId },
+      include: includeAll,
+      orderBy: { createdAt: "desc" },
+    })
+  }
+
   static async findByIdAndDept(id: number, deptId: string) {
-    return prisma.dataSurat.findFirst({
+    return prisma.registerSurat.findFirst({
       where:   { id, deptId },
-      include: deptSelect,
+      include: includeAll,
     })
   }
 
-  // List semua surat (dengan optional filter dept)
-  static async findAll(deptId?: string) {
-    return prisma.dataSurat.findMany({
-      where:   deptId ? { deptId } : undefined,
-      include: deptSelect,
-      orderBy: { tanggalTerima: "desc" },
+  static async create(data: CreateInput) {
+    return prisma.registerSurat.create({
+      data: {
+        nomor:         data.nomor,
+        asalSurat:     data.asalSurat,
+        tujuan:        toStr(data.tujuan),   // ✅ null → undefined
+        tanggalTerima: data.tanggalTerima,
+        deptId:        data.deptId,
+        detailSurat: {
+          create: data.detailSurat.map(mapDetail),
+        },
+      },
+      include: includeAll,
     })
   }
 
-  // Update — tetap validasi deptId agar tidak bisa cross-dept
-  static async update(
-    id: number,
-    deptId: string,
-    data: {
-      perihal?:       string
-      asalSurat?:     string
-      tujuan?:        string
-      noSurat?:       string | null
-      lampiran?:      string | null
-      tanggalSurat?:  Date
-      tanggalTerima?: Date
-    }
-  ) {
-    // Pastikan surat milik dept ini dulu
-    const existing = await prisma.dataSurat.findFirst({
-      where: { id, deptId },
-    })
-    if (!existing) return null
+  static async update(id: number, deptId: string, data: UpdateInput) {
+    return prisma.$transaction(async (tx) => {
+      if (data.detailSurat) {
+        await tx.detailSurat.deleteMany({ where: { registerId: id } })
+      }
 
-    return prisma.dataSurat.update({
-      where:   { id },
-      data,
-      include: deptSelect,
+      return tx.registerSurat.update({
+        where: { id, deptId },
+        data: {
+          ...(data.nomor         !== undefined && { nomor:         data.nomor                }),
+          ...(data.asalSurat     !== undefined && { asalSurat:     data.asalSurat            }),
+          ...(data.tanggalTerima !== undefined && { tanggalTerima: data.tanggalTerima        }),
+          ...(data.tujuan        !== undefined && { tujuan:        toStr(data.tujuan)        }), // ✅ null → undefined
+          ...(data.detailSurat   !== undefined && {
+            detailSurat: {
+              create: data.detailSurat.map(mapDetail),
+            },
+          }),
+        },
+        include: includeAll,
+      })
     })
   }
 
-  // Delete — validasi deptId juga
   static async delete(id: number, deptId: string) {
-    const existing = await prisma.dataSurat.findFirst({
+    return prisma.registerSurat.delete({
       where: { id, deptId },
-    })
-    if (!existing) return null
-
-    return prisma.dataSurat.delete({ where: { id } })
-  }
-
-  // Create surat baru
-  static async create(data: {
-    deptId:        string
-    nomor:         string
-    asalSurat:     string
-    perihal:       string
-    tujuan:        string
-    noSurat?:      string | null
-    lampiran?:     string | null
-    tanggalSurat:  Date
-    tanggalTerima: Date
-  }) {
-    return prisma.dataSurat.create({
-      data,
-      include: deptSelect,
     })
   }
 }

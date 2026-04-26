@@ -1,61 +1,57 @@
-// src/proxy.ts
+import { betterFetch } from "@better-fetch/fetch"
 import { NextRequest, NextResponse } from "next/server"
+import type { Session } from "better-auth/types"
 
-const ROLE_PREFIXES = ["staff", "pkl", "admin"]
+// ── Protected paths ───────────────────────────────────────────────
+const PROTECTED_PATHS = [
+  "/staff",
+  "/admin",
+  "/pkl",
+]
 
-export async function proxy(request: NextRequest) {
+// ── Skip paths ────────────────────────────────────────────────────
+const SKIP_PATHS = [
+  "/api/auth",
+  "/login",
+]
+
+export default async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Get session token from cookie (better-auth)
-  const sessionToken =
-    request.cookies.get("better-auth.session_token")?.value ||
-    request.cookies.get("__Secure-better-auth.session_token")?.value
+  // Skip untuk auth & public paths
+  const shouldSkip = SKIP_PATHS.some((path) =>
+    pathname.startsWith(path),
+  )
+  if (shouldSkip) return NextResponse.next()
 
-  // Not logged in → redirect to login
-  if (!sessionToken) {
-    return NextResponse.redirect(new URL("/auth/login", request.url))
-  }
+  // Skip jika bukan protected path
+  const isProtected = PROTECTED_PATHS.some((path) =>
+    pathname.startsWith(path),
+  )
+  if (!isProtected) return NextResponse.next()
 
-  // Check if path matches a role prefix
-  const matchedPrefix = ROLE_PREFIXES.find(
-    (prefix) =>
-      pathname.startsWith(`/${prefix}/`) || pathname === `/${prefix}`
+  // ── Cek session Better Auth ───────────────────────────────────
+  const { data: session } = await betterFetch<Session>(
+    "/api/auth/get-session",
+    {
+      baseURL: request.nextUrl.origin,
+      headers: {
+        cookie: request.headers.get("cookie") ?? "",
+      },
+    },
   )
 
-  // Not a protected route → allow through
-  if (!matchedPrefix) return NextResponse.next()
-
-  // Fetch session to get the user's actual role
-  try {
-    const sessionRes = await fetch(
-      new URL("/api/auth/get-session", request.url),
-      {
-        headers: {
-          cookie: request.headers.get("cookie") ?? "",
-        },
-      }
-    )
-
-    const session = await sessionRes.json()
-
-    if (!session?.user) {
-      return NextResponse.redirect(new URL("/auth/login", request.url))
-    }
-
-    const userRole: string = (session.user.role ?? "GUEST").toLowerCase()
-
-    // Role mismatch → redirect to the correct role path
-    if (matchedPrefix !== userRole) {
-      const correctPath = pathname.replace(`/${matchedPrefix}`, `/${userRole}`)
-      return NextResponse.redirect(new URL(correctPath, request.url))
-    }
-  } catch {
-    return NextResponse.redirect(new URL("/auth/login", request.url))
+  if (!session) {
+    const loginUrl = new URL("/login", request.url)
+    loginUrl.searchParams.set("callbackUrl", pathname)
+    return NextResponse.redirect(loginUrl)
   }
 
   return NextResponse.next()
 }
 
 export const config = {
-  matcher: ["/staff/:path*", "/pkl/:path*", "/admin/:path*"],
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+  ],
 }

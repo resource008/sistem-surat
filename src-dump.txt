@@ -1,0 +1,5476 @@
+﻿
+
+### FILE: src\proxy.ts
+```
+// src/proxy.ts
+import { NextRequest, NextResponse } from "next/server"
+
+const ROLE_PREFIXES = ["staff", "pkl", "admin"]
+
+export async function proxy(request: NextRequest) {
+  const { pathname } = request.nextUrl
+
+  // Get session token from cookie (better-auth)
+  const sessionToken =
+    request.cookies.get("better-auth.session_token")?.value ||
+    request.cookies.get("__Secure-better-auth.session_token")?.value
+
+  // Not logged in â†’ redirect to login
+  if (!sessionToken) {
+    return NextResponse.redirect(new URL("/auth/login", request.url))
+  }
+
+  // Check if path matches a role prefix
+  const matchedPrefix = ROLE_PREFIXES.find(
+    (prefix) =>
+      pathname.startsWith(`/${prefix}/`) || pathname === `/${prefix}`
+  )
+
+  // Not a protected route â†’ allow through
+  if (!matchedPrefix) return NextResponse.next()
+
+  // Fetch session to get the user's actual role
+  try {
+    const sessionRes = await fetch(
+      new URL("/api/auth/get-session", request.url),
+      {
+        headers: {
+          cookie: request.headers.get("cookie") ?? "",
+        },
+      }
+    )
+
+    const session = await sessionRes.json()
+
+    if (!session?.user) {
+      return NextResponse.redirect(new URL("/auth/login", request.url))
+    }
+
+    const userRole: string = (session.user.role ?? "GUEST").toLowerCase()
+
+    // Role mismatch â†’ redirect to the correct role path
+    if (matchedPrefix !== userRole) {
+      const correctPath = pathname.replace(`/${matchedPrefix}`, `/${userRole}`)
+      return NextResponse.redirect(new URL(correctPath, request.url))
+    }
+  } catch {
+    return NextResponse.redirect(new URL("/auth/login", request.url))
+  }
+
+  return NextResponse.next()
+}
+
+export const config = {
+  matcher: ["/staff/:path*", "/pkl/:path*", "/admin/:path*"],
+}
+```
+
+
+### FILE: src\app\globals.css
+```
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-figtree);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+  --background: oklch(100% 0.00011 271.152);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(100% 0.00011 271.152);
+  --sidebar-accent: rgb(225, 223, 255);
+  --sidebar-accent-foreground: rgb(22, 18, 84);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+
+    html.no-transition *,
+    html.no-transition *::before,
+    html.no-transition *::after {
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  html {
+    @apply font-sans;
+  }
+
+  html, body {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+```
+
+
+### FILE: src\app\layout.module.css
+```
+:root {
+  --sidebar-w: 260px;
+  --sidebar-w-collapsed: 72px;
+  --sidebar-bg: var(--sidebar);
+  --sidebar-border: var(--sidebar-border);
+  --accent: var(--primary);
+  --accent-light: var(--sidebar-accent);
+  --text-primary: var(--foreground);
+  --text-secondary: var(--muted-foreground);
+  --text-muted: var(--muted-foreground);
+  --hover-bg: var(--sidebar-accent);
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration: 0.3s;
+}
+
+.root {
+  display: flex;
+  min-height: 100vh;
+  background: var(--background);
+  color: var(--text-primary);
+}
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 49;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(2px);
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.sidebar {
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  width: var(--sidebar-w);
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--sidebar-border);
+  display: flex;
+  flex-direction: column;
+  z-index: 50;
+  transition: width var(--duration) var(--ease), transform var(--duration) var(--ease);
+  overflow: visible;
+}
+
+.sidebar.collapsed { width: var(--sidebar-w-collapsed); }
+
+.mobileSidebar {
+  width: var(--sidebar-w) !important;
+  transform: translateX(-100%);
+  box-shadow: none;
+}
+
+.mobileOpen {
+  transform: translateX(0);
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
+}
+
+.sidebarHeader {
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  flex-shrink: 0;
+}
+
+.sidebar.collapsed .sidebarHeader {
+  justify-content: center;
+  padding: 0;
+}
+
+.logoWrapper {
+  display: flex;
+  align-items: center;
+  padding: 6px;
+  border-radius: 8px;
+  transition: all var(--duration) var(--ease);
+}
+
+:global(.dark) .logoWrapper {
+  background: #ffffff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.logoImage { object-fit: contain; }
+
+.collapseBtn, .expandBtn {
+  width: 28px; height: 28px;
+  border-radius: 6px;
+  background: #fff;
+  border: 1px solid var(--sidebar-border);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  transition: all 0.2s ease;
+}
+
+:global(.dark) .collapseBtn,
+:global(.dark) .expandBtn {
+  background: var(--sidebar-accent);
+  border-color: var(--sidebar-border);
+  color: var(--text-primary);
+}
+
+.collapseBtn:hover, .expandBtn:hover {
+  background: var(--accent-light);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+:global(.dark) .collapseBtn:hover,
+:global(.dark) .expandBtn:hover {
+  background: var(--accent);
+  color: #1c1c1c;
+}
+
+.collapseBtnCollapsed { display: none !important; }
+.expandBtn { display: none; }
+
+.sidebar.collapsed .expandBtn {
+  display: flex;
+  position: absolute;
+}
+
+.sidebar.collapsed .collapseBtn,
+.sidebar.collapsed .logoWrapper { display: none; }
+
+.navSection { padding: 20px 24px 8px; }
+
+.navSectionLabel {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  transition: opacity 0.2s;
+}
+
+.sidebar.collapsed .navSectionLabel { opacity: 0; }
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 10px 12px;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: visible;
+}
+
+.nav::-webkit-scrollbar { width: 4px; }
+.nav::-webkit-scrollbar-thumb { background: transparent; border-radius: 10px; }
+.nav:hover::-webkit-scrollbar-thumb { background: #e2e8f0; }
+
+.navItemWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  color: var(--foreground);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  width: 100%;
+  cursor: pointer;
+  background-color: transparent;
+  border: 1px solid transparent;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important;
+}
+
+.navItem:hover { background: var(--hover-bg); color: var(--text-primary); }
+
+.navItemActive {
+  background-color: var(--sidebar-accent);
+  color: var(--sidebar-accent-foreground);
+  font-weight: 600;
+  border-color: transparent;
+}
+
+:global(.dark) .navItemActive {
+  background-color: #ffffff;
+  color: #000000;
+  border-color: #ffffff;
+}
+
+:global(.dark) .navItemActive .navIcon {
+  color: #000000;
+  transition: color 0.3s ease !important;
+}
+
+.navIcon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.navLabel { white-space: nowrap; flex: 1; text-align: left; }
+
+.navBadge {
+  background: #f43f5e;
+  color: white;
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-weight: 700;
+}
+
+.sidebar.collapsed .navItem {
+  justify-content: center;
+  padding: 12px 0;
+}
+
+.navItemLogout { color: #ef4444; margin-top: 8px; }
+.navItemLogout:hover { background: #fef2f2 !important; color: #b91c1c !important; }
+
+.userSection { padding: 12px; }
+
+.userCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--sidebar-accent);
+  border: 1px solid var(--sidebar-border);
+  transition: all var(--duration) var(--ease);
+}
+
+.sidebar.collapsed .userCard {
+  background: transparent;
+  border-color: transparent;
+  justify-content: center;
+  padding: 12px 0;
+}
+
+.userAvatar {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  color: white;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.userInfo { display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+
+.userName {
+  font-size: 13px; font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap; text-overflow: ellipsis; overflow: hidden;
+}
+
+.userRole { font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+
+.sidebarFooter { padding: 0 12px 20px; }
+
+/* â”€â”€ MAIN */
+.main {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  min-width: 0;
+  transition: margin-left var(--duration) var(--ease);
+  display: flex;
+  flex-direction: column;
+}
+
+.mainCollapsed { margin-left: var(--sidebar-w-collapsed); }
+.mainMobile { margin-left: 0 !important; }
+
+/* â”€â”€ TOPBAR */
+.topbar {
+  height: 64px;
+  background: var(--background);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 12px;
+
+  /* Fixed agar tidak ikut scroll */
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: var(--topbar-left, var(--sidebar-w));
+  z-index: 40;
+  transition: left var(--duration) var(--ease);
+
+  overflow: visible;
+}
+
+/* Kiri topbar */
+.topbarLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.topbarTitle {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Hamburger */
+.hamburger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px; height: 36px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--foreground);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: 0.2s ease;
+}
+
+.hamburger:hover { background: var(--accent); }
+
+/* â”€â”€ CONTENT */
+/* Beri padding-top agar konten tidak tertutup topbar yang fixed */
+.content {
+  padding: 24px;
+  padding-top: calc(64px + 24px);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 1024px) {
+  .content { padding: 20px; padding-top: calc(64px + 20px); }
+}
+
+@media (max-width: 768px) {
+  .topbar { padding: 0 16px; height: 56px; left: 0; }
+  .content { padding: 16px; padding-top: calc(56px + 16px); }
+}
+
+@media (max-width: 480px) {
+  .content { padding: 12px; padding-top: calc(56px + 12px); }
+}
+
+/* â”€â”€ Breadcrumb â”€â”€ */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+/* "Data Surat" â€” muted & clickable saat ada subtitle */
+.breadcrumbParent {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: color 0.15s ease;
+}
+.breadcrumbParent:hover { color: var(--text-primary); }
+
+/* "â€º" separator */
+.breadcrumbSep {
+  color: var(--text-muted);
+  opacity: 0.45;
+  flex-shrink: 0;
+}
+
+/* Nama surat â€” bold & primary */
+.breadcrumbSub {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  animation: breadcrumbIn 0.2s ease both;
+}
+
+@keyframes breadcrumbIn {
+  from { opacity: 0; transform: translateX(-4px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@media (max-width: 480px) {
+  .breadcrumbSub { max-width: 130px; }
+}
+```
+
+
+### FILE: src\app\layout.tsx
+```
+import type { Metadata } from "next"
+import { Figtree } from "next/font/google"
+import "./globals.css"
+import { Toaster } from "sonner"
+import { ThemeProvider } from "next-themes"
+
+const figtree = Figtree({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800"],
+  style: ["normal", "italic"],
+  variable: "--font-figtree",
+})
+
+export const metadata: Metadata = {
+  title: "Sistem Surat",
+  description: "Sistem Manajemen Surat",
+}
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="id" suppressHydrationWarning>
+      <body className={`${figtree.className} ${figtree.variable}`}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+        >
+          {children}
+          <Toaster
+            position="bottom-right"
+            richColors
+            toastOptions={{
+              style: {
+                fontFamily: "var(--font-figtree), sans-serif",
+              },
+            }}
+          />
+        </ThemeProvider>
+      </body>
+    </html>
+  )
+}
+```
+
+
+### FILE: src\app\page.tsx
+```
+import {redirect} from "next/navigation";
+
+export default function Home() {
+  redirect("/auth/login")
+}
+```
+
+
+### FILE: src\app\(auth)\login\login.module.css
+```
+/* ================================
+   LOGIN PAGE - CSS MODULE
+   ================================ */
+
+.root {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-figtree), sans-serif;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ================================
+   BACKGROUND
+   ================================ */
+
+.bgImage {
+  position: fixed;
+  inset: 0;
+  background-image: url('/bg-image.jpg');
+  background-size: cover;
+  background-position: center;
+  filter: blur(4px) brightness(0.5);
+  transform: scale(1.08);
+  z-index: 0;
+}
+
+
+/* ================================
+   CARD WRAPPER
+   ================================ */
+
+.cardWrapper {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 420px;
+  padding: 0 24px;
+  animation: cardEnter 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes cardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ================================
+   CARD
+   ================================ */
+
+.card {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 40px 36px;
+  box-shadow:
+    0 24px 48px rgba(0, 0, 0, 0.35),
+    0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* ================================
+   CARD HEADER
+   ================================ */
+
+.cardHeader {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.logo {
+  margin: 0 auto 20px;
+  display: block;
+  object-fit: contain;
+}
+
+.cardTitle {
+  font-size: 22px;
+  font-weight: 700;
+  color: #111827;
+  letter-spacing: -0.3px;
+  margin: 0 0 6px 0;
+}
+
+.cardSubtitle {
+  font-size: 13.5px;
+  color: #6b7280;
+  font-weight: 400;
+  margin: 0;
+}
+
+.divider {
+  height: 1px;
+  background: #f3f4f6;
+  margin-bottom: 28px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fieldLabel {
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.inputIcon {
+  position: absolute;
+  left: 13px;
+  color: #9ca3af;
+  pointer-events: none;
+  transition: color 0.2s;
+}
+
+.inputWrapper:focus-within .inputIcon {
+  color: #19083e;
+}
+
+.fieldInput {
+  width: 100%;
+  padding: 11px 13px 11px 40px;
+  background: #f9fafb;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  color: #111827;
+  font-family: var(--font-figtree), sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.fieldInput::placeholder {
+  color: #9ca3af;
+}
+
+.fieldInput:focus {
+  background: #ffffff;
+  border-color: #170b67;
+  box-shadow: 0 0 0 3px rgba(115, 101, 216, 0.471);
+}
+
+.togglePassword {
+  position: absolute;
+  right: 13px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #9ca3af;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s;
+}
+
+.togglePassword:hover {
+  color: #6b7280;
+}
+
+.submitBtn {
+  width: 100%;
+  padding: 12px;
+  background:#170b67;
+  border: none;
+  border-radius: 10px;
+  color: #ffffff;
+  font-family: var(--font-figtree), sans-serif;
+  font-size: 14.5px;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.2px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.submitBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(99, 74, 168, 0.45);
+}
+
+.submitBtn:active {
+  transform: translateY(0);
+}
+
+.submitBtn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.spinner {
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.cardFooter {
+  text-align: center;
+  margin-top: 24px;
+  font-size: 12px;
+  color: #9ca3af;
+  letter-spacing: 0.2px;
+  flex-direction: column;
+  display:flex;
+}
+```
+
+
+### FILE: src\app\(auth)\login\page.tsx
+```
+"use client"
+
+import { authClient } from "@/infrastructure/auth/auth-client"
+import { getRouteByRole } from "@/lib/routes"
+import { Eye, EyeOff, Lock, User } from "lucide-react"
+import Image from "next/image"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
+import { toast } from "sonner"
+import styles from "./login.module.css"
+import { useEffect } from "react"
+
+export default function LoginPage() {
+  const router = useRouter()
+  const [username, setUsername] = useState("")
+  const [password, setPassword] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (localStorage.getItem("logout_notif") === "true") {
+        localStorage.removeItem("logout_notif")
+        toast.success("Berhasil keluar")
+      }
+    }, 300) // delay 300ms agar Toaster sudah siap
+
+    return () => clearTimeout(timer)
+  }, [])
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    setLoading(true)
+
+    const toastId = toast.loading("Sedang masuk...")
+
+    const { data, error } = await authClient.signIn.username({
+      username,
+      password,
+    })
+
+    if (error) {
+      toast.error("Login gagal", {
+        id: toastId,
+        description: error.message ?? "Username atau password salah.",
+      })
+      setLoading(false)
+      return
+    }
+
+    toast.success("Login berhasil!", {
+      id: toastId,
+      description: `Selamat datang, ${data?.user?.name}`,
+    })
+
+    const role = (data?.user as any)?.role
+    router.push(getRouteByRole(role))
+  }
+
+  return (
+    <div className={styles.root}>
+
+      <div className={styles.bgImage} />
+      <div className={styles.bgOverlay} />
+
+      <div className={styles.cardWrapper}>
+        <div className={styles.card}>
+
+          <div className={styles.cardHeader}>
+            <Image
+              src="/sipef_logo.svg"
+              alt="Logo SIPEF"
+              width={80}
+              height={80}
+              className={styles.logo}
+              priority
+            />
+            <h1 className={styles.cardTitle}>Sistem Registrasi Surat</h1>
+            <p className={styles.cardSubtitle}>Masukkan username dan password anda</p>
+          </div>
+
+          <div className={styles.divider} />
+
+          <form className={styles.form} onSubmit={handleSubmit}>
+
+            <div className={styles.field}>
+              <label className={styles.fieldLabel}>Username</label>
+              <div className={styles.inputWrapper}>
+                <User className={styles.inputIcon} size={16} />
+                <input
+                  className={styles.fieldInput}
+                  type="text"
+                  placeholder="Masukkan username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
+                  autoComplete="username"
+                />
+              </div>
+            </div>
+
+            <div className={styles.field}>
+              <label className={styles.fieldLabel}>Password</label>
+              <div className={styles.inputWrapper}>
+                <Lock className={styles.inputIcon} size={16} />
+                <input
+                  className={styles.fieldInput}
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Masukkan password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  autoComplete="current-password"
+                />
+                <button
+                  type="button"
+                  className={styles.togglePassword}
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+            </div>
+
+            {!loading && (
+              <button type="submit" className={styles.submitBtn}>
+                Masuk
+              </button>
+            )}
+
+          </form>
+
+          <div className={styles.cardFooter}>
+            <span>PT Tolan Tiga Indonesia</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+```
+
+
+### FILE: src\app\(dashboard)\pkl\layout.tsx
+```
+"use client"
+
+import { getMenuItems } from "@/app/_components/surat/menu-items"
+import type { Role } from "@/app/_components/surat/shared"
+import styles from "@/app/layout.module.css"
+import {
+    AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+    AlertDialogDescription, AlertDialogFooter, AlertDialogHeader,
+    AlertDialogTitle, AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { ThemeToggle } from "@/components/ui/theme-toogle"
+import TopbarFilter from "@/components/ui/topbar-filter"
+import { authClient } from "@/infrastructure/auth/auth-client"
+import { routes } from "@/lib/routes"
+import {
+    ArrowLeftCircle,
+    ArrowRightCircle,
+    ChevronRight,
+    LogOut, Menu,
+    Plus,
+    X,
+} from "lucide-react"
+import Image from "next/image"
+import Link from "next/link"
+import { usePathname, useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
+
+const ICON_SIZE = 18
+
+export default function PKLLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname()
+  const router   = useRouter()
+
+  const [collapsed,   setCollapsed]   = useState(false)
+  const [isMounted,   setIsMounted]   = useState(false)
+  const [mobileOpen,  setMobileOpen]  = useState(false)
+  const [isMobile,    setIsMobile]    = useState(false)
+  const [subtitle,    setSubtitle]    = useState<string | null>(null)
+  const [subsubtitle, setSubsubtitle] = useState<string | null>(null)
+  const [role,        setRole]        = useState<Role>("PKL")
+  const [userData,    setUserData]    = useState({
+    name: "Loading...", role: "PKL", initials: "??",
+  })
+  const [filters, setFilters] = useState<{
+    date: string | null
+    departments: string[]
+  }>({ date: null, departments: [] })
+
+  const menuItems = getMenuItems(role)
+
+  useEffect(() => {
+    const savedState = localStorage.getItem("sidebar_collapsed")
+    if (savedState !== null && window.innerWidth >= 768) {
+      setCollapsed(JSON.parse(savedState))
+    }
+    setIsMounted(true)
+  }, [])
+
+  useEffect(() => {
+    if (isMounted && !isMobile) {
+      localStorage.setItem("sidebar_collapsed", JSON.stringify(collapsed))
+    }
+  }, [collapsed, isMounted, isMobile])
+
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent("filter:change", { detail: filters }))
+  }, [filters])
+
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 768
+      setIsMobile(mobile)
+      if (mobile) { setCollapsed(false); setMobileOpen(false) }
+    }
+    checkMobile()
+    window.addEventListener("resize", checkMobile)
+    return () => window.removeEventListener("resize", checkMobile)
+  }, [])
+
+  useEffect(() => {
+    setMobileOpen(false)
+    setSubtitle(null)
+    setSubsubtitle(null)
+  }, [pathname])
+
+  useEffect(() => {
+    if (!mobileOpen) return
+    const handler = (e: MouseEvent) => {
+      const sidebar = document.getElementById("sidebar")
+      if (sidebar && !sidebar.contains(e.target as Node)) setMobileOpen(false)
+    }
+    document.addEventListener("mousedown", handler)
+    return () => document.removeEventListener("mousedown", handler)
+  }, [mobileOpen])
+
+  useEffect(() => {
+    const handler = (e: Event) => setSubtitle((e as CustomEvent<string | null>).detail)
+    window.addEventListener("breadcrumb:sub", handler)
+    return () => window.removeEventListener("breadcrumb:sub", handler)
+  }, [])
+
+  useEffect(() => {
+    const handler = (e: Event) => setSubsubtitle((e as CustomEvent<string | null>).detail)
+    window.addEventListener("breadcrumb:subsub", handler)
+    return () => window.removeEventListener("breadcrumb:subsub", handler)
+  }, [])
+
+  useEffect(() => {
+    async function fetchUser() {
+      const { data } = await authClient.getSession()
+      if (data?.user) {
+        const fullName = data.user.name || "User"
+        const initials = fullName
+          .split(" ")
+          .map((n: string) => n[0])
+          .join("")
+          .toUpperCase()
+          .substring(0, 2)
+        const userRole = ((data.user as any).role as Role) ?? "PKL"
+        setRole(userRole)
+        setUserData({
+          name: fullName,
+          role: userRole,
+          initials,
+        })
+      }
+    }
+    fetchUser()
+  }, [])
+
+  async function handleLogout() {
+    const { data: session } = await authClient.getSession()
+    if (session?.session?.token)
+      await authClient.revokeSession({ token: session.session.token })
+    localStorage.setItem("logout_notif", "true")
+    await authClient.signOut({
+      fetchOptions: { onSuccess: () => { window.location.href = routes.login } },
+    })
+  }
+
+  if (!isMounted) return <div className="min-h-screen bg-background" />
+
+  const currentPage = (() => {
+    const matched = menuItems.find((item) => item.href === pathname)
+    if (matched) return matched.label
+    // Dinamis berdasarkan basePath
+    if (pathname.includes("/view/")) return "Data Surat"
+    if (pathname.includes("/edit/")) return "Data Surat"
+    return "Data Surat"
+  })()
+
+  const topbarLeft = isMobile
+    ? "0px"
+    : collapsed
+      ? "var(--sidebar-w-collapsed)"
+      : "var(--sidebar-w)"
+
+  const sidebarContent = (
+    <>
+      <div className={styles.sidebarHeader}>
+        <div className={styles.logoWrapper}>
+          <Image
+            src="/sipef_logo.svg"
+            alt="Logo SIPEF"
+            width={32}
+            height={32}
+            className={styles.logoImage}
+            priority
+          />
+        </div>
+        {isMobile ? (
+          <button className={styles.collapseBtn} onClick={() => setMobileOpen(false)}>
+            <X size={14} />
+          </button>
+        ) : (
+          <>
+            <button
+              className={`${styles.collapseBtn} ${collapsed ? styles.collapseBtnCollapsed : ""}`}
+              onClick={() => setCollapsed(true)}
+            >
+              <ArrowLeftCircle size={14} />
+            </button>
+            <button className={styles.expandBtn} onClick={() => setCollapsed(false)}>
+              <ArrowRightCircle size={14} />
+            </button>
+          </>
+        )}
+      </div>
+
+      <div className={styles.navSection}>
+        <span className={styles.navSectionLabel}>Menu</span>
+      </div>
+
+      <nav className={styles.nav}>
+        {menuItems.map((item) => {
+          const Icon = item.icon
+          const isActive = pathname === item.href
+          return (
+            <div key={item.href} className={styles.navItemWrapper}>
+              <Link
+                href={item.href}
+                className={`${styles.navItem} ${isActive ? styles.navItemActive : ""}`}
+              >
+                <span className={styles.navIcon}>
+                  <Icon size={ICON_SIZE} strokeWidth={isActive ? 2.5 : 1.8} />
+                </span>
+                {(!collapsed || isMobile) && (
+                  <>
+                    <span className={styles.navLabel}>{item.label}</span>
+                    {item.badge && <span className={styles.navBadge}>{item.badge}</span>}
+                  </>
+                )}
+              </Link>
+            </div>
+          )
+        })}
+      </nav>
+
+      <div style={{ padding: "0 12px" }}>
+        <ThemeToggle collapsed={!isMobile && collapsed} />
+      </div>
+
+      <div className={styles.userSection}>
+        <div className={styles.userCard}>
+          <div className={styles.userAvatar}>{userData.initials}</div>
+          {(!collapsed || isMobile) && (
+            <div className={styles.userInfo}>
+              <div className={styles.userName}>{userData.name}</div>
+              <div className={styles.userRole}>{userData.role}</div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className={styles.sidebarFooter}>
+        <div className={styles.navItemWrapper}>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <button className={`${styles.navItem} ${styles.navItemLogout}`}>
+                <span className={styles.navIcon}><LogOut size={ICON_SIZE} /></span>
+                {(!collapsed || isMobile) && <span className={styles.navLabel}>Keluar</span>}
+              </button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Keluar dari aplikasi?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Sesi Anda akan diakhiri dan Anda akan diarahkan ke halaman login.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Batal</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleLogout}
+                  className="bg-red-500 hover:bg-red-600 text-white"
+                >
+                  Keluar
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
+      </div>
+    </>
+  )
+
+  return (
+    <div className={styles.root}>
+      {isMobile && mobileOpen && (
+        <div className={styles.backdrop} onClick={() => setMobileOpen(false)} />
+      )}
+
+      <aside
+        id="sidebar"
+        className={[
+          styles.sidebar,
+          !isMobile && collapsed ? styles.collapsed : "",
+          isMobile ? styles.mobileSidebar : "",
+          isMobile && mobileOpen ? styles.mobileOpen : "",
+        ].join(" ")}
+      >
+        {sidebarContent}
+      </aside>
+
+      <main
+        className={`
+          ${styles.main}
+          ${!isMobile && collapsed ? styles.mainCollapsed : ""}
+          ${isMobile ? styles.mainMobile : ""}
+        `}
+        style={{ "--topbar-left": topbarLeft } as React.CSSProperties}
+      >
+        <div className={styles.topbar}>
+          <div className={styles.topbarLeft}>
+            {isMobile && (
+              <button
+                className={styles.hamburger}
+                onClick={() => setMobileOpen(true)}
+                aria-label="Buka menu"
+              >
+                <Menu size={20} />
+              </button>
+            )}
+
+            <nav className={styles.breadcrumb} aria-label="breadcrumb">
+              {subtitle && subsubtitle ? (
+                <>
+                  <button
+                    className={styles.breadcrumbParent}
+                    onClick={() => router.push(`/${role.toLowerCase()}/data-surat`)}
+                  >
+                    {currentPage}
+                  </button>
+                  <ChevronRight size={14} className={styles.breadcrumbSep} />
+                  <button
+                    className={styles.breadcrumbParent}
+                    onClick={() => router.back()}
+                  >
+                    {subtitle}
+                  </button>
+                  <ChevronRight size={14} className={styles.breadcrumbSep} />
+                  <span className={styles.breadcrumbSub}>{subsubtitle}</span>
+                </>
+              ) : subtitle ? (
+                <>
+                  <button
+                    className={styles.breadcrumbParent}
+                    onClick={() => router.push(`/${role.toLowerCase()}/data-surat`)}
+                  >
+                    {currentPage}
+                  </button>
+                  <ChevronRight size={14} className={styles.breadcrumbSep} />
+                  <span className={styles.breadcrumbSub}>{subtitle}</span>
+                </>
+              ) : (
+                <span className={styles.topbarTitle}>{currentPage}</span>
+              )}
+            </nav>
+          </div>
+
+          {pathname === `/${role.toLowerCase()}/data-surat` && (
+          <>
+              <button
+                onClick={() => router.push(`/${role.toLowerCase()}/add`)}
+                className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1.5 px-3 h-8.5 rounded-lg text-[13px] font-semibold transition-colors shrink-0"
+              >
+                <Plus size={15} />
+                {!isMobile && "Tambah"}
+              </button>
+
+              <TopbarFilter onFilterChange={setFilters} />
+            </>
+          )}
+
+        </div>
+
+        <div className={styles.content}>{children}</div>
+      </main>
+    </div>
+  )
+}
+```
+
+
+### FILE: src\app\(dashboard)\pkl\add\page.tsx
+```
+// src/app/pkl/add/page.tsx
+export { default } from "@/app/staff/add/page"
+```
+
+
+### FILE: src\app\(dashboard)\pkl\data-surat\page.tsx
+```
+// src/app/pkl/data-surat/page.tsx
+"use client"
+import DataSuratPage from "@/app/_components/surat/data-surat"
+
+export default function Page() {
+  return (
+    <DataSuratPage
+      role="PKL"
+      basePath="/pkl/data-surat"
+      printPath="/pkl/cetak"
+    />
+  )
+}
+```
+
+
+### FILE: src\app\(dashboard)\pkl\data-surat\edit\[dept]\[id]\page.tsx
+```
+```
+
+
+### FILE: src\app\(dashboard)\pkl\data-surat\view\[dept]\[id]\page.tsx
+```
+```
+
+
+### FILE: src\app\(dashboard)\staff\layout.tsx
+```
+"use client"
+
+import { authClient } from "@/infrastructure/auth/auth-client"
+import { routes } from "@/lib/routes"
+import {
+  LogOut, Menu, X, Plus, ChevronRight,
+  ArrowRightCircle, ArrowLeftCircle, Printer
+} from "lucide-react"
+import Image from "next/image"
+import Link from "next/link"
+import { usePathname, useRouter } from "next/navigation"
+import { useState, useEffect } from "react"
+import styles from "@/app/layout.module.css"
+import TopbarFilter from "@/components/ui/topbar-filter"
+import { ThemeToggle } from "@/components/ui/theme-toogle"
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader,
+  AlertDialogTitle, AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { getMenuItems } from "@/app/_components/surat/menu-items"
+import type { Role } from "@/app/_components/surat/shared"
+
+const ICON_SIZE = 18
+
+export default function StaffLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname()
+  const router   = useRouter()
+
+  const [collapsed,   setCollapsed]   = useState(false)
+  const [isMounted,   setIsMounted]   = useState(false)
+  const [mobileOpen,  setMobileOpen]  = useState(false)
+  const [isMobile,    setIsMobile]    = useState(false)
+  const [subtitle,    setSubtitle]    = useState<string | null>(null)
+  const [subsubtitle, setSubsubtitle] = useState<string | null>(null)
+  const [role,        setRole]        = useState<Role>("STAFF")
+  const [userData,    setUserData]    = useState({
+    name: "Loading...", role: "Staff", initials: "??",
+  })
+  const [filters, setFilters] = useState<{
+    date: string | null
+    departments: string[]
+  }>({ date: null, departments: [] })
+
+  const menuItems = getMenuItems(role)
+
+  const [selection, setSelection] = useState<{
+    count: number
+    onPrint: () => void
+    onClear: () => void
+  } | null>(null)
+
+  useEffect(() => {
+    const savedState = localStorage.getItem("sidebar_collapsed")
+    if (savedState !== null && window.innerWidth >= 768) {
+      setCollapsed(JSON.parse(savedState))
+    }
+    setIsMounted(true)
+  }, [])
+
+  useEffect(() => {
+    if (isMounted && !isMobile) {
+      localStorage.setItem("sidebar_collapsed", JSON.stringify(collapsed))
+    }
+  }, [collapsed, isMounted, isMobile])
+
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent("filter:change", { detail: filters }))
+  }, [filters])
+
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 768
+      setIsMobile(mobile)
+      if (mobile) { setCollapsed(false); setMobileOpen(false) }
+    }
+    checkMobile()
+    window.addEventListener("resize", checkMobile)
+    return () => window.removeEventListener("resize", checkMobile)
+  }, [])
+
+  useEffect(() => {
+    setMobileOpen(false)
+    setSubtitle(null)
+    setSubsubtitle(null)
+  }, [pathname])
+
+  useEffect(() => {
+    if (!mobileOpen) return
+    const handler = (e: MouseEvent) => {
+      const sidebar = document.getElementById("sidebar")
+      if (sidebar && !sidebar.contains(e.target as Node)) setMobileOpen(false)
+    }
+    document.addEventListener("mousedown", handler)
+    return () => document.removeEventListener("mousedown", handler)
+  }, [mobileOpen])
+
+  useEffect(() => {
+    const handler = (e: Event) => setSubtitle((e as CustomEvent<string | null>).detail)
+    window.addEventListener("breadcrumb:sub", handler)
+    return () => window.removeEventListener("breadcrumb:sub", handler)
+  }, [])
+
+  useEffect(() => {
+    const handler = (e: Event) => setSubsubtitle((e as CustomEvent<string | null>).detail)
+    window.addEventListener("breadcrumb:subsub", handler)
+    return () => window.removeEventListener("breadcrumb:subsub", handler)
+  }, [])
+
+  useEffect(() => {
+    async function fetchUser() {
+      const { data } = await authClient.getSession()
+      if (data?.user) {
+        const fullName = data.user.name || "User"
+        const initials = fullName
+          .split(" ")
+          .map((n: string) => n[0])
+          .join("")
+          .toUpperCase()
+          .substring(0, 2)
+        const userRole = ((data.user as any).role as Role) ?? "STAFF"
+        setRole(userRole)
+        setUserData({
+          name: fullName,
+          role: userRole,
+          initials,
+        })
+      }
+    }
+    fetchUser()
+  }, [])
+
+  useEffect(() => {
+    const handler = (e: Event) => setSelection((e as CustomEvent).detail)
+    window.addEventListener("selection:change", handler)
+    return () => window.removeEventListener("selection:change", handler)
+  }, [])
+
+  async function handleLogout() {
+    const { data: session } = await authClient.getSession()
+    if (session?.session?.token)
+      await authClient.revokeSession({ token: session.session.token })
+    localStorage.setItem("logout_notif", "true")
+    await authClient.signOut({
+      fetchOptions: { onSuccess: () => { window.location.href = routes.login } },
+    })
+  }
+
+  if (!isMounted) return <div className="min-h-screen bg-background" />
+
+  const currentPage = (() => {
+    const matched = menuItems.find((item) => item.href === pathname)
+    if (matched) return matched.label
+    // Dinamis berdasarkan basePath
+    if (pathname.includes("/view/")) return "Data Surat"
+    if (pathname.includes("/edit/")) return "Data Surat"
+    return "Data Surat"
+  })()
+
+  const topbarLeft = isMobile
+    ? "0px"
+    : collapsed
+      ? "var(--sidebar-w-collapsed)"
+      : "var(--sidebar-w)"
+
+  const sidebarContent = (
+    <>
+      <div className={styles.sidebarHeader}>
+        <div className={styles.logoWrapper}>
+          <Image
+            src="/sipef_logo.svg"
+            alt="Logo SIPEF"
+            width={32}
+            height={32}
+            className={styles.logoImage}
+            priority
+          />
+        </div>
+        {isMobile ? (
+          <button className={styles.collapseBtn} onClick={() => setMobileOpen(false)}>
+            <X size={14} />
+          </button>
+        ) : (
+          <>
+            <button
+              className={`${styles.collapseBtn} ${collapsed ? styles.collapseBtnCollapsed : ""}`}
+              onClick={() => setCollapsed(true)}
+            >
+              <ArrowLeftCircle size={14} />
+            </button>
+            <button className={styles.expandBtn} onClick={() => setCollapsed(false)}>
+              <ArrowRightCircle size={14} />
+            </button>
+          </>
+        )}
+      </div>
+
+      <div className={styles.navSection}>
+        <span className={styles.navSectionLabel}>Menu</span>
+      </div>
+
+      <nav className={styles.nav}>
+        {menuItems.map((item) => {
+          const Icon = item.icon
+          const isActive = pathname === item.href
+          return (
+            <div key={item.href} className={styles.navItemWrapper}>
+              <Link
+                href={item.href}
+                className={`${styles.navItem} ${isActive ? styles.navItemActive : ""}`}
+              >
+                <span className={styles.navIcon}>
+                  <Icon size={ICON_SIZE} strokeWidth={isActive ? 2.5 : 1.8} />
+                </span>
+                {(!collapsed || isMobile) && (
+                  <>
+                    <span className={styles.navLabel}>{item.label}</span>
+                    {item.badge && <span className={styles.navBadge}>{item.badge}</span>}
+                  </>
+                )}
+              </Link>
+            </div>
+          )
+        })}
+      </nav>
+
+      <div style={{ padding: "0 12px" }}>
+        <ThemeToggle collapsed={!isMobile && collapsed} />
+      </div>
+
+      <div className={styles.userSection}>
+        <div className={styles.userCard}>
+          <div className={styles.userAvatar}>{userData.initials}</div>
+          {(!collapsed || isMobile) && (
+            <div className={styles.userInfo}>
+              <div className={styles.userName}>{userData.name}</div>
+              <div className={styles.userRole}>{userData.role}</div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className={styles.sidebarFooter}>
+        <div className={styles.navItemWrapper}>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <button className={`${styles.navItem} ${styles.navItemLogout}`}>
+                <span className={styles.navIcon}><LogOut size={ICON_SIZE} /></span>
+                {(!collapsed || isMobile) && <span className={styles.navLabel}>Keluar</span>}
+              </button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Keluar dari aplikasi?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Sesi Anda akan diakhiri dan Anda akan diarahkan ke halaman login.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Batal</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleLogout}
+                  className="bg-red-500 hover:bg-red-600 text-white"
+                >
+                  Keluar
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
+      </div>
+    </>
+  )
+
+  return (
+    <div className={styles.root}>
+      {isMobile && mobileOpen && (
+        <div className={styles.backdrop} onClick={() => setMobileOpen(false)} />
+      )}
+
+      <aside
+        id="sidebar"
+        className={[
+          styles.sidebar,
+          !isMobile && collapsed ? styles.collapsed : "",
+          isMobile ? styles.mobileSidebar : "",
+          isMobile && mobileOpen ? styles.mobileOpen : "",
+        ].join(" ")}
+      >
+        {sidebarContent}
+      </aside>
+
+      <main
+        className={`
+          ${styles.main}
+          ${!isMobile && collapsed ? styles.mainCollapsed : ""}
+          ${isMobile ? styles.mainMobile : ""}
+        `}
+        style={{ "--topbar-left": topbarLeft } as React.CSSProperties}
+      >
+        <div className={styles.topbar}>
+          <div className={styles.topbarLeft}>
+            {isMobile && (
+              <button
+                className={styles.hamburger}
+                onClick={() => setMobileOpen(true)}
+                aria-label="Buka menu"
+              >
+                <Menu size={20} />
+              </button>
+            )}
+
+            <nav className={styles.breadcrumb} aria-label="breadcrumb">
+              {subtitle && subsubtitle ? (
+                <>
+                  <button
+                    className={styles.breadcrumbParent}
+                    onClick={() => router.push(`/${role.toLowerCase()}/data-surat`)}
+                  >
+                    {currentPage}
+                  </button>
+                  <ChevronRight size={14} className={styles.breadcrumbSep} />
+                  <button
+                    className={styles.breadcrumbParent}
+                    onClick={() => router.back()}
+                  >
+                    {subtitle}
+                  </button>
+                  <ChevronRight size={14} className={styles.breadcrumbSep} />
+                  <span className={styles.breadcrumbSub}>{subsubtitle}</span>
+                </>
+              ) : subtitle ? (
+                <>
+                  <button
+                    className={styles.breadcrumbParent}
+                    onClick={() => router.push(`/${role.toLowerCase()}/data-surat`)}
+                  >
+                    {currentPage}
+                  </button>
+                  <ChevronRight size={14} className={styles.breadcrumbSep} />
+                  <span className={styles.breadcrumbSub}>{subtitle}</span>
+                </>
+              ) : (
+                <span className={styles.topbarTitle}>{currentPage}</span>
+              )}
+            </nav>
+          </div>
+
+          {selection ? (
+            <div className="flex items-center gap-3">
+              <span className="text-[13px] font-medium text-slate-500 dark:text-slate-400">
+                {selection.count} item dipilih
+              </span>
+              <div className="w-px h-4 bg-slate-200 dark:bg-slate-700" />
+              <button
+                onClick={selection.onPrint}
+                className="flex items-center gap-1.5 px-3 h-8 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[13px] font-semibold transition-colors shrink-0">
+                <Printer size={14} />
+                {!isMobile && "Cetak"}
+              </button>
+              <button
+                onClick={selection.onClear}
+                className="flex items-center gap-1.5 px-3 h-8 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 text-[13px] font-medium transition-colors shrink-0">
+                <X size={14} />
+                {!isMobile && "Hapus"}
+              </button>
+            </div>
+          ) : pathname === `/${role.toLowerCase()}/data-surat` ? (
+            <>
+              <button
+                onClick={() => router.push(`/${role.toLowerCase()}/add`)}
+                className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-1.5 px-3 h-8.5 rounded-lg text-[13px] font-semibold transition-colors shrink-0">
+                <Plus size={15} />
+                {!isMobile && "Tambah"}
+              </button>
+              <TopbarFilter onFilterChange={setFilters} />
+            </>
+          ) : null}
+
+        </div>
+
+        <div className={styles.content}>{children}</div>
+      </main>
+    </div>
+  )
+}
+```
+
+
+### FILE: src\app\(dashboard)\staff\add\page.tsx
+```
+"use client"
+import TambahSuratPage from "@/app/_components/surat/tambah-surat"
+export default function Page() {
+  return <TambahSuratPage role="STAFF" basePath="/staff/data-surat" />
+}
+```
+
+
+### FILE: src\app\(dashboard)\staff\cetak\page.tsx
+```
+"use client"
+
+import { useEffect, useRef, useState } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
+import { format } from "date-fns"
+import { id } from "date-fns/locale"
+import { ArrowLeft, FileText, Loader2, Printer } from "lucide-react"
+
+interface DetailSurat {
+  id:           number
+  perihal:      string
+  noSurat:      string | null
+  lampiran:     string | null
+  tanggalSurat: string
+}
+
+interface RegisterSurat {
+  id:            number
+  nomor:         string
+  deptId:        string
+  tanggalTerima: string
+  asalSurat:     string
+  tujuan:        string
+  dept:          { shortName: string }
+  detailSurat:   DetailSurat[]
+}
+
+export default function CetakSuratPage() {
+  const searchParams            = useSearchParams()
+  const router                  = useRouter()
+  const printRef                = useRef<HTMLDivElement>(null)
+  const [data,    setData]      = useState<RegisterSurat[]>([])
+  const [loading, setLoading]   = useState(true)
+
+  const idsParam = searchParams.get("ids") ?? ""
+  const ids      = idsParam.split(",").filter(Boolean)
+
+  useEffect(() => {
+    if (ids.length === 0) { setLoading(false); return }
+    fetch(`/api/surat?ids=${idsParam}`)
+      .then(r => { if (!r.ok) throw new Error(); return r.json() })
+      .then(json => setData(Array.isArray(json) ? json : []))
+      .catch(() => setData([]))
+      .finally(() => setLoading(false))
+  }, [idsParam])
+
+  const totalRegister = data.length
+  const totalSurat    = data.reduce((sum, reg) => sum + reg.detailSurat.length, 0)
+
+  // â”€â”€ Loading â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  if (loading) return (
+    <div className="flex h-screen items-center justify-center gap-3">
+      <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
+      <span className="text-slate-500">Memuat data cetak...</span>
+    </div>
+  )
+
+  // â”€â”€ Empty â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  if (data.length === 0) return (
+    <div className="flex h-screen flex-col items-center justify-center gap-3">
+      <p className="text-slate-400">Tidak ada data untuk dicetak.</p>
+      <button
+        onClick={() => router.back()}
+        className="text-[13px] text-blue-600 hover:underline">
+        Kembali
+      </button>
+    </div>
+  )
+
+  return (
+    <>
+      {/* â”€â”€ Toolbar â”€â”€ */}
+      <div className="print:hidden sticky top-0 z-10
+        flex items-center justify-between gap-4
+        px-6 py-3 bg-white dark:bg-slate-950
+        border-b border-slate-200 dark:border-slate-800">
+
+        {/* Kiri */}
+        <div className="flex items-center gap-3">
+
+          <button
+            onClick={() => router.back()}
+            className="flex items-center gap-1.5 text-[13px]
+              text-slate-500 dark:text-slate-400
+              hover:text-slate-700 dark:hover:text-slate-200 transition-colors">
+            <ArrowLeft size={15} />
+            Kembali
+          </button>
+
+          <div className="w-px h-4 bg-slate-200 dark:bg-slate-700" />
+
+          <span className="text-[14px] font-semibold text-slate-700 dark:text-slate-300">
+            Cetak Surat
+          </span>
+
+          <div className="w-px h-4 bg-slate-200 dark:bg-slate-700" />
+
+          {/* Badge register */}
+          <div className="flex items-center gap-1.5
+            text-[12px] font-medium
+            text-blue-600 dark:text-blue-400
+            bg-blue-50 dark:bg-blue-900/30
+            border border-blue-200 dark:border-blue-800
+            rounded-full px-3 py-1">
+            <FileText size={13} />
+            {totalRegister} register
+          </div>
+
+          {/* Badge total surat */}
+          <div className="flex items-center gap-1.5
+            text-[12px] font-medium
+            text-slate-600 dark:text-slate-400
+            bg-slate-100 dark:bg-slate-800
+            border border-slate-200 dark:border-slate-700
+            rounded-full px-3 py-1">
+            {totalSurat} surat
+          </div>
+        </div>
+
+        {/* Kanan */}
+        <button
+          onClick={() => window.print()}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg
+            bg-blue-600 hover:bg-blue-700 active:bg-blue-800
+            text-white text-[13px] font-medium
+            transition-colors shadow-sm">
+          <Printer size={15} />
+          Cetak Sekarang
+        </button>
+      </div>
+
+      {/* â”€â”€ Konten cetak â”€â”€ */}
+      <div ref={printRef} className="p-6 md:p-10 space-y-8 print:p-0 print:space-y-6">
+        {data.map((reg) => (
+          <div key={reg.id}
+            className="rounded-xl border border-slate-200 dark:border-slate-800
+              overflow-hidden print:border print:border-slate-300
+              print:rounded-none print:break-inside-avoid">
+
+            {/* Header register */}
+            <div className="flex items-center justify-between px-5 py-3
+              bg-slate-50 dark:bg-slate-900
+              border-b border-slate-200 dark:border-slate-800
+              print:bg-slate-100">
+              <div className="flex items-center gap-3">
+                <span className="font-mono text-[13px] font-bold text-blue-600 dark:text-blue-400">
+                  {reg.nomor}
+                </span>
+                <span className="text-[11px] font-medium
+                  text-slate-500 dark:text-slate-400
+                  bg-slate-100 dark:bg-slate-800
+                  border border-slate-200 dark:border-slate-700
+                  rounded-full px-2.5 py-0.5
+                  print:bg-white print:border-slate-300">
+                  {reg.dept.shortName}
+                </span>
+              </div>
+              <span className="text-[12px] text-slate-400 dark:text-slate-500">
+                {format(new Date(reg.tanggalTerima), "dd MMMM yyyy", { locale: id })}
+              </span>
+            </div>
+
+            {/* Tabel detail */}
+            <table className="w-full border-collapse text-[13px]">
+              <thead>
+                <tr className="bg-white dark:bg-slate-950 border-b border-slate-100 dark:border-slate-800">
+                  <th className="text-left px-5 py-2.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest w-8">#</th>
+                  <th className="text-left px-5 py-2.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Perihal</th>
+                  <th className="text-left px-5 py-2.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest w-40">No. Surat</th>
+                  <th className="text-left px-5 py-2.5 text-[10px] font-bold text-slate-400 uppercase tracking-widest w-28">Lampiran</th>
+                </tr>
+              </thead>
+              <tbody>
+                {reg.detailSurat.map((detail: DetailSurat, idx: number) => (
+                  <tr key={detail.id}
+                    className={`
+                      ${idx % 2 === 0 ? "bg-white dark:bg-slate-950" : "bg-slate-50/50 dark:bg-slate-900/50"}
+                      ${idx < reg.detailSurat.length - 1 ? "border-b border-slate-100 dark:border-slate-800" : ""}
+                    `}>
+                    <td className="px-5 py-3 text-slate-400 text-[12px]">{idx + 1}</td>
+                    <td className="px-5 py-3 text-slate-700 dark:text-slate-300 font-medium leading-snug">
+                      {detail.perihal}
+                    </td>
+                    <td className="px-5 py-3 text-slate-500 dark:text-slate-400 font-mono text-[12px]">
+                      {detail.noSurat ?? "â€”"}
+                    </td>
+                    <td className="px-5 py-3 text-slate-500 dark:text-slate-400">
+                      {detail.lampiran ?? "â€”"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ))}
+
+        {/* Footer â€” hanya muncul saat print */}
+        <div className="hidden print:block text-center text-[11px] text-slate-400 pt-4 border-t border-slate-200">
+          Dicetak pada {format(new Date(), "dd MMMM yyyy, HH:mm", { locale: id })}
+        </div>
+      </div>
+    </>
+  )
+}
+```
+
+
+### FILE: src\app\(dashboard)\staff\data-surat\page.tsx
+```
+// src/app/staff/data-surat/page.tsx
+import { headers } from "next/headers"
+import { auth } from "@/infrastructure/auth/better-auth"
+import { redirect } from "next/navigation"
+import DataSuratPage from "@/app/_components/surat/data-surat"
+import { Role } from "@/app/_components/surat/shared"
+
+export default async function Page() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  })
+
+  if (!session) redirect("/login")
+
+  const role = (session.user as any).role as Role
+
+  return (
+    <DataSuratPage
+      role={role}
+      basePath="/staff/data-surat"
+      printPath="/staff/cetak"
+    />
+  )
+}
+```
+
+
+### FILE: src\app\(dashboard)\staff\data-surat\edit\[dept]\[id]\page.tsx
+```
+```
+
+
+### FILE: src\app\(dashboard)\staff\data-surat\view\[dept]\[id]\page.tsx
+```
+```
+
+
+### FILE: src\app\api\auth\[...all]\route.ts
+```
+```
+
+
+### FILE: src\app\api\dept\route.ts
+```
+// src/app/api/dept/route.ts
+import { NextResponse } from "next/server"
+import { prisma } from "@/infrastructure/databases/prisma-client"
+
+export async function GET() {
+  try {
+    console.log("=== DEPT ROUTE HIT ===")
+    console.log("Prisma instance:", prisma)
+    console.log("Prisma department:", prisma.department)
+    
+    const data = await prisma.department.findMany({
+      where: { isActive: true },
+      select: {
+        id:        true,
+        shortName: true,
+        tujuan:    true,
+      },
+      orderBy: { shortName: "asc" },
+    })
+
+    console.log("Data fetched:", data)
+    return NextResponse.json(data)
+  } catch (error) {
+    console.error("DEPT ERROR name:", (error as any)?.name)
+    console.error("DEPT ERROR message:", (error as any)?.message)
+    console.error("DEPT ERROR stack:", (error as any)?.stack)
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
+  }
+}
+```
+
+
+### FILE: src\app\api\surat\route.ts
+```
+// app/api/surat/route.ts
+import { NextResponse } from "next/server"
+import { prisma } from "@/infrastructure/databases/prisma-client"
+
+export async function GET(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url)
+    const idsParam = searchParams.get("ids")
+    const ids = idsParam?.split(",").map(Number).filter(Boolean)
+
+    const data = await prisma.registerSurat.findMany({
+      where: ids && ids.length > 0 ? { id: { in: ids } } : undefined,
+      include: { dept: true, detailSurat: true },
+      orderBy: { nomor: "asc" },
+    })
+
+    return NextResponse.json(data)
+
+  } catch (error: any) {
+    console.error("GET /api/surat error:", {
+      message: error.message,
+      code: error.code,
+      meta: error.meta,
+    })
+    return NextResponse.json({ 
+      error: "Gagal mengambil data surat",
+      detail: process.env.NODE_ENV === "development" ? error.message : undefined
+    }, { status: 500 })
+  }
+}
+
+export async function POST(req: Request) {
+  try {
+    const body = await req.json()
+    const { deptId, asalSurat, tujuan, tanggalTerima, suratList } = body
+
+    // Validasi lebih detail
+    const missingFields = []
+    if (!deptId) missingFields.push("deptId")
+    if (!asalSurat) missingFields.push("asalSurat")
+    if (!tanggalTerima) missingFields.push("tanggalTerima")
+    if (!Array.isArray(suratList) || suratList.length === 0) missingFields.push("suratList")
+
+    if (missingFields.length > 0) {
+      return NextResponse.json({ 
+        error: `Field wajib tidak lengkap: ${missingFields.join(", ")}` 
+      }, { status: 400 })
+    }
+
+    const dept = await prisma.department.findUnique({ where: { id: deptId } })
+    if (!dept) {
+      return NextResponse.json({ 
+        error: `Departemen dengan ID '${deptId}' tidak ditemukan` 
+      }, { status: 404 })
+    }
+
+    // Validasi tanggal
+    const parsedTanggal = new Date(tanggalTerima)
+    if (isNaN(parsedTanggal.getTime())) {
+      return NextResponse.json({ 
+        error: "Format tanggalTerima tidak valid" 
+      }, { status: 400 })
+    }
+
+    const lastRegister = await prisma.registerSurat.findFirst({
+      where: { deptId },
+      orderBy: { nomor: "desc" },
+      select: { nomor: true },
+    })
+
+    const lastNumber = lastRegister ? parseInt(lastRegister.nomor, 10) : 0
+    const nomor = String(lastNumber + 1).padStart(4, "0")
+
+    const created = await prisma.registerSurat.create({
+      data: {
+        nomor,
+        dept:          { connect: { id: deptId } },
+        asalSurat,
+        tujuan:        tujuan || "",
+        tanggalTerima: parsedTanggal,
+        detailSurat: {
+          create: suratList.map((s: any) => {
+            // Validasi tanggal surat
+            const tglSurat = new Date(s.tanggalSurat)
+            if (isNaN(tglSurat.getTime())) {
+              throw new Error(`tanggalSurat tidak valid: ${s.tanggalSurat}`)
+            }
+            return {
+              perihal:      s.perihal,
+              noSurat:      s.noSurat   || null,
+              lampiran:     s.lampiran  || null,
+              tanggalSurat: tglSurat,
+            }
+          }),
+        },
+      },
+      include: { dept: true, detailSurat: true },
+    })
+
+    return NextResponse.json(created, { status: 201 })
+
+  } catch (error: any) {
+    console.error("POST /api/surat error:", {
+      message: error.message,
+      code: error.code,
+      meta: error.meta,
+    })
+
+    // Handle Prisma specific errors
+    if (error.code === "P2002") {
+      return NextResponse.json({ error: "Nomor surat sudah ada" }, { status: 409 })
+    }
+    if (error.code === "P2003") {
+      return NextResponse.json({ error: "Foreign key tidak valid" }, { status: 400 })
+    }
+    if (error.code === "P2025") {
+      return NextResponse.json({ error: "Data tidak ditemukan" }, { status: 404 })
+    }
+
+    return NextResponse.json({ 
+      error: "Gagal menyimpan surat",
+      detail: process.env.NODE_ENV === "development" ? error.message : undefined
+    }, { status: 500 })
+  }
+}
+```
+
+
+### FILE: src\app\api\surat\next-nomor\route.ts
+```
+import { NextResponse } from "next/server"
+import { prisma } from "@/infrastructure/databases/prisma-client"
+
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url)
+  const deptId = searchParams.get("deptId")
+  if (!deptId) return NextResponse.json({ nomor: null })
+
+  const dept = await prisma.department.findUnique({ where: { id: deptId } })
+  if (!dept) return NextResponse.json({ nomor: null })
+
+  const registerList = await prisma.registerSurat.findMany({
+    where: { deptId },
+    select: { nomor: true },
+  })
+
+  const max = registerList.reduce((acc, s) => {
+    const n = parseInt(s.nomor, 10)
+    return isNaN(n) ? acc : Math.max(acc, n)
+  }, 0)
+
+  return NextResponse.json({ nomor: String(max + 1).padStart(4, "0") })
+}
+```
+
+
+### FILE: src\app\api\surat\preview-nomor\route.ts
+```
+import { NextResponse } from "next/server"
+import { prisma } from "@/infrastructure/databases/prisma-client"
+
+export async function GET(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url)
+    const deptId = searchParams.get("deptId")
+
+    if (!deptId) {
+      return NextResponse.json({ nomor: null }, { status: 400 })
+    }
+
+    const dept = await prisma.department.findUnique({ 
+      where: { id: deptId } 
+    })
+
+    if (!dept) {
+      return NextResponse.json({ 
+        nomor: null, 
+        error: `Department '${deptId}' tidak ditemukan` 
+      }, { status: 404 })
+    }
+
+    const lastRegister = await prisma.registerSurat.findFirst({
+      where: { deptId },
+      orderBy: { nomor: "desc" },
+      select: { nomor: true },
+    })
+
+    const lastNumber = lastRegister ? parseInt(lastRegister.nomor, 10) : 0
+    const nomor = String(lastNumber + 1).padStart(4, "0")
+
+    return NextResponse.json({ nomor })
+
+  } catch (error: any) {
+    console.error("âŒ preview-nomor error:", {
+      message: error.message,
+      code: error.code,       // Prisma error code
+      meta: error.meta,       // Prisma error detail
+    })
+    return NextResponse.json({ 
+      error: "Internal Server Error",
+      detail: process.env.NODE_ENV === "development" ? error.message : undefined
+    }, { status: 500 })
+  }
+}
+```
+
+
+### FILE: src\app\api\surat\[dept]\[id]\route.ts
+```
+```
+
+
+### FILE: src\app\api\users\route.ts
+```
+import { prisma } from "@/infrastructure/databases/prisma-client"
+import { auth } from "@/infrastructure/auth/better-auth"
+import { NextRequest, NextResponse } from "next/server"
+import { headers } from "next/headers"
+import { scryptAsync } from "@noble/hashes/scrypt"
+import { randomBytes, bytesToHex } from "@noble/hashes/utils"
+
+async function hashPassword(password: string): Promise<string> {
+  const salt = bytesToHex(randomBytes(16))
+  const key = await scryptAsync(password.normalize("NFKC"), salt, {
+    N: 16384,
+    r: 16,
+    p: 1,
+    dkLen: 64,
+    maxmem: 128 * 16384 * 16 * 2,
+  })
+  return `${salt}:${bytesToHex(key)}`
+}
+
+export async function POST(req: NextRequest) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  })
+
+  if (!session || (session.user as any).role !== "ADMIN") {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
+  }
+
+  const { name, email, username, password, role } = await req.json()
+
+  // Cek username sudah ada
+  const existingUsername = await prisma.user.findUnique({
+    where: { username },
+  })
+
+  if (existingUsername) {
+    return NextResponse.json(
+      { message: "Username sudah dipakai" },
+      { status: 400 }
+    )
+  }
+
+  // Cek email sudah ada
+  const existingEmail = await prisma.user.findUnique({
+    where: { email },
+  })
+
+  if (existingEmail) {
+    return NextResponse.json(
+      { message: "Email sudah dipakai" },
+      { status: 400 }
+    )
+  }
+
+  const hashedPassword = await hashPassword(password)
+
+  const user = await prisma.user.create({
+    data: {
+      id: crypto.randomUUID(),
+      name,
+      email,
+      username,
+      emailVerified: false,
+      role,
+      accounts: {
+        create: {
+          id: crypto.randomUUID(),
+          accountId: crypto.randomUUID(),
+          providerId: "credential",
+          password: hashedPassword,
+        },
+      },
+    },
+  })
+
+  return NextResponse.json({
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    username: user.username,
+    role: user.role,
+  })
+}
+```
+
+
+### FILE: src\components\surat\data-surat.tsx
+```
+"use client"
+
+import { Checkbox } from "@/components/ui/checkbox"
+import { EmptyState } from "@/components/ui/empty-state"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { getPermission } from "@/lib/permission"
+import { format } from "date-fns"
+import { id } from "date-fns/locale"
+import { Loader2, Plus, Printer } from "lucide-react"
+import { useRouter, useSearchParams } from "next/navigation"
+import { useCallback, useEffect, useState } from "react"
+import { RegisterSurat, Role } from "./shared"
+
+interface Props {
+  role:     Role
+  basePath: string
+  printPath: string
+}
+
+export default function DataSuratPage({ role, basePath, printPath }: Props) {
+  const [data,        setData]        = useState<RegisterSurat[]>([])
+  const [loading,     setLoading]     = useState(true)
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
+
+  const router       = useRouter()
+  const searchParams = useSearchParams()
+  const perm         = getPermission(role)
+  const canAdd       = perm.canCreate
+
+  const toggleSelect = (id: number) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      return next
+    })
+  }
+
+  const clearSelection = () => setSelectedIds(new Set())
+
+  useEffect(() => {
+  window.dispatchEvent(new CustomEvent("selection:change", {
+    detail: selectedIds.size > 0 ? {
+      count: selectedIds.size,
+      onPrint: () => {
+        const ids = Array.from(selectedIds).join(",")
+        router.push(`${printPath}?ids=${ids}`)
+      },
+      onClear: () => setSelectedIds(new Set()),
+    } : null
+  }))
+}, [selectedIds])
+
+  const loadData = useCallback(() => {
+    setLoading(true)
+    fetch("/api/surat")
+      .then(r => { if (!r.ok) throw new Error(); return r.json() })
+      .then(json => setData(Array.isArray(json) ? json : []))
+      .catch(() => setData([]))
+      .finally(() => setLoading(false))
+  }, [])
+
+  useEffect(() => {
+    loadData()
+    window.dispatchEvent(new CustomEvent("breadcrumb:sub",    { detail: null }))
+    window.dispatchEvent(new CustomEvent("breadcrumb:subsub", { detail: null }))
+  }, [loadData])
+
+  const filterDate  = searchParams.get("date")
+  const filterDepts = searchParams.get("dept")?.split(",") ?? []
+
+  useEffect(() => {
+    clearSelection()
+  }, [filterDate, filterDepts.join(",")])
+
+  const filteredData = data.filter(reg => {
+    const matchDate = filterDate
+      ? format(new Date(reg.tanggalTerima), "yyyy-MM-dd") === filterDate
+      : true
+    const matchDept = filterDepts.length > 0
+      ? filterDepts.includes(reg.deptId)
+      : true
+    return matchDate && matchDept
+  })
+
+  const groupedData = filteredData.reduce((acc: Record<string, RegisterSurat[]>, reg) => {
+    const dateKey  = reg.tanggalTerima
+      ? format(new Date(reg.tanggalTerima), "dd MMMM yyyy", { locale: id }).toUpperCase()
+      : "TANPA TANGGAL"
+    const groupKey = `${dateKey}|||${reg.deptId}`
+    if (!acc[groupKey]) acc[groupKey] = []
+    acc[groupKey].push(reg)
+    return acc
+  }, {})
+
+  if (loading) return (
+    <div className="flex h-100 w-full flex-col items-center justify-center gap-4">
+      <Loader2 className="h-8 w-8 animate-spin text-blue-600 dark:text-blue-400" />
+      <p className="text-[15px] font-normal text-slate-500 dark:text-slate-400">Memuat Data...</p>
+    </div>
+  )
+
+  if (filteredData.length === 0) return (
+    <EmptyState
+      description={
+        <span className="leading-none">
+          {filterDate || filterDepts.length > 0
+            ? "Tidak ada data yang sesuai filter."
+            : <>
+                Silakan tambahkan data baru dengan mengklik tombol
+                <span className="inline-flex align-middle ml-1 text-blue-600 dark:text-blue-400 -translate-y-px">
+                  <Plus size={18} strokeWidth={3} />
+                </span>
+              </>
+          }
+        </span>
+      }
+    />
+  )
+
+  return (
+    <div className="w-full animate-in fade-in duration-500 flex flex-col gap-3">
+      {Object.keys(groupedData).map((groupKey) => {
+        const [date, dept] = groupKey.split("|||")
+        const registers    = groupedData[groupKey]
+        const totalSurat   = registers.reduce((sum, r) => sum + r.detailSurat.length, 0)
+
+        return (
+          <div key={groupKey}
+            className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 overflow-hidden">
+
+            <div className="flex items-center gap-2 px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+              <span className="text-[12px] font-medium text-slate-700 dark:text-slate-300">{date}</span>
+              <span className="text-[11px] font-medium text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-full px-2.5 py-0.5">
+                {dept}
+              </span>
+            </div>
+
+            <div className="md:hidden divide-y divide-slate-100 dark:divide-slate-800">
+              {registers.map((reg) => (
+                <div key={reg.id} className="px-4 py-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
+                      <Checkbox
+                        checked={selectedIds.has(reg.id)}
+                        onCheckedChange={() => toggleSelect(reg.id)}
+                        className="border-slate-300 dark:border-slate-600 rounded-sm"
+                      />
+                      <span className="font-mono text-[12px] font-bold text-blue-600 dark:text-blue-400">
+                        {reg.nomor}
+                      </span>
+                    </div>
+                    <span className="text-[11px] text-slate-400 dark:text-slate-500 shrink-0">
+                      {reg.dept.shortName}
+                    </span>
+                  </div>
+
+                  <div className={reg.detailSurat.length > 1
+                    ? "rounded-lg border border-slate-100 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800 overflow-hidden"
+                    : ""}>
+                    {reg.detailSurat.map((detail, idx) => (
+                      <div key={detail.id}
+                        onClick={() => router.push(`${basePath}/view/${reg.deptId}/${reg.id}`)}
+                        className="flex items-start gap-3 px-3 py-2.5 hover:bg-blue-50/50 dark:hover:bg-blue-900/10 cursor-pointer active:bg-blue-100/50 transition-colors">
+
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[13px] text-slate-700 dark:text-slate-300 leading-snug mb-1">
+                            {detail.perihal}
+                          </p>
+                          <div className="flex items-center gap-3">
+                            <span className="text-[11px] text-slate-400 dark:text-slate-500">
+                              <span className="text-slate-500 dark:text-slate-400">No: </span>
+                              {detail.noSurat ?? "â€”"}
+                            </span>
+                            <span className="text-[11px] text-slate-400 dark:text-slate-500">
+                              <span className="text-slate-500 dark:text-slate-400">Lamp: </span>
+                              {detail.lampiran ?? "â€”"}
+                            </span>
+                          </div>
+                        </div>
+
+                        <svg className="w-4 h-4 text-slate-300 dark:text-slate-600 shrink-0 mt-0.5"
+                          fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="hidden md:block overflow-x-auto">
+              <Table className="border-collapse table-fixed min-w-2 w-full">
+                <TableHeader className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+                  <TableRow className="hover:bg-transparent border-none">
+                    <TableHead className="w-12 border-r border-slate-200 dark:border-slate-800 p-0" />
+                    <TableHead className="w-44 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest px-4 border-r border-slate-200 dark:border-slate-800">
+                      Nomor Reg
+                    </TableHead>
+                    <TableHead className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest px-4 border-r border-slate-200 dark:border-slate-800">
+                      Perihal
+                    </TableHead>
+                    <TableHead className="w-32 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest px-4 border-r border-slate-200 dark:border-slate-800 text-center">
+                      Lampiran
+                    </TableHead>
+                    <TableHead className="w-40 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest px-4">
+                      Tujuan
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+
+                <TableBody>
+                  {registers.map((reg, regIdx) => {
+                    const isLastReg = regIdx === registers.length - 1
+                    const details   = reg.detailSurat
+
+                    if (details.length === 1) {
+                      const detail = details[0]
+                      return (
+                        <TableRow key={reg.id}
+                          onClick={() => router.push(`${basePath}/view/${reg.deptId}/${reg.id}`)}
+                          className={`group transition-all cursor-pointer hover:bg-blue-50/50 dark:hover:bg-blue-900/20
+                            ${!isLastReg ? "border-b border-slate-200 dark:border-slate-800" : ""}`}>
+
+                          <TableCell className="w-12 p-0 border-r border-slate-200 dark:border-slate-800"
+                            onClick={e => e.stopPropagation()}>
+                            <div className="flex items-center justify-center h-12 w-full">
+                              <Checkbox
+                                checked={selectedIds.has(reg.id)}
+                                onCheckedChange={() => toggleSelect(reg.id)}
+                                className="border-slate-300 dark:border-slate-600 rounded-sm"
+                              />
+                            </div>
+                          </TableCell>
+
+                          <TableCell className="py-4 px-4 border-r border-slate-200 dark:border-slate-800 font-mono text-[12px] font-bold text-slate-800 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400">
+                            {reg.nomor}
+                          </TableCell>
+
+                          <TableCell className="py-4 px-4 border-r border-slate-200 dark:border-slate-800 text-[13px] text-slate-600 dark:text-slate-300 font-medium leading-relaxed">
+                            {detail.perihal}
+                          </TableCell>
+
+                          <TableCell className="py-4 px-4 border-r border-slate-200 dark:border-slate-800 text-center text-[11px] font-medium text-slate-400 dark:text-slate-500">
+                            {detail.lampiran ?? "â€”"}
+                          </TableCell>
+
+                          <TableCell className="py-4 px-4 text-[13px] text-slate-500 dark:text-slate-400">
+                            {reg.dept.shortName}
+                          </TableCell>
+                        </TableRow>
+                      )
+                    }
+
+                    return details.map((detail, idx) => {
+                      const isFirst        = idx === 0
+                      const isLast         = idx === details.length - 1
+                      const isAbsoluteLast = isLastReg && isLast
+
+                      const innerBorder = isAbsoluteLast
+                        ? ""
+                        : isLast
+                          ? "border-b border-b-slate-200 dark:border-b-slate-800"
+                          : "border-b border-b-slate-100 dark:border-b-slate-800/50"
+
+                      const spanBorder = !isLastReg
+                        ? "border-b border-b-slate-200 dark:border-b-slate-800"
+                        : ""
+
+                      return (
+                        <TableRow key={detail.id}
+                          onClick={() => router.push(`${basePath}/view/${reg.deptId}/${reg.id}`)}
+                          className="cursor-pointer hover:bg-blue-50/50 dark:hover:bg-blue-900/20 transition-all">
+
+                          {/* âœ… Checkbox â€” rowSpan */}
+                          {isFirst && (
+                            <TableCell
+                              rowSpan={details.length}
+                              onClick={e => e.stopPropagation()}
+                              className={`w-12 p-0 border-r border-r-slate-200 dark:border-r-slate-800 align-middle ${spanBorder}`}>
+                              <div className="flex items-center justify-center w-full">
+                                <Checkbox
+                                  checked={selectedIds.has(reg.id)}
+                                  onCheckedChange={() => toggleSelect(reg.id)}
+                                  className="border-slate-300 dark:border-slate-600 rounded-sm"
+                                />
+                              </div>
+                            </TableCell>
+                          )}
+
+                          {isFirst && (
+                            <TableCell
+                              rowSpan={details.length}
+                              onClick={e => e.stopPropagation()}
+                              className={`py-4 px-4 border-r border-r-slate-200 dark:border-r-slate-800 align-middle ${spanBorder}`}>
+                              <span className="font-mono text-[12px] font-bold text-slate-800 dark:text-slate-200">
+                                {reg.nomor}
+                              </span>
+                            </TableCell>
+                          )}
+
+                          <TableCell className={`py-3 px-4 border-r border-r-slate-200 dark:border-r-slate-800 text-[13px] text-slate-600 dark:text-slate-300 font-medium leading-relaxed ${innerBorder}`}>
+                            {detail.perihal}
+                          </TableCell>
+
+                          <TableCell className={`py-3 px-4 border-r border-r-slate-200 dark:border-r-slate-800 text-center text-[11px] font-medium text-slate-400 dark:text-slate-500 ${innerBorder}`}>
+                            {detail.lampiran ?? "â€”"}
+                          </TableCell>
+
+                          {isFirst && (
+                            <TableCell
+                              rowSpan={details.length}
+                              onClick={e => e.stopPropagation()}
+                              className={`py-4 px-4 align-middle text-[13px] text-slate-500 dark:text-slate-400 ${spanBorder}`}>
+                              {reg.dept.shortName}
+                            </TableCell>
+                          )}
+                        </TableRow>
+                      )
+                    })
+                  })}
+                </TableBody>
+              </Table>
+            </div>
+
+          </div>
+        )
+      })}
+
+      {selectedIds.size > 0 && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50
+          flex items-center gap-3 px-4 py-2.5
+          bg-white dark:bg-slate-900
+          border border-slate-200 dark:border-slate-700
+          rounded-full shadow-lg shadow-slate-200/60 dark:shadow-slate-900/60
+          animate-in fade-in slide-in-from-bottom-2 duration-200">
+
+          <span className="text-[13px] font-medium text-slate-700 dark:text-slate-300">
+            {selectedIds.size} item dipilih
+          </span>
+
+          <div className="w-px h-4 bg-slate-200 dark:bg-slate-700" />
+
+          <button
+            onClick={() => {
+              const ids = Array.from(selectedIds).join(",")
+              router.push(`${printPath}?ids=${ids}`)
+            }}
+            className="flex items-center gap-1.5 text-[13px] font-medium
+              text-blue-600 dark:text-blue-400
+              hover:text-blue-700 dark:hover:text-blue-300 transition-colors">
+            <Printer size={15} />
+            Cetak
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+```
+
+
+### FILE: src\components\surat\edit-surat.tsx
+```
+"use client"
+
+import { useEffect, useState } from "react"
+import { useRouter, useParams } from "next/navigation"
+import {
+  ArrowLeft, Loader2, Save, Plus,
+  Trash2, FileText, AlertTriangle,
+  X,
+} from "lucide-react"
+import { cn } from "@/lib/utils"
+
+import { Button }  from "@/components/ui/button"
+import { Input }   from "@/components/ui/input"
+import { Badge }   from "@/components/ui/badge"
+import {
+  Select, SelectContent, SelectItem,
+  SelectTrigger, SelectValue,
+} from "@/components/ui/select"
+
+import {
+  RegisterSurat, SuratItem, FormState,
+  EMPTY_SURAT_ITEM, FormField, DatePicker, Role,
+} from "./shared"
+import React from "react"
+
+interface Props { role: Role; basePath: string }
+
+const DEPT_OPTIONS = [
+  "HRD","IT","ENG","BPA","SND","SMD","IAD",
+  "MD","GIS","FAD","TAX","PS","ERP","CID","MED",
+]
+
+const getLampiranNum = (val: string) => val.replace(/[^0-9]/g, "")
+
+export default function EditSuratPage({ role, basePath }: Props) {
+  const { dept, id } = useParams<{ dept: string; id: string }>()
+  const router = useRouter()
+
+  const [original,   setOriginal]   = useState<RegisterSurat | null>(null)
+  const [loading,    setLoading]    = useState(true)
+  const [saving,     setSaving]     = useState(false)
+  const [error,      setError]      = useState<string | null>(null)
+  const [form,       setForm]       = useState<FormState>({
+    deptId:        "",
+    asalSurat:     "",
+    tujuan:        "",
+    tanggalTerima: new Date().toISOString().slice(0, 10),
+  })
+  const [suratList,  setSuratList]  = useState<SuratItem[]>([])
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({})
+  const [focusedLampiran, setFocusedLampiran] = useState<number | null>(null)
+
+  // â”€â”€ Fetch â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  useEffect(() => {
+    fetch(`/api/surat/${dept}/${id}`)
+      .then(r => { if (!r.ok) throw new Error("Data tidak ditemukan"); return r.json() })
+      .then((data: RegisterSurat) => {
+        setOriginal(data)
+        setForm({
+          deptId:        data.dept.shortName,
+          asalSurat:     data.asalSurat,
+          tujuan:        data.tujuan,
+          tanggalTerima: data.tanggalTerima.slice(0, 10),
+        })
+        setSuratList(data.detailSurat.map(d => ({
+          id:           String(d.id),
+          perihal:      d.perihal,
+          noSurat:      d.noSurat      ?? "",
+          lampiran:     d.lampiran     ?? "",
+          tanggalSurat: d.tanggalSurat.slice(0, 10),
+        })))
+        window.dispatchEvent(new CustomEvent("breadcrumb:sub", {
+          detail: `Edit Â· ${data.dept.shortName} / ${data.nomor}`,
+        }))
+      })
+      .catch(e => setError(e.message))
+      .finally(() => setLoading(false))
+  }, [dept, id])
+
+  // â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  const setField = (key: keyof FormState, value: string) => {
+    setForm(prev => {
+      const next = { ...prev, [key]: value }
+      if (key === "deptId" && value) next.tujuan = value
+      return next
+    })
+    setFormErrors(prev => { const n = { ...prev }; delete n[key]; return n })
+  }
+
+  const setSuratField = (idx: number, key: keyof SuratItem, value: string) => {
+    setSuratList(prev => prev.map((s, i) => i === idx ? { ...s, [key]: value } : s))
+    setFormErrors(prev => { const n = { ...prev }; delete n[`surat_${idx}_${key}`]; return n })
+  }
+
+  const setLampiranNum = (idx: number, raw: string) => {
+    const num = raw.replace(/[^0-9]/g, "")
+    setSuratList(prev => prev.map((s, i) =>
+      i === idx ? { ...s, lampiran: num ? `${num} SET` : "" } : s
+    ))
+  }
+
+  const addSurat    = () => setSuratList(p => [...p, EMPTY_SURAT_ITEM()])
+  const removeSurat = (idx: number) => setSuratList(p => p.filter((_, i) => i !== idx))
+
+  // â”€â”€ Preview nomor â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  const deptChanged  = !!original && form.deptId !== original.dept.shortName
+  const nomorPreview = (() => {
+    if (!original || !deptChanged) return original?.nomor ?? ""
+    const counter = original.nomor.split("/")[0] ?? "????"
+    const now     = new Date()
+    return `${counter.padStart(4, "0")}`
+  })()
+
+  // â”€â”€ Validate â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  function validate(): boolean {
+    const errs: Record<string, string> = {}
+    if (!form.deptId)    errs.deptId    = "Departemen wajib dipilih"
+    if (!form.asalSurat) errs.asalSurat = "Asal surat wajib diisi"
+    if (suratList.length === 0) {
+      errs.suratList = "Minimal 1 surat harus ada"
+    } else {
+      suratList.forEach((s, i) => {
+        if (!s.perihal)      errs[`surat_${i}_perihal`]      = "Perihal wajib diisi"
+        if (!s.tanggalSurat) errs[`surat_${i}_tanggalSurat`] = "Tanggal surat wajib diisi"
+      })
+    }
+    setFormErrors(errs)
+    return Object.keys(errs).length === 0
+  }
+
+  // â”€â”€ Submit â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  async function handleSave() {
+    if (!validate()) return
+    setSaving(true)
+    try {
+      const res = await fetch(`/api/surat/${dept}/${id}`, {
+        method:  "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          deptId:        form.deptId,
+          asalSurat:     form.asalSurat,
+          tujuan:        form.tujuan,
+          tanggalTerima: form.tanggalTerima,
+          suratList:     suratList.map(s => ({
+            perihal:      s.perihal,
+            noSurat:      s.noSurat      || null,
+            lampiran:     s.lampiran     || null,
+            tanggalSurat: s.tanggalSurat,
+          })),
+        }),
+      })
+      if (!res.ok) throw new Error("Gagal menyimpan perubahan")
+      const result: RegisterSurat = await res.json()
+      router.push(`${basePath}/view/${result.dept.id}/${result.id}`)
+    } catch (e: any) {
+      alert(e.message ?? "Terjadi kesalahan")
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  // â”€â”€ Guards â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  if (loading) return (
+    <div className="flex h-100 w-full flex-col items-center justify-center gap-4">
+      <Loader2 className="h-8 w-8 animate-spin text-blue-600 dark:text-blue-400" />
+      <p className="text-[15px] font-normal text-slate-500 dark:text-slate-400">Memuat form data...</p>
+    </div>
+  )
+
+  if (error || !original) return (
+    <div className="flex h-full w-full flex-col items-center justify-center gap-3">
+      <div className="w-10 h-10 rounded-2xl bg-red-50 dark:bg-red-900/20 flex items-center justify-center">
+        <AlertTriangle className="h-5 w-5 text-red-400" />
+      </div>
+      <p className="text-[13px] text-red-400 font-medium">
+        {error ?? "Data tidak ditemukan"}
+      </p>
+    </div>
+  )
+
+  // â”€â”€ UI â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  return (
+    <>
+      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+          ACTION BAR â€” fixed bawah tengah, selalu tampil
+      â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
+        <div className="inline-flex items-center gap-1 p-1.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/60 bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl shadow-2xl shadow-slate-900/10 dark:shadow-black/50">
+
+          {/* Batal */}
+          <Button
+            variant="ghost"
+            onClick={() => router.push(`${basePath}/view/${dept}/${id}`)}
+            className="gap-2 h-10 px-4 rounded-xl text-[13px] font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800"
+          >
+            <X size={14} /> Batal
+          </Button>
+
+          <div className="w-px h-5 bg-slate-200 dark:bg-slate-700 mx-0.5" />
+
+          {/* Tambah Surat */}
+          <Button
+            variant="ghost"
+            onClick={addSurat}
+            className="gap-2 h-10 px-4 rounded-xl text-[13px] font-medium text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
+          >
+            <Plus size={14} strokeWidth={2.5} /> Tambah
+          </Button>
+
+          <div className="w-px h-5 bg-slate-200 dark:bg-slate-700 mx-0.5" />
+
+          {/* Simpan */}
+          <Button
+            disabled={saving}
+            onClick={handleSave}
+            className="gap-2 h-10 px-5 rounded-xl text-[13px] font-semibold bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white"
+          >
+            {saving
+              ? <><Loader2 size={14} className="animate-spin" /> Menyimpan...</>
+              : <><Save    size={14} /> Simpan</>
+            }
+          </Button>
+
+        </div>
+      </div>
+
+      {/* â”€â”€ Konten â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      <div className="max-w-2xl mx-auto flex flex-col gap-4 animate-in fade-in duration-300">
+
+        {/* â”€â”€ Section 1: Data Amplop â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 overflow-hidden shadow-sm">
+
+          {/* Header nomor register */}
+          <div className="px-6 py-4 bg-gradient-to-r from-slate-50 to-white dark:from-slate-900 dark:to-slate-950 border-b border-slate-200 dark:border-slate-800">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex flex-col gap-1 min-w-0">
+                <p className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                  Nomor Register
+                </p>
+                {deptChanged ? (
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-[13px] font-mono text-slate-400 dark:text-slate-600 line-through">
+                      {original.nomor}
+                    </span>
+                    <span className="text-[22px] font-mono font-bold text-blue-600 dark:text-blue-400 leading-none">
+                      {nomorPreview}
+                    </span>
+                    <Badge className="w-fit mt-1 text-[10px] font-medium px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border-0">
+                      Nomor diubah otomatis
+                    </Badge>
+                  </div>
+                ) : (
+                  <span className="text-[22px] font-mono font-bold text-slate-800 dark:text-slate-100 leading-none">
+                    {original.nomor}
+                  </span>
+                )}
+              </div>
+              <Badge className="shrink-0 mt-0.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border-0">
+                {form.deptId || original.dept.shortName}
+              </Badge>
+            </div>
+          </div>
+
+          {/* Body form amplop */}
+          <div className="px-6 py-5 flex flex-col gap-4">
+
+            {/* Departemen */}
+            <FormField label="Departemen" error={formErrors.deptId}>
+              <Select value={form.deptId} onValueChange={val => setField("deptId", val)}>
+                <SelectTrigger className={cn(
+                  "text-[13px] rounded-xl h-10",
+                  formErrors.deptId && "border-red-500 dark:border-red-500"
+                )}>
+                  <SelectValue placeholder="Pilih departemen..." />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl">
+                  {DEPT_OPTIONS.map(d => (
+                    <SelectItem
+                      key={d} value={d}
+                      className="text-[13px] cursor-pointer rounded-lg focus:bg-blue-50 dark:focus:bg-blue-900/40 focus:text-slate-900 dark:focus:text-white"
+                    >
+                      {d}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </FormField>
+
+            {/* Asal Surat + Tujuan */}
+            <div className="grid grid-cols-2 gap-3">
+              <FormField label="Asal Surat" error={formErrors.asalSurat}>
+                <Input
+                  value={form.asalSurat}
+                  onChange={e => setField("asalSurat", e.target.value)}
+                  placeholder="Contoh: PT. Maju Mundur"
+                  className={cn(
+                    "text-[13px] rounded-xl h-10",
+                    formErrors.asalSurat && "border-red-500 focus-visible:ring-red-500"
+                  )}
+                />
+              </FormField>
+              <FormField label="Tujuan">
+                <Input
+                  value={form.tujuan}
+                  onChange={e => setField("tujuan", e.target.value)}
+                  placeholder="Contoh: HRD"
+                  className="text-[13px] rounded-xl h-10"
+                />
+              </FormField>
+            </div>
+
+            {/* Tanggal Terima â€” readonly */}
+            <FormField label="Tanggal Terima">
+              <div className={cn(
+                "w-full px-3.5 h-10 flex items-center rounded-xl border text-[13px] font-medium",
+                "border-slate-100 dark:border-slate-800/50",
+                "bg-slate-50 dark:bg-slate-900/40",
+                "text-slate-400 dark:text-slate-500 cursor-not-allowed select-none"
+              )}>
+                {new Date(original.tanggalTerima).toLocaleDateString("id-ID", {
+                  day: "2-digit", month: "long", year: "numeric",
+                })}
+              </div>
+            </FormField>
+
+          </div>
+        </div>
+
+        {/* â”€â”€ Section 2: Daftar Surat â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        <div className="flex flex-col gap-3">
+
+          {/* Error surat list */}
+          {formErrors.suratList && (
+            <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+              <AlertTriangle size={13} className="text-red-500 shrink-0" />
+              <p className="text-[12px] text-red-600 dark:text-red-400 font-medium">
+                {formErrors.suratList}
+              </p>
+            </div>
+          )}
+
+          {/* Tiap item surat */}
+          {suratList.map((surat, idx) => (
+            <div key={surat.id}
+              className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 overflow-hidden shadow-sm">
+
+              {/* Sub-header */}
+              <div className="flex items-center justify-between px-5 py-3 bg-slate-50/80 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-800">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-6 h-6 rounded-lg bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center">
+                    <FileText size={12} className="text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <span className="text-[12px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                    Surat {idx + 1}
+                  </span>
+                </div>
+                <Button
+                  type="button" variant="ghost" size="sm"
+                  onClick={() => removeSurat(idx)}
+                  className="h-7 px-2.5 text-[11px] gap-1 rounded-lg text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                >
+                  <Trash2 size={11} /> Hapus
+                </Button>
+              </div>
+
+              {/* Form surat */}
+              <div className="px-5 py-4 flex flex-col gap-4">
+
+                {/* Perihal */}
+                <FormField label="Perihal Surat" error={formErrors[`surat_${idx}_perihal`]}>
+                  <Input
+                    value={surat.perihal}
+                    onChange={e => setSuratField(idx, "perihal", e.target.value)}
+                    placeholder="Isi perihal / pokok surat..."
+                    className={cn(
+                      "text-[13px] rounded-xl h-10",
+                      formErrors[`surat_${idx}_perihal`] && "border-red-500 focus-visible:ring-red-500"
+                    )}
+                  />
+                </FormField>
+
+                <div className="grid grid-cols-2 gap-3">
+
+                  {/* Nomor Surat */}
+                  <FormField label="Nomor Surat" >
+                    <Input
+                      value={surat.noSurat}
+                      onChange={e => setSuratField(idx, "noSurat", e.target.value)}
+                      placeholder="Masukkan nomor surat"
+                      className="text-[13px] rounded-xl h-10 font-mono"
+                    />
+                  </FormField>
+
+                  {/* Lampiran */}
+                  <FormField label="Lampiran">
+                    <div className={cn(
+                      "relative flex h-10 rounded-xl overflow-hidden",
+                      "border border-slate-200 dark:border-slate-800",
+                      "bg-white dark:bg-slate-950",
+                      "transition-all",
+                      "focus-within:ring-2 focus-within:ring-blue-500/20",
+                      "focus-within:border-blue-500 dark:focus-within:border-blue-500",
+                    )}>
+
+                      {/* Hilang saat fokus ATAU saat ada nilai */}
+                      {!getLampiranNum(surat.lampiran) && focusedLampiran !== idx && (
+                        <div className="absolute inset-y-0 left-0 right-[52px] flex items-center justify-center pointer-events-none z-10">
+                          <span className="text-[13px] text-slate-400 dark:text-slate-500">
+                            Masukkan jumlah
+                          </span>
+                        </div>
+                      )}
+
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        value={getLampiranNum(surat.lampiran)}
+                        onChange={e => setLampiranNum(idx, e.target.value)}
+                        onFocus={() => setFocusedLampiran(idx)}   // â† catat index yg fokus
+                        onBlur={()  => setFocusedLampiran(null)}  // â† reset saat blur
+                        className={cn(
+                          "flex-1 min-w-0 px-3.5 h-full",
+                          "bg-transparent border-0 outline-none",
+                          "text-[13px] text-center font-medium",
+                          "text-slate-700 dark:text-slate-300",
+                        )}
+                      />
+
+                      <div className={cn(
+                        "flex items-center justify-center px-3.5 shrink-0",
+                        "border-l border-slate-200 dark:border-slate-800",
+                        "bg-slate-50 dark:bg-slate-900",
+                        "text-[11px] font-bold tracking-widest",
+                        "text-slate-400 dark:text-slate-500 select-none",
+                      )}>
+                        SET
+                      </div>
+
+                    </div>
+                  </FormField>
+
+                </div>
+
+                {/* Tanggal Surat */}
+                <FormField
+                  label="Tanggal Surat"
+                  error={formErrors[`surat_${idx}_tanggalSurat`]}
+                >
+                  <DatePicker
+                    value={surat.tanggalSurat}
+                    onChange={val => setSuratField(idx, "tanggalSurat", val)}
+                    hasError={!!formErrors[`surat_${idx}_tanggalSurat`]}
+                  />
+                </FormField>
+
+              </div>
+            </div>
+          ))}
+
+          {/* Empty state saat belum ada surat */}
+          {suratList.length === 0 && (
+            <div className="rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 px-6 py-10 text-center">
+              <FileText className="mx-auto mb-3 h-8 w-8 text-slate-300 dark:text-slate-700" />
+              <p className="text-[13px] text-slate-400 dark:text-slate-500">
+                Belum ada surat. Klik <span className="font-semibold">Tambah</span> untuk menambahkan.
+              </p>
+            </div>
+          )}
+
+          {/* Spacer agar tidak tertutup action bar */}
+          <div className="h-20" />
+
+        </div>
+      </div>
+    </>
+  )
+}
+```
+
+
+### FILE: src\components\surat\menu-items.ts
+```
+import { FileText, Printer, RefreshCcw } from "lucide-react"
+import { getBasePathByRole } from "@/lib/routes"
+import type { Role } from "./shared"
+
+export type MenuItem = {
+  label: string
+  icon: React.ComponentType<{ size?: number; strokeWidth?: number }>
+  href: string
+  badge: null | number | string
+}
+
+export function getMenuItems(role: Role): MenuItem[] {
+  const base = getBasePathByRole(role)
+
+  return [
+    { label: "Data Surat",  icon: FileText,   href: `${base}/data-surat`, badge: null },
+    { label: "Cetak",       icon: Printer,    href: `${base}/cetak`,      badge: null },
+    { label: "Track Surat", icon: RefreshCcw, href: `${base}/track`,      badge: null },
+  ]
+}
+```
+
+
+### FILE: src\components\surat\shared.tsx
+```
+"use client"
+
+import React, { useState } from "react"
+import { cn } from "@/lib/utils"
+import { format } from "date-fns"
+import { id as localeID } from "date-fns/locale"
+import { CalendarIcon } from "lucide-react"
+
+// âœ… Import shadcn dengan path benar
+import { Label }    from "@/components/ui/label"
+import { Button }   from "@/components/ui/button"
+import { Calendar } from "@/components/ui/calendar"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+
+// â”€â”€â”€ Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+export interface DetailSurat {
+  id:           number
+  registerId:   number
+  perihal:      string
+  noSurat:      string | null
+  lampiran:     string | null
+  tanggalSurat: string
+}
+
+export interface RegisterSurat {
+  id:            number
+  nomor:         string
+  deptId:        string
+  dept:          { id: string; shortName: string }
+  asalSurat:     string
+  tujuan:        string
+  tanggalTerima: string
+  detailSurat:   DetailSurat[]
+}
+
+export interface FormState {
+  deptId:        string
+  asalSurat:     string
+  tujuan:        string
+  tanggalTerima: string
+}
+
+export const EMPTY_FORM: FormState = {
+  deptId:        "",
+  asalSurat:     "",
+  tujuan:        "",
+  tanggalTerima: new Date().toISOString().slice(0, 10),
+}
+
+export interface SuratItem {
+  id:           string
+  perihal:      string
+  noSurat:      string
+  lampiran:     string
+  tanggalSurat: string
+}
+
+export const EMPTY_SURAT_ITEM = (): SuratItem => ({
+  id:           crypto.randomUUID(),
+  perihal:      "",
+  noSurat:      "",
+  lampiran:     "",
+  tanggalSurat: "",
+})
+
+export type Role = "ADMIN" | "STAFF" | "PKL"
+
+// â”€â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+export function formatTanggal(iso: string) {
+  return new Date(iso).toLocaleDateString("id-ID", {
+    day: "2-digit", month: "long", year: "numeric",
+  })
+}
+
+// â”€â”€â”€ Styles (dipertahankan agar tambah-surat.tsx tidak error) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+export const inputClass = cn(
+  "w-full px-3 py-2 rounded-lg text-[13px] font-medium transition-all duration-200",
+  "border border-slate-200 dark:border-slate-800",
+  "bg-white dark:bg-slate-950",
+  "text-slate-800 dark:text-slate-200",
+  "placeholder:text-slate-400 dark:placeholder:text-slate-500",
+  "hover:border-blue-400 dark:hover:border-blue-700",
+  "focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 dark:focus:border-blue-500"
+)
+
+export const readonlyClass = cn(
+  "w-full px-3 py-2 rounded-lg text-[13px] font-medium",
+  "border border-slate-100 dark:border-slate-800/60",
+  "bg-slate-50 dark:bg-slate-900/50",
+  "text-slate-400 dark:text-slate-500",
+  "cursor-not-allowed select-none"
+)
+
+// â”€â”€â”€ DatePicker â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+export function DatePicker({
+  value,
+  onChange,
+  placeholder = "Pilih tanggal",
+  hasError    = false,
+  disabled    = false,
+}: {
+  value:        string
+  onChange:     (val: string) => void
+  placeholder?: string
+  hasError?:    boolean
+  disabled?:    boolean
+}) {
+  const [open, setOpen] = useState(false)
+
+  // Hindari timezone shift: parse manual yyyy-MM-dd
+  const selected = value
+    ? new Date(value + "T00:00:00")
+    : undefined
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          type="button"
+          variant="outline"
+          disabled={disabled}
+          className={cn(
+            "w-full justify-start text-left font-normal text-[13px] h-9 px-3",
+            "text-slate-800 dark:text-slate-200",
+            !value    && "text-slate-400 dark:text-slate-500",
+            hasError  && "border-red-500 dark:border-red-500 focus-visible:ring-red-500"
+          )}
+        >
+          <CalendarIcon className="mr-2 h-3.5 w-3.5 shrink-0 text-slate-400 dark:text-slate-500" />
+          {value
+            ? format(selected!, "dd MMMM yyyy", { locale: localeID })
+            : placeholder
+          }
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-0" align="start">
+        <Calendar
+          mode="single"
+          selected={selected}
+          onSelect={(date) => {
+            if (date) {
+              onChange(format(date, "yyyy-MM-dd"))
+              setOpen(false)
+            }
+          }}
+          locale={localeID}
+          initialFocus
+        />
+      </PopoverContent>
+    </Popover>
+  )
+}
+
+// â”€â”€â”€ FormField â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+export function FormField({
+  label,
+  optional = false,
+  hint,
+  error,
+  children,
+}: {
+  label:     string
+  optional?: boolean
+  hint?:     string
+  error?:    string
+  children:  React.ReactNode
+}) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <div className="flex items-center gap-1.5">
+        {/* âœ… Label dengan huruf kapital (komponen), bukan elemen HTML */}
+        <Label className={cn(
+          "text-[10px] font-medium uppercase tracking-wider cursor-default",
+          error
+            ? "text-red-500 dark:text-red-400"
+            : "text-slate-500 dark:text-slate-400"
+        )}>
+          {label}
+        </Label>
+
+        {optional && (
+          <span className="text-[10px] normal-case font-normal text-slate-400 dark:text-slate-500">
+            (opsional)
+          </span>
+        )}
+        {hint && (
+          <span className="text-[10px] normal-case font-normal text-blue-500 dark:text-blue-400">
+            {hint}
+          </span>
+        )}
+      </div>
+
+      {children}
+
+      {error && (
+        <p className="text-[11px] text-red-500 dark:text-red-400 font-medium leading-none">
+          {error}
+        </p>
+      )}
+    </div>
+  )
+}
+```
+
+
+### FILE: src\components\surat\tambah-surat.tsx
+```
+"use client"
+
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
+import { X, Loader2, Save, Calendar as CalendarIcon, Plus, Trash2, Hash } from "lucide-react"
+import { format } from "date-fns"
+import { id as localeID } from "date-fns/locale"
+import { cn } from "@/lib/utils"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Calendar } from "@/components/ui/calendar"
+import { Button } from "@/components/ui/button"
+import { FormField, SuratItem, EMPTY_SURAT_ITEM, inputClass, readonlyClass, Role } from "./shared"
+import { toast } from "sonner"
+
+interface DeptOption {
+  id:        string
+  shortName: string
+  tujuan:    string
+}
+
+interface Props {
+  role:     Role
+  basePath: string
+}
+
+const parseLocalDate = (str: string) => {
+  const [y, m, d] = str.split("-").map(Number)
+  return new Date(y, m - 1, d)
+}
+
+export default function TambahSuratPage({ role, basePath }: Props) {
+  const router = useRouter()
+
+  const [deptId,        setDeptId]        = useState("")
+  const [tanggalTerima, setTanggalTerima] = useState(format(new Date(), "yyyy-MM-dd"))
+  const [asalSurat,     setAsalSurat]     = useState("")
+  const [tujuan,        setTujuan]        = useState("")
+  const [suratList,     setSuratList]     = useState<SuratItem[]>([EMPTY_SURAT_ITEM()])
+  const [deptList,      setDeptList]      = useState<DeptOption[]>([])
+  const [saving,        setSaving]        = useState(false)
+  const [previewNomor,  setPreviewNomor]  = useState<string | null>(null)
+  const [loadingNomor,  setLoadingNomor]  = useState(false)
+
+  useEffect(() => {
+    fetch("/api/dept")
+      .then(r => r.json())
+      .then(d => {
+        if (!Array.isArray(d)) { console.error("API /api/dept error:", d); return }
+        setDeptList(d.map((x: any) => ({ id: x.id, shortName: x.shortName, tujuan: x.tujuan ?? "" })))
+      })
+      .catch(err => console.error("Fetch dept gagal:", err))
+
+    window.dispatchEvent(new CustomEvent("breadcrumb:sub",    { detail: "Tambah Data" }))
+    window.dispatchEvent(new CustomEvent("breadcrumb:subsub", { detail: null }))
+  }, [])
+
+  const selectedDept = deptList.find(d => d.id === deptId)
+
+  useEffect(() => {
+    if (!deptId || deptList.length === 0) { setPreviewNomor(null); return }
+    const dept = deptList.find(d => d.id === deptId)
+    if (!dept) { setPreviewNomor(null); return }
+
+    setTujuan(dept.tujuan)
+    setLoadingNomor(true)
+    fetch(`/api/surat/preview-nomor?deptId=${dept.id}`)
+      .then(r => r.json())
+      .then(data => setPreviewNomor(data.nomor ?? null))
+      .catch(() => setPreviewNomor(null))
+      .finally(() => setLoadingNomor(false))
+  }, [deptId, deptList])
+
+  const addSurat    = () => setSuratList(prev => [...prev, EMPTY_SURAT_ITEM()])
+  const removeSurat = (id: string) => setSuratList(prev => prev.filter(s => s.id !== id))
+  const updateSurat = (id: string, field: keyof Omit<SuratItem, "id">, value: string) =>
+    setSuratList(prev => prev.map(s => s.id === id ? { ...s, [field]: value } : s))
+
+  function validateForm(): boolean {
+    const missing: string[] = []
+    if (!deptId)           missing.push("Departemen")
+    if (!asalSurat.trim()) missing.push("Asal surat")
+    if (!tanggalTerima)    missing.push("Tanggal terima")
+
+    suratList.forEach((s, i) => {
+      const no = suratList.length > 1 ? ` (Surat ${i + 1})` : ""
+      if (!s.perihal.trim()) missing.push(`Perihal surat${no}`)
+      if (!s.tanggalSurat)   missing.push(`Tanggal surat${no}`)
+      if (!s.lampiran)       missing.push(`Lampiran${no}`)
+    })
+
+    if (missing.length > 0) {
+      toast.error("Tidak dapat menyimpan", { description: `${missing.join(", ")} wajib diisi.` })
+      return false
+    }
+    return true
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    if (!validateForm()) return
+
+    setSaving(true)
+    try {
+      const payload = {
+        deptId,
+        asalSurat,
+        tujuan,
+        tanggalTerima: parseLocalDate(tanggalTerima).toISOString(),
+        suratList: suratList.map(s => ({
+          perihal:      s.perihal,
+          noSurat:      s.noSurat || null,
+          lampiran:     s.lampiran ? `${s.lampiran} SET` : null,
+          tanggalSurat: parseLocalDate(s.tanggalSurat).toISOString(),
+        })),
+      }
+
+      const res     = await fetch("/api/surat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) })
+      const resBody = await res.json().catch(() => null)
+      if (!res.ok) throw new Error(resBody?.error || "Gagal menyimpan data")
+
+      toast.success("Berhasil Ditambahkan", { description: `${suratList.length} surat berhasil disimpan.` })
+      router.push(basePath)
+    } catch (e) {
+      toast.error("Gagal Menyimpan", { description: (e as Error).message })
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="max-w-2xl mx-auto flex flex-col gap-4 pb-28">
+
+      {/* â”€â”€ Kartu: Informasi Amplop â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      <div className="border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-950 overflow-hidden shadow-sm">
+
+        <div className="px-5 py-3.5 bg-slate-50/70 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800/80">
+          <h3 className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+            Informasi Surat
+          </h3>
+        </div>
+
+        <div className="p-5 flex flex-col gap-4">
+
+          <div className="grid grid-cols-2 gap-4">
+            <FormField label="Departemen">
+              <Select value={deptId} onValueChange={setDeptId}>
+                <SelectTrigger className={cn(inputClass, "h-10 shadow-none")}>
+                  <SelectValue placeholder="Pilih departemen" />
+                </SelectTrigger>
+                <SelectContent className="dark:bg-slate-950 border-slate-200 dark:border-slate-800">
+                  {deptList.map(d => (
+                    <SelectItem key={d.id} value={d.id}
+                      className="text-[13px] cursor-pointer focus:bg-blue-50 dark:focus:bg-blue-900/20 focus:text-blue-700 dark:focus:text-blue-300">
+                      {d.shortName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </FormField>
+
+            <FormField label="Tanggal Terima">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button type="button" variant="outline"
+                    className={cn(inputClass, "h-10 justify-start text-left shadow-none font-normal",
+                      !tanggalTerima && "text-slate-400 dark:text-slate-500")}>
+                    <CalendarIcon className="mr-2 h-3.5 w-3.5 text-slate-400" />
+                    {tanggalTerima
+                      ? format(parseLocalDate(tanggalTerima), "dd MMM yyyy", { locale: localeID })
+                      : "Pilih tanggal"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0 border-slate-200 dark:border-slate-800" align="start">
+                  <Calendar mode="single"
+                    selected={tanggalTerima ? parseLocalDate(tanggalTerima) : undefined}
+                    onSelect={d => setTanggalTerima(d ? format(d, "yyyy-MM-dd") : "")}
+                    initialFocus />
+                </PopoverContent>
+              </Popover>
+            </FormField>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <FormField label="Asal Surat">
+              <input className={inputClass} value={asalSurat}
+                onChange={e => setAsalSurat(e.target.value)}
+                placeholder="Masukkan asal surat" />
+            </FormField>
+
+            <FormField label="Tujuan">
+              <div className={readonlyClass}>
+                {tujuan || (
+                  <span className="text-slate-400 dark:text-slate-500 italic font-normal">
+                    Otomatis dari departemen
+                  </span>
+                )}
+              </div>
+            </FormField>
+          </div>
+
+          {/* Nomor Registrasi Preview */}
+          <div className="flex items-center gap-3 px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-lg">
+            <Hash className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+            <div className="flex flex-col gap-0.5 min-w-0 flex-1">
+              <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                Nomor Registrasi
+              </span>
+              <span className="text-[13px] font-mono font-medium text-slate-700 dark:text-slate-300 truncate">
+                {loadingNomor
+                  ? <span className="text-slate-400 text-[12px] font-sans animate-pulse">Memuatâ€¦</span>
+                  : previewNomor
+                    ? previewNomor
+                    : <span className="text-slate-400 text-[12px] font-sans italic font-normal">Pilih departemen dulu</span>
+                }
+              </span>
+            </div>
+            {selectedDept && (
+              <span className="shrink-0 text-[11px] font-medium text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-full px-2.5 py-0.5">
+                {selectedDept.shortName}
+              </span>
+            )}
+          </div>
+
+        </div>
+      </div>
+
+      {/* â”€â”€ Kartu: Daftar Surat â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      <div className="border border-slate-200 dark:border-slate-800 rounded-xl bg-white dark:bg-slate-950 overflow-hidden shadow-sm">
+
+        <div className="px-5 py-3.5 bg-slate-50/70 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800/80 flex items-center justify-between">
+          <h3 className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+            Daftar Surat
+          </h3>
+          <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-900/40 text-[11px] font-bold text-blue-600 dark:text-blue-400">
+            {suratList.length}
+          </span>
+        </div>
+
+        <div className="p-5 flex flex-col gap-3">
+
+          {suratList.map((surat, index) => (
+            <div key={surat.id}
+              className="border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden">
+
+              {/* Header baris surat */}
+              <div className="flex items-center justify-between px-4 py-2.5 bg-slate-50/80 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800">
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-blue-100 dark:bg-blue-900/40 text-[11px] font-bold text-blue-600 dark:text-blue-400">
+                    {index + 1}
+                  </span>
+                  <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+                    Surat {index + 1}
+                  </span>
+                </div>
+                {suratList.length > 1 && (
+                  <button type="button" onClick={() => removeSurat(surat.id)}
+                    className="inline-flex items-center gap-1.5 text-[11px] font-medium text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 px-2 py-1 rounded transition-all">
+                    <Trash2 size={11} />
+                    Hapus
+                  </button>
+                )}
+              </div>
+
+              <div className="p-4 flex flex-col gap-4">
+                <FormField label="Perihal Surat">
+                  <textarea
+                    className={cn(inputClass, "resize-none leading-relaxed min-h-16")}
+                    rows={2}
+                    value={surat.perihal}
+                    onChange={e => updateSurat(surat.id, "perihal", e.target.value)}
+                    placeholder="Masukkan perihal surat" />
+                </FormField>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField label="Tanggal Surat">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button type="button" variant="outline"
+                          className={cn(inputClass, "h-10 justify-start text-left shadow-none font-normal",
+                            !surat.tanggalSurat && "text-slate-400 dark:text-slate-500")}>
+                          <CalendarIcon className="mr-2 h-3.5 w-3.5 text-slate-400" />
+                          {surat.tanggalSurat
+                            ? format(parseLocalDate(surat.tanggalSurat), "dd MMM yyyy", { locale: localeID })
+                            : "Pilih tanggal"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0 border-slate-200 dark:border-slate-800" align="start">
+                        <Calendar mode="single"
+                          selected={surat.tanggalSurat ? parseLocalDate(surat.tanggalSurat) : undefined}
+                          onSelect={d => updateSurat(surat.id, "tanggalSurat", d ? format(d, "yyyy-MM-dd") : "")} />
+                      </PopoverContent>
+                    </Popover>
+                  </FormField>
+
+                  <FormField label="No. Surat">
+                    <input className={inputClass} value={surat.noSurat}
+                      onChange={e => updateSurat(surat.id, "noSurat", e.target.value)}
+                      placeholder="Opsional" />
+                  </FormField>
+                </div>
+
+                <FormField label="Lampiran">
+                  <div className="relative">
+                    <input type="text" inputMode="numeric"
+                      className={cn(inputClass, "pr-12")}
+                      value={surat.lampiran}
+                      onChange={e => updateSurat(surat.id, "lampiran", e.target.value.replace(/\D/g, ""))}
+                      placeholder="0" />
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-3.5 pointer-events-none">
+                      <span className="text-[12px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">
+                        SET
+                      </span>
+                    </div>
+                  </div>
+                </FormField>
+              </div>
+            </div>
+          ))}
+
+          {/* Tombol Tambah */}
+          <button type="button" onClick={addSurat}
+            className="w-full inline-flex items-center justify-center gap-2 text-[13px] font-medium text-blue-600 dark:text-blue-400 border border-dashed border-blue-300 dark:border-blue-700 rounded-lg py-2.5 hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:border-blue-400 dark:hover:border-blue-600 transition-all mt-1 mb-1">
+            <Plus size={14} />
+            Tambah Surat Lainnya
+          </button>
+
+        </div>
+      </div>
+
+      {/* â”€â”€ Floating Action Bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
+      <div className="inline-flex items-center gap-1 p-1.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/60 bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl shadow-2xl shadow-slate-900/10 dark:shadow-black/50">
+
+        {/* Batal */}
+        <Button
+          type="button"
+          variant="ghost"
+          onClick={() => router.push(basePath)}
+          className="gap-2 h-10 px-4 rounded-xl text-[13px] font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800"
+        >
+          <X size={14} />
+          Batal
+        </Button>
+
+        <div className="w-px h-5 bg-slate-200 dark:bg-slate-700 mx-0.5" />
+
+        {/* Simpan */}
+        <Button
+          type="submit"
+          variant="ghost"
+          disabled={saving}
+          className="gap-2 h-10 px-4 rounded-xl text-[13px] font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {saving
+            ? <><Loader2 size={14} className="animate-spin" /> Menyimpanâ€¦</>
+            : <><Save size={14} /> Simpan{suratList.length > 1 ? ` ${suratList.length} Surat` : ""}</>
+          }
+        </Button>
+
+  </div>
+</div>
+
+    </form>
+  )
+}
+```
+
+
+### FILE: src\components\surat\view-surat.tsx
+```
+"use client"
+
+import { useEffect, useState } from "react"
+import { useRouter, useParams } from "next/navigation"
+import {
+  ArrowLeft, Edit3, Loader2, Trash2,
+  FileText, AlertTriangle,
+} from "lucide-react"
+import { format } from "date-fns"
+import { id as localeID } from "date-fns/locale"
+
+import { Button } from "@/components/ui/button"
+import { Badge }  from "@/components/ui/badge"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+
+import { RegisterSurat, Role, formatTanggal } from "./shared"
+
+interface Props { role: Role; basePath: string }
+
+/* ------------------------------------------------------------------ */
+/*  Field                                                               */
+/* ------------------------------------------------------------------ */
+function Field({
+  label, value, mono = false, icon, fullWidth = false,
+}: {
+  label: string; value: string; mono?: boolean
+  icon?: React.ReactNode; fullWidth?: boolean
+}) {
+  return (
+    <div className={fullWidth ? "col-span-2" : ""}>
+      <p className="flex items-center gap-1.5 text-[10px] font-semibold
+                    text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">
+        {icon}<span>{label}</span>
+      </p>
+      <div className={[
+        "w-full px-3.5 py-2.5 rounded-xl",
+        "border border-slate-200 dark:border-slate-800",
+        "bg-slate-50/70 dark:bg-slate-900/50",
+        "text-[13px] text-slate-700 dark:text-slate-300",
+        mono ? "font-mono text-[12px] tracking-wide" : "font-medium",
+      ].join(" ")}>
+        {value}
+      </div>
+    </div>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/*  Page                                                                */
+/* ------------------------------------------------------------------ */
+export default function ViewSuratPage({ role, basePath }: Props) {
+  const { dept, id } = useParams<{ dept: string; id: string }>()
+  const router       = useRouter()
+
+  const [register,       setRegister]       = useState<RegisterSurat | null>(null)
+  const [loading,        setLoading]        = useState(true)
+  const [error,          setError]          = useState<string | null>(null)
+  const [deleting,       setDeleting]       = useState(false)
+  const [showDeleteConf, setShowDeleteConf] = useState(false)
+
+  /* fetch --------------------------------------------------------- */
+  useEffect(() => {
+    fetch(`/api/surat/${dept}/${id}`)
+      .then(r => { if (!r.ok) throw new Error("Data tidak ditemukan"); return r.json() })
+      .then(data => {
+        setRegister(data)
+        window.dispatchEvent(new CustomEvent("breadcrumb:sub", {
+          detail: `${data.dept.shortName} / ${data.nomor}`,
+        }))
+        window.dispatchEvent(new CustomEvent("breadcrumb:subsub", { detail: null }))
+      })
+      .catch(e => setError(e.message))
+      .finally(() => setLoading(false))
+  }, [dept, id])
+
+  /* delete -------------------------------------------------------- */
+  async function handleDelete() {
+    setDeleting(true)
+    try {
+      const res = await fetch(`/api/surat/${dept}/${id}`, { method: "DELETE" })
+      if (!res.ok) throw new Error()
+      router.push(basePath)
+    } catch {
+      setDeleting(false)
+      setShowDeleteConf(false)
+    }
+  }
+
+  /* loading state ------------------------------------------------- */
+  if (loading) return (
+      <div className="flex h-100 w-full flex-col items-center justify-center gap-4">
+        <Loader2 className="h-8 w-8 animate-spin text-blue-600 dark:text-blue-400" />
+        <p className="text-[15px] font-normal text-slate-500 dark:text-slate-400">Memuat Data...</p>
+      </div>
+    )
+
+  /* error state --------------------------------------------------- */
+  if (error || !register) return (
+    <div className="flex h-full w-full flex-col items-center justify-center gap-3">
+      <div className="w-10 h-10 rounded-2xl bg-red-50 dark:bg-red-900/20
+                      flex items-center justify-center">
+        <AlertTriangle className="h-5 w-5 text-red-400" />
+      </div>
+      <p className="text-[13px] text-red-400 font-medium">
+        {error ?? "Data tidak ditemukan"}
+      </p>
+      <Button variant="outline" size="sm" onClick={() => router.push(basePath)}
+        className="text-[12px] gap-1.5 rounded-xl mt-1">
+        <ArrowLeft size={12} /> Kembali
+      </Button>
+    </div>
+  )
+
+  /* render -------------------------------------------------------- */
+  return (
+    <>
+      {/* â”€â”€ AlertDialog konfirmasi hapus â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      <AlertDialog open={showDeleteConf} onOpenChange={setShowDeleteConf}>
+        <AlertDialogContent
+          className="
+            bg-white dark:bg-slate-950
+            border border-slate-200 dark:border-slate-800
+            shadow-xl shadow-black/20
+          "
+        >
+          <AlertDialogHeader>
+            <AlertDialogTitle
+              className="text-slate-900 dark:text-slate-100 text-[15px] font-semibold"
+            >
+              Hapus Register Surat?
+            </AlertDialogTitle>
+            <AlertDialogDescription
+              className="text-slate-500 dark:text-slate-400 text-[13px] leading-relaxed"
+            >
+              Seluruh data surat dalam register&nbsp;
+              <span className="font-semibold text-slate-800 dark:text-slate-200">
+                {register.nomor}
+              </span>
+              &nbsp;akan terhapus <strong>permanen</strong> dan tidak dapat
+              dipulihkan.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              disabled={deleting}
+              className="
+                bg-transparent
+                border border-slate-200 dark:border-slate-700
+                text-slate-700 dark:text-slate-300
+                hover:bg-slate-100 dark:hover:bg-slate-800
+                hover:text-slate-900 dark:hover:text-slate-100
+              "
+            >
+              Batal
+            </AlertDialogCancel>
+
+            <AlertDialogAction
+              disabled={deleting}
+              onClick={(e) => { e.preventDefault(); handleDelete() }}
+              className="
+                bg-red-600 hover:bg-red-700 active:bg-red-800
+                dark:bg-red-600 dark:hover:bg-red-700
+                text-white border-0
+                focus-visible:ring-red-500
+                gap-1.5
+              "
+            >
+              {deleting
+                ? <><Loader2 size={13} className="animate-spin" /> Menghapusâ€¦</>
+                : <><Trash2  size={13} /> Hapus Permanen</>
+              }
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+          ACTION BAR â€” fixed bawah tengah
+      â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
+        <div className="inline-flex items-center gap-1 p-1.5 rounded-2xl
+          border border-slate-200/80 dark:border-slate-700/60
+          bg-white/90 dark:bg-slate-950/90
+          backdrop-blur-xl shadow-2xl
+          shadow-slate-900/10 dark:shadow-black/50">
+
+          <Button variant="ghost" onClick={() => router.push(basePath)}
+            className="gap-2 h-10 px-4 rounded-xl text-[13px] font-medium
+              text-slate-600 dark:text-slate-300
+              hover:text-slate-900 dark:hover:text-white
+              hover:bg-slate-100 dark:hover:bg-slate-800">
+            <ArrowLeft size={14} /> Kembali
+          </Button>
+
+          <div className="w-px h-5 bg-slate-200 dark:bg-slate-700 mx-0.5" />
+
+          <Button variant="ghost"
+            onClick={() => router.push(`${basePath}/edit/${dept}/${id}`)}
+            className="gap-2 h-10 px-4 rounded-xl text-[13px] font-medium
+              text-blue-600 dark:text-blue-400
+              hover:text-blue-700 dark:hover:text-blue-300
+              hover:bg-blue-50 dark:hover:bg-blue-900/30">
+            <Edit3 size={14} /> Edit
+          </Button>
+
+          <div className="w-px h-5 bg-slate-200 dark:bg-slate-700 mx-0.5" />
+
+          <Button variant="ghost" onClick={() => setShowDeleteConf(true)}
+            className="gap-2 h-10 px-4 rounded-xl text-[13px] font-medium
+              text-red-500 dark:text-red-400
+              hover:text-red-600 dark:hover:text-red-300
+              hover:bg-red-50 dark:hover:bg-red-900/30">
+            {deleting
+              ? <Loader2 size={14} className="animate-spin" />
+              : <Trash2  size={14} />
+            }
+            Hapus
+          </Button>
+
+        </div>
+      </div>
+
+      {/* â”€â”€ Konten â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      <div className="max-w-2xl mx-auto flex flex-col gap-4 animate-in fade-in duration-300">
+
+        {/* Card Register */}
+        <div className="rounded-2xl border border-slate-200 dark:border-slate-800
+                        bg-white dark:bg-slate-950 overflow-hidden shadow-sm">
+          <div className="px-6 py-4
+            bg-gradient-to-r from-slate-50 to-white
+            dark:from-slate-900 dark:to-slate-950
+            border-b border-slate-200 dark:border-slate-800">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-[10px] font-semibold text-slate-400 dark:text-slate-500
+                              uppercase tracking-widest mb-1">
+                  Nomor Register
+                </p>
+                <p className="text-[22px] font-mono font-bold
+                              text-slate-800 dark:text-slate-100 leading-none">
+                  {register.nomor}
+                </p>
+              </div>
+              <Badge className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full
+                                bg-blue-100 dark:bg-blue-900/40
+                                text-blue-700 dark:text-blue-300 border-0 mt-0.5">
+                {register.dept.shortName}
+              </Badge>
+            </div>
+          </div>
+          <div className="px-6 py-5">
+            <div className="grid grid-cols-2 gap-4">
+              <Field label="Asal Surat"    value={register.asalSurat} />
+              <Field label="Tujuan"         value={register.tujuan || "-"} />
+              <Field label="Tanggal Terima"
+                value={formatTanggal(register.tanggalTerima)}
+                fullWidth />
+            </div>
+          </div>
+        </div>
+
+        {/* Daftar Surat */}
+        {register.detailSurat.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-slate-200
+                          dark:border-slate-800 px-6 py-12 text-center">
+            <FileText className="mx-auto mb-3 h-8 w-8 text-slate-300 dark:text-slate-700" />
+            <p className="text-[13px] text-slate-400 dark:text-slate-500">
+              Belum ada surat dalam register ini.
+            </p>
+          </div>
+        ) : (
+          register.detailSurat.map((detail, idx) => (
+            <div key={detail.id}
+              className="rounded-2xl border border-slate-200 dark:border-slate-800
+                         bg-white dark:bg-slate-950 overflow-hidden shadow-sm">
+              <div className="flex items-center gap-2.5 px-5 py-3
+                bg-slate-50/80 dark:bg-slate-900/80
+                border-b border-slate-200 dark:border-slate-800">
+                <div className="w-6 h-6 rounded-lg bg-blue-100 dark:bg-blue-900/40
+                                flex items-center justify-center">
+                  <FileText size={12} className="text-blue-600 dark:text-blue-400" />
+                </div>
+                <span className="text-[12px] font-bold
+                                 text-slate-700 dark:text-slate-300
+                                 uppercase tracking-wider">
+                  Surat {idx + 1}
+                </span>
+              </div>
+              <div className="px-5 py-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <Field label="Perihal Surat" value={detail.perihal} fullWidth />
+                  <Field label="Nomor Surat"   value={detail.noSurat  ?? "-"} mono />
+                  <Field label="Lampiran"       value={detail.lampiran ?? "-"} />
+                  <Field label="Tanggal Surat"
+                    value={format(new Date(detail.tanggalSurat), "dd MMMM yyyy", { locale: localeID })}
+                    fullWidth />
+                </div>
+              </div>
+            </div>
+          ))
+        )}
+
+        <div className="h-20" />
+      </div>
+    </>
+  )
+}
+```
+
+
+### FILE: src\components\ui\empty-state.tsx
+```
+"use client"
+
+import { Inbox, Plus } from "lucide-react"
+import React from "react"
+
+interface EmptyStateProps {
+  title?: string;
+  description?: React.ReactNode; // Menggunakan ReactNode agar bisa memasukkan ikon
+}
+
+export function EmptyState({ 
+  title = "Tidak ada data surat", 
+  description 
+}: EmptyStateProps) {
+  return (
+    <div className="flex flex-col items-center justify-center min-h-125 w-full space-y-4 animate-in fade-in duration-700">
+      {/* Ikon Inbox Statis */}
+      <div className="text-slate-200 dark:text-slate-800">
+        <Inbox size={120} strokeWidth={1} />
+      </div>
+
+      {/* Deskripsi Teks */}
+      <div className="text-center space-y-2">
+        <h3 className="text-xl font-extrabold text-[#2d4b73] dark:text-slate-200 tracking-tight">
+          {title}
+        </h3>
+        {/* Hilangkan flex di sini agar teks mengalir normal */}
+        <div className="text-sm text-slate-400 dark:text-slate-500 max-w-70 mx-auto leading-relaxed">
+          {description}
+        </div>
+      </div>
+    </div>
+  )
+}
+```
+
+
+### FILE: src\components\ui\theme-toogle.tsx
+```
+"use client";
+
+import { useTheme } from "next-themes";
+import { Sun, Moon } from "lucide-react";
+import { useEffect, useState } from "react";
+
+interface ThemeToggleProps {
+  collapsed?: boolean;
+}
+
+function applyThemeWithoutFlicker(setTheme: (t: string) => void, next: string) {
+  const style = document.documentElement.style;
+  style.setProperty("--transition-override", "none");
+  document.documentElement.classList.add("no-transition");
+  setTheme(next);
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      document.documentElement.classList.remove("no-transition");
+      style.removeProperty("--transition-override");
+    });
+  });
+}
+
+export function ThemeToggle({ collapsed }: ThemeToggleProps) {
+  const { resolvedTheme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false)
+
+  // Tunggu sampai client mount agar resolvedTheme tersedia
+  // dan output server == client (hindari hydration mismatch)
+  useEffect(() => { setMounted(true) }, [])
+
+  // Sebelum mount: render placeholder dengan ukuran sama tapi konten netral
+  // supaya tidak ada mismatch antara server dan client
+  if (!mounted) {
+    return (
+      <button
+        aria-label="Toggle tema"
+        disabled
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "12px",
+          padding: collapsed ? "10px 0" : "10px 14px",
+          borderRadius: "10px",
+          color: "var(--sidebar-foreground)",
+          fontSize: "14px",
+          fontWeight: 500,
+          width: "100%",
+          cursor: "pointer",
+          background: "transparent",
+          border: "1px solid transparent",
+          justifyContent: collapsed ? "center" : "flex-start",
+          opacity: 0, // invisible tapi tetap occupy space
+        }}
+      >
+        <span style={{ width: 18, height: 18, flexShrink: 0 }} />
+        {!collapsed && <span style={{ whiteSpace: "nowrap" }}>Mode</span>}
+      </button>
+    )
+  }
+
+  const isDark = resolvedTheme === "dark"
+
+  const handleToggle = () => {
+    applyThemeWithoutFlicker(setTheme, isDark ? "light" : "dark")
+  }
+
+  return (
+    <button
+      onClick={handleToggle}
+      aria-label={isDark ? "Aktifkan mode terang" : "Aktifkan mode gelap"}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: "12px",
+        padding: collapsed ? "10px 0" : "10px 14px",
+        borderRadius: "10px",
+        color: "var(--sidebar-foreground)",
+        fontSize: "14px",
+        fontWeight: 500,
+        width: "100%",
+        cursor: "pointer",
+        background: "transparent",
+        border: "1px solid transparent",
+        justifyContent: collapsed ? "center" : "flex-start",
+        transition: "background-color 0.3s ease, color 0.3s ease",
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.background = "var(--sidebar-accent)"
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.background = "transparent"
+      }}
+    >
+      <span style={{ position: "relative", width: 18, height: 18, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <Sun
+          size={18}
+          strokeWidth={1.8}
+          style={{
+            position: "absolute",
+            opacity: isDark ? 0 : 1,
+            transform: isDark ? "scale(0.6)" : "scale(1)",
+            transition: "opacity 0.3s ease, transform 0.3s ease",
+          }}
+        />
+        <Moon
+          size={18}
+          strokeWidth={1.8}
+          style={{
+            position: "absolute",
+            opacity: isDark ? 1 : 0,
+            transform: isDark ? "scale(1)" : "scale(0.6)",
+            transition: "opacity 0.3s ease, transform 0.3s ease",
+          }}
+        />
+      </span>
+
+      {!collapsed && (
+        <span style={{ whiteSpace: "nowrap", textAlign: "left" }}>
+          {isDark ? "Mode Terang" : "Mode Gelap"}
+        </span>
+      )}
+    </button>
+  )
+}
+```
+
+
+### FILE: src\components\ui\topbar-filter\date-field.tsx
+```
+"use client"
+
+import { Calendar } from "@/components/ui/calendar"
+import { id } from "date-fns/locale"
+
+interface DateFieldProps {
+  date:     Date | undefined
+  onSelect: (d: Date | undefined) => void
+}
+
+export function DateField({ date, onSelect }: DateFieldProps) {
+  return (
+    <div style={{ marginBottom: "16px" }}>
+      <label style={{
+        display: "block", fontSize: 11, fontWeight: 700,
+        color: "var(--muted-foreground)", letterSpacing: "0.06em",
+        textTransform: "uppercase", marginBottom: "8px",
+      }}>
+        Tanggal
+      </label>
+      <div className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden bg-white dark:bg-slate-900">
+        <Calendar
+          mode="single"
+          selected={date}
+          onSelect={onSelect}
+          locale={id}
+          className="w-full"
+        />
+      </div>
+    </div>
+  )
+}
+```
+
+
+### FILE: src\components\ui\topbar-filter\dept-field.tsx
+```
+"use client"
+
+import { Check } from "lucide-react"
+
+// â† Sesuaikan dengan DEPT_LIST di _types.ts
+const DEPARTMENTS = [
+  "HRD", "ENG", "IAD", "BPA", "GIS", "SND",
+  "MD", "PS", "FAD", "ITD", "ESD", "LCA",
+  "SMD", "ERP", "CID", "Medical",
+]
+
+interface DeptFieldProps {
+  selected: string[]
+  onToggle: (dept: string) => void
+  maxHeight?: number
+}
+
+export function DeptField({ selected, onToggle, maxHeight = 200 }: DeptFieldProps) {
+  const allSelected = DEPARTMENTS.every(d => selected.includes(d))
+
+  function handleToggleAll() {
+    if (allSelected) {
+      // deselect semua
+      DEPARTMENTS.forEach(d => {
+        if (selected.includes(d)) onToggle(d)
+      })
+    } else {
+      // select semua yang belum terpilih
+      DEPARTMENTS.forEach(d => {
+        if (!selected.includes(d)) onToggle(d)
+      })
+    }
+  }
+
+  return (
+    <div>
+      <style dangerouslySetInnerHTML={{ __html: `
+        .dept-scroll-tf::-webkit-scrollbar { width: 4px; }
+        .dept-scroll-tf::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+        .dept-item-tf {
+          display: flex; align-items: center; justify-content: space-between;
+          width: 100%; padding: 9px 12px; border: none; cursor: pointer;
+          font-size: 13px; font-family: inherit; border-radius: 8px;
+          background: transparent; color: var(--foreground);
+          transition: background-color 0.15s ease;
+          text-align: left;
+        }
+        .dept-item-tf:hover { background: var(--muted); }
+        .dept-item-tf.sel { font-weight: 600; }
+      ` }} />
+
+      <label style={{
+        display: "block", fontSize: 11, fontWeight: 700,
+        color: "var(--muted-foreground)", letterSpacing: "0.06em",
+        textTransform: "uppercase", marginBottom: "8px",
+      }}>
+        Departemen
+      </label>
+
+      <div
+        className="dept-scroll-tf"
+        style={{
+          maxHeight, overflowY: "auto",
+          borderRadius: "10px", padding: "4px",
+          border: "1px solid var(--border)",
+        }}
+      >
+
+        {DEPARTMENTS.map((dept) => {
+          const isSelected = selected.includes(dept)
+          return (
+            <button
+              key={dept}
+              onClick={() => onToggle(dept)}
+              className={`dept-item-tf${isSelected ? " sel" : ""}`}
+            >
+              <span>{dept}</span>
+              {isSelected && (
+                <span style={{ display: "flex", flexShrink: 0 }}>
+                  <Check size={14} />
+                </span>
+              )}
+            </button>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+```
+
+
+### FILE: src\components\ui\topbar-filter\filter-desktop.tsx
+```
+"use client"
+
+import { createPortal } from "react-dom"
+import { X } from "lucide-react"
+import { FilterPanel } from "./filter-panel"
+
+interface FilterDesktopProps {
+  mounted: boolean
+  visible: boolean
+  onClose: () => void
+  onReset: () => void
+  hasFilter: boolean
+  date: Date | undefined
+  onSelectDate: (d: Date | undefined) => void
+  selectedDepts: string[]
+  onToggleDept: (dept: string) => void
+}
+
+export function FilterDesktop({
+  mounted, visible, onClose, onReset, hasFilter,
+  date, onSelectDate, selectedDepts, onToggleDept,
+}: FilterDesktopProps) {
+  if (!mounted) return null
+
+  return createPortal(
+    <>
+      {/* Overlay */}
+      <div
+        onClick={onClose}
+        style={{
+          position: "fixed", inset: 0, zIndex: 51,
+          background: "rgba(0,0,0,0.35)", backdropFilter: "blur(1px)",
+          opacity: visible ? 1 : 0,
+          transition: "opacity 0.3s ease",
+        }}
+      />
+
+      {/* Sidebar panel */}
+      <div style={{
+        position: "fixed", top: 0, right: 0, bottom: 0,
+        width: "360px", zIndex: 52,
+        background: "var(--popover)",
+        borderLeft: "1px solid var(--border)",
+        boxShadow: "-8px 0 40px rgba(0,0,0,0.15)",
+        display: "flex", flexDirection: "column",
+        transform: visible ? "translateX(0)" : "translateX(100%)",
+        transition: "transform 0.3s cubic-bezier(0.32, 0.72, 0, 1)",
+        overflow: "hidden",
+      }}>
+        {/* Header */}
+        <div style={{
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          padding: "0 20px", height: "56px",
+          borderBottom: "1px solid var(--border)", flexShrink: 0,
+        }}>
+          <span style={{ fontSize: 15, fontWeight: 700, color: "var(--foreground)" }}>Filter</span>
+          <button
+            onClick={onClose}
+            style={{
+              width: 30, height: 30, display: "flex", alignItems: "center", justifyContent: "center",
+              borderRadius: "8px", background: "transparent", border: "none",
+              cursor: "pointer", color: "var(--muted-foreground)",
+              transition: "background 0.15s ease, color 0.15s ease",
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = "#fee2e2"; e.currentTarget.style.color = "#ef4444" }}
+            onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--muted-foreground)" }}
+          >
+            <X size={15} />
+          </button>
+        </div>
+
+        {/* Content */}
+        <div style={{ overflowY: "auto", flex: 1 }}>
+          <FilterPanel
+            date={date} onSelectDate={onSelectDate}
+            selectedDepts={selectedDepts} onToggleDept={onToggleDept}
+          />
+        </div>
+
+        {/* Footer */}
+        {hasFilter && (
+          <div style={{
+            flexShrink: 0, padding: "12px 20px 20px",
+            borderTop: "1px solid var(--border)",
+            display: "flex", gap: "8px",
+            background: "var(--popover)",
+          }}>
+            <button
+              onClick={onReset}
+              style={{
+                flex: 1, padding: "11px", borderRadius: "8px",
+                border: "1px solid #fca5a5", background: "#fff1f2",
+                color: "#ef4444", fontFamily: "inherit", fontSize: "13px",
+                fontWeight: 600, cursor: "pointer", transition: "background 0.15s ease",
+              }}
+              onMouseEnter={e => (e.currentTarget.style.background = "#fee2e2")}
+              onMouseLeave={e => (e.currentTarget.style.background = "#fff1f2")}
+            >
+              Reset
+            </button>
+          </div>
+        )}
+      </div>
+    </>,
+    document.body
+  )
+}
+```
+
+
+### FILE: src\components\ui\topbar-filter\filter-panel.tsx
+```
+"use client"
+
+import { DateField } from "./date-field"
+import { DeptField } from "./dept-field"
+
+interface FilterPanelProps {
+  date: Date | undefined
+  onSelectDate: (d: Date | undefined) => void
+  selectedDepts: string[]
+  onToggleDept: (dept: string) => void
+  isMobile?: boolean
+}
+
+export function FilterPanel({
+  date, onSelectDate,
+  selectedDepts, onToggleDept,
+  isMobile,
+}: FilterPanelProps) {
+  return (
+    <div style={{ padding: "16px" }}>
+      <DateField date={date} onSelect={onSelectDate} />
+      <DeptField
+        selected={selectedDepts}
+        onToggle={onToggleDept}
+        maxHeight={isMobile ? 240 : 200}
+      />
+    </div>
+  )
+}
+```
+
+
+### FILE: src\components\ui\topbar-filter\filter-sheet.tsx
+```
+"use client"
+
+import { useRef, useEffect } from "react"
+import { X } from "lucide-react"
+import { FilterPanel } from "./filter-panel"
+
+interface FilterSheetProps {
+  mounted: boolean
+  visible: boolean
+  onClose: () => void
+  onReset: () => void
+  hasFilter: boolean
+  date: Date | undefined
+  onSelectDate: (d: Date | undefined) => void
+  selectedDepts: string[]
+  onToggleDept: (dept: string) => void
+}
+
+export function FilterSheet({
+  mounted, visible, onClose, onReset, hasFilter,
+  date, onSelectDate, selectedDepts, onToggleDept,
+}: FilterSheetProps) {
+  const sheetRef = useRef<HTMLDivElement>(null)
+  const dragStartY = useRef<number | null>(null)
+  const dragCurrentY = useRef<number>(0)
+
+  // Blokir touchmove di luar sheet (iOS Safari)
+  useEffect(() => {
+    if (!mounted) return
+    const prevent = (e: TouchEvent) => {
+      if (sheetRef.current?.contains(e.target as Node)) return
+      if (e.cancelable) e.preventDefault()
+    }
+    document.addEventListener("touchmove", prevent, { passive: false })
+    return () => document.removeEventListener("touchmove", prevent)
+  }, [mounted])
+
+  // Drag to dismiss
+  useEffect(() => {
+    const el = sheetRef.current
+    if (!el || !mounted) return
+
+    function onTouchStart(e: TouchEvent) {
+      dragStartY.current = e.touches[0].clientY
+      dragCurrentY.current = 0
+      el!.style.transition = "none"
+    }
+
+    function onTouchMove(e: TouchEvent) {
+      if (dragStartY.current === null) return
+      const delta = e.touches[0].clientY - dragStartY.current
+      if (delta < 0) return
+      if (e.cancelable) e.preventDefault()
+      dragCurrentY.current = delta
+      el!.style.transform = `translateY(${delta}px)`
+    }
+
+    function onTouchEnd() {
+      el!.style.transition = "transform 0.35s cubic-bezier(0.32, 0.72, 0, 1)"
+      el!.style.transform = ""
+      if (dragCurrentY.current > 120) onClose()
+      dragStartY.current = null
+      dragCurrentY.current = 0
+    }
+
+    el.addEventListener("touchstart", onTouchStart, { passive: true })
+    el.addEventListener("touchmove", onTouchMove, { passive: false })
+    el.addEventListener("touchend", onTouchEnd)
+    return () => {
+      el.removeEventListener("touchstart", onTouchStart)
+      el.removeEventListener("touchmove", onTouchMove)
+      el.removeEventListener("touchend", onTouchEnd)
+    }
+  }, [mounted])
+
+  if (!mounted) return null
+
+  return (
+    <>
+      {/* Backdrop */}
+      <div
+        onClick={onClose}
+        style={{
+          position: "fixed", inset: 0, zIndex: 998,
+          background: "rgba(0,0,0,0.45)", backdropFilter: "blur(2px)",
+          opacity: visible ? 1 : 0,
+          transition: "opacity 0.35s ease",
+        }}
+      />
+
+      {/* Sheet */}
+      <div
+        ref={sheetRef}
+        style={{
+          position: "fixed", left: 0, right: 0, bottom: 0,
+          zIndex: 999, background: "var(--popover)",
+          borderRadius: "20px 20px 0 0",
+          boxShadow: "0 -8px 40px rgba(0,0,0,0.18)",
+          transform: visible ? "translateY(0)" : "translateY(100%)",
+          transition: "transform 0.35s cubic-bezier(0.32, 0.72, 0, 1)",
+          maxHeight: "90dvh", display: "flex", flexDirection: "column",
+          overflow: "hidden",
+        }}
+      >
+        {/* Drag handle */}
+        <div style={{ display: "flex", justifyContent: "center", padding: "12px 0 4px", flexShrink: 0, touchAction: "none" }}>
+          <div style={{ width: 40, height: 4, borderRadius: 2, background: "var(--border)" }} />
+        </div>
+
+        {/* Header */}
+        <div style={{
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          padding: "8px 16px 12px", borderBottom: "1px solid var(--border)", flexShrink: 0,
+        }}>
+          <span style={{ fontSize: 15, fontWeight: 700, color: "var(--foreground)" }}>Filter</span>
+          <button
+            onClick={onClose}
+            style={{
+              width: 30, height: 30, display: "flex", alignItems: "center", justifyContent: "center",
+              borderRadius: "8px", background: "transparent", border: "none",
+              cursor: "pointer", color: "var(--muted-foreground)",
+            }}
+          >
+            <X size={15} />
+          </button>
+        </div>
+
+        {/* Content */}
+        <div style={{ overflowY: "auto", flex: 1 }}>
+          <FilterPanel
+            date={date} onSelectDate={onSelectDate}
+            selectedDepts={selectedDepts} onToggleDept={onToggleDept}
+            isMobile
+          />
+        </div>
+
+        {/* Footer */}
+        {hasFilter && (
+          <div style={{
+            flexShrink: 0, padding: "12px 16px 16px",
+            borderTop: "1px solid var(--border)",
+            display: "flex", gap: "8px", background: "var(--popover)",
+          }}>
+            <button
+              onClick={onReset}
+              style={{
+                flex: 1, padding: "11px", borderRadius: "8px",
+                border: "1px solid #fca5a5", background: "#fff1f2",
+                color: "#ef4444", fontFamily: "inherit", fontSize: "13px",
+                fontWeight: 600, cursor: "pointer",
+              }}
+            >
+              Reset
+            </button>
+          </div>
+        )}
+      </div>
+    </>
+  )
+}
+```
+
+
+### FILE: src\components\ui\topbar-filter\index.tsx
+```
+"use client"
+
+import { SlidersHorizontal } from "lucide-react"
+import { useFilter } from "./use-filter"
+import { usePanel } from "./use-panel"
+import { FilterDesktop } from "./filter-desktop"
+import { FilterSheet } from "./filter-sheet"
+
+export default function TopbarFilter({ onFilterChange, disabled }: { onFilterChange?: any; disabled?: boolean }) {
+  const {
+    date, setDate,
+    selectedDepts, toggleDept,
+    hasFilter, reset,
+  } = useFilter(onFilterChange)
+
+  const {
+    isMobile,
+    desktopMounted, desktopVisible, closeDesktop,
+    sheetMounted, sheetVisible, closeSheet,
+    handleTriggerClick,
+  } = usePanel()
+
+  function handleReset() {
+    reset(isMobile ? closeSheet : closeDesktop)
+  }
+
+  return (
+    <>
+      {/* Tombol trigger */}
+      <button
+        onClick={disabled ? undefined : handleTriggerClick}
+        style={{
+          display: "flex", alignItems: "center", gap: "6px",
+          padding: "0 12px", height: "34px", borderRadius: "8px",
+          border: `1px solid ${hasFilter ? "#2563eb" : "var(--border)"}`,
+          background: hasFilter ? "#2563eb" : "transparent",
+          color: hasFilter ? "#ffffff" : "var(--muted-foreground)",
+          cursor: disabled ? "not-allowed" : "pointer",
+          opacity: disabled ? 0.4 : 1,
+          fontSize: "13px", fontFamily: "inherit",
+          fontWeight: 500, whiteSpace: "nowrap", flexShrink: 0,
+          transition: "all 0.2s ease",
+        }}
+      >
+        <SlidersHorizontal size={14} />
+        Filter
+        {hasFilter && (
+          <span style={{
+            background: "rgba(255,255,255,0.25)", color: "#fff",
+            fontSize: "10px", fontWeight: 700,
+            padding: "1px 6px", borderRadius: "10px",
+          }}>
+            {(date ? 1 : 0) + selectedDepts.length}
+          </span>
+        )}
+      </button>
+
+      {/* Desktop sidebar */}
+      <FilterDesktop
+        mounted={desktopMounted}
+        visible={desktopVisible}
+        onClose={closeDesktop}
+        onReset={handleReset}
+        hasFilter={hasFilter}
+        date={date}
+        onSelectDate={setDate}
+        selectedDepts={selectedDepts}
+        onToggleDept={toggleDept}
+      />
+
+      {/* Mobile bottom sheet */}
+      <FilterSheet
+        mounted={sheetMounted}
+        visible={sheetVisible}
+        onClose={closeSheet}
+        onReset={handleReset}
+        hasFilter={hasFilter}
+        date={date}
+        onSelectDate={setDate}
+        selectedDepts={selectedDepts}
+        onToggleDept={toggleDept}
+      />
+    </>
+  )
+}
+```
+
+
+### FILE: src\components\ui\topbar-filter\use-filter.ts
+```
+import { useState, useEffect } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
+import { format } from "date-fns"
+
+export function useFilter(onFilterChange?: (f: { date: string | null; departments: string[] }) => void) {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+
+  const [date, setDate] = useState<Date | undefined>(
+    searchParams.get("date") ? new Date(searchParams.get("date")!) : undefined
+  )
+  const [selectedDepts, setSelectedDepts] = useState<string[]>(
+    searchParams.get("dept") ? searchParams.get("dept")!.split(",") : []
+  )
+
+  const hasFilter = !!date || selectedDepts.length > 0
+
+  useEffect(() => {
+    const params = new URLSearchParams()
+    if (date) params.set("date", format(date, "yyyy-MM-dd"))
+    if (selectedDepts.length > 0) params.set("dept", selectedDepts.join(","))
+    router.push(`?${params.toString()}`, { scroll: false })
+    onFilterChange?.({
+      date: date ? format(date, "yyyy-MM-dd") : null,
+      departments: selectedDepts,
+    })
+  }, [date, selectedDepts])
+
+  function reset(onDone?: () => void) {
+    setDate(undefined)
+    setSelectedDepts([])
+    router.push("?")
+    onFilterChange?.({ date: null, departments: [] })
+    onDone?.()
+  }
+
+  function toggleDept(dept: string) {
+    setSelectedDepts(prev =>
+      prev.includes(dept) ? prev.filter(d => d !== dept) : [...prev, dept]
+    )
+  }
+
+  return { date, setDate, selectedDepts, toggleDept, hasFilter, reset }
+}
+```
+
+
+### FILE: src\components\ui\topbar-filter\use-panel.ts
+```
+import { useState, useRef, useEffect } from "react"
+
+export function usePanel() {
+  const [isMobile, setIsMobile] = useState(false)
+
+  // Desktop sidebar
+  const [desktopMounted, setDesktopMounted] = useState(false)
+  const [desktopVisible, setDesktopVisible] = useState(false)
+
+  // Mobile bottom sheet
+  const [sheetMounted, setSheetMounted] = useState(false)
+  const [sheetVisible, setSheetVisible] = useState(false)
+
+  const panelOpenRef = useRef(false)
+
+  // Sync panelOpenRef
+  useEffect(() => {
+    panelOpenRef.current = desktopMounted || sheetMounted
+  }, [desktopMounted, sheetMounted])
+
+  // Deteksi mobile + handle resize
+  useEffect(() => {
+    let prevMobile = window.innerWidth < 768
+
+    const check = () => {
+      const nowMobile = window.innerWidth < 768
+      setIsMobile(nowMobile)
+      if (nowMobile === prevMobile) return
+      prevMobile = nowMobile
+
+      restoreScroll()
+
+      if (nowMobile) {
+        setDesktopVisible(false)
+        setDesktopMounted(false)
+        if (panelOpenRef.current) openSheet()
+      } else {
+        setSheetVisible(false)
+        setSheetMounted(false)
+        if (panelOpenRef.current) openDesktop()
+      }
+    }
+
+    check()
+    window.addEventListener("resize", check)
+    return () => window.removeEventListener("resize", check)
+  }, [])
+
+  // ESC untuk tutup desktop
+  useEffect(() => {
+    if (!desktopMounted) return
+    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") closeDesktop() }
+    document.addEventListener("keydown", handler)
+    return () => document.removeEventListener("keydown", handler)
+  }, [desktopMounted])
+
+  function lockScroll() {
+    const scrollY = window.scrollY
+    document.body.style.position = "fixed"
+    document.body.style.top = `-${scrollY}px`
+    document.body.style.width = "100%"
+    document.body.style.overflow = "hidden"
+  }
+
+  function restoreScroll() {
+    const top = document.body.style.top
+    document.body.style.position = ""
+    document.body.style.top = ""
+    document.body.style.width = ""
+    document.body.style.overflow = ""
+    if (top) window.scrollTo(0, -parseInt(top || "0"))
+  }
+
+  function openDesktop() {
+    setDesktopMounted(true)
+    requestAnimationFrame(() => requestAnimationFrame(() => setDesktopVisible(true)))
+    lockScroll()
+  }
+
+  function closeDesktop() {
+    setDesktopVisible(false)
+    restoreScroll()
+    setTimeout(() => setDesktopMounted(false), 300)
+  }
+
+  function openSheet() {
+    setSheetMounted(true)
+    requestAnimationFrame(() => requestAnimationFrame(() => setSheetVisible(true)))
+    lockScroll()
+  }
+
+  function closeSheet() {
+    setSheetVisible(false)
+    restoreScroll()
+    setTimeout(() => setSheetMounted(false), 350)
+  }
+
+  function handleTriggerClick() {
+    if (isMobile) {
+      sheetMounted ? closeSheet() : openSheet()
+    } else {
+      desktopMounted ? closeDesktop() : openDesktop()
+    }
+  }
+
+  return {
+    isMobile,
+    desktopMounted, desktopVisible, closeDesktop,
+    sheetMounted, sheetVisible, closeSheet,
+    handleTriggerClick,
+  }
+}
+```
+
+
+### FILE: src\hooks\use-mobile.ts
+```
+import * as React from "react"
+
+const MOBILE_BREAKPOINT = 768
+
+export function useIsMobile() {
+  const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined)
+
+  React.useEffect(() => {
+    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
+    const onChange = () => {
+      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
+    }
+    mql.addEventListener("change", onChange)
+    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
+    return () => mql.removeEventListener("change", onChange)
+  }, [])
+
+  return !!isMobile
+}
+```
+
+
+### FILE: src\infrastructure\auth\auth-client.ts
+```
+import { usernameClient } from "better-auth/client/plugins"
+import { createAuthClient } from "better-auth/react"
+
+export const authClient = createAuthClient({
+  plugins: [usernameClient()],
+})
+
+export const { signIn, signUp, signOut, useSession } = authClient
+```
+
+
+### FILE: src\infrastructure\auth\better-auth.ts
+```
+import { betterAuth } from "better-auth"
+import { prismaAdapter } from "better-auth/adapters/prisma"
+import { bearer,username } from "better-auth/plugins"
+import { prisma } from "../databases/prisma-client"
+
+export const auth = betterAuth({
+  secret: process.env.BETTER_AUTH_SECRET,
+  database: prismaAdapter(prisma, {
+    provider: "postgresql",
+  }),
+  trustedOrigins: ["http://localhost:3001"],
+  emailAndPassword: {
+    enabled: true,
+    disableSignUp: true,
+  },
+  plugins: [bearer(), username()],
+  user: {
+    additionalFields: {
+      role: {
+        type: "string",
+        defaultValue: "GUEST",
+        input: false,
+      },
+    },
+  },
+})
+```
+
+
+### FILE: src\infrastructure\databases\prisma-client.ts
+```
+import { PrismaPg } from "@prisma/adapter-pg";
+import { PrismaClient } from "../../generated/prisma";
+import { Pool } from "pg";
+
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined;
+};
+
+// Inisialisasi Pool untuk PostgreSQL
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL!,
+});
+
+const adapter = new PrismaPg(pool as any); // Pastikan tipe yang benar sesuai dengan PrismaPg
+
+export const prisma =
+  globalForPrisma.prisma ?? new PrismaClient({ adapter });
+
+if (process.env.NODE_ENV !== "production") {
+  globalForPrisma.prisma = prisma;
+}
+```
+
+
+### FILE: src\infrastructure\repositories\surat-repositories.ts
+```
+import { prisma } from "@/lib/prisma"
+
+const includeAll = {
+  dept:        true,
+  detailSurat: true,
+} as const
+
+type DetailInput = {
+  perihal:      string
+  noSurat?:     string | null
+  lampiran?:    string | null
+  tanggalSurat: Date
+}
+
+type CreateInput = {
+  nomor:         string
+  asalSurat:     string
+  tujuan?:       string | null
+  tanggalTerima: Date
+  deptId:        string
+  detailSurat:   DetailInput[]
+}
+
+type UpdateInput = {
+  nomor?:         string
+  asalSurat?:     string
+  tujuan?:        string | null
+  tanggalTerima?: Date
+  detailSurat?:   DetailInput[]
+}
+
+// null â†’ undefined agar kompatibel dengan Prisma String? field
+function toStr(v: string | null | undefined): string | undefined {
+  return v ?? undefined
+}
+
+// mapping detail â€” null field dibuang
+function mapDetail(d: DetailInput) {
+  return {
+    perihal:      d.perihal,
+    noSurat:      toStr(d.noSurat),
+    lampiran:     toStr(d.lampiran),
+    tanggalSurat: d.tanggalSurat,
+  }
+}
+
+export class SuratRepository {
+
+  static async findAllByDept(deptId: string) {
+    return prisma.registerSurat.findMany({
+      where:   { deptId },
+      include: includeAll,
+      orderBy: { createdAt: "desc" },
+    })
+  }
+
+  static async findByIdAndDept(id: number, deptId: string) {
+    return prisma.registerSurat.findFirst({
+      where:   { id, deptId },
+      include: includeAll,
+    })
+  }
+
+  static async create(data: CreateInput) {
+    return prisma.registerSurat.create({
+      data: {
+        nomor:         data.nomor,
+        asalSurat:     data.asalSurat,
+        tujuan:        toStr(data.tujuan),   // âœ… null â†’ undefined
+        tanggalTerima: data.tanggalTerima,
+        deptId:        data.deptId,
+        detailSurat: {
+          create: data.detailSurat.map(mapDetail),
+        },
+      },
+      include: includeAll,
+    })
+  }
+
+  static async update(id: number, deptId: string, data: UpdateInput) {
+    return prisma.$transaction(async (tx) => {
+      if (data.detailSurat) {
+        await tx.detailSurat.deleteMany({ where: { registerId: id } })
+      }
+
+      return tx.registerSurat.update({
+        where: { id, deptId },
+        data: {
+          ...(data.nomor         !== undefined && { nomor:         data.nomor                }),
+          ...(data.asalSurat     !== undefined && { asalSurat:     data.asalSurat            }),
+          ...(data.tanggalTerima !== undefined && { tanggalTerima: data.tanggalTerima        }),
+          ...(data.tujuan        !== undefined && { tujuan:        toStr(data.tujuan)        }), // âœ… null â†’ undefined
+          ...(data.detailSurat   !== undefined && {
+            detailSurat: {
+              create: data.detailSurat.map(mapDetail),
+            },
+          }),
+        },
+        include: includeAll,
+      })
+    })
+  }
+
+  static async delete(id: number, deptId: string) {
+    return prisma.registerSurat.delete({
+      where: { id, deptId },
+    })
+  }
+}
+```
+
+
+### FILE: src\lib\generate-number.ts
+```
+import { prisma } from "@/infrastructure/databases/prisma-client"
+
+// Increment counter dan kembalikan nomor baru
+// Dipanggil saat CREATE surat â€” counter langsung naik
+export async function generateNomor(deptId: string): Promise<string> {
+  const counter = await prisma.nomorCounter.upsert({
+    where:  { deptId },          // â† field sesuai schema: deptId bukan dept
+    update: { counter: { increment: 1 } },
+    create: { deptId, counter: 1 },
+  })
+
+  return String(counter.counter).padStart(4, "0")
+}
+
+// Preview nomor berikutnya TANPA increment
+// Dipanggil saat form create untuk tampilan preview saja
+export async function getNextNomor(deptId: string): Promise<string> {
+  const counter = await prisma.nomorCounter.findUnique({
+    where: { deptId },
+  })
+
+  const next = (counter?.counter ?? 0) + 1
+  return String(next).padStart(4, "0")
+}
+```
+
+
+### FILE: src\lib\permission.ts
+```
+import { Role } from "@/app/_components/surat/shared"
+
+export function getPermission(role: Role) {
+  switch (role) {
+    case "ADMIN":
+      return { canCreate: true,  canEdit: true,  canDelete: true,  canPrint: true  }
+    case "STAFF":
+      return { canCreate: true,  canEdit: true,  canDelete: false, canPrint: true  }
+    case "PKL":
+      return { canCreate: false, canEdit: false, canDelete: false, canPrint: false }
+    default:
+      return { canCreate: false, canEdit: false, canDelete: false, canPrint: false }
+  }
+}
+```
+
+
+### FILE: src\lib\prisma.ts
+```
+import { PrismaClient } from "@/generated/prisma"
+import { PrismaPg }     from "@prisma/adapter-pg"
+import { Pool }         from "pg"
+
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined
+}
+
+function createPrismaClient() {
+  const pool    = new Pool({ connectionString: process.env.DATABASE_URL! })
+  const adapter = new PrismaPg(pool as any)
+  return new PrismaClient({ adapter })
+}
+
+export const prisma =
+  globalForPrisma.prisma ?? createPrismaClient()
+
+if (process.env.NODE_ENV !== "production") {
+  globalForPrisma.prisma = prisma
+}
+```
+
+
+### FILE: src\lib\routes.ts
+```
+export const routes = {
+  login: "/auth/login",
+  dashboard: {
+    admin: "/admin/dashboard",
+  },
+  dataSurat: {
+    staff: "/staff/data-surat",
+    pkl:   "/pkl/data-surat",    // â† tambah ini
+  },
+}
+
+export function getRouteByRole(role: string): string {
+  switch (role) {
+    case "ADMIN": return routes.dashboard.admin
+    case "STAFF": return routes.dataSurat.staff
+    case "PKL":   return routes.dataSurat.pkl   // â† fix: bukan ke /staff
+    default:      return "/auth/login"
+  }
+}
+
+// Helper baru: ambil basePath berdasarkan role
+export function getBasePathByRole(role: string): string {
+  switch (role) {
+    case "STAFF": return "/staff"
+    case "PKL":   return "/pkl"
+    case "ADMIN": return "/admin"
+    default:      return "/auth/login"
+  }
+}
+```
+
+
+### FILE: src\lib\utils.ts
+```
+import { clsx, type ClassValue } from "clsx"
+import { twMerge } from "tailwind-merge"
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
+}
+```
+
+
+### FILE: src\types\lord-icon.d.ts
+```
+import React from "react";
+
+type LordIconTrigger = "hover" | "click" | "loop" | "loop-on-hover" | "morph" | "in" | "morph-two-way";
+
+interface LordIconProps {
+  src?: string;
+  trigger?: LordIconTrigger;
+  delay?: string | number;
+  state?: string;
+  colors?: string;
+  style?: React.CSSProperties;
+  className?: string;
+}
+
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      "lord-icon": React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & LordIconProps;
+    }
+  }
+}
+```
