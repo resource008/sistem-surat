@@ -553,9 +553,10 @@ export default function DataSuratPage({ role, basePath, printPath }: Props) {
               } else {
                 try { sessionStorage.setItem("cetak:ids:all", ids) } catch {}
               }
+              // ✅ Tidak perlu ?ids= di URL — sudah tersimpan di sessionStorage
               const cetakPath = showPI
-                ? `${printPath}/pi?ids=${ids}`
-                : `${printPath}/all?ids=${ids}`
+                ? `${printPath}/pi`
+                : `${printPath}/all`
               router.push(cetakPath)
             }}
             className="flex items-center gap-1.5 h-8 px-3.5 rounded-full
