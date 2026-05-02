@@ -132,6 +132,7 @@ model DetailSurat {
   noSurat         String?        @map("no_surat")
   lampiran        String?
   tanggalSurat    DateTime       @map("tanggal_surat")
+  tujuan          String?
   createdAt       DateTime       @default(now()) @map("created_at")
   updatedAt       DateTime       @updatedAt @map("updated_at")
 

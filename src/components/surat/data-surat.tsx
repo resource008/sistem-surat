@@ -9,11 +9,11 @@ import {
 import { getPermission }                          from "@/lib/permission"
 import { format }                                 from "date-fns"
 import { id }                                     from "date-fns/locale"
-import { BrushCleaning, Loader2, Plus, Printer }  from "lucide-react"
+import { BrushCleaning, Plus, Printer }           from "lucide-react"
 import { useRouter, useSearchParams }             from "next/navigation"
 import { useCallback, useEffect, useState }       from "react"
 import { RegisterSurat, Role }                    from "./shared"
-import { LoadingSpinner } from "../shared/loading-skeleton"
+import { LoadingSpinner }                         from "../shared/loading-skeleton"
 
 interface Props {
   role:      Role
@@ -41,21 +41,20 @@ function writeSession(ids: Set<number>) {
 }
 
 export default function DataSuratPage({ role, basePath, printPath }: Props) {
-  const [data,        setData]        = useState<RegisterSurat[]>([])
-  const [loading,     setLoading]     = useState(true)
-  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
-
   const router       = useRouter()
   const searchParams = useSearchParams()
   const perm         = getPermission(role)
 
-  // ✅ FIX: Baca sessionStorage di useEffect (bukan lazy init)
-  // Lazy init tidak aman karena SSR tidak punya sessionStorage
+  const showPI = searchParams.get("mode") === "pi"
+
+  const [data,        setData]        = useState<RegisterSurat[]>([])
+  const [loading,     setLoading]     = useState(true)
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
+
   useEffect(() => {
     setSelectedIds(readSession())
-  }, []) // hanya saat mount
+  }, [])
 
-  // ✅ Simpan ke sessionStorage setiap selectedIds berubah
   useEffect(() => {
     writeSession(selectedIds)
   }, [selectedIds])
@@ -69,29 +68,24 @@ export default function DataSuratPage({ role, basePath, printPath }: Props) {
 
   const clearSelection = () => {
     setSelectedIds(new Set())
-    try {
-      sessionStorage.removeItem(SESSION_KEY)
-    } catch {}
+    try { sessionStorage.removeItem(SESSION_KEY) } catch {}
   }
 
   const loadData = useCallback(() => {
     setLoading(true)
-    fetch("/api/surat")
+    const url = showPI ? "/api/surat?type=pi" : "/api/surat"
+    fetch(url)
       .then(r => { if (!r.ok) throw new Error(); return r.json() })
       .then(json => setData(Array.isArray(json) ? json : []))
       .catch(() => setData([]))
       .finally(() => setLoading(false))
-  }, [])
+  }, [showPI])
 
   useEffect(() => {
     loadData()
     window.dispatchEvent(new CustomEvent("breadcrumb:sub",    { detail: null }))
     window.dispatchEvent(new CustomEvent("breadcrumb:subsub", { detail: null }))
   }, [loadData])
-
-  // ✅ DIHAPUS: useEffect filter auto-clear - ini penyebab utama bug!
-  // Filter berubah TIDAK otomatis clear selection
-  // User bisa clear manual via tombol "Bersihkan"
 
   const filterDate  = searchParams.get("date")
   const filterDepts = searchParams.get("dept")?.split(",") ?? []
@@ -101,7 +95,8 @@ export default function DataSuratPage({ role, basePath, printPath }: Props) {
       ? format(new Date(reg.tanggalTerima), "yyyy-MM-dd") === filterDate
       : true
     const matchDept = filterDepts.length > 0 ? filterDepts.includes(reg.deptId) : true
-    return matchDate && matchDept
+    const matchPI   = showPI ? reg.deptId === "PI" : reg.deptId !== "PI"
+    return matchDate && matchDept && matchPI
   })
 
   const groupedData = filteredData.reduce((acc: Record<string, RegisterSurat[]>, reg) => {
@@ -114,17 +109,24 @@ export default function DataSuratPage({ role, basePath, printPath }: Props) {
     return acc
   }, {})
 
+  // ✅ Sort group keys: tanggal terbaru di paling atas
+  const sortedGroupKeys = Object.keys(groupedData).sort((a, b) => {
+    const dateA = new Date(groupedData[a][0].tanggalTerima)
+    const dateB = new Date(groupedData[b][0].tanggalTerima)
+    return dateB.getTime() - dateA.getTime()
+  })
+
   if (loading) return (
-  <div className="flex min-h-[60vh] w-full items-center justify-center">
-    <LoadingSpinner message="Memuat data surat…" />
-  </div>
-)
+    <div className="flex min-h-[60vh] w-full items-center justify-center">
+      <LoadingSpinner message="Memuat data surat…" />
+    </div>
+  )
 
   if (filteredData.length === 0) return (
     <EmptyState
       description={
         <span className="leading-none">
-          {filterDate || filterDepts.length > 0
+          {filterDate || filterDepts.length > 0 || showPI
             ? "Tidak ada data yang sesuai filter."
             : <>
                 Silakan tambahkan data baru dengan mengklik tombol
@@ -140,7 +142,8 @@ export default function DataSuratPage({ role, basePath, printPath }: Props) {
 
   return (
     <div className="w-full animate-in fade-in duration-500 flex flex-col gap-3">
-      {Object.keys(groupedData).map((groupKey) => {
+      {/* ✅ Pakai sortedGroupKeys — bukan Object.keys(groupedData) */}
+      {sortedGroupKeys.map((groupKey) => {
         const [date, dept] = groupKey.split("|||")
         const registers    = groupedData[groupKey]
 
@@ -183,78 +186,224 @@ export default function DataSuratPage({ role, basePath, printPath }: Props) {
                     <span className="text-[11px] text-slate-400 dark:text-slate-500 shrink-0">
                       {reg.dept.shortName}
                     </span>
-                  </div>
-                  <div className={reg.detailSurat.length > 1
-                    ? "rounded-lg border border-slate-100 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800 overflow-hidden"
-                    : ""}>
-                    {reg.detailSurat.map((detail) => (
-                      <div
-                        key={detail.id}
-                        onClick={() => router.push(`${basePath}/view/${reg.deptId}/${reg.id}`)}
-                        className="flex items-start gap-3 px-3 py-2.5
-                          hover:bg-blue-50/50 dark:hover:bg-blue-900/10
-                          cursor-pointer active:bg-blue-100/50 transition-colors"
-                      >
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[13px] text-slate-700 dark:text-slate-300
-                            leading-snug mb-1 break-all whitespace-normal">
-                            {detail.perihal}
-                          </p>
-                          <div className="flex items-center gap-3">
-                            <span className="text-[11px] text-slate-400 dark:text-slate-500">
-                              <span className="text-slate-500 dark:text-slate-400">No: </span>
-                              {detail.noSurat ?? "-"}
-                            </span>
-                            <span className="text-[11px] text-slate-400 dark:text-slate-500">
-                              <span className="text-slate-500 dark:text-slate-400">Lamp: </span>
-                              {detail.lampiran ?? "-"}
-                            </span>
-                          </div>
-                        </div>
-                        <svg className="w-4 h-4 text-slate-300 dark:text-slate-600 shrink-0 mt-0.5"
-                          fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
+            </div>
+
+            {showPI ? (
+              <div className={((reg as any).detailPI ?? []).length > 1
+                ? "rounded-lg border border-slate-100 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800 overflow-hidden"
+                : ""}>
+                {((reg as any).detailPI ?? []).map((pi: any) => (
+                  <div
+                    key={pi.id}
+                    onClick={() => router.push(`${basePath}/view/${reg.deptId}/${reg.id}`)}
+                    className="flex items-start gap-3 px-3 py-2.5
+                      hover:bg-blue-50/50 dark:hover:bg-blue-900/10
+                      cursor-pointer active:bg-blue-100/50 transition-colors"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[13px] text-slate-700 dark:text-slate-300
+                        leading-snug mb-1 break-all whitespace-normal">
+                        {pi.namaSupplier ?? "-"}
+                      </p>
+                      <div className="flex items-center gap-3">
+                        <span className="text-[11px] text-slate-400 dark:text-slate-500">
+                          <span className="text-slate-500 dark:text-slate-400">Invoice: </span>
+                          {pi.noInvoice ?? "-"}
+                        </span>
+                        <span className="text-[11px] text-slate-400 dark:text-slate-500">
+                          <span className="text-slate-500 dark:text-slate-400">No. Surat: </span>
+                          {pi.nomorSurat ?? "-"}
+                        </span>
                       </div>
-                    ))}
+                    </div>
+                    <svg className="w-4 h-4 text-slate-300 dark:text-slate-600 shrink-0 mt-0.5"
+                      fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
                   </div>
+                ))}
+              </div>
+      ) : (
+        <div className={reg.detailSurat.length > 1
+          ? "rounded-lg border border-slate-100 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800 overflow-hidden"
+          : ""}>
+          {reg.detailSurat.map((detail) => (
+            <div
+              key={detail.id}
+              onClick={() => router.push(`${basePath}/view/${reg.deptId}/${reg.id}`)}
+              className="flex items-start gap-3 px-3 py-2.5
+                hover:bg-blue-50/50 dark:hover:bg-blue-900/10
+                cursor-pointer active:bg-blue-100/50 transition-colors"
+            >
+              <div className="flex-1 min-w-0">
+                <p className="text-[13px] text-slate-700 dark:text-slate-300
+                  leading-snug mb-1 break-all whitespace-normal">
+                  {detail.perihal}
+                </p>
+                <div className="flex items-center gap-3">
+                  <span className="text-[11px] text-slate-400 dark:text-slate-500">
+                    <span className="text-slate-500 dark:text-slate-400">No: </span>
+                    {detail.noSurat ?? "-"}
+                  </span>
+                  <span className="text-[11px] text-slate-400 dark:text-slate-500">
+                    <span className="text-slate-500 dark:text-slate-400">Lamp: </span>
+                    {detail.lampiran ?? "-"}
+                  </span>
                 </div>
-              ))}
+              </div>
+              <svg className="w-4 h-4 text-slate-300 dark:text-slate-600 shrink-0 mt-0.5"
+                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  ))}
             </div>
 
             {/* ── Desktop ── */}
-            <div className="hidden md:block">
-              <Table className="border-collapse table-fixed w-full">
+            <div className="hidden md:block overflow-x-auto">
+              <Table className="border-collapse w-full min-w-[600px]">
                 <TableHeader className="bg-slate-50 dark:bg-slate-900
                   border-b border-slate-200 dark:border-slate-800">
                   <TableRow className="hover:bg-transparent border-none">
                     <TableHead className="w-12 border-r border-slate-200 dark:border-slate-800 p-0" />
-                    <TableHead className="w-44 text-[10px] font-bold
+                    <TableHead className="w-36 text-[10px] font-bold
                       text-slate-500 dark:text-slate-400 uppercase tracking-widest
                       px-4 border-r border-slate-200 dark:border-slate-800">
                       Nomor Reg
                     </TableHead>
-                    <TableHead className="max-w-0 text-[10px] font-bold
-                      text-slate-500 dark:text-slate-400 uppercase tracking-widest
-                      px-4 border-r border-slate-200 dark:border-slate-800">
-                      Perihal
-                    </TableHead>
-                    <TableHead className="w-36 text-[10px] font-bold
-                      text-slate-500 dark:text-slate-400 uppercase tracking-widest
-                      px-4 border-r border-slate-200 dark:border-slate-800 text-center">
-                      Lampiran
-                    </TableHead>
-                    <TableHead className="w-36 text-[10px] font-bold
-                      text-slate-500 dark:text-slate-400 uppercase tracking-widest px-4">
-                      Tujuan
-                    </TableHead>
+
+                    {showPI ? (
+                      <>
+                        <TableHead className="text-[10px] font-bold
+                          text-slate-500 dark:text-slate-400 uppercase tracking-widest
+                          px-4 border-r border-slate-200 dark:border-slate-800">
+                          Nama Supplier
+                        </TableHead>
+                        <TableHead className="w-36 text-[10px] font-bold
+                          text-slate-500 dark:text-slate-400 uppercase tracking-widest
+                          px-4 border-r border-slate-200 dark:border-slate-800">
+                          No. Invoice
+                        </TableHead>
+                        <TableHead className="w-40 text-[10px] font-bold
+                          text-slate-500 dark:text-slate-400 uppercase tracking-widest
+                          px-4 border-r border-slate-200 dark:border-slate-800">
+                          No. Surat
+                        </TableHead>
+                        <TableHead className="w-28 text-[10px] font-bold
+                          text-slate-500 dark:text-slate-400 uppercase tracking-widest px-4">
+                          Tujuan
+                        </TableHead>
+                      </>
+                    ) : (
+                      <>
+                        <TableHead className="text-[10px] font-bold
+                          text-slate-500 dark:text-slate-400 uppercase tracking-widest
+                          px-4 border-r border-slate-200 dark:border-slate-800">
+                          Perihal
+                        </TableHead>
+                        <TableHead className="w-28 text-[10px] font-bold
+                          text-slate-500 dark:text-slate-400 uppercase tracking-widest
+                          px-4 border-r border-slate-200 dark:border-slate-800 text-center">
+                          Lampiran
+                        </TableHead>
+                        <TableHead className="w-28 text-[10px] font-bold
+                          text-slate-500 dark:text-slate-400 uppercase tracking-widest px-4">
+                          Tujuan
+                        </TableHead>
+                      </>
+                    )}
                   </TableRow>
                 </TableHeader>
 
                 <TableBody>
                   {registers.map((reg, regIdx) => {
                     const isLastReg = regIdx === registers.length - 1
-                    const details   = reg.detailSurat
+
+                    // ── Mode PI ───────────────────────────────────────
+                    if (showPI) {
+                      const piDetails = (reg as any).detailPI ?? []
+                      if (piDetails.length === 0) return null
+
+                      return piDetails.map((pi: any, idx: number) => {
+                        const isFirst        = idx === 0
+                        const isLast         = idx === piDetails.length - 1
+                        const isAbsoluteLast = isLastReg && isLast
+                        const innerBorder    = isAbsoluteLast ? "" : isLast
+                          ? "border-b border-b-slate-200 dark:border-b-slate-800"
+                          : "border-b border-b-slate-100 dark:border-b-slate-800/50"
+                        const spanBorder     = !isLastReg
+                          ? "border-b border-b-slate-200 dark:border-b-slate-800" : ""
+
+                        return (
+                          <TableRow
+                            key={pi.id}
+                            onClick={() => router.push(`${basePath}/view/${reg.deptId}/${reg.id}`)}
+                            className="cursor-pointer hover:bg-blue-50/50 dark:hover:bg-blue-900/20 transition-all"
+                          >
+                            {isFirst && (
+                              <TableCell
+                                rowSpan={piDetails.length}
+                                onClick={e => e.stopPropagation()}
+                                className={`w-12 p-0 border-r border-r-slate-200
+                                  dark:border-r-slate-800 align-middle ${spanBorder}`}
+                              >
+                                <div className="flex items-center justify-center w-full">
+                                  <Checkbox
+                                    checked={selectedIds.has(reg.id)}
+                                    onCheckedChange={() => toggleSelect(reg.id)}
+                                    className="border-slate-300 dark:border-slate-600 rounded-sm"
+                                  />
+                                </div>
+                              </TableCell>
+                            )}
+                            {isFirst && (
+                              <TableCell
+                                rowSpan={piDetails.length}
+                                className={`py-4 px-4 border-r border-r-slate-200
+                                  dark:border-r-slate-800 align-middle ${spanBorder}`}
+                              >
+                                <span className="font-mono text-[12px] font-bold
+                                  text-slate-800 dark:text-slate-200">
+                                  {reg.nomor}
+                                </span>
+                              </TableCell>
+                            )}
+                            <TableCell className={`max-w-0 py-3 px-4
+                              border-r border-r-slate-200 dark:border-r-slate-800
+                              text-[13px] text-slate-600 dark:text-slate-300
+                              font-medium leading-relaxed whitespace-normal break-all ${innerBorder}`}>
+                              {pi.namaSupplier ?? "-"}
+                            </TableCell>
+                            <TableCell className={`py-3 px-4
+                              border-r border-r-slate-200 dark:border-r-slate-800
+                              text-[13px] text-slate-500 dark:text-slate-400 ${innerBorder}`}>
+                              {pi.noInvoice ?? "-"}
+                            </TableCell>
+                            <TableCell className={`py-3 px-4
+                              border-r border-r-slate-200 dark:border-r-slate-800
+                              text-[13px] text-slate-500 dark:text-slate-400 ${innerBorder}`}>
+                              {pi.nomorSurat ?? "-"}
+                            </TableCell>
+                            {isFirst && (
+                              <TableCell
+                                rowSpan={piDetails.length}
+                                className={`py-4 px-4 align-middle
+                                  text-[13px] text-slate-500 dark:text-slate-400 ${spanBorder}`}
+                              >
+                                {pi.tujuan ?? reg.dept.shortName}
+                              </TableCell>
+                            )}
+                          </TableRow>
+                        )
+                      })
+                    }
+
+                    // ── Mode Surat (default) ──────────────────────────
+                    const details = reg.detailSurat
 
                     if (details.length === 1) {
                       const detail = details[0]
@@ -307,16 +456,11 @@ export default function DataSuratPage({ role, basePath, printPath }: Props) {
                       const isFirst        = idx === 0
                       const isLast         = idx === details.length - 1
                       const isAbsoluteLast = isLastReg && isLast
-
-                      const innerBorder = isAbsoluteLast
-                        ? ""
-                        : isLast
-                          ? "border-b border-b-slate-200 dark:border-b-slate-800"
-                          : "border-b border-b-slate-100 dark:border-b-slate-800/50"
-
-                      const spanBorder = !isLastReg
+                      const innerBorder    = isAbsoluteLast ? "" : isLast
                         ? "border-b border-b-slate-200 dark:border-b-slate-800"
-                        : ""
+                        : "border-b border-b-slate-100 dark:border-b-slate-800/50"
+                      const spanBorder     = !isLastReg
+                        ? "border-b border-b-slate-200 dark:border-b-slate-800" : ""
 
                       return (
                         <TableRow
@@ -404,8 +548,15 @@ export default function DataSuratPage({ role, basePath, printPath }: Props) {
           <button
             onClick={() => {
               const ids = Array.from(selectedIds).join(",")
-              writeSession(selectedIds) // ✅ explicit save sebelum navigasi
-              router.push(`${printPath}?ids=${ids}`)
+              if (showPI) {
+                try { sessionStorage.setItem("cetak:ids:pi",  ids) } catch {}
+              } else {
+                try { sessionStorage.setItem("cetak:ids:all", ids) } catch {}
+              }
+              const cetakPath = showPI
+                ? `${printPath}/pi?ids=${ids}`
+                : `${printPath}/all?ids=${ids}`
+              router.push(cetakPath)
             }}
             className="flex items-center gap-1.5 h-8 px-3.5 rounded-full
               bg-blue-600 hover:bg-blue-700 text-white text-[13px] font-medium

@@ -1,1 +1,5 @@
-export { default } from "@/app/(dashboard)/staff/cetak/page"
+import { redirect } from "next/navigation"
+
+export default function CetakPage() {
+  redirect("/pkl/cetak/all")
+}

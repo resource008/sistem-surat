@@ -494,9 +494,8 @@ function SidebarMenuButton({
   isActive?: boolean
 } & VariantProps<typeof sidebarMenuButtonVariants>) {
   const Comp = asChild ? Slot.Root : "button"
-  const { isMobile, state } = useSidebar()
 
-  const button = (
+  return (
     <Comp
       data-slot="sidebar-menu-button"
       data-sidebar="menu-button"
@@ -506,7 +505,6 @@ function SidebarMenuButton({
       {...props}
     />
   )
-
 }
 
 function SidebarMenuAction({

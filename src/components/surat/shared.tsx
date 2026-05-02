@@ -1,8 +1,8 @@
 "use client"
 
 // Types sekarang dari @/types, re-export untuk backward compat
-export type { Role, DetailSurat, RegisterSurat, FormState, SuratItem } from "@/types"
-export { EMPTY_FORM, EMPTY_SURAT_ITEM } from "@/types"
+export type { Role, DetailSurat, RegisterSurat, FormState, SuratItem, DetailPI, RegisterPI, PIItem } from "@/types"
+export { EMPTY_FORM, EMPTY_SURAT_ITEM, EMPTY_PI_ITEM } from "@/types"
 
 import React, { useState } from "react"
 import { cn } from "@/lib/utils"

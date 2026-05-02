@@ -1,3 +1,5 @@
+// components/surat/cetak-print-styles.tsx
+
 export function CetakPrintStyles() {
   return (
     <style>{`
@@ -111,11 +113,12 @@ export function CetakPrintStyles() {
           print-color-adjust         : exact !important;
         }
 
-        /* Semua cell body — putih */
+        /* Semua cell body */
         .pt tbody td {
           border             : 0.25pt solid #000;
           padding            : 3px 5px;
-          vertical-align     : top;
+          vertical-align     : middle;
+          text-align         : left;
           line-height        : 1.4;
           word-break         : break-word;
           color              : #000     !important;
@@ -124,26 +127,35 @@ export function CetakPrintStyles() {
           print-color-adjust         : exact !important;
         }
 
-        /* ✅ Cell yang di-merge (rowspan) — tengah vertikal */
+        /* Cell rowspan — tetap middle & kiri */
         .pt tbody td[rowspan] {
           vertical-align : middle !important;
-          text-align     : center !important;
+          text-align     : left   !important;
         }
 
-        /* ✅ Kolom Tanda Terima — ruang tanda tangan */
+        /* ✅ Kolom nomor register — rata kiri */
+        .pt tbody td.td-nomor {
+          text-align     : left   !important;
+          vertical-align : middle !important;
+          padding-left   : 6px   !important;
+        }
+
+        /* Kolom Tanda Terima — ruang tanda tangan */
         .pt td.td-ttd {
           vertical-align : middle !important;
           text-align     : center !important;
           min-height     : 60px  !important;
         }
 
-        /* Group header row */
+        /* Group header row — rata kiri */
         .pt .gh td {
           background-color   : #FFD700 !important;
           color              : #c00000 !important;
           font-weight        : bold;
           padding            : 4px 8px;
           border             : 0.25pt solid #000;
+          text-align         : left  !important;
+          vertical-align     : middle !important;
           -webkit-print-color-adjust : exact !important;
           print-color-adjust         : exact !important;
         }

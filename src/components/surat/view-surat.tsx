@@ -22,7 +22,10 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 
-import { RegisterSurat, Role, formatTanggal } from "./shared"
+import {
+  RegisterSurat, RegisterPI, SuratItem, PIItem, FormState,
+  EMPTY_SURAT_ITEM, EMPTY_PI_ITEM, FormField, DatePicker, Role, formatTanggal
+} from "./shared"
 
 interface Props { role: Role; basePath: string }
 
@@ -60,6 +63,7 @@ function Field({
 export default function ViewSuratPage({ role, basePath }: Props) {
   const { dept, id } = useParams<{ dept: string; id: string }>()
   const router       = useRouter()
+  const isPI         = dept === "PI"
 
   const [register,       setRegister]       = useState<RegisterSurat | null>(null)
   const [loading,        setLoading]        = useState(true)
@@ -97,11 +101,11 @@ export default function ViewSuratPage({ role, basePath }: Props) {
 
   /* loading state ------------------------------------------------- */
   if (loading) return (
-      <div className="flex h-100 w-full flex-col items-center justify-center gap-4">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-600 dark:text-blue-400" />
-        <p className="text-[15px] font-normal text-slate-500 dark:text-slate-400">Memuat Data...</p>
-      </div>
-    )
+    <div className="flex h-100 w-full flex-col items-center justify-center gap-4">
+      <Loader2 className="h-8 w-8 animate-spin text-blue-600 dark:text-blue-400" />
+      <p className="text-[15px] font-normal text-slate-500 dark:text-slate-400">Memuat Data...</p>
+    </div>
+  )
 
   /* error state --------------------------------------------------- */
   if (error || !register) return (
@@ -125,31 +129,23 @@ export default function ViewSuratPage({ role, basePath }: Props) {
     <>
       {/* ── AlertDialog konfirmasi hapus ─────────────────────────── */}
       <AlertDialog open={showDeleteConf} onOpenChange={setShowDeleteConf}>
-        <AlertDialogContent
-          className="
-            bg-white dark:bg-slate-950
-            border border-slate-200 dark:border-slate-800
-            shadow-xl shadow-black/20
-          "
-        >
+        <AlertDialogContent className="
+          bg-white dark:bg-slate-950
+          border border-slate-200 dark:border-slate-800
+          shadow-xl shadow-black/20
+        ">
           <AlertDialogHeader>
-            <AlertDialogTitle
-              className="text-slate-900 dark:text-slate-100 text-[15px] font-semibold"
-            >
-              Hapus Register Surat?
+            <AlertDialogTitle className="text-slate-900 dark:text-slate-100 text-[15px] font-semibold">
+              {isPI ? "Hapus Register PI?" : "Hapus Register Surat?"}
             </AlertDialogTitle>
-            <AlertDialogDescription
-              className="text-slate-500 dark:text-slate-400 text-[13px] leading-relaxed"
-            >
-              Seluruh data surat dalam register&nbsp;
+            <AlertDialogDescription className="text-slate-500 dark:text-slate-400 text-[13px] leading-relaxed">
+              Seluruh data dalam register&nbsp;
               <span className="font-semibold text-slate-800 dark:text-slate-200">
                 {register.nomor}
               </span>
-              &nbsp;akan terhapus <strong>permanen</strong> dan tidak dapat
-              dipulihkan.
+              &nbsp;akan terhapus <strong>permanen</strong> dan tidak dapat dipulihkan.
             </AlertDialogDescription>
           </AlertDialogHeader>
-
           <AlertDialogFooter>
             <AlertDialogCancel
               disabled={deleting}
@@ -163,16 +159,13 @@ export default function ViewSuratPage({ role, basePath }: Props) {
             >
               Batal
             </AlertDialogCancel>
-
             <AlertDialogAction
               disabled={deleting}
               onClick={(e) => { e.preventDefault(); handleDelete() }}
               className="
                 bg-red-600 hover:bg-red-700 active:bg-red-800
                 dark:bg-red-600 dark:hover:bg-red-700
-                text-white border-0
-                focus-visible:ring-red-500
-                gap-1.5
+                text-white border-0 focus-visible:ring-red-500 gap-1.5
               "
             >
               {deleting
@@ -184,15 +177,12 @@ export default function ViewSuratPage({ role, basePath }: Props) {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* ════════════════════════════════════════════════
-          ACTION BAR — fixed bawah tengah
-      ════════════════════════════════════════════════ */}
+      {/* ── Action bar ───────────────────────────────────────────── */}
       <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
         <div className="inline-flex items-center gap-1 p-1.5 rounded-2xl
           border border-slate-200/80 dark:border-slate-700/60
           bg-white/90 dark:bg-slate-950/90
-          backdrop-blur-xl shadow-2xl
-          shadow-slate-900/10 dark:shadow-black/50">
+          backdrop-blur-xl shadow-2xl shadow-slate-900/10 dark:shadow-black/50">
 
           <Button variant="ghost" onClick={() => router.push(basePath)}
             className="gap-2 h-10 px-4 rounded-xl text-[13px] font-medium
@@ -226,7 +216,6 @@ export default function ViewSuratPage({ role, basePath }: Props) {
             }
             Hapus
           </Button>
-
         </div>
       </div>
 
@@ -237,7 +226,7 @@ export default function ViewSuratPage({ role, basePath }: Props) {
         <div className="rounded-2xl border border-slate-200 dark:border-slate-800
                         bg-white dark:bg-slate-950 overflow-hidden shadow-sm">
           <div className="px-6 py-4
-            bg-gradient-to-r from-slate-50 to-white
+            bg-linear-to-r from-slate-50 to-white
             dark:from-slate-900 dark:to-slate-950
             border-b border-slate-200 dark:border-slate-800">
             <div className="flex items-start justify-between gap-3">
@@ -258,52 +247,93 @@ export default function ViewSuratPage({ role, basePath }: Props) {
               </Badge>
             </div>
           </div>
+
           <div className="px-6 py-5">
             <div className="grid grid-cols-2 gap-4">
-              <Field label="Asal Surat"    value={register.asalSurat} />
-              <Field label="Tujuan"         value={register.tujuan || "-"} />
-              <Field label="Tanggal Terima"
-                value={formatTanggal(register.tanggalTerima)}
-                fullWidth />
+              <Field label="Asal Surat"     value={register.asalSurat} />
+              <Field label="Tanggal Terima" value={formatTanggal(register.tanggalTerima)} />
+              {!isPI && (
+                <Field label="Tujuan" value={(register as any).tujuan || "-"} fullWidth />
+              )}
             </div>
           </div>
         </div>
 
-        {/* Daftar Surat */}
-        {register.detailSurat.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-slate-200
-                          dark:border-slate-800 px-6 py-12 text-center">
-            <FileText className="mx-auto mb-3 h-8 w-8 text-slate-300 dark:text-slate-700" />
-            <p className="text-[13px] text-slate-400 dark:text-slate-500">
-              Belum ada surat dalam register ini.
-            </p>
-          </div>
-        ) : (
-          register.detailSurat.map((detail, idx) => (
-            <div key={detail.id}
-              className="rounded-2xl border border-slate-200 dark:border-slate-800
-                         bg-white dark:bg-slate-950 overflow-hidden shadow-sm">
-              <div className="flex items-center gap-2.5 px-5 py-3
-                bg-slate-50/80 dark:bg-slate-900/80
-                border-b border-slate-200 dark:border-slate-800"> 
-                <span className="text-[12px] font-bold
-                                 text-slate-700 dark:text-slate-300
-                                 uppercase tracking-wider">
-                  Surat {idx + 1}
-                </span>
-              </div>
-              <div className="px-5 py-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <Field label="Perihal Surat" value={detail.perihal} fullWidth />
-                  <Field label="Nomor Surat"   value={detail.noSurat  ?? "-"} mono />
-                  <Field label="Lampiran"       value={detail.lampiran ?? "-"} />
-                  <Field label="Tanggal Surat"
-                    value={format(new Date(detail.tanggalSurat), "dd MMMM yyyy", { locale: localeID })}
-                    fullWidth />
+        {/* Daftar Surat / PI */}
+        {isPI ? (
+          !(register as any).detailPI?.length ? (
+            <div className="rounded-2xl border border-dashed border-slate-200
+                            dark:border-slate-800 px-6 py-12 text-center">
+              <FileText className="mx-auto mb-3 h-8 w-8 text-slate-300 dark:text-slate-700" />
+              <p className="text-[13px] text-slate-400 dark:text-slate-500">
+                Belum ada detail PI dalam register ini.
+              </p>
+            </div>
+          ) : (
+            (register as any).detailPI.map((pi: any, idx: number) => (
+              <div key={pi.id}
+                className="rounded-2xl border border-slate-200 dark:border-slate-800
+                           bg-white dark:bg-slate-950 overflow-hidden shadow-sm">
+                <div className="flex items-center gap-2.5 px-5 py-3
+                  bg-slate-50/80 dark:bg-slate-900/80
+                  border-b border-slate-200 dark:border-slate-800">
+                  <span className="text-[12px] font-bold
+                                   text-slate-700 dark:text-slate-300
+                                   uppercase tracking-wider">
+                    Invoice {idx + 1}
+                  </span>
+                </div>
+                <div className="px-5 py-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <Field label="Nama Supplier" value={pi.namaSupplier ?? "-"} fullWidth />
+                    <Field label="No. Invoice"   value={pi.noInvoice    ?? "-"} mono />
+                    <Field label="No. Surat"     value={pi.nomorSurat   ?? "-"} mono />
+                    <Field label="Tujuan"        value={pi.tujuan       ?? "-"} />
+                    <Field label="CC"            value={pi.cc           ?? "-"} />
+                    <Field label="Tanggal Surat"
+                      value={format(new Date(pi.tanggalSurat), "dd MMMM yyyy", { locale: localeID })}
+                      fullWidth />
+                  </div>
                 </div>
               </div>
+            ))
+          )
+        ) : (
+          !register.detailSurat?.length ? (
+            <div className="rounded-2xl border border-dashed border-slate-200
+                            dark:border-slate-800 px-6 py-12 text-center">
+              <FileText className="mx-auto mb-3 h-8 w-8 text-slate-300 dark:text-slate-700" />
+              <p className="text-[13px] text-slate-400 dark:text-slate-500">
+                Belum ada surat dalam register ini.
+              </p>
             </div>
-          ))
+          ) : (
+            register.detailSurat.map((detail, idx) => (
+              <div key={detail.id}
+                className="rounded-2xl border border-slate-200 dark:border-slate-800
+                           bg-white dark:bg-slate-950 overflow-hidden shadow-sm">
+                <div className="flex items-center gap-2.5 px-5 py-3
+                  bg-slate-50/80 dark:bg-slate-900/80
+                  border-b border-slate-200 dark:border-slate-800">
+                  <span className="text-[12px] font-bold
+                                   text-slate-700 dark:text-slate-300
+                                   uppercase tracking-wider">
+                    Surat {idx + 1}
+                  </span>
+                </div>
+                <div className="px-5 py-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <Field label="Perihal Surat" value={detail.perihal}         fullWidth />
+                    <Field label="Nomor Surat"   value={detail.noSurat  ?? "-"} mono />
+                    <Field label="Lampiran"      value={detail.lampiran ?? "-"} />
+                    <Field label="Tanggal Surat"
+                      value={format(new Date(detail.tanggalSurat), "dd MMMM yyyy", { locale: localeID })}
+                      fullWidth />
+                  </div>
+                </div>
+              </div>
+            ))
+          )
         )}
 
         <div className="h-20" />

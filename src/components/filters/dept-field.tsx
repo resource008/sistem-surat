@@ -6,7 +6,7 @@ import { Check } from "lucide-react"
 const DEPARTMENTS = [
   "HRD", "ENG", "IAD", "BPA", "GIS", "SND",
   "MD", "PS", "FAD", "ITD", "ESD", "LCA",
-  "SMD", "ERP", "CID", "Medical",
+  "SMD", "ERP", "CID", "MED",
 ]
 
 interface DeptFieldProps {

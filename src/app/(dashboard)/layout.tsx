@@ -8,16 +8,14 @@ import {
     AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { ThemeToggle } from "@/components/ui/theme-toogle"
-import { TutorialCetak } from "@/components/shared/tutorial-cetak"   // ← tambahan
+import { TutorialCetak } from "@/components/shared/tutorial-cetak"
 import { routes } from "@/constants/routes"
 import { getMenuItems } from "@/constants/surat-menu"
 import { authClient } from "@/infrastructure/auth/auth-client"
 import type { Role } from "@/types"
 import {
-    ArrowLeftCircle, ArrowRightCircle, ChevronRight,
-    LogOut, Menu, Plus,
-    Printer,
-    X
+    ArrowLeftCircle, ArrowLeftRight, ArrowRightCircle, ChevronRight,
+    LogOut, Menu, Plus, Printer, X
 } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
@@ -42,54 +40,46 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     name: "Loading...", role: "STAFF", initials: "??",
   })
 
-  const [filters, setFilters] = useState<{
-    date: string | null; departments: string[]
-  }>(() => {
-    if (typeof window === "undefined") return { date: null, departments: [] }
-    try {
-      const saved = localStorage.getItem("topbar_filters")
-      return saved ? JSON.parse(saved) : { date: null, departments: [] }
-    } catch {
-      return { date: null, departments: [] }
-    }
-  })
+  // ── showPI TIDAK ada di state — baca langsung dari URL ──────────────────
+  const showPI = searchParams.get("mode") === "pi"
 
-  const hasActiveFilters = filters.date !== null || filters.departments.length > 0
+  const [filters, setFilters] = useState<{
+    date: string | null
+    departments: string[]
+  }>({ date: null, departments: [] })
 
   const [hasCetakData, setHasCetakData] = useState(false)
-  const idsParam     = searchParams.get("ids") ?? ""
-
-  function handleClearFilters() {
-    const empty = { date: null, departments: [] }
-    setFilters(empty)
-    localStorage.removeItem("topbar_filters")
-    window.dispatchEvent(new CustomEvent("filter:change", { detail: empty }))
-  }
-
-  function handleClearCetak() {
-    window.dispatchEvent(new CustomEvent("cetak:clear"))
-  }
 
   const menuItems       = getMenuItems(role)
   const roleLower       = role.toLowerCase()
   const isDataSuratPage = pathname === `/${roleLower}/data-surat`
-  const isCetakPage     = pathname === `/${roleLower}/cetak`
+  const isCetakPage = pathname.startsWith(`/${roleLower}/cetak`)
+  const hasActiveFilters = filters.date !== null || filters.departments.length > 0
 
+  // ── Init: baca localStorage sekali saat mount ──────────────────────────
   useEffect(() => {
     const saved = localStorage.getItem("sidebar_collapsed")
     if (saved !== null && window.innerWidth >= 768) setCollapsed(JSON.parse(saved))
+
+    try {
+      const savedFilters = localStorage.getItem("topbar_filters")
+      const parsed = savedFilters ? JSON.parse(savedFilters) : {}
+      setFilters({
+        date        : parsed.date        ?? null,
+        departments : parsed.departments ?? [],
+      })
+    } catch {}
+
     setIsMounted(true)
   }, [])
 
+  // ── Simpan collapsed ke localStorage ───────────────────────────────────
   useEffect(() => {
     if (isMounted && !isMobile)
       localStorage.setItem("sidebar_collapsed", JSON.stringify(collapsed))
   }, [collapsed, isMounted, isMobile])
 
-  useEffect(() => {
-    window.dispatchEvent(new CustomEvent("filter:change", { detail: filters }))
-  }, [filters])
-
+  // ── Responsive ──────────────────────────────────────────────────────────
   useEffect(() => {
     const check = () => {
       const mobile = window.innerWidth < 768
@@ -101,17 +91,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     return () => window.removeEventListener("resize", check)
   }, [])
 
+  // ── Reset mobile menu & breadcrumb saat navigasi ────────────────────────
   useEffect(() => {
     setMobileOpen(false)
     setSubtitle(null)
     setSubsubtitle(null)
   }, [pathname])
 
-  useEffect(() => {
-    if (!isMounted) return
-    window.dispatchEvent(new CustomEvent("filter:change", { detail: filters }))
-  }, [pathname, isMounted])
-
+  // ── Breadcrumb listeners ─────────────────────────────────────────────────
   useEffect(() => {
     const h = (e: Event) => setSubtitle((e as CustomEvent<string | null>).detail)
     window.addEventListener("breadcrumb:sub", h)
@@ -124,6 +111,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     return () => window.removeEventListener("breadcrumb:subsub", h)
   }, [])
 
+  // ── Auth ─────────────────────────────────────────────────────────────────
   useEffect(() => {
     async function fetchUser() {
       const { data } = await authClient.getSession()
@@ -138,6 +126,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     fetchUser()
   }, [])
 
+  // ── Cetak listeners ──────────────────────────────────────────────────────
   useEffect(() => {
     const handler = (e: Event) => {
       const count = (e as CustomEvent<{ count: number }>).detail.count
@@ -157,6 +146,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     if (!pathname.includes("/cetak")) setHasCetakData(false)
   }, [pathname])
 
+  // ── Clear filter hanya untuk date/dept — showPI tidak terpengaruh ────────
+  function handleClearFilters() {
+    const next = { date: null, departments: [] }
+    setFilters(next)
+    localStorage.removeItem("topbar_filters")
+    // Pertahankan ?mode=pi kalau sedang aktif
+    router.push(showPI ? `/${roleLower}/data-surat?mode=pi` : `/${roleLower}/data-surat`)
+  }
+
+  function handleClearCetak() {
+    window.dispatchEvent(new CustomEvent("cetak:clear"))
+  }
+
   async function handleLogout() {
     const { data: session } = await authClient.getSession()
     if (session?.session?.token)
@@ -170,8 +172,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   if (!isMounted) return <div className="min-h-screen bg-background" />
 
   const currentPage = (() => {
-    const matched = menuItems.find((item) => item.href === pathname)
-    if (matched) return matched.label
+    // ✅ cek berdasarkan segment path, bukan full href
+    if (pathname.includes("/cetak"))      return "Cetak"
+    if (pathname.includes("/data-surat")) return "Data Surat"
+    if (pathname.includes("/track"))      return "Track Surat"
     if (pathname.includes("/view/") || pathname.includes("/edit/")) return "Data Surat"
     return "Data Surat"
   })()
@@ -183,11 +187,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <>
       <div className={styles.sidebarHeader}>
         <div className={styles.logoWrapper}>
-          <Image
-            src="/sipef_logo.svg" alt="Logo"
-            width={32} height={32}
-            className={styles.logoImage} priority
-          />
+          <Image src="/sipef_logo.svg" alt="Logo" width={32} height={32} className={styles.logoImage} priority />
         </div>
         {isMobile ? (
           <button className={styles.collapseBtn} onClick={() => setMobileOpen(false)}>
@@ -215,13 +215,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <nav className={styles.nav}>
         {menuItems.map((item) => {
           const Icon     = item.icon
-          const isActive = pathname === item.href
+          const isActive = pathname === item.href || (item.href.includes("/cetak") && pathname.includes("/cetak"))
           return (
             <div key={item.href} className={styles.navItemWrapper}>
-              <Link
-                href={item.href}
-                className={`${styles.navItem} ${isActive ? styles.navItemActive : ""}`}
-              >
+              <Link href={item.href} className={`${styles.navItem} ${isActive ? styles.navItemActive : ""}`}>
                 <span className={styles.navIcon}>
                   <Icon size={ICON_SIZE} strokeWidth={isActive ? 2.5 : 1.8} />
                 </span>
@@ -270,10 +267,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Batal</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={handleLogout}
-                className="bg-red-500 hover:bg-red-600 text-white"
-              >
+              <AlertDialogAction onClick={handleLogout} className="bg-red-500 hover:bg-red-600 text-white">
                 Keluar
               </AlertDialogAction>
             </AlertDialogFooter>
@@ -313,11 +307,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div id="topbar" className={styles.topbar}>
           <div className={styles.topbarLeft}>
             {isMobile && (
-              <button
-                className={styles.hamburger}
-                onClick={() => setMobileOpen(true)}
-                aria-label="Buka menu"
-              >
+              <button className={styles.hamburger} onClick={() => setMobileOpen(true)} aria-label="Buka menu">
                 <Menu size={20} />
               </button>
             )}
@@ -325,10 +315,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <nav className={styles.breadcrumb} aria-label="breadcrumb">
               {subtitle && subsubtitle ? (
                 <>
-                  <button
-                    className={styles.breadcrumbParent}
-                    onClick={() => router.push(`/${roleLower}/data-surat`)}
-                  >
+                  <button className={styles.breadcrumbParent} onClick={() => router.push(`/${roleLower}/data-surat`)}>
                     {currentPage}
                   </button>
                   <ChevronRight size={14} className={styles.breadcrumbSep} />
@@ -340,10 +327,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </>
               ) : subtitle ? (
                 <>
-                  <button
-                    className={styles.breadcrumbParent}
-                    onClick={() => router.push(`/${roleLower}/data-surat`)}
-                  >
+                  <button className={styles.breadcrumbParent} onClick={() => router.push(`/${roleLower}/data-surat`)}>
                     {currentPage}
                   </button>
                   <ChevronRight size={14} className={styles.breadcrumbSep} />
@@ -355,14 +339,55 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </nav>
           </div>
 
-          {/* ── Actions kanan ────────────────────────────────── */}
+          {/* ── Actions kanan: Data Surat ─────────────────────── */}
           {isDataSuratPage && (
             <div className="flex items-center gap-1.5">
-              <TopbarFilter
-                initialFilters={filters}
-                onFilterChange={setFilters}
-              />
-              {hasActiveFilters && (
+
+              {/* ── Switch PI/Surat — baca & tulis ke URL langsung ── */}
+              <button
+                onClick={() => {
+                  const base = `/${roleLower}/data-surat`
+                  router.push(showPI ? base : `${base}?mode=pi`)
+                }}
+                title={showPI ? "Kembali ke semua surat" : "Tampilkan hanya data PI"}
+                style={{
+                  display     : "flex",
+                  alignItems  : "center",
+                  gap         : "6px",
+                  padding     : "0 12px",
+                  height      : "34px",
+                  borderRadius: "8px",
+                  border      : showPI ? "1px solid #2563eb" : "1px solid var(--border)",
+                  background  : showPI ? "#2563eb" : "transparent",
+                  color       : showPI ? "#ffffff" : "var(--muted-foreground)",
+                  fontSize    : "13px",
+                  fontWeight  : 500,
+                  fontFamily  : "inherit",
+                  cursor      : "pointer",
+                  whiteSpace  : "nowrap",
+                  flexShrink  : 0,
+                  transition  : "all 0.2s ease",
+                }}
+              >
+                <ArrowLeftRight size={14} />
+                {!isMobile && (
+                  <span>{showPI ? "Alihkan ke Surat" : "Alihkan ke PI"}</span>
+                )}
+              </button>
+
+              {/* ── Filter hanya tampil di mode Surat ── */}
+              {!showPI && (
+                <TopbarFilter
+                  initialFilters={filters}
+                  onFilterChange={(f) => {
+                    setFilters(f)
+                    localStorage.setItem("topbar_filters", JSON.stringify(f))
+                  }}
+                />
+              )}
+
+              {/* ── Clear filter hanya di mode Surat ── */}
+              {!showPI && hasActiveFilters && (
                 <button
                   onClick={handleClearFilters}
                   title="Bersihkan filter"
@@ -379,12 +404,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </div>
           )}
 
-          {/* ── Cetak page actions ──────────────────────────── */}
+          {/* ── Actions kanan: Cetak ──────────────────────────── */}
           {isCetakPage && (
             <div className="flex items-center gap-2">
-              {/* ← tombol tutorial ditambahkan di sini */}
               <TutorialCetak />
-
               <button
                 onClick={hasCetakData ? handleClearCetak : undefined}
                 disabled={!hasCetakData}
@@ -406,7 +429,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <X size={14} />
                 {!isMobile && "Bersihkan"}
               </button>
-
               <button
                 onClick={hasCetakData ? () => window.print() : undefined}
                 disabled={!hasCetakData}
@@ -425,13 +447,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </div>
           )}
         </div>
-        {/* ── End topbar ───────────────────────────────────────── */}
 
         <div className={styles.content}>{children}</div>
 
+        {/* ── Tombol + Tambah ── */}
         {isDataSuratPage && (
           <button
-            onClick={() => router.push(`/${roleLower}/add`)}
+            onClick={() => {
+              // showPI sudah dari URL, langsung pakai
+              sessionStorage.setItem("add_return_mode", showPI ? "pi" : "surat")
+              router.push(`/${roleLower}/add`)
+            }}
             title="Tambah Surat"
             className="fixed bottom-6 right-6 z-50
               flex items-center justify-center

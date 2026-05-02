@@ -107,3 +107,79 @@ export class SuratRepository {
     })
   }
 }
+
+// ─── PI Repository ────────────────────────────────────────────────────────────
+
+const includeAllPI = {
+  dept:     true,
+  detailPI: true,
+} as const
+
+type DetailPIInput = {
+  namaSupplier: string
+  noInvoice?:   string | null
+  nomorSurat?:  string | null
+  tujuan?:      string | null
+  cc?:          string | null
+  tanggalSurat: Date
+}
+
+type UpdatePIInput = {
+  asalSurat?:     string
+  tanggalTerima?: Date
+  detailPI?:      DetailPIInput[]
+}
+
+function mapDetailPI(d: DetailPIInput) {
+  return {
+    namaSupplier: d.namaSupplier,
+    noInvoice:    toStr(d.noInvoice),
+    nomorSurat:   toStr(d.nomorSurat),
+    tujuan:       toStr(d.tujuan),
+    cc:           toStr(d.cc),
+    tanggalSurat: d.tanggalSurat,
+  }
+}
+
+export class PIRepository {
+
+  static async findAll() {
+    return prisma.registerPI.findMany({
+      include: includeAllPI,
+      orderBy: { createdAt: "desc" },
+    })
+  }
+
+  static async findByIdAndDept(id: number, deptId: string) {
+    return prisma.registerPI.findFirst({
+      where:   { id, deptId },
+      include: includeAllPI,
+    })
+  }
+
+  static async update(id: number, deptId: string, data: UpdatePIInput) {
+    return prisma.$transaction(async (tx) => {
+      if (data.detailPI) {
+        await tx.detailPI.deleteMany({ where: { registerId: id } })
+      }
+
+      return tx.registerPI.update({
+        where: { id, deptId },
+        data: {
+          ...(data.asalSurat     !== undefined && { asalSurat:     data.asalSurat     }),
+          ...(data.tanggalTerima !== undefined && { tanggalTerima: data.tanggalTerima }),
+          ...(data.detailPI      !== undefined && {
+            detailPI: { create: data.detailPI.map(mapDetailPI) },
+          }),
+        },
+        include: includeAllPI,
+      })
+    })
+  }
+
+  static async delete(id: number, deptId: string) {
+    return prisma.registerPI.delete({
+      where: { id, deptId },
+    })
+  }
+}

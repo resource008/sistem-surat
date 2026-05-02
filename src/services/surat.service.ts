@@ -10,14 +10,13 @@ export function groupCetakData(data: RegisterSurat[]): CetakGroup[] {
     const key     = `${dateStr}__${reg.dept.shortName}`
 
     if (!map.has(key)) {
-      // ✅ Tambah field label langsung di sini
       const labelDate = format(new Date(reg.tanggalTerima), "dd MMMM yyyy", { locale: id })
                           .toUpperCase()
       map.set(key, {
         key,
-        label:     `${labelDate} (${reg.dept.shortName})`, // ✅ "23 APRIL 2026 (CID)"
-        date:      reg.tanggalTerima,
-        dept:      reg.dept.shortName,
+        label    : `${labelDate} (${reg.dept.shortName})`,
+        date     : reg.tanggalTerima,
+        dept     : reg.dept.shortName,
         registers: [],
       })
     }
@@ -31,5 +30,9 @@ export function groupCetakData(data: RegisterSurat[]): CetakGroup[] {
 }
 
 export function calcTotalSurat(data: RegisterSurat[]): number {
-  return data.reduce((sum, r) => sum + r.detailSurat.length, 0)
+  return data.reduce((sum, r) => {
+    // ✅ support detailSurat (ALL) dan detailPI (PI)
+    const detail = r.detailSurat ?? (r as any).detailPI ?? []
+    return sum + detail.length
+  }, 0)
 }

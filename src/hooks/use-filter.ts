@@ -15,8 +15,8 @@ export function useFilter(
   // ── Init: URL params > initialFilters > kosong ────────────────────────
   const [date, setDateState] = useState<Date | undefined>(() => {
     const urlDate = searchParams.get("date")
-    if (urlDate)                return new Date(urlDate)
-    if (initialFilters?.date)   return new Date(initialFilters.date)
+    if (urlDate)              return new Date(urlDate)
+    if (initialFilters?.date) return new Date(initialFilters.date)
     return undefined
   })
 
@@ -50,7 +50,7 @@ export function useFilter(
   // ── Update URL + notify parent ────────────────────────────────────────
   useEffect(() => {
     const params = new URLSearchParams()
-    if (date)                   params.set("date", format(date, "yyyy-MM-dd"))
+    if (date)                     params.set("date", format(date, "yyyy-MM-dd"))
     if (selectedDepts.length > 0) params.set("dept", selectedDepts.join(","))
 
     router.push(`?${params.toString()}`, { scroll: false })

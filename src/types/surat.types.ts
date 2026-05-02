@@ -78,3 +78,44 @@ export interface CetakGroup {
   dept      : string
   registers : RegisterSurat[]
 }
+
+export interface DetailPI {
+  id:           number
+  registerId:   number
+  namaSupplier: string
+  noInvoice:    string | null
+  nomorSurat:   string | null
+  tujuan:       string | null
+  cc:           string | null
+  tanggalSurat: string
+}
+
+export interface RegisterPI {
+  id:            number
+  nomor:         string
+  deptId:        string
+  dept:          { id: string; shortName: string }
+  asalSurat:     string
+  tanggalTerima: string
+  detailPI:      DetailPI[]
+}
+
+export interface PIItem {
+  id:           string
+  namaSupplier: string
+  noInvoice:    string
+  nomorSurat:   string
+  tujuan:       string
+  cc:           string
+  tanggalSurat: string
+}
+
+export const EMPTY_PI_ITEM = (): PIItem => ({
+  id:           crypto.randomUUID(),
+  namaSupplier: "",
+  noInvoice:    "",
+  nomorSurat:   "",
+  tujuan:       "",
+  cc:           "",
+  tanggalSurat: "",
+})
