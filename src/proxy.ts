@@ -9,10 +9,18 @@ const PROTECTED_PATHS = [
   "/pkl",
 ]
 
+// ── Admin only paths ──────────────────────────────────────────────
+const ADMIN_PATHS = [
+  "/dashboard",
+  "/users",
+  "/departemen",
+]
+
 // ── Skip paths ────────────────────────────────────────────────────
 const SKIP_PATHS = [
   "/api/auth",
   "/login",
+  "/forbidden",
 ]
 
 export default async function middleware(request: NextRequest) {
@@ -24,11 +32,14 @@ export default async function middleware(request: NextRequest) {
   )
   if (shouldSkip) return NextResponse.next()
 
-  // Skip jika bukan protected path
   const isProtected = PROTECTED_PATHS.some((path) =>
     pathname.startsWith(path),
   )
-  if (!isProtected) return NextResponse.next()
+  const isAdminPath = ADMIN_PATHS.some((path) =>
+    pathname.startsWith(path),
+  )
+
+  if (!isProtected && !isAdminPath) return NextResponse.next()
 
   // ── Cek session Better Auth ───────────────────────────────────
   const { data: session } = await betterFetch<Session>(
@@ -45,6 +56,11 @@ export default async function middleware(request: NextRequest) {
     const loginUrl = new URL("/login", request.url)
     loginUrl.searchParams.set("callbackUrl", pathname)
     return NextResponse.redirect(loginUrl)
+  }
+
+  // ── Cek role ADMIN untuk admin paths ─────────────────────────
+  if (isAdminPath && session.user.role !== "ADMIN") {
+    return NextResponse.redirect(new URL("/forbidden", request.url))
   }
 
   return NextResponse.next()
