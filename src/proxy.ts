@@ -59,7 +59,7 @@ export default async function middleware(request: NextRequest) {
   }
 
   // ── Cek role ADMIN untuk admin paths ─────────────────────────
-  if (isAdminPath && session.user.role !== "ADMIN") {
+  if (isAdminPath && (session as any).user?.role !== "ADMIN") {
     return NextResponse.redirect(new URL("/forbidden", request.url))
   }
 

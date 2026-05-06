@@ -1,5 +1,6 @@
 "use client"
 
+import { Suspense } from "react"
 import styles from "@/app/layout.module.css"
 import TopbarFilter from "@/components/filters/index"
 import {
@@ -24,7 +25,8 @@ import { useEffect, useState } from "react"
 
 const ICON_SIZE = 18
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+// ── Inner component (semua logika tetap di sini) ─────────────────────────────
+function DashboardLayoutInner({ children }: { children: React.ReactNode }) {
   const pathname     = usePathname()
   const router       = useRouter()
   const searchParams = useSearchParams()
@@ -471,5 +473,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         )}
       </main>
     </div>
+  )
+}
+
+// ── Default export: wrapper dengan Suspense ───────────────────────────────────
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-background" />}>
+      <DashboardLayoutInner>{children}</DashboardLayoutInner>
+    </Suspense>
   )
 }

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect }        from "react"
+import { useState, useEffect, Suspense }        from "react"
 import { useSearchParams }            from "next/navigation"
 import { format }                     from "date-fns"
 import { id }                         from "date-fns/locale"
@@ -13,7 +13,7 @@ import { CetakPrintStyles }                from "@/components/surat/cetak-print-
 import { CetakScreenView }                 from "@/components/surat/cetak-screen-view"
 import { CetakPrintView }                  from "@/components/surat/cetak-print-view"
 
-export default function CetakAllPage() {
+function CetakAllContent() {
   const searchParams          = useSearchParams()
   const idsParam              = searchParams.get("ids") ?? ""
   const { data, loading }     = useCetakData(idsParam, "all")
@@ -59,5 +59,13 @@ export default function CetakAllPage() {
         <CetakPrintView groups={groups} totalSurat={totalSurat} printedAt={printedAt} />
       )}
     </>
+  )
+}
+
+export default function CetakAllPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <CetakAllContent />
+    </Suspense>
   )
 }

@@ -1,19 +1,19 @@
 "use client"
 
-import { useState, useEffect }        from "react"
-import { useSearchParams }            from "next/navigation"
-import { format }                     from "date-fns"
-import { id }                         from "date-fns/locale"
+import { format } from "date-fns"
+import { id } from "date-fns/locale"
+import { useSearchParams } from "next/navigation"
+import { Suspense, useEffect, useState } from "react"
 
-import { useCetakData, clearCetakSession } from "@/hooks/use-cetak"
-import { groupCetakData, calcTotalSurat }  from "@/services/surat.service"
-import { CetakEmpty }                      from "@/components/surat/cetak-empty"
-import { LoadingSpinner }                  from "@/components/shared/loading-skeleton"
-import { CetakPrintStyles }                from "@/components/surat/cetak-print-styles"
-import { CetakScreenView }                 from "@/components/surat/cetak-screen-view"
-import { CetakPrintView }                  from "@/components/surat/cetak-print-view"
+import { LoadingSpinner } from "@/components/shared/loading-skeleton"
+import { CetakEmpty } from "@/components/surat/cetak-empty"
+import { CetakPrintStyles } from "@/components/surat/cetak-print-styles"
+import { CetakPrintView } from "@/components/surat/cetak-print-view"
+import { CetakScreenView } from "@/components/surat/cetak-screen-view"
+import { clearCetakSession, useCetakData } from "@/hooks/use-cetak"
+import { calcTotalSurat, groupCetakData } from "@/services/surat.service"
 
-export default function CetakAllPage() {
+function CetakAllContent() {
   const searchParams          = useSearchParams()
   const idsParam              = searchParams.get("ids") ?? ""
   const { data, loading }     = useCetakData(idsParam, "all")
@@ -58,5 +58,13 @@ export default function CetakAllPage() {
         <CetakPrintView groups={groups} totalSurat={totalSurat} printedAt={printedAt} />
       )}
     </>
+  )
+}
+
+export default function CetakAllPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <CetakAllContent />
+    </Suspense>
   )
 }

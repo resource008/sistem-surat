@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect }        from "react"
+import { useState, useEffect, Suspense }        from "react"
 import { useSearchParams }            from "next/navigation"
 import { format }                     from "date-fns"
 import { id }                         from "date-fns/locale"
@@ -13,8 +13,8 @@ import { CetakPrintStyles }                          from "@/components/surat/ce
 import { CetakScreenView }                           from "@/components/surat/cetak-screen-view"
 import { CetakPrintViewPI, type CetakGroupPI }       from "@/components/surat/cetak-print-view-pi"
 
-export default function CetakPiPage() {
-  const searchParams          = useSearchParams()
+function CetakPIContent() {
+const searchParams          = useSearchParams()
   const idsParam              = searchParams.get("ids") ?? ""
   const { data, loading }     = useCetakData(idsParam, "pi")
   const [cleared, setCleared] = useState(false)
@@ -58,5 +58,13 @@ export default function CetakPiPage() {
         <CetakPrintViewPI groups={groups} totalSurat={totalSurat} printedAt={printedAt} />
       )}
     </>
+  )
+}
+
+export default function CetakPiPage() {
+   return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <CetakPIContent />
+    </Suspense>
   )
 }
