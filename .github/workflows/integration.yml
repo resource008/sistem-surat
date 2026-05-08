@@ -8,6 +8,12 @@ jobs:
   integration-check:
     name: Strict Integration Check
     runs-on: ubuntu-latest
+    
+    # Memasang env di sini agar otomatis tersedia untuk SEMUA langkah di bawahnya
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
+      BETTER_AUTH_URL: ${{ secrets.BETTER_AUTH_URL }}
 
     steps:
       - name: Checkout Code
@@ -23,9 +29,6 @@ jobs:
         run: npm install --legacy-peer-deps
 
       - name: Generate Prisma Client
-        # Prisma membutuhkan DATABASE_URL bahkan hanya untuk men-generate client
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: npx prisma generate
 
       - name: Run Linter
@@ -35,8 +38,4 @@ jobs:
         run: npx tsc --noEmit
 
       - name: Build Application
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
-          BETTER_AUTH_URL: ${{ secrets.BETTER_AUTH_URL }}
         run: npm run build
