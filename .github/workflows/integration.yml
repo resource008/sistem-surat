@@ -21,7 +21,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:18-alpine       # samakan dengan docker-compose.yml
+        image: postgres:17-alpine
         env:
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
@@ -41,10 +41,10 @@ jobs:
 
     steps:
       - name: 📥 Checkout kode PR
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.2.2
 
       - name: ⚙️ Setup Node.js 20
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v4.4.0
         with:
           node-version: '20'
           cache: 'npm'
