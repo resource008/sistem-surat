@@ -22,12 +22,19 @@ jobs:
       - name: Install Dependencies
         run: npm install --legacy-peer-deps
 
-      # Mengecek kerentanan keamanan pada package yang diinstal
-      - name: Security Audit
-        run: npm audit --audit-level=high || true
+      - name: Generate Prisma Client
+        run: npx prisma generate
 
       - name: Run Linter
         run: npm run lint
 
+      - name: TypeScript Check
+        run: npx tsc --noEmit
+
       - name: Build Application
+        # Menghubungkan script ke GitHub Secrets
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
+          BETTER_AUTH_URL: ${{ secrets.BETTER_AUTH_URL }}
         run: npm run build

@@ -8,9 +8,10 @@
     "start": "next start --port 3001",
     "seed": "tsx prisma/seed.ts",
     "db:push": "prisma db push",
-    "lint": "eslint ."
+    "lint": "npx eslint ."
   },
   "dependencies": {
+    "@noble/hashes": "^2.2.0",
     "@prisma/adapter-pg": "^7.5.0",
     "@prisma/client": "^7.5.0",
     "better-auth": "^1.5.5",

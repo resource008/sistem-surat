@@ -2,8 +2,8 @@ import { prisma } from "@/infrastructure/databases/prisma-client"
 import { auth } from "@/infrastructure/auth/better-auth"
 import { NextRequest, NextResponse } from "next/server"
 import { headers } from "next/headers"
-import { scryptAsync } from "@noble/hashes/scrypt"
-import { randomBytes, bytesToHex } from "@noble/hashes/utils"
+import { scryptAsync } from "@noble/hashes/scrypt.js"
+import { randomBytes, bytesToHex } from "@noble/hashes/utils.js"
 
 async function hashPassword(password: string): Promise<string> {
   const salt = bytesToHex(randomBytes(16))
