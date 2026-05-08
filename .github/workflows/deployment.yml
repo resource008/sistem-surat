@@ -1,0 +1,97 @@
+# =============================================================
+# Workflow 2: Validasi Main Branch
+# Berjalan setiap kali ada push/merge ke branch main
+# Jika gagal → otomatis revert commit yang bermasalah
+# =============================================================
+
+name: 🚀 Validasi Main Branch
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: validate-main
+  cancel-in-progress: false
+  # false: jangan cancel — biarkan selesai agar revert tidak terlewat
+
+jobs:
+  validate:
+    name: Build, Check & Auto Revert
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:18-alpine       # samakan dengan docker-compose.yml
+        env:
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@localhost:5432/${{ secrets.POSTGRES_DB }}
+      BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
+      BETTER_AUTH_URL: http://localhost:3001
+
+    steps:
+      - name: 📥 Checkout main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: ⚙️ Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: 🔎 TypeScript type check
+        run: npx tsc --noEmit
+
+      - name: 🗄️ Validasi schema Prisma
+        run: npx prisma db push --skip-generate
+
+      - name: 🏗️ Build Next.js
+        run: npm run build
+
+      - name: ✅ Main branch sehat
+        run: echo "🎉 Semua pengecekan pada main branch lolos!"
+
+  # Job terpisah agar revert hanya jalan jika job validate benar-benar gagal
+  auto-revert:
+    name: ⏪ Auto Revert (jika gagal)
+    runs-on: ubuntu-latest
+    needs: validate
+    if: failure()
+
+    steps:
+      - name: 📥 Checkout main (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: ⏪ Revert commit yang bermasalah
+        run: |
+          echo "❌ Validasi gagal. Memulai rollback commit: ${{ github.sha }}"
+
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Revert tanpa menghapus history (aman untuk tim)
+          git revert --no-edit ${{ github.sha }}
+
+          git push origin main
+
+          echo "✅ Rollback selesai. Main dikembalikan ke kondisi sebelumnya."

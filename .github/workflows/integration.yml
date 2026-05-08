@@ -1,0 +1,65 @@
+# =============================================================
+# Workflow 1: Review Pull Request
+# Berjalan setiap kali PR dibuka/diupdate ke branch main
+# =============================================================
+
+name: 🔍 Review Pull Request
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+concurrency:
+  group: review-pr-${{ github.head_ref }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    name: Build & Type Check
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:18-alpine       # samakan dengan docker-compose.yml
+        env:
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@localhost:5432/${{ secrets.POSTGRES_DB }}
+      BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
+      BETTER_AUTH_URL: http://localhost:3001
+
+    steps:
+      - name: 📥 Checkout kode PR
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: 🔎 TypeScript type check
+        run: npx tsc --noEmit
+
+      - name: 🗄️ Validasi schema Prisma
+        run: npx prisma db push --skip-generate
+
+      - name: 🏗️ Build Next.js
+        run: npm run build
+
+      - name: ✅ PR siap di-merge
+        run: echo "Semua pengecekan lolos. PR siap untuk di-merge!"
