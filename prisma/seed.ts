@@ -2,8 +2,8 @@
 import 'dotenv/config'
 import { PrismaPg }     from "@prisma/adapter-pg"
 import { PrismaClient, Role } from "../src/generated/prisma"
-import { scryptAsync }  from "@noble/hashes/scrypt"
-import { randomBytes, bytesToHex } from "@noble/hashes/utils"
+import { scryptAsync }  from "@noble/hashes/scrypt.js"
+import { randomBytes, bytesToHex } from "@noble/hashes/utils.js"
 import { Pool }         from "pg"
 
 const pool    = new Pool({ connectionString: process.env.DATABASE_URL! })

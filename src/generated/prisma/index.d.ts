@@ -191,7 +191,7 @@ export class PrismaClient<
    * 
    * Read more in our [docs](https://www.prisma.io/docs/orm/prisma-client/queries/transactions).
    */
-  $transaction<P extends Prisma.PrismaPromise<any>[]>(arg: [...P], options?: { isolationLevel?: Prisma.TransactionIsolationLevel }): $Utils.JsPromise<runtime.Types.Utils.UnwrapTuple<P>>
+  $transaction<P extends Prisma.PrismaPromise<any>[]>(arg: [...P], options?: { maxWait?: number, timeout?: number, isolationLevel?: Prisma.TransactionIsolationLevel }): $Utils.JsPromise<runtime.Types.Utils.UnwrapTuple<P>>
 
   $transaction<R>(fn: (prisma: Omit<PrismaClient, runtime.ITXClientDenyList>) => $Utils.JsPromise<R>, options?: { maxWait?: number, timeout?: number, isolationLevel?: Prisma.TransactionIsolationLevel }): $Utils.JsPromise<R>
 
@@ -338,8 +338,8 @@ export namespace Prisma {
   export import Exact = $Public.Exact
 
   /**
-   * Prisma Client JS version: 7.5.0
-   * Query Engine version: 280c870be64f457428992c43c1f6d557fab6e29e
+   * Prisma Client JS version: 7.8.0
+   * Query Engine version: 3c6e192761c0362d496ed980de936e2f3cebcd3a
    */
   export type PrismaVersion = {
     client: string
@@ -9805,6 +9805,7 @@ export namespace Prisma {
     noSurat: string | null
     lampiran: string | null
     tanggalSurat: Date | null
+    tujuan: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -9816,6 +9817,7 @@ export namespace Prisma {
     noSurat: string | null
     lampiran: string | null
     tanggalSurat: Date | null
+    tujuan: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -9827,6 +9829,7 @@ export namespace Prisma {
     noSurat: number
     lampiran: number
     tanggalSurat: number
+    tujuan: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -9850,6 +9853,7 @@ export namespace Prisma {
     noSurat?: true
     lampiran?: true
     tanggalSurat?: true
+    tujuan?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -9861,6 +9865,7 @@ export namespace Prisma {
     noSurat?: true
     lampiran?: true
     tanggalSurat?: true
+    tujuan?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -9872,6 +9877,7 @@ export namespace Prisma {
     noSurat?: true
     lampiran?: true
     tanggalSurat?: true
+    tujuan?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -9970,6 +9976,7 @@ export namespace Prisma {
     noSurat: string | null
     lampiran: string | null
     tanggalSurat: Date
+    tujuan: string | null
     createdAt: Date
     updatedAt: Date
     _count: DetailSuratCountAggregateOutputType | null
@@ -10000,6 +10007,7 @@ export namespace Prisma {
     noSurat?: boolean
     lampiran?: boolean
     tanggalSurat?: boolean
+    tujuan?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     register?: boolean | RegisterSuratDefaultArgs<ExtArgs>
@@ -10012,6 +10020,7 @@ export namespace Prisma {
     noSurat?: boolean
     lampiran?: boolean
     tanggalSurat?: boolean
+    tujuan?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     register?: boolean | RegisterSuratDefaultArgs<ExtArgs>
@@ -10024,6 +10033,7 @@ export namespace Prisma {
     noSurat?: boolean
     lampiran?: boolean
     tanggalSurat?: boolean
+    tujuan?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     register?: boolean | RegisterSuratDefaultArgs<ExtArgs>
@@ -10036,11 +10046,12 @@ export namespace Prisma {
     noSurat?: boolean
     lampiran?: boolean
     tanggalSurat?: boolean
+    tujuan?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type DetailSuratOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "registerId" | "perihal" | "noSurat" | "lampiran" | "tanggalSurat" | "createdAt" | "updatedAt", ExtArgs["result"]["detailSurat"]>
+  export type DetailSuratOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "registerId" | "perihal" | "noSurat" | "lampiran" | "tanggalSurat" | "tujuan" | "createdAt" | "updatedAt", ExtArgs["result"]["detailSurat"]>
   export type DetailSuratInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     register?: boolean | RegisterSuratDefaultArgs<ExtArgs>
   }
@@ -10063,6 +10074,7 @@ export namespace Prisma {
       noSurat: string | null
       lampiran: string | null
       tanggalSurat: Date
+      tujuan: string | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["detailSurat"]>
@@ -10495,6 +10507,7 @@ export namespace Prisma {
     readonly noSurat: FieldRef<"DetailSurat", 'String'>
     readonly lampiran: FieldRef<"DetailSurat", 'String'>
     readonly tanggalSurat: FieldRef<"DetailSurat", 'DateTime'>
+    readonly tujuan: FieldRef<"DetailSurat", 'String'>
     readonly createdAt: FieldRef<"DetailSurat", 'DateTime'>
     readonly updatedAt: FieldRef<"DetailSurat", 'DateTime'>
   }
@@ -12096,6 +12109,7 @@ export namespace Prisma {
     noSurat: 'noSurat',
     lampiran: 'lampiran',
     tanggalSurat: 'tanggalSurat',
+    tujuan: 'tujuan',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -12756,6 +12770,7 @@ export namespace Prisma {
     noSurat?: StringNullableFilter<"DetailSurat"> | string | null
     lampiran?: StringNullableFilter<"DetailSurat"> | string | null
     tanggalSurat?: DateTimeFilter<"DetailSurat"> | Date | string
+    tujuan?: StringNullableFilter<"DetailSurat"> | string | null
     createdAt?: DateTimeFilter<"DetailSurat"> | Date | string
     updatedAt?: DateTimeFilter<"DetailSurat"> | Date | string
     register?: XOR<RegisterSuratScalarRelationFilter, RegisterSuratWhereInput>
@@ -12768,6 +12783,7 @@ export namespace Prisma {
     noSurat?: SortOrderInput | SortOrder
     lampiran?: SortOrderInput | SortOrder
     tanggalSurat?: SortOrder
+    tujuan?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     register?: RegisterSuratOrderByWithRelationInput
@@ -12783,6 +12799,7 @@ export namespace Prisma {
     noSurat?: StringNullableFilter<"DetailSurat"> | string | null
     lampiran?: StringNullableFilter<"DetailSurat"> | string | null
     tanggalSurat?: DateTimeFilter<"DetailSurat"> | Date | string
+    tujuan?: StringNullableFilter<"DetailSurat"> | string | null
     createdAt?: DateTimeFilter<"DetailSurat"> | Date | string
     updatedAt?: DateTimeFilter<"DetailSurat"> | Date | string
     register?: XOR<RegisterSuratScalarRelationFilter, RegisterSuratWhereInput>
@@ -12795,6 +12812,7 @@ export namespace Prisma {
     noSurat?: SortOrderInput | SortOrder
     lampiran?: SortOrderInput | SortOrder
     tanggalSurat?: SortOrder
+    tujuan?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: DetailSuratCountOrderByAggregateInput
@@ -12814,6 +12832,7 @@ export namespace Prisma {
     noSurat?: StringNullableWithAggregatesFilter<"DetailSurat"> | string | null
     lampiran?: StringNullableWithAggregatesFilter<"DetailSurat"> | string | null
     tanggalSurat?: DateTimeWithAggregatesFilter<"DetailSurat"> | Date | string
+    tujuan?: StringNullableWithAggregatesFilter<"DetailSurat"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"DetailSurat"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"DetailSurat"> | Date | string
   }
@@ -13439,6 +13458,7 @@ export namespace Prisma {
     noSurat?: string | null
     lampiran?: string | null
     tanggalSurat: Date | string
+    tujuan?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     register: RegisterSuratCreateNestedOneWithoutDetailSuratInput
@@ -13451,6 +13471,7 @@ export namespace Prisma {
     noSurat?: string | null
     lampiran?: string | null
     tanggalSurat: Date | string
+    tujuan?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -13460,6 +13481,7 @@ export namespace Prisma {
     noSurat?: NullableStringFieldUpdateOperationsInput | string | null
     lampiran?: NullableStringFieldUpdateOperationsInput | string | null
     tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
+    tujuan?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     register?: RegisterSuratUpdateOneRequiredWithoutDetailSuratNestedInput
@@ -13472,6 +13494,7 @@ export namespace Prisma {
     noSurat?: NullableStringFieldUpdateOperationsInput | string | null
     lampiran?: NullableStringFieldUpdateOperationsInput | string | null
     tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
+    tujuan?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -13483,6 +13506,7 @@ export namespace Prisma {
     noSurat?: string | null
     lampiran?: string | null
     tanggalSurat: Date | string
+    tujuan?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -13492,6 +13516,7 @@ export namespace Prisma {
     noSurat?: NullableStringFieldUpdateOperationsInput | string | null
     lampiran?: NullableStringFieldUpdateOperationsInput | string | null
     tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
+    tujuan?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -13503,6 +13528,7 @@ export namespace Prisma {
     noSurat?: NullableStringFieldUpdateOperationsInput | string | null
     lampiran?: NullableStringFieldUpdateOperationsInput | string | null
     tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
+    tujuan?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -14077,6 +14103,7 @@ export namespace Prisma {
     noSurat?: SortOrder
     lampiran?: SortOrder
     tanggalSurat?: SortOrder
+    tujuan?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -14093,6 +14120,7 @@ export namespace Prisma {
     noSurat?: SortOrder
     lampiran?: SortOrder
     tanggalSurat?: SortOrder
+    tujuan?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -14104,6 +14132,7 @@ export namespace Prisma {
     noSurat?: SortOrder
     lampiran?: SortOrder
     tanggalSurat?: SortOrder
+    tujuan?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -15191,6 +15220,7 @@ export namespace Prisma {
     noSurat?: string | null
     lampiran?: string | null
     tanggalSurat: Date | string
+    tujuan?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -15201,6 +15231,7 @@ export namespace Prisma {
     noSurat?: string | null
     lampiran?: string | null
     tanggalSurat: Date | string
+    tujuan?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -15270,6 +15301,7 @@ export namespace Prisma {
     noSurat?: StringNullableFilter<"DetailSurat"> | string | null
     lampiran?: StringNullableFilter<"DetailSurat"> | string | null
     tanggalSurat?: DateTimeFilter<"DetailSurat"> | Date | string
+    tujuan?: StringNullableFilter<"DetailSurat"> | string | null
     createdAt?: DateTimeFilter<"DetailSurat"> | Date | string
     updatedAt?: DateTimeFilter<"DetailSurat"> | Date | string
   }
@@ -15739,6 +15771,7 @@ export namespace Prisma {
     noSurat?: string | null
     lampiran?: string | null
     tanggalSurat: Date | string
+    tujuan?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -15748,6 +15781,7 @@ export namespace Prisma {
     noSurat?: NullableStringFieldUpdateOperationsInput | string | null
     lampiran?: NullableStringFieldUpdateOperationsInput | string | null
     tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
+    tujuan?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -15758,6 +15792,7 @@ export namespace Prisma {
     noSurat?: NullableStringFieldUpdateOperationsInput | string | null
     lampiran?: NullableStringFieldUpdateOperationsInput | string | null
     tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
+    tujuan?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -15768,6 +15803,7 @@ export namespace Prisma {
     noSurat?: NullableStringFieldUpdateOperationsInput | string | null
     lampiran?: NullableStringFieldUpdateOperationsInput | string | null
     tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
+    tujuan?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
