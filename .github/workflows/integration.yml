@@ -11,7 +11,7 @@ on:
 
 jobs:
   validate:
-    name: Lint, TypeScript & Build
+    name: Validasi Code
     runs-on: ubuntu-latest
 
     env:
