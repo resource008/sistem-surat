@@ -1,41 +1,38 @@
-name: Review Pull Request
-
+name: ✅ CI — Validasi Code
+ 
 on:
   pull_request:
-    branches: [ "main" ]
-
+ 
 jobs:
-  integration-check:
-    name: Strict Integration Check
+  validate:
+    name: Lint, TypeScript & Build
     runs-on: ubuntu-latest
-    
-    # Memasang env di sini agar otomatis tersedia untuk SEMUA langkah di bawahnya
+ 
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
       BETTER_AUTH_URL: ${{ secrets.BETTER_AUTH_URL }}
-
+ 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: 📥 Checkout branch
+        uses: actions/checkout@v4.2.2
+ 
+      - name: ⚙️ Setup Node.js 20
+        uses: actions/setup-node@v4.4.0
         with:
           node-version: '20'
-          cache: 'npm'
-
-      - name: Install Dependencies
-        run: npm install --legacy-peer-deps
-
-      - name: Generate Prisma Client
-        run: npx prisma generate
-
-      - name: Run Linter
-        run: npm run lint
-
-      - name: TypeScript Check
+ 
+      - name: 📦 Install dependencies
+        run: npm ci --legacy-peer-deps
+ 
+      - name: 🔎 Lint check
+        run: npm run check
+ 
+      - name: 🔎 TypeScript type check
         run: npx tsc --noEmit
-
-      - name: Build Application
+ 
+      - name: 🏗️ Build Next.js
         run: npm run build
+ 
+      - name: ✅ Semua pengecekan lolos
+        run: echo "🎉 Tidak ada error — PR siap untuk di-review."
