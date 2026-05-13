@@ -230,3 +230,16 @@
   flex-direction: column;
   display:flex;
 }
+
+/* ================================
+   AUTOFILL FIX
+   ================================ */
+
+.fieldInput:-webkit-autofill,
+.fieldInput:-webkit-autofill:hover,
+.fieldInput:-webkit-autofill:focus,
+.fieldInput:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px #f9fafb inset !important;
+  -webkit-text-fill-color: #111827 !important;
+  transition: background-color 5000s ease-in-out 0s;
+}

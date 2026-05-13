@@ -8,7 +8,9 @@ export default async function Page() {
   const session = await auth.api.getSession({ headers: await headers() })
   if (!session) redirect("/login")
   const role = (session.user as any).role as Role
+  
   return (
+    // Skeleton DIHAPUS dari sini, karena sudah ditangani di dalam DataSuratPage
     <DataSuratPage
       role={role}
       basePath="/staff/data-surat"

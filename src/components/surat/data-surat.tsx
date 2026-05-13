@@ -1,20 +1,19 @@
 "use client"
 
-import { Suspense }                               from "react"
-import { Checkbox }                               from "@/components/ui/checkbox"
-import { EmptyState }                             from "@/components/ui/empty-state"
+import { Checkbox } from "@/components/ui/checkbox"
+import { EmptyState } from "@/components/ui/empty-state"
 import {
   Table, TableBody, TableCell,
   TableHead, TableHeader, TableRow,
 } from "@/components/ui/table"
-import { getPermission }                          from "@/lib/permission"
-import { format }                                 from "date-fns"
-import { id }                                     from "date-fns/locale"
-import { BrushCleaning, Plus, Printer }           from "lucide-react"
-import { useRouter, useSearchParams }             from "next/navigation"
-import { useCallback, useEffect, useState }       from "react"
-import { RegisterSurat, Role }                    from "./shared"
-import { LoadingSpinner }                         from "../shared/loading-skeleton"
+import { getPermission } from "@/lib/permission"
+import { format } from "date-fns"
+import { id } from "date-fns/locale"
+import { BrushCleaning, Plus, Printer } from "lucide-react"
+import { useRouter, useSearchParams } from "next/navigation"
+import { Suspense, useCallback, useEffect, useState } from "react"
+import { LoadingSkeleton } from "../shared/loading-skeleton"
+import { RegisterSurat, Role } from "./shared"
 
 interface Props {
   role:      Role
@@ -119,8 +118,8 @@ function DataSuratInner({ role, basePath, printPath }: Props) {
   })
 
   if (loading) return (
-    <div className="flex min-h-[60vh] w-full items-center justify-center">
-      <LoadingSpinner message="Memuat data surat…" />
+    <div className="w-full mt-2">
+      <LoadingSkeleton type="table" />
     </div>
   )
 
@@ -267,7 +266,7 @@ function DataSuratInner({ role, basePath, printPath }: Props) {
 
             {/* ── Desktop ── */}
             <div className="hidden md:block overflow-x-auto">
-              <Table className="border-collapse w-full min-w-[600px]">
+              <Table className="border-collapse w-full min-w-150">
                 <TableHeader className="bg-slate-50 dark:bg-slate-900
                   border-b border-slate-200 dark:border-slate-800">
                   <TableRow className="hover:bg-transparent border-none">
@@ -592,7 +591,7 @@ export default function DataSuratPage(props: Props) {
   return (
     <Suspense fallback={
       <div className="flex min-h-[60vh] w-full items-center justify-center">
-        <LoadingSpinner message="Memuat data surat…" />
+        <LoadingSkeleton type="table" />
       </div>
     }>
       <DataSuratInner {...props} />

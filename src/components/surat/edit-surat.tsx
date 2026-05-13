@@ -17,10 +17,11 @@ import {
 } from "@/components/ui/select"
 
 import {
-  RegisterSurat, SuratItem, PIItem, FormState,
+  SuratItem, PIItem, FormState,
   EMPTY_SURAT_ITEM, EMPTY_PI_ITEM, FormField, DatePicker, Role,
 } from "./shared"
-import React from "react"
+
+import { LoadingSkeleton } from "@/components/shared/loading-skeleton"
 
 interface Props { role: Role; basePath: string }
 
@@ -205,9 +206,8 @@ export default function EditSuratPage({ role, basePath }: Props) {
 
   // ── Guards ─────────────────────────────────────────────────────────────
   if (loading) return (
-    <div className="flex h-100 w-full flex-col items-center justify-center gap-4">
-      <Loader2 className="h-8 w-8 animate-spin text-blue-600 dark:text-blue-400" />
-      <p className="text-[15px] font-normal text-slate-500 dark:text-slate-400">Memuat form data...</p>
+    <div className="w-full">
+      <LoadingSkeleton type="form" />
     </div>
   )
 
@@ -265,344 +265,317 @@ export default function EditSuratPage({ role, basePath }: Props) {
         </div>
       </div>
 
-      {/* ── Konten ───────────────────────────────────────────────── */}
-      <div className="max-w-2xl mx-auto flex flex-col gap-4 animate-in fade-in duration-300">
+      {/* ── Konten Split-Pane ──────────────────────────────────────── */}
+      <div className="max-w-7xl mx-auto px-4 xl:px-0 flex flex-col lg:flex-row gap-6 
+                      lg:h-[calc(100vh-120px)] lg:overflow-hidden pb-28 lg:pb-0 pt-2 animate-in fade-in duration-300">
 
-        {/* Card Register */}
-        <div className="rounded-2xl border border-slate-200 dark:border-slate-800
-                        bg-white dark:bg-slate-950 overflow-hidden shadow-sm">
-          <div className="px-6 py-4
-            bg-linear-to-r from-slate-50 to-white
-            dark:from-slate-900 dark:to-slate-950
-            border-b border-slate-200 dark:border-slate-800">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="text-[10px] font-semibold text-slate-400 dark:text-slate-500
-                              uppercase tracking-widest mb-1">
-                  Nomor Register
-                </p>
-                <span className="text-[22px] font-mono font-bold
-                                 text-slate-800 dark:text-slate-100 leading-none">
-                  {original.nomor}
-                </span>
+        {/* SISI KIRI: Form Register */}
+        <div className="w-full lg:w-4/12 xl:w-4/12 flex flex-col gap-4 lg:h-full lg:pb-6">
+          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 overflow-hidden shadow-sm flex flex-col max-h-full">
+            <div className="px-6 py-4 bg-linear-to-r from-slate-50 to-white dark:from-slate-900 dark:to-slate-950 border-b border-slate-200 dark:border-slate-800 shrink-0">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">
+                    Nomor Register
+                  </p>
+                  <span className="text-[22px] font-mono font-bold text-slate-800 dark:text-slate-100 leading-none">
+                    {original.nomor}
+                  </span>
+                </div>
+                <Badge className="shrink-0 mt-0.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border-0">
+                  {form.deptId || original.dept?.shortName}
+                </Badge>
               </div>
-              <Badge className="shrink-0 mt-0.5 text-[11px] font-semibold px-2.5 py-0.5
-                                rounded-full bg-blue-100 dark:bg-blue-900/40
-                                text-blue-700 dark:text-blue-300 border-0">
-                {form.deptId || original.dept?.shortName}
-              </Badge>
             </div>
-          </div>
 
-          <div className="px-6 py-5 flex flex-col gap-4">
-
-            {/* Departemen — hanya untuk non-PI */}
-            {!isPI && (
-              <FormField label="Departemen" error={formErrors.deptId}>
-                <Select value={form.deptId} onValueChange={val => setField("deptId", val)}>
-                  <SelectTrigger className={cn(
-                    "text-[13px] rounded-xl h-10",
-                    formErrors.deptId && "border-red-500 dark:border-red-500"
-                  )}>
-                    <SelectValue placeholder="Pilih departemen..." />
-                  </SelectTrigger>
-                  <SelectContent className="rounded-xl">
-                    {DEPT_OPTIONS.map(d => (
-                      <SelectItem key={d} value={d}
-                        className="text-[13px] cursor-pointer rounded-lg
-                          focus:bg-blue-50 dark:focus:bg-blue-900/40
-                          focus:text-slate-900 dark:focus:text-white">
-                        {d}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormField>
-            )}
-
-            {/* Asal Surat + Tujuan */}
-            <div className={cn("grid gap-3", isPI ? "grid-cols-1" : "grid-cols-2")}>
-              <FormField label="Asal Surat" error={formErrors.asalSurat}>
-                <Input
-                  value={form.asalSurat}
-                  onChange={e => setField("asalSurat", e.target.value)}
-                  placeholder="Contoh: PT. Maju Mundur"
-                  className={cn(
-                    "text-[13px] rounded-xl h-10",
-                    formErrors.asalSurat && "border-red-500 focus-visible:ring-red-500"
-                  )}
-                />
-              </FormField>
+            <div className="px-6 py-5 flex flex-col gap-4 lg:overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+              {/* Departemen — hanya untuk non-PI */}
               {!isPI && (
-                <FormField label="Tujuan">
-                  <div className={cn(
-                    "w-full px-3.5 h-10 flex items-center rounded-xl border text-[13px] font-medium",
-                    "border-slate-100 dark:border-slate-800/50",
-                    "bg-slate-50 dark:bg-slate-900/40",
-                    form.tujuan
-                      ? "text-slate-600 dark:text-slate-400"
-                      : "text-slate-400 dark:text-slate-500",
-                    "cursor-not-allowed select-none"
-                  )}>
-                    {form.tujuan || "Otomatis dari departemen"}
-                  </div>
+                <FormField label="Departemen" error={formErrors.deptId}>
+                  <Select value={form.deptId} onValueChange={val => setField("deptId", val)}>
+                    <SelectTrigger className={cn(
+                      "text-[13px] rounded-xl h-10",
+                      formErrors.deptId && "border-red-500 dark:border-red-500"
+                    )}>
+                      <SelectValue placeholder="Pilih departemen..." />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl">
+                      {DEPT_OPTIONS.map(d => (
+                        <SelectItem key={d} value={d}
+                          className="text-[13px] cursor-pointer rounded-lg
+                            focus:bg-blue-50 dark:focus:bg-blue-900/40
+                            focus:text-slate-900 dark:focus:text-white">
+                          {d}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </FormField>
               )}
-            </div>
 
-            {/* Tanggal Terima — readonly */}
-            <FormField label="Tanggal Terima">
-              <div className={cn(
-                "w-full px-3.5 h-10 flex items-center rounded-xl border text-[13px] font-medium",
-                "border-slate-100 dark:border-slate-800/50",
-                "bg-slate-50 dark:bg-slate-900/40",
-                "text-slate-400 dark:text-slate-500 cursor-not-allowed select-none"
-              )}>
-                {new Date(original.tanggalTerima).toLocaleDateString("id-ID", {
-                  day: "2-digit", month: "long", year: "numeric",
-                })}
+              {/* Asal Surat + Tujuan (Dibuat Flex-Col agar tidak sempit) */}
+              <div className="flex flex-col gap-4">
+                <FormField label="Asal Surat" error={formErrors.asalSurat}>
+                  <Input
+                    value={form.asalSurat}
+                    onChange={e => setField("asalSurat", e.target.value)}
+                    placeholder="Contoh: PT. Maju Mundur"
+                    className={cn(
+                      "text-[13px] rounded-xl h-10",
+                      formErrors.asalSurat && "border-red-500 focus-visible:ring-red-500"
+                    )}
+                  />
+                </FormField>
+                {!isPI && (
+                  <FormField label="Tujuan">
+                    <div className={cn(
+                      "w-full px-3.5 h-10 flex items-center rounded-xl border text-[13px] font-medium",
+                      "border-slate-100 dark:border-slate-800/50",
+                      "bg-slate-50 dark:bg-slate-900/40",
+                      form.tujuan
+                        ? "text-slate-600 dark:text-slate-400"
+                        : "text-slate-400 dark:text-slate-500",
+                      "cursor-not-allowed select-none"
+                    )}>
+                      {form.tujuan || "Otomatis dari departemen"}
+                    </div>
+                  </FormField>
+                )}
               </div>
-            </FormField>
+
+              {/* Tanggal Terima — readonly */}
+              <FormField label="Tanggal Terima">
+                <div className={cn(
+                  "w-full px-3.5 h-10 flex items-center rounded-xl border text-[13px] font-medium",
+                  "border-slate-100 dark:border-slate-800/50",
+                  "bg-slate-50 dark:bg-slate-900/40",
+                  "text-slate-400 dark:text-slate-500 cursor-not-allowed select-none"
+                )}>
+                  {new Date(original.tanggalTerima).toLocaleDateString("id-ID", {
+                    day: "2-digit", month: "long", year: "numeric",
+                  })}
+                </div>
+              </FormField>
+            </div>
           </div>
         </div>
 
-        {/* ── Daftar PI ──────────────────────────────────────────── */}
-        {isPI && (
-          <div className="flex flex-col gap-3">
-            {formErrors.piList && (
-              <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl
-                bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
-                <AlertTriangle size={13} className="text-red-500 shrink-0" />
-                <p className="text-[12px] text-red-600 dark:text-red-400 font-medium">
-                  {formErrors.piList}
-                </p>
-              </div>
-            )}
-
-            {piList.map((pi, idx) => (
-              <div key={pi.id}
-                className="rounded-2xl border border-slate-200 dark:border-slate-800
-                           bg-white dark:bg-slate-950 overflow-hidden shadow-sm">
-                <div className="flex items-center justify-between px-5 py-3
-                  bg-slate-50/80 dark:bg-slate-900/80
-                  border-b border-slate-200 dark:border-slate-800">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-6 h-6 rounded-lg bg-blue-100 dark:bg-blue-900/40
-                                    flex items-center justify-center">
-                      <FileText size={12} className="text-blue-600 dark:text-blue-400" />
-                    </div>
-                    <span className="text-[12px] font-bold text-slate-700 dark:text-slate-300
-                                     uppercase tracking-wider">
-                      Invoice {idx + 1}
-                    </span>
-                  </div>
-                  <Button type="button" variant="ghost" size="sm"
-                    onClick={() => removePI(idx)}
-                    className="h-7 px-2.5 text-[11px] gap-1 rounded-lg
-                      text-red-500 hover:text-red-600
-                      hover:bg-red-50 dark:hover:bg-red-900/20">
-                    <Trash2 size={11} /> Hapus
-                  </Button>
+        {/* SISI KANAN: Daftar PI / Surat */}
+        <div className="w-full lg:w-8/12 xl:w-8/12 flex flex-col gap-4 lg:overflow-y-auto pb-10 lg:pb-32 lg:pr-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          
+          {/* ── Daftar PI ──────────────────────────────────────────── */}
+          {isPI && (
+            <div className="flex flex-col gap-3">
+              {formErrors.piList && (
+                <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+                  <AlertTriangle size={13} className="text-red-500 shrink-0" />
+                  <p className="text-[12px] text-red-600 dark:text-red-400 font-medium">
+                    {formErrors.piList}
+                  </p>
                 </div>
+              )}
 
-                <div className="px-5 py-4 flex flex-col gap-4">
-                  <FormField label="Nama Supplier" error={formErrors[`pi_${idx}_namaSupplier`]}>
-                    <Input
-                      value={pi.namaSupplier}
-                      onChange={e => setPiField(idx, "namaSupplier", e.target.value)}
-                      placeholder="Nama supplier..."
-                      className={cn(
-                        "text-[13px] rounded-xl h-10",
-                        formErrors[`pi_${idx}_namaSupplier`] && "border-red-500 focus-visible:ring-red-500"
-                      )}
-                    />
-                  </FormField>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <FormField label="No. Invoice">
-                      <Input
-                        value={pi.noInvoice}
-                        onChange={e => setPiField(idx, "noInvoice", e.target.value)}
-                        placeholder="Nomor invoice..."
-                        className="text-[13px] rounded-xl h-10 font-mono"
-                      />
-                    </FormField>
-                    <FormField label="No. Surat">
-                      <Input
-                        value={pi.nomorSurat}
-                        onChange={e => setPiField(idx, "nomorSurat", e.target.value)}
-                        placeholder="Nomor surat..."
-                        className="text-[13px] rounded-xl h-10 font-mono"
-                      />
-                    </FormField>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <FormField label="Tujuan">
-                      <Input
-                        value={pi.tujuan}
-                        onChange={e => setPiField(idx, "tujuan", e.target.value)}
-                        placeholder="Tujuan..."
-                        className="text-[13px] rounded-xl h-10"
-                      />
-                    </FormField>
-                    <FormField label="CC">
-                      <Input
-                        value={pi.cc}
-                        onChange={e => setPiField(idx, "cc", e.target.value)}
-                        placeholder="CC..."
-                        className="text-[13px] rounded-xl h-10"
-                      />
-                    </FormField>
-                  </div>
-
-                  <FormField label="Tanggal Surat" error={formErrors[`pi_${idx}_tanggalSurat`]}>
-                    <DatePicker
-                      value={pi.tanggalSurat}
-                      onChange={val => setPiField(idx, "tanggalSurat", val)}
-                      hasError={!!formErrors[`pi_${idx}_tanggalSurat`]}
-                    />
-                  </FormField>
-                </div>
-              </div>
-            ))}
-
-            {piList.length === 0 && (
-              <div className="rounded-2xl border border-dashed border-slate-200
-                              dark:border-slate-800 px-6 py-10 text-center">
-                <FileText className="mx-auto mb-3 h-8 w-8 text-slate-300 dark:text-slate-700" />
-                <p className="text-[13px] text-slate-400 dark:text-slate-500">
-                  Belum ada PI. Klik <span className="font-semibold">Tambah</span> untuk menambahkan.
-                </p>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ── Daftar Surat ───────────────────────────────────────── */}
-        {!isPI && (
-          <div className="flex flex-col gap-3">
-            {formErrors.suratList && (
-              <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl
-                bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
-                <AlertTriangle size={13} className="text-red-500 shrink-0" />
-                <p className="text-[12px] text-red-600 dark:text-red-400 font-medium">
-                  {formErrors.suratList}
-                </p>
-              </div>
-            )}
-
-            {suratList.map((surat, idx) => (
-              <div key={surat.id}
-                className="rounded-2xl border border-slate-200 dark:border-slate-800
-                           bg-white dark:bg-slate-950 overflow-hidden shadow-sm">
-                <div className="flex items-center justify-between px-5 py-3
-                  bg-slate-50/80 dark:bg-slate-900/80
-                  border-b border-slate-200 dark:border-slate-800">
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-6 h-6 rounded-lg bg-blue-100 dark:bg-blue-900/40
-                                    flex items-center justify-center">
-                      <FileText size={12} className="text-blue-600 dark:text-blue-400" />
-                    </div>
-                    <span className="text-[12px] font-bold text-slate-700 dark:text-slate-300
-                                     uppercase tracking-wider">
-                      Surat {idx + 1}
-                    </span>
-                  </div>
-                  <Button type="button" variant="ghost" size="sm"
-                    onClick={() => removeSurat(idx)}
-                    className="h-7 px-2.5 text-[11px] gap-1 rounded-lg
-                      text-red-500 hover:text-red-600
-                      hover:bg-red-50 dark:hover:bg-red-900/20">
-                    <Trash2 size={11} /> Hapus
-                  </Button>
-                </div>
-
-                <div className="px-5 py-4 flex flex-col gap-4">
-                  <FormField label="Perihal Surat" error={formErrors[`surat_${idx}_perihal`]}>
-                    <Input
-                      value={surat.perihal}
-                      onChange={e => setSuratField(idx, "perihal", e.target.value)}
-                      placeholder="Isi perihal / pokok surat..."
-                      className={cn(
-                        "text-[13px] rounded-xl h-10",
-                        formErrors[`surat_${idx}_perihal`] && "border-red-500 focus-visible:ring-red-500"
-                      )}
-                    />
-                  </FormField>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <FormField label="Nomor Surat">
-                      <Input
-                        value={surat.noSurat}
-                        onChange={e => setSuratField(idx, "noSurat", e.target.value)}
-                        placeholder="Masukkan nomor surat"
-                        className="text-[13px] rounded-xl h-10 font-mono"
-                      />
-                    </FormField>
-
-                    <FormField label="Lampiran">
-                      <div className={cn(
-                        "relative flex h-10 rounded-xl overflow-hidden",
-                        "border border-slate-200 dark:border-slate-800",
-                        "bg-white dark:bg-slate-950 transition-all",
-                        "focus-within:ring-2 focus-within:ring-blue-500/20",
-                        "focus-within:border-blue-500 dark:focus-within:border-blue-500",
-                      )}>
-                        <input
-                          type="text" inputMode="numeric" pattern="[0-9]*"
-                          value={getLampiranNum(surat.lampiran)}
-                          onChange={e => setLampiranNum(idx, e.target.value)}
-                          onFocus={() => setFocusedLampiran(idx)}
-                          onBlur={()  => setFocusedLampiran(null)}
-                          placeholder="Masukkan jumlah"
-                          style={{ color: focusedLampiran === idx && !getLampiranNum(surat.lampiran) ? 'transparent' : undefined }}
-                          className={cn(
-                            "flex-1 min-w-0 px-3.5 h-full",
-                            "bg-transparent border-0 outline-none",
-                            "text-[13px] text-center font-medium",
-                            "text-slate-700 dark:text-slate-300",
-                            "placeholder:text-slate-400 dark:placeholder:text-slate-500",
-                            "placeholder:text-center placeholder:font-normal",
-                          )}
-                        />
-                        <div className={cn(
-                          "flex items-center justify-center px-3.5 shrink-0",
-                          "border-l border-slate-200 dark:border-slate-800",
-                          "bg-slate-50 dark:bg-slate-900",
-                          "text-[11px] font-bold tracking-widest",
-                          "text-slate-400 dark:text-slate-500 select-none",
-                        )}>
-                          SET
-                        </div>
+              {piList.map((pi, idx) => (
+                <div key={pi.id} className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 overflow-hidden shadow-sm shrink-0">
+                  <div className="flex items-center justify-between px-5 py-3 bg-slate-50/80 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-800">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-6 h-6 rounded-lg bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center">
+                        <FileText size={12} className="text-blue-600 dark:text-blue-400" />
                       </div>
-                    </FormField>
+                      <span className="text-[12px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                        Invoice {idx + 1}
+                      </span>
+                    </div>
+                    <Button type="button" variant="ghost" size="sm" onClick={() => removePI(idx)} className="h-7 px-2.5 text-[11px] gap-1 rounded-lg text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20">
+                      <Trash2 size={11} /> Hapus
+                    </Button>
                   </div>
 
-                  <FormField label="Tanggal Surat" error={formErrors[`surat_${idx}_tanggalSurat`]}>
-                    <DatePicker
-                      value={surat.tanggalSurat}
-                      onChange={val => setSuratField(idx, "tanggalSurat", val)}
-                      hasError={!!formErrors[`surat_${idx}_tanggalSurat`]}
-                    />
-                  </FormField>
+                  <div className="px-5 py-4 flex flex-col gap-4">
+                    <FormField label="Nama Supplier" error={formErrors[`pi_${idx}_namaSupplier`]}>
+                      <Input
+                        value={pi.namaSupplier}
+                        onChange={e => setPiField(idx, "namaSupplier", e.target.value)}
+                        placeholder="Nama supplier..."
+                        className={cn(
+                          "text-[13px] rounded-xl h-10",
+                          formErrors[`pi_${idx}_namaSupplier`] && "border-red-500 focus-visible:ring-red-500"
+                        )}
+                      />
+                    </FormField>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <FormField label="No. Invoice">
+                        <Input
+                          value={pi.noInvoice}
+                          onChange={e => setPiField(idx, "noInvoice", e.target.value)}
+                          placeholder="Nomor invoice..."
+                          className="text-[13px] rounded-xl h-10 font-mono"
+                        />
+                      </FormField>
+                      <FormField label="No. Surat">
+                        <Input
+                          value={pi.nomorSurat}
+                          onChange={e => setPiField(idx, "nomorSurat", e.target.value)}
+                          placeholder="Nomor surat..."
+                          className="text-[13px] rounded-xl h-10 font-mono"
+                        />
+                      </FormField>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <FormField label="Tujuan">
+                        <Input
+                          value={pi.tujuan}
+                          onChange={e => setPiField(idx, "tujuan", e.target.value)}
+                          placeholder="Tujuan..."
+                          className="text-[13px] rounded-xl h-10"
+                        />
+                      </FormField>
+                      <FormField label="CC">
+                        <Input
+                          value={pi.cc}
+                          onChange={e => setPiField(idx, "cc", e.target.value)}
+                          placeholder="CC..."
+                          className="text-[13px] rounded-xl h-10"
+                        />
+                      </FormField>
+                    </div>
+
+                    <FormField label="Tanggal Surat" error={formErrors[`pi_${idx}_tanggalSurat`]}>
+                      <DatePicker
+                        value={pi.tanggalSurat}
+                        onChange={val => setPiField(idx, "tanggalSurat", val)}
+                        hasError={!!formErrors[`pi_${idx}_tanggalSurat`]}
+                      />
+                    </FormField>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
 
-            {suratList.length === 0 && (
-              <div className="rounded-2xl border border-dashed border-slate-200
-                              dark:border-slate-800 px-6 py-10 text-center">
-                <FileText className="mx-auto mb-3 h-8 w-8 text-slate-300 dark:text-slate-700" />
-                <p className="text-[13px] text-slate-400 dark:text-slate-500">
-                  Belum ada surat. Klik <span className="font-semibold">Tambah</span> untuk menambahkan.
-                </p>
-              </div>
-            )}
-          </div>
-        )}
+              {piList.length === 0 && (
+                <div className="rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 px-6 py-10 text-center">
+                  <FileText className="mx-auto mb-3 h-8 w-8 text-slate-300 dark:text-slate-700" />
+                  <p className="text-[13px] text-slate-400 dark:text-slate-500">
+                    Belum ada PI. Klik <span className="font-semibold">Tambah</span> untuk menambahkan.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
 
-        <div className="h-20" />
+          {/* ── Daftar Surat ───────────────────────────────────────── */}
+          {!isPI && (
+            <div className="flex flex-col gap-3">
+              {formErrors.suratList && (
+                <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+                  <AlertTriangle size={13} className="text-red-500 shrink-0" />
+                  <p className="text-[12px] text-red-600 dark:text-red-400 font-medium">
+                    {formErrors.suratList}
+                  </p>
+                </div>
+              )}
+
+              {suratList.map((surat, idx) => (
+                <div key={surat.id} className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 overflow-hidden shadow-sm shrink-0">
+                  <div className="flex items-center justify-between px-5 py-3 bg-slate-50/80 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-800">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-6 h-6 rounded-lg bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center">
+                        <FileText size={12} className="text-blue-600 dark:text-blue-400" />
+                      </div>
+                      <span className="text-[12px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                        Surat {idx + 1}
+                      </span>
+                    </div>
+                    <Button type="button" variant="ghost" size="sm" onClick={() => removeSurat(idx)} className="h-7 px-2.5 text-[11px] gap-1 rounded-lg text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20">
+                      <Trash2 size={11} /> Hapus
+                    </Button>
+                  </div>
+
+                  <div className="px-5 py-4 flex flex-col gap-4">
+                    <FormField label="Perihal Surat" error={formErrors[`surat_${idx}_perihal`]}>
+                      <Input
+                        value={surat.perihal}
+                        onChange={e => setSuratField(idx, "perihal", e.target.value)}
+                        placeholder="Isi perihal / pokok surat..."
+                        className={cn(
+                          "text-[13px] rounded-xl h-10",
+                          formErrors[`surat_${idx}_perihal`] && "border-red-500 focus-visible:ring-red-500"
+                        )}
+                      />
+                    </FormField>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <FormField label="Nomor Surat">
+                        <Input
+                          value={surat.noSurat}
+                          onChange={e => setSuratField(idx, "noSurat", e.target.value)}
+                          placeholder="Masukkan nomor surat"
+                          className="text-[13px] rounded-xl h-10 font-mono"
+                        />
+                      </FormField>
+
+                      <FormField label="Lampiran">
+                        <div className={cn(
+                          "relative flex h-10 rounded-xl overflow-hidden",
+                          "border border-slate-200 dark:border-slate-800",
+                          "bg-white dark:bg-slate-950 transition-all",
+                          "focus-within:ring-2 focus-within:ring-blue-500/20",
+                          "focus-within:border-blue-500 dark:focus-within:border-blue-500",
+                        )}>
+                          <input
+                            type="text" inputMode="numeric" pattern="[0-9]*"
+                            value={getLampiranNum(surat.lampiran)}
+                            onChange={e => setLampiranNum(idx, e.target.value)}
+                            onFocus={() => setFocusedLampiran(idx)}
+                            onBlur={()  => setFocusedLampiran(null)}
+                            placeholder="Masukkan jumlah"
+                            style={{ color: focusedLampiran === idx && !getLampiranNum(surat.lampiran) ? 'transparent' : undefined }}
+                            className={cn(
+                              "flex-1 min-w-0 px-3.5 h-full",
+                              "bg-transparent border-0 outline-none",
+                              "text-[13px] text-center font-medium",
+                              "text-slate-700 dark:text-slate-300",
+                              "placeholder:text-slate-400 dark:placeholder:text-slate-500",
+                              "placeholder:text-center placeholder:font-normal",
+                            )}
+                          />
+                          <div className={cn(
+                            "flex items-center justify-center px-3.5 shrink-0",
+                            "border-l border-slate-200 dark:border-slate-800",
+                            "bg-slate-50 dark:bg-slate-900",
+                            "text-[11px] font-bold tracking-widest",
+                            "text-slate-400 dark:text-slate-500 select-none",
+                          )}>
+                            SET
+                          </div>
+                        </div>
+                      </FormField>
+                    </div>
+
+                    <FormField label="Tanggal Surat" error={formErrors[`surat_${idx}_tanggalSurat`]}>
+                      <DatePicker
+                        value={surat.tanggalSurat}
+                        onChange={val => setSuratField(idx, "tanggalSurat", val)}
+                        hasError={!!formErrors[`surat_${idx}_tanggalSurat`]}
+                      />
+                    </FormField>
+                  </div>
+                </div>
+              ))}
+
+              {suratList.length === 0 && (
+                <div className="rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 px-6 py-10 text-center">
+                  <FileText className="mx-auto mb-3 h-8 w-8 text-slate-300 dark:text-slate-700" />
+                  <p className="text-[13px] text-slate-400 dark:text-slate-500">
+                    Belum ada surat. Klik <span className="font-semibold">Tambah</span> untuk menambahkan.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
+        </div>
       </div>
     </>
   )

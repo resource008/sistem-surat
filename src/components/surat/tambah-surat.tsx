@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
-import { X, Loader2, Save, Calendar as CalendarIcon, Plus, Trash2, Hash } from "lucide-react"
+import { X, Loader2, Save, Calendar as CalendarIcon, Plus, Trash2, Hash, FileText } from "lucide-react"
 import { format } from "date-fns"
 import { id as localeID } from "date-fns/locale"
 import { cn } from "@/lib/utils"
@@ -12,6 +12,7 @@ import { Calendar } from "@/components/ui/calendar"
 import { Button } from "@/components/ui/button"
 import { FormField, inputClass, readonlyClass, Role } from "./shared"
 import { toast } from "sonner"
+import { LoadingSkeleton } from "@/components/shared/loading-skeleton"
 
 interface DeptOption {
   id:        string
@@ -69,6 +70,8 @@ const parseLocalDate = (str: string) => {
   return new Date(y, m - 1, d)
 }
 
+const getLampiranNum = (val: string) => val.replace(/[^0-9]/g, "")
+
 export default function TambahForm({ role, basePath }: Props) {
   const router       = useRouter()
   const isNavigating = useRef(false)
@@ -88,12 +91,14 @@ export default function TambahForm({ role, basePath }: Props) {
   const [tanggalTerima, setTanggalTerima] = useState(format(new Date(), "yyyy-MM-dd"))
   const [asalSurat,     setAsalSurat]     = useState("")
   const [deptList,      setDeptList]      = useState<DeptOption[]>([])
+  const [loading,       setLoading]       = useState(true)
   const [saving,        setSaving]        = useState(false)
   const [previewNomor,  setPreviewNomor]  = useState<string | null>(null)
   const [loadingNomor,  setLoadingNomor]  = useState(false)
 
-  const [piList,    setPiList]    = useState<PIItem[]>([EMPTY_PI_ITEM()])
-  const [suratList, setSuratList] = useState<SuratItem[]>([EMPTY_SURAT_ITEM()])
+  const [piList,             setPiList]          = useState<PIItem[]>([EMPTY_PI_ITEM()])
+  const [suratList,          setSuratList]       = useState<SuratItem[]>([EMPTY_SURAT_ITEM()])
+  const [focusedLampiran,    setFocusedLampiran] = useState<string | null>(null)
 
   const isPIDept     = deptId === PI_DEPT_ID
   const selectedDept = deptList.find(d => d.id === deptId)
@@ -108,6 +113,7 @@ export default function TambahForm({ role, basePath }: Props) {
         setDeptList(d.map((x: any) => ({ id: x.id, shortName: x.shortName, tujuan: x.tujuan ?? "" })))
       })
       .catch(err => console.error("Fetch dept gagal:", err))
+      .finally(() => setLoading(false))
 
     window.dispatchEvent(new CustomEvent("breadcrumb:sub",    { detail: "Tambah Data" }))
     window.dispatchEvent(new CustomEvent("breadcrumb:subsub", { detail: null }))
@@ -147,6 +153,11 @@ export default function TambahForm({ role, basePath }: Props) {
   const removeSurat = (id: string) => setSuratList(prev => prev.filter(s => s.id !== id))
   const updateSurat = (id: string, field: keyof Omit<SuratItem, "id">, value: string) =>
     setSuratList(prev => prev.map(s => s.id === id ? { ...s, [field]: value } : s))
+
+  const updateLampiranNum = (id: string, raw: string) => {
+    const num = raw.replace(/[^0-9]/g, "")
+    setSuratList(prev => prev.map(s => s.id === id ? { ...s, lampiran: num ? `${num} SET` : "" } : s))
+  }
 
   function validateForm(): boolean {
     const missing: string[] = []
@@ -246,19 +257,27 @@ export default function TambahForm({ role, basePath }: Props) {
     }
   }
 
+  if (loading) return (
+    <div className="w-full mt-2">
+      <LoadingSkeleton type="form" />
+    </div>
+  )
+  
   return (
-    <form onSubmit={handleSubmit} className="max-w-2xl mx-auto flex flex-col gap-4 pb-28">
+    <form onSubmit={handleSubmit} 
+          className="max-w-7xl mx-auto px-4 xl:px-0 flex flex-col lg:flex-row gap-6 
+                     lg:h-[calc(100vh-120px)] lg:overflow-hidden pb-28 lg:pb-0 pt-2 animate-in fade-in duration-300">
 
-      <div className="border border-slate-200 dark:border-slate-800 rounded-xl
-        bg-white dark:bg-slate-950 overflow-hidden shadow-sm">
-        <div className="px-5 py-3.5 bg-slate-50/70 dark:bg-slate-900/50
-          border-b border-slate-100 dark:border-slate-800/80">
-          <h3 className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-            Informasi Register
-          </h3>
-        </div>
-        <div className="p-5 flex flex-col gap-4">
-          <div className="grid grid-cols-2 gap-4">
+      {/* ── SISI KIRI: Register Info ─────────────────────────────────────── */}
+      <div className="w-full lg:w-4/12 xl:w-4/12 flex flex-col gap-4 lg:h-full lg:pb-6">
+        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 overflow-hidden shadow-sm flex flex-col max-h-full">
+          <div className="px-5 py-4 bg-linear-to-r from-slate-50 to-white dark:from-slate-900 dark:to-slate-950 border-b border-slate-200 dark:border-slate-800 shrink-0">
+            <h3 className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+              Informasi Register
+            </h3>
+          </div>
+          
+          <div className="px-5 py-5 flex flex-col gap-5 lg:overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             <FormField label="Departemen">
               <Select value={deptId} onValueChange={setDeptId}>
                 <SelectTrigger className={cn(inputClass, "h-10 shadow-none")}>
@@ -274,6 +293,7 @@ export default function TambahForm({ role, basePath }: Props) {
                 </SelectContent>
               </Select>
             </FormField>
+
             <FormField label="Tanggal Terima">
               <div className={cn(readonlyClass, "flex items-center gap-2")}>
                 <CalendarIcon className="h-3.5 w-3.5 text-slate-400 shrink-0" />
@@ -282,13 +302,13 @@ export default function TambahForm({ role, basePath }: Props) {
                 </span>
               </div>
             </FormField>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
+
             <FormField label="Asal Surat">
               <input className={inputClass} value={asalSurat}
                 onChange={e => setAsalSurat(e.target.value)}
                 placeholder="Masukkan asal surat" />
             </FormField>
+
             <FormField label="Nomor Registrasi">
               <div className={cn(readonlyClass, "flex items-center gap-2")}>
                 <Hash className="h-3.5 w-3.5 text-slate-400 shrink-0" />
@@ -318,80 +338,58 @@ export default function TambahForm({ role, basePath }: Props) {
         </div>
       </div>
 
-      {deptId && (
-        <div className="border border-slate-200 dark:border-slate-800 rounded-xl
-          bg-white dark:bg-slate-950 overflow-hidden shadow-sm">
-          <div className="px-5 py-3.5 bg-slate-50/70 dark:bg-slate-900/50
-            border-b border-slate-100 dark:border-slate-800/80
-            flex items-center justify-between">
-            <h3 className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Daftar {itemLabel}
-            </h3>
-            <span className="inline-flex items-center justify-center w-5 h-5 rounded-full
-              bg-blue-100 dark:bg-blue-900/40 text-[11px] font-bold text-blue-600 dark:text-blue-400">
-              {itemCount}
-            </span>
+      {/* ── SISI KANAN: Daftar PI / Surat ───────────────────────────────── */}
+      <div className="w-full lg:w-8/12 xl:w-8/12 flex flex-col gap-4 lg:overflow-y-auto pb-10 lg:pb-32 lg:pr-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        
+        {!deptId ? (
+          <div className="rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 px-6 py-12 text-center lg:h-full flex flex-col items-center justify-center min-h-[200px]">
+            <FileText className="mb-3 h-8 w-8 text-slate-300 dark:text-slate-700" />
+            <p className="text-[13px] text-slate-400 dark:text-slate-500">
+              Silakan pilih <strong>Departemen</strong> terlebih dahulu di sebelah kiri untuk menambahkan data.
+            </p>
           </div>
-          <div className="p-5 flex flex-col gap-3">
+        ) : (
+          <div className="flex flex-col gap-3">
             {isPIDept ? (
               <>
                 {piList.map((pi, index) => (
-                  <div key={pi.id} className="border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden">
-                    <div className="flex items-center justify-between px-4 py-2.5
-                      bg-slate-50/80 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800">
-                      <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
-                        Invoice {index + 1}
-                      </span>
+                  <div key={pi.id} className="border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-950 overflow-hidden shadow-sm shrink-0">
+                    <div className="flex items-center justify-between px-5 py-3 bg-slate-50/80 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-800">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-6 h-6 rounded-lg bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center">
+                          <FileText size={12} className="text-blue-600 dark:text-blue-400" />
+                        </div>
+                        <span className="text-[12px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                          Invoice {index + 1}
+                        </span>
+                      </div>
                       {piList.length > 1 && (
-                        <button type="button" onClick={() => removePI(pi.id)}
-                          className="inline-flex items-center gap-1.5 text-[11px] font-medium
-                            text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300
-                            hover:bg-red-50 dark:hover:bg-red-900/20 px-2 py-1 rounded transition-all">
-                          <Trash2 size={11} />
-                          Hapus
-                        </button>
+                        <Button type="button" variant="ghost" size="sm" onClick={() => removePI(pi.id)} className="h-7 px-2.5 text-[11px] gap-1 rounded-lg text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20">
+                          <Trash2 size={11} /> Hapus
+                        </Button>
                       )}
                     </div>
-                    <div className="p-4 flex flex-col gap-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <FormField label="Nama Supplier">
-                          <input className={inputClass} value={pi.namaSupplier}
-                            onChange={e => updatePI(pi.id, "namaSupplier", e.target.value)}
-                            placeholder="Masukkan nama supplier" />
-                        </FormField>
+                    <div className="px-5 py-4 flex flex-col gap-4">
+                      <FormField label="Nama Supplier">
+                        <input className={inputClass} value={pi.namaSupplier}
+                          onChange={e => updatePI(pi.id, "namaSupplier", e.target.value)}
+                          placeholder="Masukkan nama supplier" />
+                      </FormField>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <FormField label="No. Invoice">
                           <input className={inputClass} value={pi.noInvoice}
                             onChange={e => updatePI(pi.id, "noInvoice", e.target.value)}
                             placeholder="Masukkan no. invoice" />
                         </FormField>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <FormField label="Tanggal Surat">
-                          <Popover>
-                            <PopoverTrigger asChild>
-                              <Button type="button" variant="outline"
-                                className={cn(inputClass, "h-10 justify-start text-left shadow-none font-normal",
-                                  !pi.tanggalSurat && "text-slate-400 dark:text-slate-500")}>
-                                <CalendarIcon className="mr-2 h-3.5 w-3.5 text-slate-400" />
-                                {pi.tanggalSurat
-                                  ? format(parseLocalDate(pi.tanggalSurat), "dd MMM yyyy", { locale: localeID })
-                                  : "Pilih tanggal"}
-                              </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0 border-slate-200 dark:border-slate-800" align="start">
-                              <Calendar mode="single"
-                                selected={pi.tanggalSurat ? parseLocalDate(pi.tanggalSurat) : undefined}
-                                onSelect={d => updatePI(pi.id, "tanggalSurat", d ? format(d, "yyyy-MM-dd") : "")} />
-                            </PopoverContent>
-                          </Popover>
-                        </FormField>
-                        <FormField label="Nomor Surat">
+                        <FormField label="No. Surat">
                           <input className={inputClass} value={pi.nomorSurat}
                             onChange={e => updatePI(pi.id, "nomorSurat", e.target.value)}
                             placeholder="Opsional" />
                         </FormField>
                       </div>
-                      <div className="grid grid-cols-2 gap-4">
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <FormField label="Tujuan">
                           <div className={cn(readonlyClass, "flex items-center gap-2")}>
                             <span className="text-[13px] text-slate-700 dark:text-slate-300">
@@ -405,6 +403,26 @@ export default function TambahForm({ role, basePath }: Props) {
                             placeholder="Opsional" />
                         </FormField>
                       </div>
+
+                      <FormField label="Tanggal Surat">
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button type="button" variant="outline"
+                              className={cn(inputClass, "h-10 justify-start text-left shadow-none font-normal",
+                                !pi.tanggalSurat && "text-slate-400 dark:text-slate-500")}>
+                              <CalendarIcon className="mr-2 h-3.5 w-3.5 text-slate-400" />
+                              {pi.tanggalSurat
+                                ? format(parseLocalDate(pi.tanggalSurat), "dd MMM yyyy", { locale: localeID })
+                                : "Pilih tanggal"}
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0 border-slate-200 dark:border-slate-800" align="start">
+                            <Calendar mode="single"
+                              selected={pi.tanggalSurat ? parseLocalDate(pi.tanggalSurat) : undefined}
+                              onSelect={d => updatePI(pi.id, "tanggalSurat", d ? format(d, "yyyy-MM-dd") : "")} />
+                          </PopoverContent>
+                        </Popover>
+                      </FormField>
                     </div>
                   </div>
                 ))}
@@ -412,8 +430,8 @@ export default function TambahForm({ role, basePath }: Props) {
                   className="w-full inline-flex items-center justify-center gap-2
                     text-[13px] font-medium text-blue-600 dark:text-blue-400
                     border border-dashed border-blue-300 dark:border-blue-700
-                    rounded-lg py-2.5 hover:bg-blue-50 dark:hover:bg-blue-900/20
-                    hover:border-blue-400 dark:hover:border-blue-600 transition-all mt-1 mb-1">
+                    rounded-2xl py-3 hover:bg-blue-50 dark:hover:bg-blue-900/20
+                    hover:border-blue-400 dark:hover:border-blue-600 transition-all">
                   <Plus size={14} />
                   Tambah Invoice Lainnya
                 </button>
@@ -421,36 +439,83 @@ export default function TambahForm({ role, basePath }: Props) {
             ) : (
               <>
                 {suratList.map((surat, index) => (
-                  <div key={surat.id} className="border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden">
-                    <div className="flex items-center justify-between px-4 py-2.5
-                      bg-slate-50/80 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800">
-                      <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
-                        Surat {index + 1}
-                      </span>
+                  <div key={surat.id} className="border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-950 overflow-hidden shadow-sm shrink-0">
+                    <div className="flex items-center justify-between px-5 py-3 bg-slate-50/80 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-800">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-6 h-6 rounded-lg bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center">
+                          <FileText size={12} className="text-blue-600 dark:text-blue-400" />
+                        </div>
+                        <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                          Surat {index + 1}
+                        </span>
+                      </div>
                       {suratList.length > 1 && (
-                        <button type="button" onClick={() => removeSurat(surat.id)}
-                          className="inline-flex items-center gap-1.5 text-[11px] font-medium
-                            text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300
-                            hover:bg-red-50 dark:hover:bg-red-900/20 px-2 py-1 rounded transition-all">
-                          <Trash2 size={11} />
-                          Hapus
-                        </button>
+                        <Button type="button" variant="ghost" size="sm" onClick={() => removeSurat(surat.id)} className="h-7 px-2.5 text-[11px] gap-1 rounded-lg text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20">
+                          <Trash2 size={11} /> Hapus
+                        </Button>
                       )}
                     </div>
-                    <div className="p-4 flex flex-col gap-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <FormField label="Perihal">
-                          <input className={inputClass} value={surat.perihal}
-                            onChange={e => updateSurat(surat.id, "perihal", e.target.value)}
-                            placeholder="Masukkan perihal surat" />
-                        </FormField>
+                    <div className="px-5 py-4 flex flex-col gap-4">
+                      <FormField label="Perihal">
+                        <input className={inputClass} value={surat.perihal}
+                          onChange={e => updateSurat(surat.id, "perihal", e.target.value)}
+                          placeholder="Masukkan perihal surat" />
+                      </FormField>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <FormField label="No. Surat">
                           <input className={inputClass} value={surat.noSurat}
                             onChange={e => updateSurat(surat.id, "noSurat", e.target.value)}
                             placeholder="Opsional" />
                         </FormField>
+
+                        <FormField label="Lampiran">
+                          <div className={cn(
+                            "relative flex h-10 rounded-xl overflow-hidden",
+                            "border border-slate-200 dark:border-slate-800",
+                            "bg-white dark:bg-slate-950 transition-all",
+                            "focus-within:ring-2 focus-within:ring-blue-500/20",
+                            "focus-within:border-blue-500 dark:focus-within:border-blue-500",
+                          )}>
+                            <input
+                              type="text" inputMode="numeric" pattern="[0-9]*"
+                              value={getLampiranNum(surat.lampiran)}
+                              onChange={e => updateLampiranNum(surat.id, e.target.value)}
+                              onFocus={() => setFocusedLampiran(surat.id)}
+                              onBlur={()  => setFocusedLampiran(null)}
+                              placeholder="Masukkan jumlah"
+                              style={{ color: focusedLampiran === surat.id && !getLampiranNum(surat.lampiran) ? 'transparent' : undefined }}
+                              className={cn(
+                                "flex-1 min-w-0 px-3.5 h-full",
+                                "bg-transparent border-0 outline-none",
+                                "text-[13px] text-center font-medium",
+                                "text-slate-700 dark:text-slate-300",
+                                "placeholder:text-slate-400 dark:placeholder:text-slate-500",
+                                "placeholder:text-center placeholder:font-normal",
+                              )}
+                            />
+                            <div className={cn(
+                              "flex items-center justify-center px-3.5 shrink-0",
+                              "border-l border-slate-200 dark:border-slate-800",
+                              "bg-slate-50 dark:bg-slate-900",
+                              "text-[11px] font-bold tracking-widest",
+                              "text-slate-400 dark:text-slate-500 select-none",
+                            )}>
+                              SET
+                            </div>
+                          </div>
+                        </FormField>
                       </div>
-                      <div className="grid grid-cols-2 gap-4">
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <FormField label="Tujuan">
+                          <div className={cn(readonlyClass, "flex items-center gap-2")}>
+                            <span className="text-[13px] text-slate-700 dark:text-slate-300">
+                              {surat.tujuan || "-"}
+                            </span>
+                          </div>
+                        </FormField>
+
                         <FormField label="Tanggal Surat">
                           <Popover>
                             <PopoverTrigger asChild>
@@ -470,19 +535,8 @@ export default function TambahForm({ role, basePath }: Props) {
                             </PopoverContent>
                           </Popover>
                         </FormField>
-                        <FormField label="Lampiran">
-                          <input className={inputClass} value={surat.lampiran}
-                            onChange={e => updateSurat(surat.id, "lampiran", e.target.value)}
-                            placeholder="Opsional" />
-                        </FormField>
                       </div>
-                      <FormField label="Tujuan">
-                        <div className={cn(readonlyClass, "flex items-center gap-2")}>
-                          <span className="text-[13px] text-slate-700 dark:text-slate-300">
-                            {surat.tujuan || "-"}
-                          </span>
-                        </div>
-                      </FormField>
+
                     </div>
                   </div>
                 ))}
@@ -490,17 +544,18 @@ export default function TambahForm({ role, basePath }: Props) {
                   className="w-full inline-flex items-center justify-center gap-2
                     text-[13px] font-medium text-blue-600 dark:text-blue-400
                     border border-dashed border-blue-300 dark:border-blue-700
-                    rounded-lg py-2.5 hover:bg-blue-50 dark:hover:bg-blue-900/20
-                    hover:border-blue-400 dark:hover:border-blue-600 transition-all mt-1 mb-1">
+                    rounded-2xl py-3 hover:bg-blue-50 dark:hover:bg-blue-900/20
+                    hover:border-blue-400 dark:hover:border-blue-600 transition-all">
                   <Plus size={14} />
                   Tambah Surat Lainnya
                 </button>
               </>
             )}
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
+      {/* ── Action Bar Bawah (Melayang) ────────────────────────────────── */}
       <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
         <div className="inline-flex items-center gap-1 p-1.5 rounded-2xl
           border border-slate-200/80 dark:border-slate-700/60
