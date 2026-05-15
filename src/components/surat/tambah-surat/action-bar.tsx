@@ -1,0 +1,23 @@
+import { X, Loader2, Save } from "lucide-react"
+import { Button } from "@/components/ui/button"
+
+export function FloatingActionBar({ state, actions }: any) {
+  return (
+    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
+      <div className="inline-flex items-center gap-1 p-1.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/60 bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl shadow-2xl shadow-slate-900/10 dark:shadow-black/50">
+        <Button type="button" variant="ghost" onClick={actions.handleBack}
+          className="gap-2 h-10 px-4 rounded-xl text-[13px] font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800">
+          <X size={14} /> Batal
+        </Button>
+        <div className="w-px h-5 bg-slate-200 dark:bg-slate-700 mx-0.5" />
+        <Button type="submit" variant="ghost" disabled={state.saving || !state.deptId}
+          className="gap-2 h-10 px-4 rounded-xl text-[13px] font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 disabled:opacity-50 disabled:cursor-not-allowed">
+          {state.saving
+            ? <><Loader2 size={14} className="animate-spin" /> Menyimpan…</>
+            : <><Save size={14} /> Simpan{state.itemCount > 1 ? ` ${state.itemCount} ${state.itemLabel}` : ""}</>
+          }
+        </Button>
+      </div>
+    </div>
+  )
+}

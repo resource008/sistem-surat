@@ -5,35 +5,30 @@ services:
     image: postgres:18-alpine
     container_name: db-surat
     restart: always
-    environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: 123456789
-      POSTGRES_DB: db_surat
+    env_file:
+      - .env
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U admin -d db_surat"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 10
 
-  app:
-    build:
-      context: .
-      args:
-        - DATABASE_URL=postgresql://admin:123456789@db:5432/db_surat?schema=public
-        - BETTER_AUTH_SECRET=14UyHC272dtKJaryzE8I1eHep0jax9+bgSjHxUZLUXg=
-        - BETTER_AUTH_URL=http://localhost:3001
-    container_name: nextjs-sistem-surat
-    restart: always
+  app-dev:
+    image: node:22-alpine
+    container_name: nextjs-sistem-surat-dev
+    working_dir: /app
+    volumes:
+      - .:/app
+      - /app/node_modules
     ports:
       - "3001:3001"
-    environment:
-      - DATABASE_URL=postgresql://admin:123456789@db:5432/db_surat?schema=public
-      - BETTER_AUTH_SECRET=14UyHC272dtKJaryzE8I1eHep0jax9+bgSjHxUZLUXg=
-      - BETTER_AUTH_URL=http://localhost:3001
+    env_file:
+      - .env
+    command: sh -c "apk add --no-cache openssl && npm install --legacy-peer-deps && npx prisma generate && npx prisma db push && npm run dev"
     depends_on:
       db:
         condition: service_healthy

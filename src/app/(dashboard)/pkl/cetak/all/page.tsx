@@ -6,12 +6,12 @@ import { format }                     from "date-fns"
 import { id }                         from "date-fns/locale"
 
 import { useCetakData, clearCetakSession } from "@/hooks/use-cetak"
-import { groupCetakData, calcTotalSurat }  from "@/services/surat.service"
-import { CetakEmpty }                      from "@/components/surat/cetak-empty"
-import { LoadingSpinner }                  from "@/components/shared/loading-skeleton"
-import { CetakPrintStyles }                from "@/components/surat/cetak-print-styles"
-import { CetakScreenView }                 from "@/components/surat/cetak-screen-view"
-import { CetakPrintView }                  from "@/components/surat/cetak-print-view"
+import { groupCetakData, calcTotalSurat }  from "@/lib/surat-helpers"
+import { CetakEmpty }                      from "@/components/surat/cetak/empty-state"
+import { LoadingSkeleton }                  from "@/components/shared/loading-skeleton"
+import { CetakPrintStyles }                from "@/components/surat/cetak/print-styles"
+import { CetakScreenView }                 from "@/components/surat/cetak/screen-view"
+import { CetakPrintView }                  from "@/components/surat/cetak/print-view"
 
 function CetakAllContent() {
   const searchParams          = useSearchParams()
@@ -32,7 +32,7 @@ function CetakAllContent() {
   if (loading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <LoadingSpinner message="Memuat data cetak…" />
+        <LoadingSkeleton type="table" />
       </div>
     )
   }
@@ -61,10 +61,13 @@ function CetakAllContent() {
     </>
   )
 }
-
 export default function CetakAllPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={
+      <div className="w-full mt-2">
+        <LoadingSkeleton type="table" />
+      </div>
+    }>
       <CetakAllContent />
     </Suspense>
   )
