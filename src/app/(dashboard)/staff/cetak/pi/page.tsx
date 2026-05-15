@@ -6,12 +6,12 @@ import { useSearchParams } from "next/navigation"
 import { Suspense, useEffect, useState } from "react"
 
 import { LoadingSkeleton } from "@/components/shared/loading-skeleton"
-import { CetakEmpty } from "@/components/surat/cetak-empty"
-import { CetakPrintStyles } from "@/components/surat/cetak-print-styles"
-import { CetakPrintViewPI, type CetakGroupPI } from "@/components/surat/cetak-print-view-pi"
-import { CetakScreenView } from "@/components/surat/cetak-screen-view"
+import { CetakEmpty } from "@/components/surat/cetak/empty-state"
+import { CetakPrintStyles } from "@/components/surat/cetak/print-styles"
+import { CetakPrintViewPI, type CetakGroupPI } from "@/components/surat/cetak/print-view-pi"
+import { CetakScreenView } from "@/components/surat/cetak/screen-view"
 import { clearCetakSession, useCetakData } from "@/hooks/use-cetak"
-import { calcTotalSurat, groupCetakData } from "@/services/surat.service"
+import { calcTotalSurat, groupCetakData } from "@/lib/surat-helpers"
 
 function CetakPIContent() {
   const searchParams          = useSearchParams()
