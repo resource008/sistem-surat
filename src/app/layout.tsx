@@ -14,6 +14,10 @@ const figtree = Figtree({
 export const metadata: Metadata = {
   title: "Sistem Surat",
   description: "Sistem Manajemen Surat",
+  // Pastikan strukturnya bersih seperti ini
+  other: {
+    google: "notranslate",
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

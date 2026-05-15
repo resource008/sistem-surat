@@ -104,7 +104,7 @@ export function StaffSidebar({
 
       {/* Nav label */}
       <div className={styles.navSection}>
-        <span className={styles.navSectionLabel}>Menu Staff</span>
+        <span className={styles.navSectionLabel}>Menu</span>
       </div>
 
       {/* Nav items */}

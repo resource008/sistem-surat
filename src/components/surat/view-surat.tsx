@@ -154,7 +154,9 @@ export default function ViewSuratPage({ role, basePath }: Props) {
       </AlertDialog>
 
       {/* ── Action Bar Bawah (Melayang) ──────────────────────────── */}
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
+      {/* ── Action Bar Bawah (Melayang) ──────────────────────────── */}
+      {/* Ubah z-50 menjadi z-30 agar posisinya berada di bawah sidebar mobile */}
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-30">
         <div className="inline-flex items-center gap-1 p-1.5 rounded-2xl border border-slate-200/80 dark:border-slate-700/60 bg-white/90 dark:bg-slate-950/90 backdrop-blur-xl shadow-2xl shadow-slate-900/10 dark:shadow-black/50">
           <Button variant="ghost" onClick={() => router.push(basePath)} className="gap-2 h-10 px-4 rounded-xl text-[13px] font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800">
             <ArrowLeft size={14} /> Kembali
@@ -171,8 +173,8 @@ export default function ViewSuratPage({ role, basePath }: Props) {
       </div>
 
       {/* ── Konten Utama (Kiri Register, Kanan Daftar Surat) ─────── */}
-      <div className="max-w-7xl mx-auto px-4 xl:px-0 flex flex-col lg:flex-row gap-6 
-                      lg:h-[calc(100vh-120px)] lg:overflow-hidden pb-28 lg:pb-0 pt-2">
+      <div className="w-full flex flex-col lg:flex-row gap-6 
+                lg:h-[calc(100vh-120px)] lg:overflow-hidden pb-28 lg:pb-0 pt-2">
         
         {/* SISI KIRI: Card Register */}
         <div className="w-full lg:w-4/12 xl:w-4/12 flex flex-col gap-4 lg:h-full lg:pb-6">

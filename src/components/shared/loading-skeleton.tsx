@@ -1,151 +1,261 @@
-import { cn } from "@/lib/utils"
 import { Skeleton } from "@/components/ui/skeleton"
 
-interface LoadingSkeletonProps {
-  className?: string
-  /**
-   * default: Skeleton baris standar
-   * table: Skeleton list surat
-   * card: Skeleton kotak-kotak (Dashboard)
-   * form: Skeleton khusus form (Add/Edit/View) dengan desain Split-Pane
-   */
-  type?: "default" | "table" | "card" | "form"
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+
+export interface DataSuratSkeletonGroup {
+  rowsPerGroup?: number
 }
 
-export function LoadingSkeleton({ 
-  className, 
-  type = "default" 
-}: LoadingSkeletonProps) {
-  
-  // ─── OPSI 1: SKELETON FORM (Untuk View/Edit/Add - Split-Pane Layout) ───
-  if (type === "form") {
-    return (
-      <div className={cn(
-        "max-w-7xl mx-auto px-4 xl:px-0 flex flex-col lg:flex-row gap-6",
-        "lg:h-[calc(100vh-120px)] lg:overflow-hidden pb-28 lg:pb-0 pt-2",
-        "animate-in fade-in duration-300 w-full",
-        className
-      )}>
-        
-        {/* SISI KIRI: Skeleton Register */}
-        <div className="w-full lg:w-4/12 xl:w-4/12 flex flex-col gap-4 lg:h-full lg:pb-6">
-          <div className="rounded-2xl border border-border/50 bg-background overflow-hidden shadow-sm flex flex-col">
-            <div className="px-6 py-4 border-b border-border/50 flex justify-between items-start bg-slate-50/50 dark:bg-slate-900/50">
-               <div>
-                  <Skeleton className="h-3 w-24 mb-3" />
-                  <Skeleton className="h-6 w-32 rounded-lg" />
-               </div>
-               <Skeleton className="h-5 w-14 rounded-full" />
-            </div>
-            <div className="px-6 py-5 flex flex-col gap-5">
-               <div className="flex flex-col gap-2.5">
-                 <Skeleton className="h-3 w-20" />
-                 <Skeleton className="h-10 w-full rounded-xl" />
-               </div>
-               <div className="flex flex-col gap-2.5">
-                 <Skeleton className="h-3 w-28" />
-                 <Skeleton className="h-10 w-full rounded-xl" />
-               </div>
-               <div className="flex flex-col gap-2.5">
-                 <Skeleton className="h-3 w-16" />
-                 <Skeleton className="h-10 w-full rounded-xl" />
-               </div>
-            </div>
-          </div>
-        </div>
+export interface DataSuratSkeletonProps {
+  groups?: DataSuratSkeletonGroup[]
+  /** Render the full-page shell (top bar + page background). Default: false */
+  fullPage?: boolean
+  className?: string
+}
 
-        {/* SISI KANAN: Skeleton Daftar Surat/PI */}
-        <div className="w-full lg:w-8/12 xl:w-8/12 flex flex-col gap-4 lg:overflow-y-auto pb-10 lg:pb-32 lg:pr-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-           {[1, 2].map((i) => (
-             <div key={i} className="rounded-2xl border border-border/50 bg-background overflow-hidden shadow-sm shrink-0">
-                <div className="px-5 py-3 border-b border-border/50 bg-slate-50/50 dark:bg-slate-900/50 flex gap-2.5 items-center">
-                  <Skeleton className="w-6 h-6 rounded-lg" />
-                  <Skeleton className="h-3 w-20 rounded-full" />
-                </div>
-                <div className="px-5 py-4 flex flex-col gap-5">
-                  <div className="flex flex-col gap-2.5">
-                    <Skeleton className="h-3 w-24" />
-                    <Skeleton className="h-10 w-full rounded-xl" />
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="flex flex-col gap-2.5">
-                      <Skeleton className="h-3 w-20" />
-                      <Skeleton className="h-10 w-full rounded-xl" />
-                    </div>
-                    <div className="flex flex-col gap-2.5">
-                      <Skeleton className="h-3 w-16" />
-                      <Skeleton className="h-10 w-full rounded-xl" />
-                    </div>
-                  </div>
-                </div>
-             </div>
-           ))}
-        </div>
-      </div>
-    )
-  }
+export interface LoadingSkeletonProps {
+  /**
+   * "table" → Data Surat list skeleton (default)
+   * "form"  → Edit Surat form skeleton (sidebar + content panels)
+   */
+  type?: "table" | "form"
+  className?: string
+}
 
-  // ─── OPSI 2: SKELETON TABEL (Sesuai gambar Data Surat) ───
-  if (type === "table") {
-    return (
-      <div className={cn("w-full space-y-4", className)}>
-        <div className="rounded-xl border border-border/50 bg-background overflow-hidden shadow-sm">
-          <div className="flex items-center gap-3 p-4 border-b border-border/50">
-            <Skeleton className="h-4 w-32" />
-            <Skeleton className="h-6 w-14 rounded-full" />
-          </div>
-          <div className="grid grid-cols-[40px_100px_1fr_120px_80px] gap-4 px-4 py-3 border-b border-border/50 bg-slate-50/50 dark:bg-slate-900/50">
-            <Skeleton className="h-3 w-4" /> <Skeleton className="h-3 w-20" />
-            <Skeleton className="h-3 w-16" /> <Skeleton className="h-3 w-20" />
-            <Skeleton className="h-3 w-14" />
-          </div>
-          <div className="flex flex-col">
-            {Array.from({ length: 2 }).map((_, i) => (
-              <div key={i} className="grid grid-cols-[40px_100px_1fr_120px_80px] gap-4 px-4 py-4 items-center border-b border-border/50 last:border-0">
-                <Skeleton className="h-4 w-4 rounded" />
-                <Skeleton className="h-4 w-12" />
-                <div className="space-y-2"><Skeleton className="h-4 w-[60%]" /><Skeleton className="h-4 w-[40%]" /></div>
-                <div className="space-y-2"><Skeleton className="h-3 w-16" /><Skeleton className="h-3 w-12" /></div>
-                <Skeleton className="h-4 w-10" />
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    )
-  }
+// ---------------------------------------------------------------------------
+// Default group config — mirrors the Data Surat screenshot
+// ---------------------------------------------------------------------------
 
-  // ─── OPSI 3: SKELETON CARD (Untuk Dashboard) ───
-  if (type === "card") {
-    return (
-      <div className={cn("grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4", className)}>
-        {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="rounded-xl border border-border/50 bg-card p-5 flex flex-col gap-4 shadow-sm">
-            <div className="flex justify-between items-start">
-               <Skeleton className="h-10 w-10 rounded-2xl" />
-               <Skeleton className="h-7 w-7 rounded-full" />
-            </div>
-            <div className="space-y-2 mt-2 flex flex-col">
-               <div className="flex items-center gap-3">
-                 <Skeleton className="h-8 w-16" />
-                 <Skeleton className="h-5 w-12 rounded-full" />
-               </div>
-               <Skeleton className="h-3 w-24 mt-1" />
-            </div>
-          </div>
-        ))}
-      </div>
-    )
-  }
+const DEFAULT_GROUPS: DataSuratSkeletonGroup[] = [
+  { rowsPerGroup: 3 },
+  { rowsPerGroup: 1 },
+  { rowsPerGroup: 2 },
+  { rowsPerGroup: 1 },
+]
 
-  // ─── OPSI 4: SKELETON DEFAULT ───
+// ---------------------------------------------------------------------------
+// Table skeleton internals
+// ---------------------------------------------------------------------------
+
+function RowSkeleton({ isFirst, index }: { isFirst: boolean; index: number }) {
+  const perihalWidths = ["55%", "70%", "48%", "62%", "75%", "53%"]
+  const perihalWidth = perihalWidths[index % perihalWidths.length]
+
   return (
-    <div className={cn("flex flex-col space-y-4 w-full", className)}>
-      <Skeleton className="h-30 w-full rounded-xl" />
-      <div className="space-y-2.5">
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-4 w-[85%]" />
+    <div className="flex items-center gap-3 px-4 py-3 border-t border-white/5">
+      <Skeleton className="h-4 w-4 rounded shrink-0 bg-white/10" />
+
+      <div className="w-[100px] shrink-0">
+        {isFirst && <Skeleton className="h-4 w-12 bg-white/10 rounded" />}
+      </div>
+
+      <div className="flex-1">
+        <Skeleton className="h-4 bg-white/10 rounded" style={{ width: perihalWidth }} />
+      </div>
+
+      <div className="w-[120px] shrink-0 flex justify-end">
+        <Skeleton className="h-4 w-16 bg-white/10 rounded" />
+      </div>
+
+      <div className="w-[80px] shrink-0 flex justify-end">
+        <Skeleton className="h-4 w-10 bg-white/10 rounded" />
       </div>
     </div>
   )
+}
+
+function ColumnHeaderSkeleton() {
+  return (
+    <div className="flex items-center gap-3 px-4 py-2">
+      <div className="w-4 shrink-0" />
+      <div className="w-[100px] shrink-0">
+        <Skeleton className="h-3 w-20 bg-white/5 rounded" />
+      </div>
+      <div className="flex-1">
+        <Skeleton className="h-3 w-14 bg-white/5 rounded" />
+      </div>
+      <div className="w-[120px] shrink-0 flex justify-end">
+        <Skeleton className="h-3 w-16 bg-white/5 rounded" />
+      </div>
+      <div className="w-[80px] shrink-0 flex justify-end">
+        <Skeleton className="h-3 w-14 bg-white/5 rounded" />
+      </div>
+    </div>
+  )
+}
+
+function GroupCardSkeleton({
+  rowsPerGroup = 1,
+  animationDelay = 0,
+}: {
+  rowsPerGroup?: number
+  animationDelay?: number
+}) {
+  return (
+    <div
+      className="rounded-xl border border-white/10 bg-[#0d1526] overflow-hidden animate-pulse"
+      style={{ animationDelay: `${animationDelay}ms` }}
+    >
+      <div className="flex items-center gap-3 px-4 py-3">
+        <Skeleton className="h-4 w-24 bg-white/10 rounded" />
+        <Skeleton className="h-5 w-10 bg-blue-500/20 rounded-full" />
+      </div>
+
+      <ColumnHeaderSkeleton />
+
+      {Array.from({ length: rowsPerGroup }).map((_, i) => (
+        <RowSkeleton key={i} isFirst={i === 0} index={i} />
+      ))}
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Form skeleton
+// Matches EditSuratPage layout exactly — no extra px, parent handles padding.
+// Left: fixed-width sidebar. Right: flex-1 fills all remaining space.
+// ---------------------------------------------------------------------------
+
+function SuratCardSkeleton() {
+  return (
+    <div className="rounded-xl border border-white/5 bg-white/[0.03] p-3 space-y-2 animate-pulse">
+      {/* Perihal Surat */}
+      <Skeleton className="h-2.5 w-20 bg-white/5 rounded" />
+      <Skeleton className="h-9 w-full bg-white/10 rounded-lg" />
+
+      {/* Nomor Surat + Lampiran */}
+      <div className="flex gap-3">
+        <div className="flex-1 space-y-1.5">
+          <Skeleton className="h-2.5 w-20 bg-white/5 rounded" />
+          <Skeleton className="h-9 w-full bg-white/10 rounded-lg" />
+        </div>
+        <div className="flex-1 space-y-1.5">
+          <Skeleton className="h-2.5 w-16 bg-white/5 rounded" />
+          <Skeleton className="h-9 w-full bg-white/10 rounded-lg" />
+        </div>
+      </div>
+
+      {/* Tanggal Surat */}
+      <Skeleton className="h-2.5 w-24 bg-white/5 rounded" />
+      <Skeleton className="h-9 w-full bg-white/10 rounded-lg" />
+    </div>
+  )
+}
+
+function FormSkeleton({ className }: { className?: string }) {
+  return (
+    <div
+      className={[
+        // No px — inherits from EditSuratPage wrapper (px-4 xl:px-0)
+        // max-w-7xl is set by EditSuratPage, not here
+        "w-full flex flex-col lg:flex-row gap-6",
+        "animate-in fade-in duration-500",
+        className ?? "",
+      ]
+        .filter(Boolean)
+        .join(" ")}
+    >
+      {/* ── Left sidebar: RegisterInfoPanel ── */}
+      <div className="w-full lg:w-[220px] xl:w-[260px] shrink-0">
+        <div className="rounded-2xl border border-white/10 bg-[#0d1526] p-4 space-y-4 animate-pulse">
+          {/* "NOMOR REGISTER" label + department badge */}
+          <div className="flex items-start justify-between">
+            <div className="space-y-1">
+              <Skeleton className="h-2.5 w-12 bg-white/5 rounded" />
+              <Skeleton className="h-2.5 w-16 bg-white/5 rounded" />
+            </div>
+            <Skeleton className="h-5 w-10 bg-blue-500/20 rounded-full" />
+          </div>
+
+          {/* Big nomor */}
+          <Skeleton className="h-8 w-16 bg-white/15 rounded-lg" />
+
+          <Skeleton className="h-px w-full bg-white/5" />
+
+          {/* Asal Surat */}
+          <div className="space-y-1.5">
+            <Skeleton className="h-2.5 w-16 bg-white/5 rounded" />
+            <Skeleton className="h-9 w-full bg-white/10 rounded-xl" />
+          </div>
+
+          {/* Tanggal Terima */}
+          <div className="space-y-1.5">
+            <Skeleton className="h-2.5 w-20 bg-white/5 rounded" />
+            <Skeleton className="h-9 w-full bg-white/10 rounded-xl" />
+          </div>
+
+          {/* Tujuan */}
+          <div className="space-y-1.5">
+            <Skeleton className="h-2.5 w-12 bg-white/5 rounded" />
+            <Skeleton className="h-9 w-full bg-white/10 rounded-xl" />
+          </div>
+        </div>
+      </div>
+
+      {/* ── Right content: SuratListPanel / PIListPanel ──
+          flex-1 + min-w-0 → fills ALL remaining width, no overflow */}
+      <div className="flex-1 min-w-0 space-y-3">
+        {[1, 2, 3].map((i) => (
+          <SuratCardSkeleton key={i} />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// DataSuratSkeleton — table variant with optional full-page shell
+// ---------------------------------------------------------------------------
+
+export function DataSuratSkeleton({
+  groups = DEFAULT_GROUPS,
+  fullPage = false,
+  className,
+}: DataSuratSkeletonProps) {
+  const cards = (
+    <div className="flex flex-col gap-4 animate-in fade-in duration-500">
+      {groups.map((group, i) => (
+        <GroupCardSkeleton
+          key={i}
+          rowsPerGroup={group.rowsPerGroup}
+          animationDelay={i * 80}
+        />
+      ))}
+    </div>
+  )
+
+  if (!fullPage) {
+    return <div className={className}>{cards}</div>
+  }
+
+  return (
+    <div className={`w-full min-h-screen bg-[#080f1e] ${className ?? ""}`}>
+      <div className="flex items-center justify-between px-6 py-4 border-b border-white/5">
+        <Skeleton className="h-5 w-24 bg-white/10 rounded" />
+        <div className="flex gap-2">
+          <Skeleton className="h-8 w-28 bg-white/10 rounded-lg" />
+          <Skeleton className="h-8 w-20 bg-white/10 rounded-lg" />
+        </div>
+      </div>
+      <div className="p-6">{cards}</div>
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// LoadingSkeleton — shared entry point used across the app
+//
+// Usage:
+//   <LoadingSkeleton />              → table (Data Surat list)
+//   <LoadingSkeleton type="form" />  → form (Edit Surat page)
+// ---------------------------------------------------------------------------
+
+export function LoadingSkeleton({ type = "table", className }: LoadingSkeletonProps) {
+  if (type === "form") {
+    return <FormSkeleton className={className} />
+  }
+
+  return <DataSuratSkeleton className={className} />
 }

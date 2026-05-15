@@ -2,7 +2,7 @@ import { betterFetch } from "@better-fetch/fetch"
 import { NextRequest, NextResponse } from "next/server"
 import type { Session } from "better-auth/types"
 
-// ── Protected paths ───────────────────────────────────────────────
+// ── Protected paths (Harus Login) ─────────────────────────────────
 const PROTECTED_PATHS = [
   "/staff",
   "/admin",
@@ -16,7 +16,7 @@ const ADMIN_PATHS = [
   "/departemen",
 ]
 
-// ── Skip paths ────────────────────────────────────────────────────
+// ── Skip paths (Public) ───────────────────────────────────────────
 const SKIP_PATHS = [
   "/api/auth",
   "/login",
@@ -26,40 +26,49 @@ const SKIP_PATHS = [
 export default async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
-  // Skip untuk auth & public paths
-  const shouldSkip = SKIP_PATHS.some((path) =>
-    pathname.startsWith(path),
-  )
+  // 1. Skip untuk auth & public paths
+  const shouldSkip = SKIP_PATHS.some((path) => pathname.startsWith(path))
   if (shouldSkip) return NextResponse.next()
 
-  const isProtected = PROTECTED_PATHS.some((path) =>
-    pathname.startsWith(path),
-  )
-  const isAdminPath = ADMIN_PATHS.some((path) =>
-    pathname.startsWith(path),
-  )
+  const isProtected = PROTECTED_PATHS.some((path) => pathname.startsWith(path))
+  const isAdminPath = ADMIN_PATHS.some((path) => pathname.startsWith(path))
 
+  // Jika bukan halaman yang dilindungi, biarkan lewat
   if (!isProtected && !isAdminPath) return NextResponse.next()
 
-  // ── Cek session Better Auth ───────────────────────────────────
+  // 2. Cek session Better Auth
   const { data: session } = await betterFetch<Session>(
     "/api/auth/get-session",
     {
       baseURL: request.nextUrl.origin,
-      headers: {
-        cookie: request.headers.get("cookie") ?? "",
-      },
+      headers: { cookie: request.headers.get("cookie") ?? "" },
     },
   )
 
+  // 3. Redirect ke login jika tidak ada sesi
   if (!session) {
     const loginUrl = new URL("/login", request.url)
     loginUrl.searchParams.set("callbackUrl", pathname)
     return NextResponse.redirect(loginUrl)
   }
 
-  // ── Cek role ADMIN untuk admin paths ─────────────────────────
-  if (isAdminPath && (session as any).user?.role !== "ADMIN") {
+  // Ambil Role User
+  const role = (session as any).user?.role
+
+  // ── 4. Logika RBAC (Role-Based Access Control) ──────────────────
+
+  // A. Cek Role ADMIN untuk Admin Paths & /admin
+  if ((isAdminPath || pathname.startsWith("/admin")) && role !== "ADMIN") {
+    return NextResponse.redirect(new URL("/forbidden", request.url))
+  }
+
+  // B. Cek Role STAFF (Hanya Staff dan Admin yang boleh ke /staff)
+  if (pathname.startsWith("/staff") && role !== "STAFF" && role !== "ADMIN") {
+    return NextResponse.redirect(new URL("/forbidden", request.url))
+  }
+
+  // C. Cek Role PKL (Hanya PKL dan Admin yang boleh ke /pkl)
+  if (pathname.startsWith("/pkl") && role !== "PKL" && role !== "ADMIN") {
     return NextResponse.redirect(new URL("/forbidden", request.url))
   }
 

@@ -18,31 +18,36 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
 
-const ICON_SIZE = 18
-
-interface Props {
-  collapsed:     boolean
-  isMobile:      boolean
-  mobileOpen:    boolean
-  onCollapse:    (val: boolean) => void
+// --- DEFINISI INTERFACE PROPS ---
+interface PklSidebarProps {
+  collapsed: boolean
+  isMobile: boolean
+  mobileOpen: boolean
+  onCollapse: (val: boolean) => void
   onMobileClose: () => void
 }
 
+const ICON_SIZE = 18
+
 export function PklSidebar({
-  collapsed, isMobile, mobileOpen, onCollapse, onMobileClose,
-}: Props) {
+  collapsed,
+  isMobile,
+  mobileOpen,
+  onCollapse,
+  onMobileClose,
+}: PklSidebarProps) {
   const pathname = usePathname()
+
   const [userData, setUserData] = useState({
     name: "Loading...", role: "PKL", initials: "??",
   })
 
-  // Hardcode base path khusus PKL
   const base = "/pkl"
 
   const navItems = [
-    { label: "Data Surat",  icon: FileText,   href: `${base}/data-surat` },
-    { label: "Cetak",       icon: Printer,    href: `${base}/cetak/all`  },
-    { label: "Track Surat", icon: RefreshCcw, href: `${base}/track`      },
+    { label: "Data Surat",   icon: FileText,   href: `${base}/data-surat` },
+    { label: "Cetak",        icon: Printer,    href: `${base}/cetak`      }, // Sesuaikan base path cetak
+    { label: "Track Surat",  icon: RefreshCcw, href: `${base}/track`      },
   ]
 
   useEffect(() => {
@@ -78,7 +83,6 @@ export function PklSidebar({
         isMobile && mobileOpen ? styles.mobileOpen    : "",
       ].join(" ")}
     >
-      {/* Header */}
       <div className={styles.sidebarHeader}>
         <div className={styles.logoWrapper}>
           <Image src="/sipef_logo.svg" alt="Logo" width={32} height={32} className={styles.logoImage} priority />
@@ -89,32 +93,43 @@ export function PklSidebar({
           </button>
         ) : (
           <>
-            <button
-              className={`${styles.collapseBtn} ${collapsed ? styles.collapseBtnCollapsed : ""}`}
-              onClick={() => onCollapse(true)}
-            >
-              <ArrowLeftCircle size={14} />
-            </button>
-            <button className={styles.expandBtn} onClick={() => onCollapse(false)}>
-              <ArrowRightCircle size={14} />
-            </button>
+            {/* Tombol untuk Collapse (Menyusut) */}
+            {!collapsed ? (
+              <button
+                className={styles.collapseBtn}
+                onClick={() => onCollapse(true)}
+              >
+                <ArrowLeftCircle size={14} />
+              </button>
+            ) : (
+              /* Tombol untuk Expand (Melebar) */
+              <button 
+                className={styles.expandBtn} 
+                style={{ display: 'flex' }} // Pastikan terlihat saat collapsed
+                onClick={() => onCollapse(false)}
+              >
+                <ArrowRightCircle size={14} />
+              </button>
+            )}
           </>
         )}
       </div>
 
-      {/* Nav label */}
       <div className={styles.navSection}>
-        <span className={styles.navSectionLabel}>Menu PKL</span>
+        <span className={styles.navSectionLabel}>Menu</span>
       </div>
 
-      {/* Nav items */}
       <nav className={styles.nav}>
         {navItems.map((item) => {
           const Icon     = item.icon
-          const isActive = pathname === item.href || (item.href.includes("/cetak") && pathname.includes("/cetak"))
+          const isActive = pathname.startsWith(item.href)
           return (
             <div key={item.href} className={styles.navItemWrapper}>
-              <Link href={item.href} className={`${styles.navItem} ${isActive ? styles.navItemActive : ""}`}>
+              <Link 
+                href={item.href} 
+                className={`${styles.navItem} ${isActive ? styles.navItemActive : ""}`}
+                onClick={() => isMobile && onMobileClose()}
+              >
                 <span className={styles.navIcon}>
                   <Icon size={ICON_SIZE} strokeWidth={isActive ? 2.5 : 1.8} />
                 </span>
@@ -127,12 +142,10 @@ export function PklSidebar({
         })}
       </nav>
 
-      {/* Theme toggle */}
       <div style={{ padding: "0 12px" }}>
         <ThemeToggle collapsed={!isMobile && collapsed} />
       </div>
 
-      {/* User info */}
       <div className={styles.userSection}>
         <div className={styles.userCard}>
           <div className={styles.userAvatar}>{userData.initials}</div>
@@ -145,7 +158,6 @@ export function PklSidebar({
         </div>
       </div>
 
-      {/* Logout */}
       <div className={styles.sidebarFooter}>
         <AlertDialog>
           <AlertDialogTrigger asChild>

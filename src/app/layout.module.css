@@ -341,7 +341,27 @@
   transition: 0.2s ease;
 }
 
-.hamburger:hover { background: var(--accent); }
+.hamburger:hover { 
+  background: var(--accent); 
+}
+
+/* ─── KHUSUS MODE GELAP: SAAT DI-HOVER SAJA ─── */
+:global(.dark) .hamburger:hover {
+  background-color: #ffffff !important; /* Latar belakang jadi putih */
+  color: #000000 !important;           /* Ikon jadi hitam */
+  border-color: #ffffff !important;    /* Border menyesuaikan jadi putih */
+}
+
+:global(.light) .hamburger:hover {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border-color: #000000 !important;
+}
+
+/* Membuat garis ikon sedikit lebih tegas saat di-hover agar jelas */
+:global(.dark) .hamburger:hover svg {
+  stroke-width: 2.5px;
+}
 
 /* ── CONTENT */
 /* Beri padding-top agar konten tidak tertutup topbar yang fixed */

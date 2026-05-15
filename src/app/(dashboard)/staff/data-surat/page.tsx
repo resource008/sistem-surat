@@ -1,16 +1,14 @@
-import { headers }   from "next/headers"
-import { auth }      from "@/infrastructure/auth/better-auth"
-import { redirect }  from "next/navigation"
-import DataSuratPage from "@/components/surat/data-surat"
+import { headers } from "next/headers"
+import { auth } from "@/infrastructure/auth/better-auth"
+import DataSuratPage from "@/components/surat/data-surat/data-surat"
 import type { Role } from "@/types"
 
 export default async function Page() {
+  // Ambil sesi dinamis (Tidak perlu redirect karena sudah diurus middleware)
   const session = await auth.api.getSession({ headers: await headers() })
-  if (!session) redirect("/login")
-  const role = (session.user as any).role as Role
+  const role = (session?.user as any)?.role as Role
   
   return (
-    // Skeleton DIHAPUS dari sini, karena sudah ditangani di dalam DataSuratPage
     <DataSuratPage
       role={role}
       basePath="/staff/data-surat"

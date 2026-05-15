@@ -1,7 +1,7 @@
 "use client"
 
 import styles from "@/app/layout.module.css"
-import { PklSidebar } from "./pkl-sidebar" // Import dari folder yang sama
+import { PklSidebar } from "./pkl-sidebar" // ← beda dari staff
 import TopbarFilter from "@/components/filters/index"
 import { TutorialCetak } from "@/components/shared/tutorial-cetak"
 import {
@@ -27,8 +27,8 @@ function PklLayoutInner({ children }: Props) {
   const [subtitle,    setSubtitle]    = useState<string | null>(null)
   const [subsubtitle, setSubsubtitle] = useState<string | null>(null)
 
-  const showPI       = searchParams.get("mode") === "pi"
-  const roleLower    = "pkl" // Hardcode role
+  const showPI    = searchParams.get("mode") === "pi"
+  const roleLower = "pkl" // ← beda dari staff
 
   const [filters, setFilters] = useState<{
     date: string | null
@@ -41,7 +41,6 @@ function PklLayoutInner({ children }: Props) {
   const isCetakPage      = pathname.startsWith(`/${roleLower}/cetak`)
   const hasActiveFilters = filters.date !== null || filters.departments.length > 0
 
-  // Init: baca localStorage
   useEffect(() => {
     const saved = localStorage.getItem("sidebar_collapsed")
     if (saved !== null && window.innerWidth >= 768) setCollapsed(JSON.parse(saved))
@@ -53,13 +52,11 @@ function PklLayoutInner({ children }: Props) {
     setIsMounted(true)
   }, [])
 
-  // Simpan collapsed ke localStorage
   useEffect(() => {
     if (isMounted && !isMobile)
       localStorage.setItem("sidebar_collapsed", JSON.stringify(collapsed))
   }, [collapsed, isMounted, isMobile])
 
-  // Responsive
   useEffect(() => {
     const check = () => {
       const mobile = window.innerWidth < 768
@@ -71,14 +68,12 @@ function PklLayoutInner({ children }: Props) {
     return () => window.removeEventListener("resize", check)
   }, [])
 
-  // Reset mobile & breadcrumb saat navigasi
   useEffect(() => {
     setMobileOpen(false)
     setSubtitle(null)
     setSubsubtitle(null)
   }, [pathname])
 
-  // Breadcrumb listeners
   useEffect(() => {
     const h = (e: Event) => setSubtitle((e as CustomEvent<string | null>).detail)
     window.addEventListener("breadcrumb:sub", h)
@@ -91,7 +86,6 @@ function PklLayoutInner({ children }: Props) {
     return () => window.removeEventListener("breadcrumb:subsub", h)
   }, [])
 
-  // Cetak listeners
   useEffect(() => {
     const handler = (e: Event) => {
       const count = (e as CustomEvent<{ count: number }>).detail.count
@@ -141,7 +135,7 @@ function PklLayoutInner({ children }: Props) {
         <div className={styles.backdrop} onClick={() => setMobileOpen(false)} />
       )}
 
-      {/* Panggil komponen khusus PklSidebar */}
+      {/* ← beda dari staff: PklSidebar */}
       <PklSidebar
         collapsed={collapsed}
         isMobile={isMobile}
@@ -194,7 +188,6 @@ function PklLayoutInner({ children }: Props) {
             </nav>
           </div>
 
-          {/* Actions kanan: Data Surat */}
           {isDataSuratPage && (
             <div className="flex items-center gap-1.5">
               <button
@@ -255,7 +248,6 @@ function PklLayoutInner({ children }: Props) {
             </div>
           )}
 
-          {/* Actions kanan: Cetak */}
           {isCetakPage && (
             <div className="flex items-center gap-2">
               <TutorialCetak />
@@ -299,6 +291,7 @@ function PklLayoutInner({ children }: Props) {
           )}
         </div>
 
+        {/* Sama persis dengan staff — tidak ada modifikasi apapun */}
         <div className={styles.content}>{children}</div>
 
         {isDataSuratPage && (
