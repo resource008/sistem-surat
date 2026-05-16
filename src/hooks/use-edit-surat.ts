@@ -1,18 +1,53 @@
+// src/hooks/use-edit-surat.ts
+
 import { useState, useEffect } from "react"
 import { useRouter, useParams } from "next/navigation"
 import { toast } from "sonner"
 
-import type { FormState, SuratItem, PIItem } from "@/types"
-import { EMPTY_SURAT_ITEM, EMPTY_PI_ITEM } from "@/types"
+import type { PIItem, SuratItem } from "@/domain/surat/types"
 import { validateSuratForm, buildUpdatePayload, formatLampiran } from "@/domain/surat/use-cases"
 import { fetchSuratById, updateSurat } from "@/domain/surat/repositories"
+
+// ── Local form-state type ─────────────────────────────────────────────────────
+interface FormState {
+  deptId:        string
+  asalSurat:     string
+  tujuan:        string
+  tanggalTerima: string
+}
+
+// ── Helpers matching the old EMPTY_* constants (now inline) ──────────────────
+function emptyPIItem(): PIItem {
+  return {
+    id:           crypto.randomUUID(),
+    namaSupplier: "",
+    noInvoice:    "",
+    nomorSurat:   "",
+    tujuan:       "",
+    cc:           "",
+    tanggalSurat: "",
+  }
+}
+
+function emptySuratItem(): SuratItem {
+  return {
+    id:           crypto.randomUUID(),
+    perihal:      "",
+    noSurat:      "",
+    lampiran:     "",
+    tujuan:       "",
+    tanggalSurat: "",
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 export function useEditSurat(basePath: string) {
   const { dept, id } = useParams<{ dept: string; id: string }>()
   const router       = useRouter()
   const isPI         = dept === "PI"
 
-  const [original,   setOriginal]   = useState<any | null>(null)
+  const [original,   setOriginal]   = useState<unknown | null>(null)
   const [loading,    setLoading]    = useState(true)
   const [saving,     setSaving]     = useState(false)
   const [error,      setError]      = useState<string | null>(null)
@@ -28,47 +63,49 @@ export function useEditSurat(basePath: string) {
   const [suratList, setSuratList] = useState<SuratItem[]>([])
   const [piList,    setPiList]    = useState<PIItem[]>([])
 
-  // ── Fetch Data ────────────────────────────────────────────────────────────
+  // ── Fetch Data ──────────────────────────────────────────────────────────────
   useEffect(() => {
     fetchSuratById(dept, id)
-      .then((data: any) => {
-        setOriginal(data)
+      .then((data: unknown) => {
+        const d = data as any
+        setOriginal(d)
         setForm({
-          deptId:        data.dept?.shortName    ?? "",
-          asalSurat:     data.asalSurat          ?? "",
-          tujuan:        data.tujuan             ?? "",
-          tanggalTerima: data.tanggalTerima?.slice(0, 10) ?? new Date().toISOString().slice(0, 10),
+          deptId:        d.dept?.shortName    ?? "",
+          asalSurat:     d.asalSurat          ?? "",
+          tujuan:        d.tujuan             ?? "",
+          tanggalTerima: d.tanggalTerima?.slice(0, 10) ?? new Date().toISOString().slice(0, 10),
         })
 
         if (isPI) {
-          setPiList((data.detailPI ?? []).map((p: any) => ({
+          setPiList((d.detailPI ?? []).map((p: Record<string, unknown>) => ({
             id:           String(p.id),
-            namaSupplier: p.namaSupplier ?? "",
-            noInvoice:    p.noInvoice    ?? "",
-            nomorSurat:   p.nomorSurat   ?? "",
-            tujuan:       p.tujuan       ?? "",
-            cc:           p.cc           ?? "",
-            tanggalSurat: p.tanggalSurat?.slice(0, 10) ?? "",
+            namaSupplier: (p.namaSupplier as string) ?? "",
+            noInvoice:    (p.noInvoice    as string) ?? "",
+            nomorSurat:   (p.nomorSurat   as string) ?? "",
+            tujuan:       (p.tujuan       as string) ?? "",
+            cc:           (p.cc           as string) ?? "",
+            tanggalSurat: ((p.tanggalSurat as string | undefined)?.slice(0, 10)) ?? "",
           })))
         } else {
-          setSuratList((data.detailSurat ?? []).map((d: any) => ({
-            id:           String(d.id),
-            perihal:      d.perihal      ?? "",
-            noSurat:      d.noSurat      ?? "",
-            lampiran:     d.lampiran     ?? "",
-            tanggalSurat: d.tanggalSurat?.slice(0, 10) ?? "",
+          setSuratList((d.detailSurat ?? []).map((s: Record<string, unknown>) => ({
+            id:           String(s.id),
+            perihal:      (s.perihal      as string) ?? "",
+            noSurat:      (s.noSurat      as string) ?? "",
+            lampiran:     (s.lampiran     as string) ?? "",
+            tujuan:       (s.tujuan       as string) ?? "",
+            tanggalSurat: ((s.tanggalSurat as string | undefined)?.slice(0, 10)) ?? "",
           })))
         }
 
         window.dispatchEvent(new CustomEvent("breadcrumb:sub", {
-          detail: `Edit · ${data.dept?.shortName} / ${data.nomor}`,
+          detail: `Edit · ${d.dept?.shortName} / ${d.nomor}`,
         }))
       })
       .catch((e: Error) => setError(e.message))
       .finally(() => setLoading(false))
   }, [dept, id, isPI])
 
-  // ── Validation ────────────────────────────────────────────────────────────
+  // ── Validation ──────────────────────────────────────────────────────────────
   function validate(): boolean {
     const missing = validateSuratForm({
       asalSurat: form.asalSurat,
@@ -77,14 +114,13 @@ export function useEditSurat(basePath: string) {
       suratList,
     })
 
-    // Convert missing array ke formErrors object
     const errs: Record<string, string> = {}
-    missing.forEach(msg => { errs[msg] = msg })
+    missing.forEach((msg: string) => { errs[msg] = msg })
     setFormErrors(errs)
     return missing.length === 0
   }
 
-  // ── Actions ───────────────────────────────────────────────────────────────
+  // ── Actions ─────────────────────────────────────────────────────────────────
   const actions = {
     setField: (key: keyof FormState, value: string) => {
       setForm(prev => {
@@ -103,7 +139,7 @@ export function useEditSurat(basePath: string) {
     setLampiranNum: (idx: number, raw: string) => {
       setSuratList(prev => prev.map((s, i) => i === idx ? { ...s, lampiran: formatLampiran(raw) } : s))
     },
-    addSurat:    () => setSuratList(p => [...p, EMPTY_SURAT_ITEM()]),
+    addSurat:    () => setSuratList(p => [...p, emptySuratItem()]),
     removeSurat: (idx: number) => setSuratList(p => p.filter((_, i) => i !== idx)),
 
     // PI Actions
@@ -111,7 +147,7 @@ export function useEditSurat(basePath: string) {
       setPiList(prev => prev.map((p, i) => i === idx ? { ...p, [key]: value } : p))
       setFormErrors(prev => { const n = { ...prev }; delete n[`pi_${idx}_${key}`]; return n })
     },
-    addPI:    () => setPiList(p => [...p, EMPTY_PI_ITEM()]),
+    addPI:    () => setPiList(p => [...p, emptyPIItem()]),
     removePI: (idx: number) => setPiList(p => p.filter((_, i) => i !== idx)),
 
     // Navigation & Submit
@@ -130,11 +166,11 @@ export function useEditSurat(basePath: string) {
           suratList,
         })
 
-        const result = await updateSurat(dept, id, payload)
+        const result = await updateSurat(dept, id, payload) as any
         toast.success("Berhasil diubah")
         router.push(`${basePath}/view/${result.dept.id}/${result.id}`)
-      } catch (e: any) {
-        toast.error(e.message ?? "Terjadi kesalahan")
+      } catch (e: unknown) {
+        toast.error((e as Error).message ?? "Terjadi kesalahan")
       } finally {
         setSaving(false)
       }
