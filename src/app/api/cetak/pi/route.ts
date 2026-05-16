@@ -15,7 +15,7 @@ export async function GET(req: Request) {
       //     Check your schema: if the relation field on RegisterSurat is
       //     `detailPIs DetailPI[]` use "detailPIs"; if it is `DetailPI DetailPI[]`
       //     use the exact casing from the schema.
-      include: { dept: true, detailPIs: true },
+      include: { dept: true, detailPI: true },
       orderBy: { nomor: "asc" },
     })
 
