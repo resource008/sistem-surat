@@ -6,7 +6,7 @@ import type { Role } from "@/types"
 import { Eye, EyeOff, Lock, Loader2, User } from "lucide-react"
 import Image from "next/image"
 import { useRouter, useSearchParams } from "next/navigation"
-import { Suspense, useEffect, useState } from "react"
+import { Suspense, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
 import styles from "./login.module.css"
 
@@ -21,11 +21,18 @@ interface AuthUser {
 // ── Isolated so useSearchParams() is inside a Suspense boundary ───────────────
 function LogoutNotifier() {
   const searchParams = useSearchParams()
+  const didRun = useRef(false)
+
   useEffect(() => {
+    if (didRun.current) return
+    didRun.current = true
     if (searchParams.get("logout") === "true") {
       toast.success("Berhasil keluar")
+      // Bersihkan query param dari URL tanpa reload
+      window.history.replaceState({}, "", "/login")
     }
   }, [searchParams])
+
   return null
 }
 

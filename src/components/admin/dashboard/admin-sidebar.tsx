@@ -60,9 +60,12 @@ export function AdminSidebar({
     const { data: session } = await authClient.getSession()
     if (session?.session?.token)
       await authClient.revokeSession({ token: session.session.token })
-    localStorage.setItem("logout_notif", "true")
     await authClient.signOut({
-      fetchOptions: { onSuccess: () => { window.location.href = routes.login } },
+      fetchOptions: {
+        onSuccess: () => {
+          window.location.href = `${routes.login}?logout=true`  // ← tambah query param
+        },
+      },
     })
   }
 
