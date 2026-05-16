@@ -1,29 +1,15 @@
-import { DeptOption, CreateSuratPayload } from "./types"
+// src/domain/surat/repositories.ts
+//
+// Kontrak (interface) yang harus diimplementasikan oleh infrastructure layer.
+// Domain tidak tahu soal Prisma — hanya tahu bentuk datanya.
 
-const API_URL = "/api"
+import type { CreateSuratPayload, UpdateSuratPayload } from "./types"
 
-export async function fetchDeptList(): Promise<DeptOption[]> {
-  const res = await fetch(`${API_URL}/dept`)
-  if (!res.ok) throw new Error("Gagal memuat departemen")
-  return await res.json() as DeptOption[]
-}
-
-export async function fetchPreviewNomor(deptId: string): Promise<string> {
-  const res = await fetch(`${API_URL}/surat/preview-nomor?deptId=${deptId}`)
-  if (!res.ok) throw new Error("Gagal memuat preview nomor")
-  const data = await res.json()
-  return data.nomor
-}
-
-export async function saveSurat(payload: CreateSuratPayload): Promise<void> {
-  const res = await fetch(`${API_URL}/surat`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
-  })
-
-  if (!res.ok) {
-    const errorData = await res.json().catch(() => ({}))
-    throw new Error(errorData.message || "Gagal menyimpan data ke server")
-  }
+export interface ISuratRepository {
+  findAll(type: string | null, ids: number[] | null): Promise<unknown[]>
+  findByIdAndDept(id: number, dept: string): Promise<unknown | null>
+  create(payload: CreateSuratPayload): Promise<unknown>
+  update(id: number, dept: string, payload: UpdateSuratPayload): Promise<unknown>
+  delete(id: number, dept: string): Promise<void>
+  getPreviewNomor(deptId: string): Promise<string>
 }

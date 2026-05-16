@@ -1,24 +1,16 @@
-import { useEffect, useState } from "react"
-import { Period, StatsData } from "../components/admin/dashboard/types"
+import useSWR from "swr"
+import type { Period, StatsData } from "@/components/admin/dashboard/types"
+
+const fetcher = (url: string) =>
+  fetch(url).then((res) => {
+    if (!res.ok) throw new Error("Gagal mengambil data statistik")
+    return res.json()
+  })
 
 export function useAdminStats(period: Period) {
-  const [data, setData] = useState<StatsData | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    setLoading(true)
-    setError(null)
-
-    fetch(`/api/admin/stats?period=${period}`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Gagal mengambil data statistik")
-        return res.json()
-      })
-      .then(setData)
-      .catch((err: Error) => setError(err.message))
-      .finally(() => setLoading(false))
-  }, [period])
-
-  return { data, loading, error }
+  const { data, error, isLoading } = useSWR<StatsData>(
+    `/api/admin/stats?period=${period}`,
+    fetcher
+  )
+  return { data, error, isLoading }
 }

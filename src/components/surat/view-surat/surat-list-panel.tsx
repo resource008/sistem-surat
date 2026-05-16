@@ -1,8 +1,8 @@
-import { FileText } from "lucide-react"
-import { format }   from "date-fns"
-import { id }       from "date-fns/locale"
-import { Field }    from "./field"
 import { RegisterSurat } from "@/components/surat/shared"
+import { format } from "date-fns"
+import { id } from "date-fns/locale"
+import { FileText } from "lucide-react"
+import { Field } from "./field"
 
 interface Props {
   register: RegisterSurat

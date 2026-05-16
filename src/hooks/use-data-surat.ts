@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback, useMemo } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { fetchAllSurat } from "@/domain/surat/repositories"
+import type { RegisterSurat } from "@/types"
 import { format } from "date-fns"
 import { id } from "date-fns/locale"
-import { RegisterSurat } from "@/components/surat/shared"
+import { useRouter, useSearchParams } from "next/navigation"
+import { useCallback, useEffect, useMemo, useState } from "react"
 
 const SESSION_KEY = "datasurat:selectedIds"
 
@@ -44,13 +45,11 @@ export function useDataSurat(printPath: string) {
 
   // ── Data Fetching ──
   const loadData = useCallback(() => {
-    setLoading(true)
-    const url = showPI ? "/api/surat?type=pi" : "/api/surat"
-    fetch(url)
-      .then(r => { if (!r.ok) throw new Error(); return r.json() })
-      .then(json => setData(Array.isArray(json) ? json : []))
-      .catch(() => setData([]))
-      .finally(() => setLoading(false))
+  setLoading(true)
+  fetchAllSurat(showPI ? "pi" : undefined)
+    .then(setData)
+    .catch(() => setData([]))
+    .finally(() => setLoading(false))
   }, [showPI])
 
   useEffect(() => {

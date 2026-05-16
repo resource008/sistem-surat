@@ -1,53 +1,70 @@
-// domain/surat/types.ts
+// src/domain/surat/types.ts
+//
+// Re-export tipe shared dari @/types agar tidak duplikat.
+// Tipe khusus domain (payload, options) didefinisikan di sini.
+
+export type {
+  SuratItem,
+  PIItem,
+  FormState,
+  RegisterSurat,
+  RegisterPI,
+} from "@/types"
+
+// ─── Dept ─────────────────────────────────────────────────────────────────────
 
 export interface DeptOption {
-  id: string
+  id:        string
   shortName: string
-  tujuan: string
+  tujuan:    string
 }
 
-export interface PIItem {
-  id: string
-  namaSupplier: string
-  noInvoice: string | null
-  nomorSurat: string | null
-  tujuan: string
-  cc: string | null
-  tanggalSurat: string
-}
+// ─── Create payload ───────────────────────────────────────────────────────────
 
-export interface SuratItem {
-  id: string
-  perihal: string
-  noSurat: string | null
-  lampiran: string | null
-  tujuan: string
-  tanggalSurat: string
-}
-
-// Payload yang dikirim dari Frontend ke Backend API
 export interface CreateSuratPayload {
-  deptId: string
-  asalSurat: string
-  tanggalTerima: string // Format ISO Date String
-  tujuan: string
-  isPIDept: boolean
-  
-  // ✅ Mengubah nama properti agar sesuai dengan Backend (piList & suratList)
+  deptId:        string
+  asalSurat:     string
+  tanggalTerima: string
+  tujuan:        string
+  isPIDept:      boolean
+
   piList?: Array<{
     namaSupplier: string
-    noInvoice: string | null
-    nomorSurat: string | null
-    tanggalSurat: string // Format ISO
-    tujuan: string | null
-    cc: string | null
+    noInvoice?:   string | null
+    nomorSurat?:  string | null
+    tanggalSurat: string
+    tujuan?:      string | null
+    cc?:          string | null
   }>
-  
+
   suratList?: Array<{
-    perihal: string
-    noSurat: string | null
-    lampiran: string | null
-    tujuan: string | null
+    perihal:      string
+    noSurat?:     string | null
+    lampiran?:    string | null
+    tujuan?:      string | null
+    tanggalSurat: string
+  }>
+}
+
+export interface UpdateSuratPayload {
+  asalSurat?:     string
+  tujuan?:        string
+  tanggalTerima?: string
+
+  piList?: Array<{
+    namaSupplier: string
+    noInvoice?:   string | null
+    nomorSurat?:  string | null
+    tanggalSurat: string
+    tujuan?:      string | null
+    cc?:          string | null
+  }>
+
+  suratList?: Array<{
+    perihal:      string
+    noSurat?:     string | null
+    lampiran?:    string | null
+    tujuan?:      string | null
     tanggalSurat: string
   }>
 }

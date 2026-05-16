@@ -1,6 +1,6 @@
+import { RegisterSurat, formatTanggal } from "@/components/surat/shared"
 import { Badge } from "@/components/ui/badge"
 import { Field } from "./field"
-import { RegisterSurat, formatTanggal } from "@/components/surat/shared"
 
 interface Props {
   register: RegisterSurat
