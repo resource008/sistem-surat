@@ -1,7 +1,7 @@
 // src/app/api/cetak/pi/route.ts
 
-import { prisma } from "@/infrastructure/databases/prisma-client"
 import { NextResponse } from "next/server"
+import { prisma }       from "@/infrastructure/databases/prisma-client"
 
 export async function GET(req: Request) {
   try {
@@ -9,7 +9,7 @@ export async function GET(req: Request) {
     const idsParam         = searchParams.get("ids")
     const ids              = idsParam?.split(",").map(Number).filter(Boolean)
 
-    const data = await prisma.registerSurat.findMany({
+    const data = await prisma.registerPI.findMany({
       where  : ids && ids.length > 0 ? { id: { in: ids } } : undefined,
       include: { dept: true, detailPI: true },
       orderBy: { nomor: "asc" },
