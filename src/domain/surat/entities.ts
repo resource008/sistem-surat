@@ -1,40 +1,29 @@
-// src/domain/surat/entities.ts
-//
-// Business rules & pure factory functions.
-// Tidak ada dependency ke Prisma, fetch, atau framework apapun.
+// domain/surat/entities.ts
 
-import type { PIItem, SuratItem } from "@/types"
+import { PIItem, SuratItem } from "./types"
 
-// ─── Business rules ───────────────────────────────────────────────────────────
+const generateId = () => crypto.randomUUID()
 
-/** Satu-satunya tempat yang mendefinisikan dept mana yang dianggap PI */
-export const isPIDept = (deptId: string): boolean => deptId === "PI"
-
-// ─── Empty item factories ─────────────────────────────────────────────────────
+// ✅ Aturan Bisnis: Pengecekan eksak agar aman (misal ada departemen "PIMPINAN")
+export const isPIDept = (deptId: string): boolean => {
+  return deptId === "PI"
+}
 
 export const emptyPIItem = (tujuanDef?: string): PIItem => ({
-  id:           crypto.randomUUID(),
+  id: generateId(),
   namaSupplier: "",
-  noInvoice:    "",
-  nomorSurat:   "",
-  tujuan:       tujuanDef ?? "",
-  cc:           "",
-  tanggalSurat: "",
+  noInvoice: "",
+  nomorSurat: "",
+  tujuan: tujuanDef || "",
+  cc: "",
+  tanggalSurat: ""
 })
 
 export const emptySuratItem = (tujuanDef?: string): SuratItem => ({
-  id:           crypto.randomUUID(),
-  perihal:      "",
-  noSurat:      "",
-  lampiran:     "",
-  tujuan:       tujuanDef ?? "",
-  tanggalSurat: "",
+  id: generateId(),
+  perihal: "",
+  noSurat: "",
+  lampiran: "",
+  tujuan: tujuanDef || "",
+  tanggalSurat: ""
 })
-
-// ─── Apply tujuan ─────────────────────────────────────────────────────────────
-
-export const applyTujuanToPIList = (list: PIItem[], tujuan: string): PIItem[] =>
-  list.map((item) => ({ ...item, tujuan }))
-
-export const applyTujuanToSuratList = (list: SuratItem[], tujuan: string): SuratItem[] =>
-  list.map((item) => ({ ...item, tujuan }))

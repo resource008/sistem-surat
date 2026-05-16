@@ -1,6 +1,6 @@
-import type { CetakGroup } from "@/types/surat-types"
 import { format } from "date-fns"
-import { id } from "date-fns/locale"
+import { id }     from "date-fns/locale"
+import type { CetakGroup } from "@/types/surat.types"
 
 function esc(str: string | null | undefined): string {
   if (!str) return ""

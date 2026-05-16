@@ -1,9 +1,9 @@
+import { useState } from "react"
+import { Plus, Trash2, FileText, AlertTriangle } from "lucide-react"
+import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { cn } from "@/lib/utils"
-import { AlertTriangle, FileText, Trash2 } from "lucide-react"
-import { useState } from "react"
-import { DatePicker, FormField } from "../shared"
+import { FormField, inputClass, DatePicker } from "../shared"
 
 const getLampiranNum = (val: string) => val.replace(/[^0-9]/g, "")
 

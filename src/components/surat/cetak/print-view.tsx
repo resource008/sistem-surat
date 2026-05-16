@@ -1,6 +1,6 @@
-import { formatTanggalCetak } from "@/lib/surat-helpers"
-import type { CetakGroup, DetailSurat, RegisterSurat } from "@/types/surat-types"
 import React from 'react'
+import type { CetakGroup, DetailSurat, RegisterSurat } from "@/types/surat.types"
+import { formatTanggalCetak } from "@/lib/surat-helpers"
 
 interface Props {
   groups: CetakGroup[]

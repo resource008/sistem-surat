@@ -1,35 +1,49 @@
 // src/app/api/surat/preview-nomor/route.ts
-//
-// Hanya untuk tampilan preview di form — tidak mengikat.
-// Nomor resmi di-generate di dalam transaksi saat POST /api/surat.
+import { NextResponse } from "next/server"
+import { prisma } from "@/infrastructure/databases/prisma-client"
 
-import { NextRequest, NextResponse } from "next/server"
-import { headers } from "next/headers"
-import { auth } from "@/infrastructure/auth/better-auth"
-import { fetchPreviewNomor } from "@/services/surat-service"
+const PI_DEPT_ID = "PI"
 
-export async function GET(req: NextRequest) {
+export async function GET(req: Request) {
   try {
-    const session = await auth.api.getSession({ headers: await headers() })
-    if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
+    const { searchParams } = new URL(req.url)
+    const deptId = searchParams.get("deptId")
 
-    const deptId = req.nextUrl.searchParams.get("deptId")
     if (!deptId) {
-      return NextResponse.json({ error: "deptId wajib diisi" }, { status: 400 })
+      return NextResponse.json({ nomor: null }, { status: 400 })
     }
 
-    const nomor = await fetchPreviewNomor(deptId)
+    const dept = await prisma.department.findUnique({
+      where: { id: deptId },
+    })
+
+    if (!dept) {
+      return NextResponse.json({ nomor: null, error: `Department '${deptId}' tidak ditemukan` }, { status: 404 })
+    }
+
+    let lastNumber = 0
+
+    if (deptId === PI_DEPT_ID) {
+      const last = await prisma.registerPI.findFirst({
+        where: { deptId },
+        orderBy: { nomor: "desc" },
+        select: { nomor: true },
+      })
+      lastNumber = last ? parseInt(last.nomor, 10) : 0
+    } else {
+      const last = await prisma.registerSurat.findFirst({
+        where: { deptId },
+        orderBy: { nomor: "desc" },
+        select: { nomor: true },
+      })
+      lastNumber = last ? parseInt(last.nomor, 10) : 0
+    }
+
+    const nomor = String(lastNumber + 1).padStart(4, "0")
     return NextResponse.json({ nomor })
 
-  } catch (error) {
-    if (error instanceof Error) {
-      console.error("GET /api/surat/preview-nomor:", error.message)
-      if (error.message.startsWith("NOT_FOUND")) {
-        return NextResponse.json({ error: "Departemen tidak ditemukan" }, { status: 404 })
-      }
-    }
+  } catch (error: any) {
+    console.error("❌ preview-nomor error:", error)
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
   }
 }

@@ -1,7 +1,7 @@
 "use client"
 
-import type { RegisterSurat } from "@/types/surat-types"
 import { useEffect, useState } from "react"
+import type { RegisterSurat }  from "@/types/surat.types"
 
 const CETAK_IDS_KEY_ALL = "cetak:ids:all"
 const CETAK_IDS_KEY_PI  = "cetak:ids:pi"

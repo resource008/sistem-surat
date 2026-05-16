@@ -1,8 +1,9 @@
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { CalendarIcon, Hash } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { FormField, readonlyClass } from "../shared"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
+import { FormField, inputClass, readonlyClass } from "../shared"
 
 const DEPT_OPTIONS = ["HRD","IT","ENG","BPA","SND","SMD","IAD","MD","GIS","FAD","TAX","PS","ERP","CID","MED", "OMD"]
 

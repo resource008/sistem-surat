@@ -7,10 +7,10 @@ import { Role } from "../shared"
 
 // Hooks & Sub-Components
 import { useTambahSurat } from "@/hooks/use-tambah-surat"
-import { FloatingActionBar } from "./action-bar"
-import { PIListPanel } from "./pi-list-panel"
 import { RegisterInfoPanel } from "./register-info-panel"
+import { PIListPanel } from "./pi-list-panel"
 import { SuratListPanel } from "./surat-list-panel"
+import { FloatingActionBar } from "./action-bar"
 
 interface Props {
   role: Role

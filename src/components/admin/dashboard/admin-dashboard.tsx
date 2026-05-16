@@ -1,11 +1,11 @@
 "use client"
 
 import { useState } from "react"
+import useSWR from "swr"
 import { CircleUserRound, Building, FileText, Inbox } from "lucide-react"
 
 import { getGreeting } from "./helpers"
 import { Period, StatsData } from "./types"
-import { useAdminStats } from "@/hooks/use-admin-stats"
 
 import { PeriodFilter } from "./components/period-filter"
 import { StatCard } from "./components/stat-card"
@@ -15,10 +15,17 @@ import { ChangeBadge } from "./components/change-badge"
 import { CardSkeleton } from "./components/card-skeleton"
 import { ChartConfig } from "@/components/ui/chart"
 
+const fetcher = (url: string) => fetch(url).then((res) => {
+  if (!res.ok) throw new Error("Gagal mengambil data")
+  return res.json()
+})
+
 export default function AdminDashboard() {
   const [period, setPeriod] = useState<Period>("hari_ini")
   
-  const { data, error, isLoading } = useAdminStats(period)
+  const { data, error, isLoading } = useSWR<StatsData>(
+    `/api/admin/stats?period=${period}`, fetcher
+  )
 
   const chartConfig = data?.deptKeys.reduce((acc, dept, index) => {
     const hue = Math.round((index * 137.5) % 360)

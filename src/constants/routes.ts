@@ -1,5 +1,3 @@
-import { Role } from "@/components/surat/shared"
-
 // ─── Semua konstanta route dalam satu objek ───────────────────────
 export const routes = {
   // ── Auth ────────────────────────────────────────────────────────
@@ -31,7 +29,6 @@ export const routes = {
     index:     "/pkl",
     add:       "/pkl/add",
     dataSurat: "/pkl/data-surat",
-    cetak: (ids: (number | string)[]) => `/pkl/cetak?ids=${ids.join(",")}`,
   },
 
   // ── Admin ────────────────────────────────────────────────────────
@@ -62,10 +59,8 @@ export function getBasePathByRole(role: string): string {
 }
 
 // ─── Helper: cetak surat berdasarkan role ────────────────────────
-export function getCetakRoute(role: Role, ids: (number | string)[]): string {
-  switch (role) {
-    case "STAFF": return routes.staff.cetak(ids)
-    case "PKL":   return routes.pkl.cetak(ids)   // ← tambahkan kalau perlu
-    default:      return routes.login
-  }
+export function getCetakRoute(
+  ids: (number | string)[],
+): string {
+  return routes.staff.cetak(ids)
 }

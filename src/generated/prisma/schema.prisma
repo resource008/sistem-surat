@@ -11,6 +11,7 @@ enum Role {
   ADMIN
   STAFF
   PKL
+  GUEST
 }
 
 model User {
@@ -20,7 +21,7 @@ model User {
   emailVerified Boolean  @default(false) // Wajib untuk Better Auth
   username      String?  @unique // Ini yang tadi hilang!
   image         String?
-  role          Role     @default(STAFF)
+  role          Role     @default(GUEST)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 

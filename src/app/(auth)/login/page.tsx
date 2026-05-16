@@ -2,40 +2,30 @@
 
 import { getRouteByRole } from "@/constants/routes"
 import { authClient } from "@/infrastructure/auth/auth-client"
-import type { Role } from "@/types"
-import { Eye, EyeOff, Lock, Loader2, User } from "lucide-react"
+import { Eye, EyeOff, Lock, User } from "lucide-react"
 import Image from "next/image"
-import { useRouter, useSearchParams } from "next/navigation"
-import { Suspense, useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
 import { toast } from "sonner"
 import styles from "./login.module.css"
 
-interface AuthUser {
-  id:       string
-  name:     string
-  email:    string
-  role:     Role
-  username: string
-}
-
-// ── Isolated so useSearchParams() is inside a Suspense boundary ───────────────
-function LogoutNotifier() {
-  const searchParams = useSearchParams()
-  useEffect(() => {
-    if (searchParams.get("logout") === "true") {
-      toast.success("Berhasil keluar")
-    }
-  }, [searchParams])
-  return null
-}
-
 export default function LoginPage() {
   const router = useRouter()
-
-  const [username,     setUsername]     = useState("")
-  const [password,     setPassword]     = useState("")
-  const [loading,      setLoading]      = useState(false)
+  const [username, setUsername] = useState("")
+  const [password, setPassword] = useState("")
+  const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (localStorage.getItem("logout_notif") === "true") {
+        localStorage.removeItem("logout_notif")
+        toast.success("Berhasil keluar")
+      }
+    }, 300) // delay 300ms agar Toaster sudah siap
+
+    return () => clearTimeout(timer)
+  }, [])
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -43,11 +33,14 @@ export default function LoginPage() {
 
     const toastId = toast.loading("Sedang masuk...")
 
-    const { data, error } = await authClient.signIn.username({ username, password })
+    const { data, error } = await authClient.signIn.username({
+      username,
+      password,
+    })
 
     if (error) {
       toast.error("Login gagal", {
-        id:          toastId,
+        id: toastId,
         description: error.message ?? "Username atau password salah.",
       })
       setLoading(false)
@@ -55,25 +48,23 @@ export default function LoginPage() {
     }
 
     toast.success("Login berhasil!", {
-      id:          toastId,
+      id: toastId,
       description: `Selamat datang, ${data?.user?.name}`,
     })
 
-    const role = (data?.user as unknown as AuthUser)?.role
+    const role = (data?.user as any)?.role
     router.push(getRouteByRole(role))
   }
 
   return (
     <div className={styles.root}>
-      <Suspense>
-        <LogoutNotifier />
-      </Suspense>
 
       <div className={styles.bgImage} />
       <div className={styles.bgOverlay} />
 
       <div className={styles.cardWrapper}>
         <div className={styles.card}>
+
           <div className={styles.cardHeader}>
             <Image
               src="/sipef_logo.svg"
@@ -90,6 +81,7 @@ export default function LoginPage() {
           <div className={styles.divider} />
 
           <form className={styles.form} onSubmit={handleSubmit}>
+
             <div className={styles.field}>
               <label className={styles.fieldLabel}>Username</label>
               <div className={styles.inputWrapper}>
@@ -99,7 +91,7 @@ export default function LoginPage() {
                   type="text"
                   placeholder="Masukkan username"
                   value={username}
-                  onChange={e => setUsername(e.target.value)}
+                  onChange={(e) => setUsername(e.target.value)}
                   required
                   autoComplete="username"
                 />
@@ -115,30 +107,26 @@ export default function LoginPage() {
                   type={showPassword ? "text" : "password"}
                   placeholder="Masukkan password"
                   value={password}
-                  onChange={e => setPassword(e.target.value)}
+                  onChange={(e) => setPassword(e.target.value)}
                   required
                   autoComplete="current-password"
                 />
                 <button
                   type="button"
                   className={styles.togglePassword}
-                  onClick={() => setShowPassword(p => !p)}
+                  onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
             </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className={styles.submitBtn}
-            >
-              {loading
-                ? <Loader2 size={16} className={styles.spinner} />
-                : "Masuk"
-              }
-            </button>
+            {!loading && (
+              <button type="submit" className={styles.submitBtn}>
+                Masuk
+              </button>
+            )}
+
           </form>
 
           <div className={styles.cardFooter}>

@@ -1,168 +1,80 @@
-// src/domain/surat/use-cases.ts
+// domain/surat/use-cases.ts
 
-import type { ISuratRepository } from "./repositories"
-import type { CreateSuratPayload, UpdateSuratPayload, PIItem, SuratItem } from "./types"
+import { PIItem, SuratItem, CreateSuratPayload } from "./types"
 
-// ── Server-side use cases ─────────────────────────────────────────────────────
-
-export async function getSuratById(
-  id:         number,
-  dept:       string,
-  repository: ISuratRepository,
-) {
-  return repository.findByIdAndDept(id, dept)
-}
-
-export async function getAllSurat(
-  type:       string | null,
-  ids:        number[] | null,
-  repository: ISuratRepository,
-) {
-  return repository.findAll(type, ids)
-}
-
-export async function createSurat(
-  payload:    CreateSuratPayload,
-  repository: ISuratRepository,
-) {
-  return repository.create(payload)
-}
-
-export async function updateSurat(
-  id:         number,
-  dept:       string,
-  payload:    UpdateSuratPayload,
-  repository: ISuratRepository,
-) {
-  return repository.update(id, dept, payload)
-}
-
-export async function deleteSurat(
-  id:         number,
-  dept:       string,
-  repository: ISuratRepository,
-) {
-  return repository.delete(id, dept)
-}
-
-// ── Lampiran helpers ──────────────────────────────────────────────────────────
-
-export function getLampiranNum(lampiran: string): string {
-  return lampiran.replace(/\D/g, "")
-}
-
-export function formatLampiran(raw: string): string {
+export const formatLampiran = (raw: string): string => {
   const num = raw.replace(/\D/g, "")
-  return num ? `${num} Set` : ""
+  return num ? `${num} SET` : ""
 }
 
-// ── Tujuan propagation ────────────────────────────────────────────────────────
-
-export function applyTujuanToSuratList(list: SuratItem[], tujuan: string): SuratItem[] {
-  return list.map(s => ({ ...s, tujuan }))
+export const getLampiranNum = (formatted: string): string => {
+  return formatted.replace(" SET", "")
 }
 
-export function applyTujuanToPIList(list: PIItem[], tujuan: string): PIItem[] {
-  return list.map(p => ({ ...p, tujuan }))
+export const applyTujuanToPIList = (list: PIItem[], tujuan: string): PIItem[] => {
+  return list.map(item => ({ ...item, tujuan }))
 }
 
-// ── Validation ────────────────────────────────────────────────────────────────
-
-interface ValidateSuratFormParams {
-  deptId?:        string
-  asalSurat:      string
-  tanggalTerima?: string
-  isPIDept:       boolean
-  piList:         PIItem[]
-  suratList:      SuratItem[]
+export const applyTujuanToSuratList = (list: SuratItem[], tujuan: string): SuratItem[] => {
+  return list.map(item => ({ ...item, tujuan }))
 }
 
-export function validateSuratForm({
-  deptId,
-  asalSurat,
-  tanggalTerima,
-  isPIDept,
-  piList,
-  suratList,
-}: ValidateSuratFormParams): string[] {
+interface ValidateParams {
+  deptId: string; asalSurat: string; tanggalTerima: string;
+  isPIDept: boolean; piList: PIItem[]; suratList: SuratItem[]
+}
+
+export const validateTambahForm = (params: ValidateParams): string[] => {
   const missing: string[] = []
 
-  if (deptId !== undefined && !deptId)               missing.push("Departemen")
-  if (!asalSurat)                                    missing.push("Asal Surat")
-  if (tanggalTerima !== undefined && !tanggalTerima) missing.push("Tanggal Terima")
+  if (!params.deptId) missing.push("Departemen")
+  if (!params.asalSurat) missing.push("Asal Surat")
+  if (!params.tanggalTerima) missing.push("Tanggal Terima")
 
-  if (isPIDept) {
-    piList.forEach((p, i) => {
-      if (!p.namaSupplier) missing.push(`Invoice ${i + 1}: Nama Supplier`)
-      if (!p.noInvoice)    missing.push(`Invoice ${i + 1}: No. Invoice`)
+  if (params.isPIDept) {
+    params.piList.forEach((pi, i) => {
+      if (!pi.namaSupplier) missing.push(`Nama Supplier (Invoice ${i + 1})`)
+      if (!pi.tanggalSurat) missing.push(`Tanggal Surat (Invoice ${i + 1})`)
     })
   } else {
-    suratList.forEach((s, i) => {
-      if (!s.perihal) missing.push(`Surat ${i + 1}: Perihal`)
+    params.suratList.forEach((surat, i) => {
+      if (!surat.perihal) missing.push(`Perihal (Surat ${i + 1})`)
+      if (!surat.tanggalSurat) missing.push(`Tanggal Surat (Surat ${i + 1})`)
     })
   }
 
   return missing
 }
 
-// ── Payload builders ──────────────────────────────────────────────────────────
-
-interface BuildCreatePayloadParams {
-  deptId:        string
-  asalSurat:     string
-  tujuan:        string
-  tanggalTerima: string
-  isPIDept:      boolean
-  piList:        PIItem[]
-  suratList:     SuratItem[]
+const formatToISODate = (dateStr: string): string => {
+  if (!dateStr) return new Date().toISOString()
+  return new Date(`${dateStr}T00:00:00.000Z`).toISOString()
 }
 
-export function buildCreatePayload({
-  deptId,
-  asalSurat,
-  tujuan,
-  tanggalTerima,
-  isPIDept,
-  piList,
-  suratList,
-}: BuildCreatePayloadParams): CreateSuratPayload {
+// ✅ Rangkai payload dengan key piList & suratList
+export const buildPayload = (params: ValidateParams & { tujuan: string }): CreateSuratPayload => {
   return {
-    deptId,
-    asalSurat,
-    tujuan,
-    tanggalTerima,
-    isPIDept,
-    ...(isPIDept
-      ? { piList:    piList.map(({ id: _id, ...rest }) => rest) }
-      : { suratList: suratList.map(({ id: _id, ...rest }) => rest) }
-    ),
-  }
-}
+    deptId: params.deptId,
+    asalSurat: params.asalSurat,
+    tanggalTerima: formatToISODate(params.tanggalTerima),
+    tujuan: params.tujuan,
+    isPIDept: params.isPIDept,
+    
+    piList: params.isPIDept ? params.piList.map(p => ({
+      namaSupplier: p.namaSupplier,
+      noInvoice: p.noInvoice || null,
+      nomorSurat: p.nomorSurat || null,
+      tanggalSurat: formatToISODate(p.tanggalSurat),
+      tujuan: p.tujuan || null,
+      cc: p.cc || null
+    })) : undefined,
 
-interface BuildUpdatePayloadParams {
-  asalSurat:     string
-  tujuan:        string
-  tanggalTerima: string
-  isPIDept:      boolean
-  piList:        PIItem[]
-  suratList:     SuratItem[]
-}
-
-export function buildUpdatePayload({
-  asalSurat,
-  tujuan,
-  tanggalTerima,
-  isPIDept,
-  piList,
-  suratList,
-}: BuildUpdatePayloadParams): UpdateSuratPayload {
-  return {
-    asalSurat,
-    tujuan,
-    tanggalTerima,
-    ...(isPIDept
-      ? { piList:    piList.map(({ id: _id, ...rest }) => rest) }
-      : { suratList: suratList.map(({ id: _id, ...rest }) => rest) }
-    ),
+    suratList: !params.isPIDept ? params.suratList.map(s => ({
+      perihal: s.perihal,
+      noSurat: s.noSurat || null,
+      lampiran: s.lampiran || null,
+      tujuan: s.tujuan || null,
+      tanggalSurat: formatToISODate(s.tanggalSurat)
+    })) : undefined,
   }
 }

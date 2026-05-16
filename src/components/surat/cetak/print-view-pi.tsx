@@ -1,6 +1,6 @@
-import { formatTanggalCetak } from "@/lib/surat-helpers";
-import type { DetailPI, RegisterPI } from "@/types/surat-types";
-import React from 'react';
+import React from 'react'
+import type { RegisterPI, DetailPI } from "@/types/surat.types"
+import { formatTanggalCetak } from "@/lib/surat-helpers"
 
 export interface CetakGroupPI {
   key: string; label: string; date: string; dept: string; registers: RegisterPI[]

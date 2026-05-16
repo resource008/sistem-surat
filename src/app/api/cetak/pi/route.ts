@@ -1,5 +1,3 @@
-// src/app/api/cetak/pi/route.ts
-
 import { NextResponse } from "next/server"
 import { prisma }       from "@/infrastructure/databases/prisma-client"
 
@@ -16,12 +14,10 @@ export async function GET(req: Request) {
     })
 
     return NextResponse.json(data)
-  } catch (error: unknown) {
+  } catch (error: any) {
     return NextResponse.json({
       error : "Gagal mengambil data cetak PI",
-      detail: process.env.NODE_ENV === "development"
-        ? (error as Error).message
-        : undefined,
+      detail: process.env.NODE_ENV === "development" ? error.message : undefined,
     }, { status: 500 })
   }
 }
