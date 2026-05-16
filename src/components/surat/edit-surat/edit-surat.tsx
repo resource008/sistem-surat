@@ -1,14 +1,14 @@
 "use client"
 
-import { AlertTriangle } from "lucide-react"
 import { LoadingSkeleton } from "@/components/shared/loading-skeleton"
+import { AlertTriangle } from "lucide-react"
 import { Role } from "../shared"
 
 import { useEditSurat } from "@/hooks/use-edit-surat"
-import { RegisterInfoPanel } from "./register-info-panel"
-import { PIListPanel } from "./pi-list-panel"
-import { SuratListPanel } from "./surat-list-panel"
 import { FloatingActionBar } from "./action-bar"
+import { PIListPanel } from "./pi-list-panel"
+import { RegisterInfoPanel } from "./register-info-panel"
+import { SuratListPanel } from "./surat-list-panel"
 
 interface Props {
   role: Role

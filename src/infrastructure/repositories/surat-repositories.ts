@@ -1,185 +1,210 @@
+// src/infrastructure/repositories/surat-repositories.ts
+//
+// Implementasi ISuratRepository menggunakan Prisma.
+// Satu-satunya file yang boleh import prisma untuk operasi surat.
+
 import { prisma } from "@/infrastructure/databases/prisma-client"
+import { isPIDept } from "@/domain/surat/entities"
+import type { ISuratRepository } from "@/domain/surat/repositories"
+import type { CreateSuratPayload, UpdateSuratPayload } from "@/domain/surat/types"
 
-const includeAll = {
-  dept:        true,
-  detailSurat: true,
-} as const
+export class SuratRepository implements ISuratRepository {
 
-type DetailInput = {
-  perihal:      string
-  noSurat?:     string | null
-  lampiran?:    string | null
-  tanggalSurat: Date
-}
+  // ─── Find all ───────────────────────────────────────────────────────────────
 
-type CreateInput = {
-  nomor:         string
-  asalSurat:     string
-  tujuan?:       string | null
-  tanggalTerima: Date
-  deptId:        string
-  detailSurat:   DetailInput[]
-}
+  async findAll(type: string | null, ids: number[] | null) {
+    const whereIds = ids && ids.length > 0 ? { id: { in: ids } } : undefined
 
-type UpdateInput = {
-  nomor?:         string
-  asalSurat?:     string
-  tujuan?:        string | null
-  tanggalTerima?: Date
-  detailSurat?:   DetailInput[]
-}
+    if (type === "pi") {
+      return prisma.registerPI.findMany({
+        where:   whereIds,
+        include: { dept: true, detailPI: true },
+        orderBy: { tanggalTerima: "desc" },
+      })
+    }
 
-// null → undefined agar kompatibel dengan Prisma String? field
-function toStr(v: string | null | undefined): string | undefined {
-  return v ?? undefined
-}
-
-// mapping detail — null field dibuang
-function mapDetail(d: DetailInput) {
-  return {
-    perihal:      d.perihal,
-    noSurat:      toStr(d.noSurat),
-    lampiran:     toStr(d.lampiran),
-    tanggalSurat: d.tanggalSurat,
-  }
-}
-
-export class SuratRepository {
-
-  static async findAllByDept(deptId: string) {
     return prisma.registerSurat.findMany({
-      where:   { deptId },
-      include: includeAll,
-      orderBy: { createdAt: "desc" },
+      where:   whereIds,
+      include: { dept: true, detailSurat: true },
+      orderBy: { tanggalTerima: "desc" },
     })
   }
 
-  static async findByIdAndDept(id: number, deptId: string) {
+  // ─── Find by id & dept ───────────────────────────────────────────────────────
+
+  async findByIdAndDept(id: number, dept: string) {
+    if (isPIDept(dept)) {
+      return prisma.registerPI.findFirst({
+        where:   { id, deptId: dept },
+        include: { dept: true, detailPI: true },
+      })
+    }
+
     return prisma.registerSurat.findFirst({
-      where:   { id, deptId },
-      include: includeAll,
+      where:   { id, deptId: dept },
+      include: { dept: true, detailSurat: true },
     })
   }
 
-  static async create(data: CreateInput) {
-    return prisma.registerSurat.create({
-      data: {
-        nomor:         data.nomor,
-        asalSurat:     data.asalSurat,
-        tujuan:        toStr(data.tujuan),   // ✅ null → undefined
-        tanggalTerima: data.tanggalTerima,
-        deptId:        data.deptId,
-        detailSurat: {
-          create: data.detailSurat.map(mapDetail),
-        },
-      },
-      include: includeAll,
-    })
-  }
+  // ─── Create ──────────────────────────────────────────────────────────────────
 
-  static async update(id: number, deptId: string, data: UpdateInput) {
-    return prisma.$transaction(async (tx) => {
-      if (data.detailSurat) {
-        await tx.detailSurat.deleteMany({ where: { registerId: id } })
-      }
+  async create(payload: CreateSuratPayload) {
+    const { deptId, asalSurat, tanggalTerima, tujuan, isPIDept: isPI, piList, suratList } = payload
 
-      return tx.registerSurat.update({
-        where: { id, deptId },
-        data: {
-          ...(data.nomor         !== undefined && { nomor:         data.nomor                }),
-          ...(data.asalSurat     !== undefined && { asalSurat:     data.asalSurat            }),
-          ...(data.tanggalTerima !== undefined && { tanggalTerima: data.tanggalTerima        }),
-          ...(data.tujuan        !== undefined && { tujuan:        toStr(data.tujuan)        }), // ✅ null → undefined
-          ...(data.detailSurat   !== undefined && {
-            detailSurat: {
-              create: data.detailSurat.map(mapDetail),
+    const dept = await prisma.department.findUnique({ where: { id: deptId } })
+    if (!dept) throw new Error(`NOT_FOUND: Departemen '${deptId}' tidak ditemukan`)
+
+    const parsedTanggal = new Date(tanggalTerima)
+    if (isNaN(parsedTanggal.getTime())) throw new Error("BAD_REQUEST: Format tanggal tidak valid")
+
+    if (isPI) {
+      if (!piList || piList.length === 0) throw new Error("BAD_REQUEST: piList kosong")
+
+      return prisma.$transaction(async (tx) => {
+        const nomor = await this._generateNomor(tx, deptId, true)
+
+        return tx.registerPI.create({
+          data: {
+            nomor,
+            dept:          { connect: { id: deptId } },
+            asalSurat,
+            tanggalTerima: parsedTanggal,
+            detailPI: {
+              create: piList.map((p) => ({
+                namaSupplier: p.namaSupplier,
+                noInvoice:    p.noInvoice    ?? null,
+                nomorSurat:   p.nomorSurat   ?? null,
+                tujuan:       p.tujuan       ?? null,
+                cc:           p.cc           ?? null,
+                tanggalSurat: new Date(p.tanggalSurat),
+              })),
             },
-          }),
-        },
-        include: includeAll,
+          },
+          include: { dept: true, detailPI: true },
+        })
       })
-    })
-  }
+    }
 
-  static async delete(id: number, deptId: string) {
-    return prisma.registerSurat.delete({
-      where: { id, deptId },
-    })
-  }
-}
+    if (!suratList || suratList.length === 0) throw new Error("BAD_REQUEST: suratList kosong")
 
-// ─── PI Repository ────────────────────────────────────────────────────────────
-
-const includeAllPI = {
-  dept:     true,
-  detailPI: true,
-} as const
-
-type DetailPIInput = {
-  namaSupplier: string
-  noInvoice?:   string | null
-  nomorSurat?:  string | null
-  tujuan?:      string | null
-  cc?:          string | null
-  tanggalSurat: Date
-}
-
-type UpdatePIInput = {
-  asalSurat?:     string
-  tanggalTerima?: Date
-  detailPI?:      DetailPIInput[]
-}
-
-function mapDetailPI(d: DetailPIInput) {
-  return {
-    namaSupplier: d.namaSupplier,
-    noInvoice:    toStr(d.noInvoice),
-    nomorSurat:   toStr(d.nomorSurat),
-    tujuan:       toStr(d.tujuan),
-    cc:           toStr(d.cc),
-    tanggalSurat: d.tanggalSurat,
-  }
-}
-
-export class PIRepository {
-
-  static async findAll() {
-    return prisma.registerPI.findMany({
-      include: includeAllPI,
-      orderBy: { createdAt: "desc" },
-    })
-  }
-
-  static async findByIdAndDept(id: number, deptId: string) {
-    return prisma.registerPI.findFirst({
-      where:   { id, deptId },
-      include: includeAllPI,
-    })
-  }
-
-  static async update(id: number, deptId: string, data: UpdatePIInput) {
     return prisma.$transaction(async (tx) => {
-      if (data.detailPI) {
-        await tx.detailPI.deleteMany({ where: { registerId: id } })
-      }
+      const nomor = await this._generateNomor(tx, deptId, false)
 
-      return tx.registerPI.update({
-        where: { id, deptId },
+      return tx.registerSurat.create({
         data: {
-          ...(data.asalSurat     !== undefined && { asalSurat:     data.asalSurat     }),
-          ...(data.tanggalTerima !== undefined && { tanggalTerima: data.tanggalTerima }),
-          ...(data.detailPI      !== undefined && {
-            detailPI: { create: data.detailPI.map(mapDetailPI) },
-          }),
+          nomor,
+          dept:          { connect: { id: deptId } },
+          asalSurat,
+          tujuan:        tujuan ?? "",
+          tanggalTerima: parsedTanggal,
+          detailSurat: {
+            create: suratList.map((s) => ({
+              perihal:      s.perihal,
+              noSurat:      s.noSurat   ?? null,
+              lampiran:     s.lampiran  ?? null,
+              tujuan:       s.tujuan    ?? null,
+              tanggalSurat: new Date(s.tanggalSurat),
+            })),
+          },
         },
-        include: includeAllPI,
+        include: { dept: true, detailSurat: true },
       })
     })
   }
 
-  static async delete(id: number, deptId: string) {
-    return prisma.registerPI.delete({
-      where: { id, deptId },
+  // ─── Update ──────────────────────────────────────────────────────────────────
+
+  async update(id: number, dept: string, payload: UpdateSuratPayload) {
+    const { asalSurat, tujuan, tanggalTerima, piList, suratList } = payload
+
+    if (isPIDept(dept)) {
+      return prisma.registerPI.update({
+        where: { id },
+        data: {
+          asalSurat,
+          tanggalTerima: tanggalTerima ? new Date(tanggalTerima) : undefined,
+          detailPI: piList ? {
+            deleteMany: {},
+            create: piList.map((p) => ({
+              namaSupplier: p.namaSupplier,
+              noInvoice:    p.noInvoice  ?? null,
+              nomorSurat:   p.nomorSurat ?? null,
+              tujuan:       p.tujuan     ?? null,
+              cc:           p.cc         ?? null,
+              tanggalSurat: new Date(p.tanggalSurat),
+            })),
+          } : undefined,
+
+        },
+        include: { dept: true, detailPI: true },
+      })
+    }
+
+    return prisma.registerSurat.update({
+      where: { id },
+      data: {
+        asalSurat,
+        tujuan,
+        tanggalTerima: tanggalTerima ? new Date(tanggalTerima) : undefined,
+        detailSurat: suratList ? {
+          deleteMany: {},
+          create: suratList.map((s) => ({
+            perihal:      s.perihal,
+            noSurat:      s.noSurat   ?? null,
+            lampiran:     s.lampiran  ?? null,
+            tujuan:       s.tujuan    ?? null,
+            tanggalSurat: new Date(s.tanggalSurat),
+          })),
+        } : undefined,
+      },
+      include: { dept: true, detailSurat: true },
     })
+  }
+
+  // ─── Delete ──────────────────────────────────────────────────────────────────
+
+  async delete(id: number, dept: string) {
+    if (isPIDept(dept)) {
+      await prisma.registerPI.delete({ where: { id } })
+    } else {
+      await prisma.registerSurat.delete({ where: { id } })
+    }
+  }
+
+  // ─── Get preview nomor (untuk tampilan form, tidak mengikat) ────────────────
+
+  async getPreviewNomor(deptId: string): Promise<string> {
+    const dept = await prisma.department.findUnique({ where: { id: deptId } })
+    if (!dept) throw new Error(`NOT_FOUND: Departemen '${deptId}' tidak ditemukan`)
+
+    const last = isPIDept(deptId)
+      ? await prisma.registerPI.findFirst({
+          where:   { deptId },
+          orderBy: { nomor: "desc" },
+          select:  { nomor: true },
+        })
+      : await prisma.registerSurat.findFirst({
+          where:   { deptId },
+          orderBy: { nomor: "desc" },
+          select:  { nomor: true },
+        })
+
+    const lastNumber = last ? parseInt(last.nomor, 10) : 0
+    return String(lastNumber + 1).padStart(4, "0")
+  }
+
+  // ─── Private helpers ─────────────────────────────────────────────────────────
+
+  private async _generateNomor(tx: any, deptId: string, isPI: boolean): Promise<string> {
+    const registers = isPI
+      ? await tx.registerPI.findMany({ where: { deptId }, select: { nomor: true } })
+      : await tx.registerSurat.findMany({ where: { deptId }, select: { nomor: true } })
+
+    const last = registers.reduce((max: number, r: { nomor: string }) => {
+      const n = parseInt(r.nomor, 10)
+      return isNaN(n) ? max : Math.max(max, n)
+    }, 0)
+
+    return String(last + 1).padStart(4, "0")
   }
 }

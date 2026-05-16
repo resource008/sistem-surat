@@ -1,102 +1,122 @@
+// src/app/api/surat/[dept]/[id]/route.ts
+
 import { NextRequest, NextResponse } from "next/server"
-import { SuratRepository, PIRepository } from "@/infrastructure/repositories/surat-repositories"
+import { headers } from "next/headers"
+import { auth } from "@/infrastructure/auth/better-auth"
+import { fetchSuratById, editSurat, removeSurat } from "@/services/surat-service"
+import { isPIDept } from "@/domain/surat/entities"
+import { UpdatePISchema, UpdateSuratSchema } from "@/app/validation/surat"
 
 type Params = { params: Promise<{ dept: string; id: string }> }
 
-const IS_PI = (dept: string) => dept === "PI"
+// ─── Auth helper ──────────────────────────────────────────────────────────────
+
+async function getSession() {
+  return auth.api.getSession({ headers: await headers() })
+}
+
+// ─── Parse & validate id ──────────────────────────────────────────────────────
+
+function parseId(raw: string): number | null {
+  const n = parseInt(raw, 10)
+  return isNaN(n) ? null : n
+}
+
+// ─── GET /api/surat/[dept]/[id] ───────────────────────────────────────────────
 
 export async function GET(_req: NextRequest, { params }: Params) {
   try {
+    const session = await getSession()
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
     const { dept, id } = await params
-    const numId = parseInt(id, 10)
-    if (isNaN(numId)) {
+    const numId = parseId(id)
+    if (numId === null) {
       return NextResponse.json({ error: "ID tidak valid" }, { status: 400 })
     }
 
-    const data = IS_PI(dept)
-      ? await PIRepository.findByIdAndDept(numId, dept)
-      : await SuratRepository.findByIdAndDept(numId, dept)
-
+    const data = await fetchSuratById(numId, dept)
     if (!data) {
       return NextResponse.json({ error: "Data tidak ditemukan" }, { status: 404 })
     }
 
     return NextResponse.json(data)
   } catch (error) {
-    console.error("GET /api/surat/[dept]/[id]:", error)
+    if (error instanceof Error) console.error("GET /api/surat/[dept]/[id]:", error.message)
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
   }
 }
+
+// ─── PATCH /api/surat/[dept]/[id] ────────────────────────────────────────────
 
 export async function PATCH(req: NextRequest, { params }: Params) {
   try {
+    const session = await getSession()
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
     const { dept, id } = await params
-    const numId = parseInt(id, 10)
-    if (isNaN(numId)) {
+    const numId = parseId(id)
+    if (numId === null) {
       return NextResponse.json({ error: "ID tidak valid" }, { status: 400 })
     }
 
-    const body = await req.json()
-
-    if (IS_PI(dept)) {
-      const { asalSurat, tanggalTerima, piList } = body
-      const updated = await PIRepository.update(numId, dept, {
-        asalSurat,
-        tanggalTerima: tanggalTerima ? new Date(tanggalTerima) : undefined,
-        detailPI: piList?.map((p: any) => ({
-          namaSupplier: p.namaSupplier,
-          noInvoice:    p.noInvoice   || null,
-          nomorSurat:   p.nomorSurat  || null,
-          tujuan:       p.tujuan      || null,
-          cc:           p.cc          || null,
-          tanggalSurat: new Date(p.tanggalSurat),
-        })),
-      })
-      return NextResponse.json(updated)
+    const body = await req.json().catch(() => null)
+    if (!body) {
+      return NextResponse.json({ error: "Body tidak valid" }, { status: 400 })
     }
 
-    const { asalSurat, tujuan, tanggalTerima, suratList } = body
-    const updated = await SuratRepository.update(numId, dept, {
-      asalSurat,
-      tujuan,
-      tanggalTerima: tanggalTerima ? new Date(tanggalTerima) : undefined,
-      detailSurat: suratList?.map((s: any) => ({
-        perihal:      s.perihal,
-        noSurat:      s.noSurat   || null,
-        lampiran:     s.lampiran  || null,
-        tanggalSurat: new Date(s.tanggalSurat),
-      })),
-    })
+    // Pilih schema sesuai dept
+    const schema = isPIDept(dept) ? UpdatePISchema : UpdateSuratSchema
+    const result = schema.safeParse(body)
+    if (!result.success) {
+      return NextResponse.json(
+        { error: result.error.flatten() },
+        { status: 422 }
+      )
+    }
+
+    const updated = await editSurat(numId, dept, result.data)
     return NextResponse.json(updated)
 
-  } catch (error: any) {
-    console.error("PATCH /api/surat/[dept]/[id]:", error)
-    if (error.code === "P2025") {
-      return NextResponse.json({ error: "Data tidak ditemukan" }, { status: 404 })
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("PATCH /api/surat/[dept]/[id]:", error.message)
+      if ((error as any).code === "P2025") {
+        return NextResponse.json({ error: "Data tidak ditemukan" }, { status: 404 })
+      }
     }
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
   }
 }
 
+// ─── DELETE /api/surat/[dept]/[id] ───────────────────────────────────────────
+
 export async function DELETE(_req: NextRequest, { params }: Params) {
   try {
+    const session = await getSession()
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
     const { dept, id } = await params
-    const numId = parseInt(id, 10)
-    if (isNaN(numId)) {
+    const numId = parseId(id)
+    if (numId === null) {
       return NextResponse.json({ error: "ID tidak valid" }, { status: 400 })
     }
 
-    if (IS_PI(dept)) {
-      await PIRepository.delete(numId, dept)
-    } else {
-      await SuratRepository.delete(numId, dept)
-    }
-
+    await removeSurat(numId, dept)
     return NextResponse.json({ success: true })
-  } catch (error: any) {
-    console.error("DELETE /api/surat/[dept]/[id]:", error)
-    if (error.code === "P2025") {
-      return NextResponse.json({ error: "Data tidak ditemukan" }, { status: 404 })
+
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("DELETE /api/surat/[dept]/[id]:", error.message)
+      if ((error as any).code === "P2025") {
+        return NextResponse.json({ error: "Data tidak ditemukan" }, { status: 404 })
+      }
     }
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
   }

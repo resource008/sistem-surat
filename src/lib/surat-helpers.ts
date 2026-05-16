@@ -1,6 +1,6 @@
+import type { CetakGroup, RegisterSurat } from "@/types/surat-types"
 import { format } from "date-fns"
 import { id } from "date-fns/locale"
-import type { RegisterSurat, CetakGroup } from "@/types/surat.types"
 
 export function groupCetakData(data: RegisterSurat[]): CetakGroup[] {
   const map = new Map<string, CetakGroup>()
