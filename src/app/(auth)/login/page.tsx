@@ -6,7 +6,7 @@ import type { Role } from "@/types"
 import { Eye, EyeOff, Lock, Loader2, User } from "lucide-react"
 import Image from "next/image"
 import { useRouter, useSearchParams } from "next/navigation"
-import { useEffect, useState } from "react"
+import { Suspense, useEffect, useState } from "react"
 import { toast } from "sonner"
 import styles from "./login.module.css"
 
@@ -18,23 +18,25 @@ interface AuthUser {
   username: string
 }
 
-export default function LoginPage() {
-  const router       = useRouter()
+// ── Isolated so useSearchParams() is inside a Suspense boundary ───────────────
+function LogoutNotifier() {
   const searchParams = useSearchParams()
+  useEffect(() => {
+    if (searchParams.get("logout") === "true") {
+      toast.success("Berhasil keluar")
+    }
+  }, [searchParams])
+  return null
+}
+
+export default function LoginPage() {
+  const router = useRouter()
 
   const [username,     setUsername]     = useState("")
   const [password,     setPassword]     = useState("")
   const [loading,      setLoading]      = useState(false)
   const [showPassword, setShowPassword] = useState(false)
 
-  // ── Notifikasi logout via query param ────────────────────────────────────
-  useEffect(() => {
-    if (searchParams.get("logout") === "true") {
-      toast.success("Berhasil keluar")
-    }
-  }, [searchParams])
-
-  // ── Submit ────────────────────────────────────────────────────────────────
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setLoading(true)
@@ -63,12 +65,15 @@ export default function LoginPage() {
 
   return (
     <div className={styles.root}>
+      <Suspense>
+        <LogoutNotifier />
+      </Suspense>
+
       <div className={styles.bgImage} />
       <div className={styles.bgOverlay} />
 
       <div className={styles.cardWrapper}>
         <div className={styles.card}>
-
           <div className={styles.cardHeader}>
             <Image
               src="/sipef_logo.svg"
@@ -85,7 +90,6 @@ export default function LoginPage() {
           <div className={styles.divider} />
 
           <form className={styles.form} onSubmit={handleSubmit}>
-
             <div className={styles.field}>
               <label className={styles.fieldLabel}>Username</label>
               <div className={styles.inputWrapper}>
@@ -135,13 +139,11 @@ export default function LoginPage() {
                 : "Masuk"
               }
             </button>
-
           </form>
 
           <div className={styles.cardFooter}>
             <span>PT Tolan Tiga Indonesia</span>
           </div>
-
         </div>
       </div>
     </div>
