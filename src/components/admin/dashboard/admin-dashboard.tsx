@@ -1,88 +1,71 @@
 "use client"
 
 import { useState } from "react"
-import { CircleUserRound, Building, FileText, Inbox } from "lucide-react"
-
-import { getGreeting } from "./helpers"
-import { Period, StatsData } from "./types"
 import { useAdminStats } from "@/hooks/use-admin-stats"
+import type { StatistikFilter, TipeWaktuStatistik } from "@/domain/admin-dashboard/types"
+import { DEFAULT_STATS_DEPT_ID } from "@/constants/admin-dashboard"
 
-import { PeriodFilter } from "./components/period-filter"
-import { StatCard } from "./components/stat-card"
-import { DeptSuratCards } from "./components/dept-surat-card"
-import { WeeklyTrendCard } from "./components/weekly-trend-card"
-import { ChangeBadge } from "./components/change-badge"
-import { CardSkeleton } from "./components/card-skeleton"
-import { ChartConfig } from "@/components/ui/chart"
+import { ActivitySummary }         from "./components/activity-summary"
+import { DashboardLoading }        from "./components/dashboard-loading"
+import { StatistikSuratCard }      from "./components/statistik-surat-card"
+import { SuratPerDepartemenTable } from "./components/surat-per-departemen-table"
+import { UserActivityTable }       from "./components/user-activity-table"
 
 export default function AdminDashboard() {
-  const [period, setPeriod] = useState<Period>("hari_ini")
-  
-  const { data, error, isLoading } = useAdminStats(period)
+  const now = new Date()
+  const [deptId, setDeptId]       = useState(DEFAULT_STATS_DEPT_ID)
+  const [tipeWaktu, setTipeWaktu] = useState<TipeWaktuStatistik>("mingguan")
 
-  const chartConfig = data?.deptKeys.reduce((acc, dept, index) => {
-    const hue = Math.round((index * 137.5) % 360)
-    acc[dept] = { 
-      label: dept, 
-      color: `hsl(${hue}, 65%, 50%)` 
-    }
-    return acc
-  }, {} as ChartConfig) || {}
+  const params: StatistikFilter = {
+    deptId,
+    tipeWaktu,
+    bulan: now.getMonth() + 1,
+    tahun: now.getFullYear(),
+  }
+
+  const { data, error, isLoading } = useAdminStats(params)
 
   return (
-    // Tambahkan pb-24 agar area bawah tidak tertutup tombol floating
-    <div className="w-full flex flex-col pb-24 relative">
-      
-      {/* HEADER NORMAL - Tidak lagi sticky */}
-      <div className="px-6 pt-6 pb-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">{getGreeting()}, Admin!</h1>
-          <p className="text-muted-foreground text-sm">Berikut adalah ringkasan sistem Anda saat ini.</p>
+    <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-5 px-4 py-6 sm:px-6">
+      {error ? (
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-600 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-400">
+          Terjadi kesalahan: {error.message}
         </div>
-        {/* PeriodFilter Dihapus dari sini */}
-      </div>
+      ) : isLoading || !data ? (
+        <DashboardLoading />
+      ) : (
+        <>
+          {/* Baris 1: stack di mobile, berdampingan di xl */}
+          <div className="grid grid-cols-1 gap-5 xl:grid-cols-[1fr_1.1fr] xl:items-stretch">
 
-      {/* KONTEN UTAMA */}
-      <div className="p-6 flex flex-col gap-6">
-        {error ? (
-          <div className="p-4 text-sm text-red-500 bg-red-500/10 rounded-lg border border-red-500/20">
-            Terjadi kesalahan: {error.message}
+            <section className="flex flex-col gap-3">
+              <h2 className="text-base font-semibold tracking-normal">Aktivitas</h2>
+              <div className="flex-1">
+                <ActivitySummary aktivitas={data.aktivitas} />
+              </div>
+            </section>
+
+            <section className="flex flex-col gap-3">
+              <h2 className="text-base font-semibold tracking-normal">Surat Per Departemen</h2>
+              <SuratPerDepartemenTable data={data.suratPerDepartemen} />
+            </section>
+
           </div>
-        ) : isLoading || !data ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <CardSkeleton /><CardSkeleton /><CardSkeleton /><CardSkeleton />
-          </div>
-        ) : (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <StatCard title="Total Akun" value={data.totalUsers} icon={CircleUserRound} accentBg="bg-blue-500/10" accentColor="text-blue-500" />
-              <StatCard title="Total Departemen" value={data.totalDept} icon={Building} accentBg="bg-purple-500/10" accentColor="text-purple-500" />
-              <StatCard title="Total Surat Masuk" value={data.totalSurat} icon={Inbox} badge={<ChangeBadge changePercent={data.daily.changePercent} />} />
-              <StatCard title="Total PI" value={data.totalPI} icon={FileText} badge={<ChangeBadge changePercent={data.daily.piChangePercent} />} accentBg="bg-orange-500/10" accentColor="text-orange-500" />
-            </div>
 
-            <WeeklyTrendCard 
-              weeklyTrend={data.weeklyTrend} 
-              deptKeys={data.deptKeys} 
-              chartConfig={chartConfig} 
-              period={period} 
-            />
+          {/* Baris 2: Statistik Surat */}
+          <StatistikSuratCard
+            departments={data.suratPerDepartemen}
+            statistik={data.statistikSurat}
+            selectedDeptId={deptId}
+            selectedTipeWaktu={tipeWaktu}
+            onDeptChange={setDeptId}
+            onTipeWaktuChange={setTipeWaktu}
+          />
 
-            <div className="space-y-4">
-              <h2 className="text-lg font-semibold tracking-tight">Surat per Departemen</h2>
-              <DeptSuratCards data={data.suratPerDept} period={period} />
-            </div>
-          </>
-        )}
-      </div>
-      
-      {/* FLOATING PERIOD FILTER (TENGAH BAWAH) */}
-      <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50">
-        <div className="shadow-2xl rounded-xl bg-background/80 backdrop-blur-xl border border-border/50 p-1.5 transition-all duration-300 hover:shadow-blue-500/10">
-          <PeriodFilter value={period} onChange={setPeriod} />
-        </div>
-      </div>
-
+          {/* Baris 3: Riwayat Aktivitas */}
+          <UserActivityTable users={data.riwayatAktivitasPengguna} />
+        </>
+      )}
     </div>
   )
 }

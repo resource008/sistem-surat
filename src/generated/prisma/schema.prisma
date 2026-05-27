@@ -14,15 +14,16 @@ enum Role {
 }
 
 model User {
-  id            String   @id @default(cuid())
+  id            String    @id @default(cuid())
   name          String
-  email         String   @unique
-  emailVerified Boolean  @default(false) // Wajib untuk Better Auth
-  username      String?  @unique // Ini yang tadi hilang!
+  email         String    @unique
+  emailVerified Boolean   @default(false) // Wajib untuk Better Auth
+  username      String?   @unique // Ini yang tadi hilang!
   image         String?
-  role          Role     @default(STAFF)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  role          Role      @default(STAFF)
+  lastLoginAt   DateTime? @map("last_login_at")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   sessions Session[]
   accounts Account[]

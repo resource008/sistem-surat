@@ -1,31 +1,43 @@
-// src/app/api/admin/stats/route.ts
-
-import { NextRequest, NextResponse } from "next/server"
+﻿import { NextRequest, NextResponse } from "next/server"
 import { headers } from "next/headers"
 import { auth } from "@/infrastructure/auth/better-auth"
-import { fetchAdminStats } from "@/services/stats-service"
-import type { Role } from "@/types"
+import { fetchAdminDashboardStats } from "@/services/admin-dashboard-service"
 
 export async function GET(req: NextRequest) {
   try {
-    // ── Auth & role check ─────────────────────────────────────────
-    const session = await auth.api.getSession({ headers: await headers() })
-    if (!session) {
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    })
+
+    if (!session || (session.user as any).role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const role = (session.user as { role?: Role }).role
-    if (role !== "ADMIN") {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    const data = await fetchAdminDashboardStats(req.nextUrl.searchParams)
+
+    return NextResponse.json(data)
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error("GET /api/admin/stats:", error.message)
+
+      if (error.message.startsWith("BAD_REQUEST")) {
+        return NextResponse.json(
+          { error: error.message.replace("BAD_REQUEST: ", "") },
+          { status: 400 }
+        )
+      }
+
+      if (error.message.startsWith("NOT_FOUND")) {
+        return NextResponse.json(
+          { error: error.message.replace("NOT_FOUND: ", "") },
+          { status: 404 }
+        )
+      }
     }
 
-    // ── Ambil stats via service ───────────────────────────────────
-    const rawPeriod = req.nextUrl.searchParams.get("period")
-    const stats     = await fetchAdminStats(rawPeriod)
-
-    return NextResponse.json(stats)
-  } catch (error) {
-    if (error instanceof Error) console.error("GET /api/admin/stats:", error.message)
-    return NextResponse.json({ error: "Gagal mengambil statistik" }, { status: 500 })
+    return NextResponse.json(
+      { error: "Gagal mengambil data dashboard admin" },
+      { status: 500 }
+    )
   }
 }
