@@ -30,8 +30,6 @@ export function ViewActionBar({
           <ArrowLeft size={14} /> Kembali
         </Button>
 
-        <div className="w-px h-5 bg-slate-200 dark:bg-slate-700 mx-0.5" />
-
         <Button variant="ghost" onClick={onEdit}
           className="gap-2 h-10 px-4 rounded-xl text-[13px] font-medium
                      text-blue-600 dark:text-blue-400
@@ -39,8 +37,6 @@ export function ViewActionBar({
                      hover:bg-blue-50 dark:hover:bg-blue-900/30">
           <Edit3 size={14} /> Edit
         </Button>
-
-        <div className="w-px h-5 bg-slate-200 dark:bg-slate-700 mx-0.5" />
 
         <Button variant="ghost" onClick={onDeleteRequest}
           className="gap-2 h-10 px-4 rounded-xl text-[13px] font-medium

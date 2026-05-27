@@ -8,11 +8,9 @@ export function FloatingActionBar({ state, actions }: any) {
         <Button variant="ghost" onClick={actions.handleBack} className="gap-2 h-10 px-4 rounded-xl text-[13px] font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800">
           <X size={14} /> Batal
         </Button>
-        <div className="w-px h-5 bg-slate-200 dark:bg-slate-700 mx-0.5" />
         <Button variant="ghost" onClick={state.isPI ? actions.addPI : actions.addSurat} className="gap-2 h-10 px-4 rounded-xl text-[13px] font-medium text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">
           <Plus size={14} strokeWidth={2.5} /> Tambah
         </Button>
-        <div className="w-px h-5 bg-slate-200 dark:bg-slate-700 mx-0.5" />
         <Button disabled={state.saving} onClick={actions.handleSave} className="gap-2 h-10 px-5 rounded-xl text-[13px] font-semibold bg-blue-600 hover:bg-blue-700 text-white">
           {state.saving ? <><Loader2 size={14} className="animate-spin" /> Menyimpan...</> : <><Save size={14} /> Simpan</>}
         </Button>

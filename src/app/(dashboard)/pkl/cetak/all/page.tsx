@@ -30,11 +30,7 @@ function CetakAllContent() {
   }, [])
 
   if (loading) {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <LoadingSkeleton type="table" />
-      </div>
-    )
+    return <LoadingSkeleton type="table" className="w-full" />
   }
 
   const groups     = cleared ? [] : groupCetakData(data)
@@ -61,13 +57,10 @@ function CetakAllContent() {
     </>
   )
 }
+
 export default function CetakAllPage() {
   return (
-    <Suspense fallback={
-      <div className="w-full mt-2">
-        <LoadingSkeleton type="table" />
-      </div>
-    }>
+    <Suspense fallback={<LoadingSkeleton type="table" className="w-full mt-2" />}>
       <CetakAllContent />
     </Suspense>
   )
