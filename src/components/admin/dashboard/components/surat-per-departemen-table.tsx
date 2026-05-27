@@ -27,7 +27,7 @@ export function SuratPerDepartemenTable({ data }: SuratPerDepartemenTableProps) 
         </div>
 
         {/* Rows */}
-        <div className="max-h-[360px] space-y-1.5 overflow-y-auto pr-0.5">
+        <div className="max-h-90 space-y-1.5 overflow-y-auto pr-0.5">
           {data.map((item, index) => (
             <div
               key={item.departemenId}

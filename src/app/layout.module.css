@@ -47,6 +47,8 @@
   overflow: visible;
 }
 
+
+
 .sidebar.collapsed { width: var(--sidebar-w-collapsed); }
 
 .mobileSidebar {
