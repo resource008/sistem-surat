@@ -37,7 +37,11 @@ export async function POST(req: NextRequest) {
 
     const result = CreateSuratSchema.safeParse(body)
     if (!result.success) {
-      return NextResponse.json({ error: result.error.flatten() }, { status: 422 })
+      const fieldErrors = result.error.flatten().fieldErrors
+      const firstError  = Object.values(fieldErrors).flat()[0]
+                          ?? result.error.flatten().formErrors[0]
+                          ?? "Data tidak valid"
+      return NextResponse.json({ error: firstError }, { status: 422 })
     }
 
     const created = await saveSurat(result.data)
