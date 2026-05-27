@@ -28,6 +28,8 @@ interface PklSidebarProps {
 }
 
 const ICON_SIZE = 18
+const LOGO_WIDTH = 1523
+const LOGO_HEIGHT = 1246
 
 export function PklSidebar({
   collapsed,
@@ -88,7 +90,7 @@ export function PklSidebar({
     >
       <div className={styles.sidebarHeader}>
         <div className={styles.logoWrapper}>
-          <Image src="/sipef_logo.svg" alt="Logo" width={32} height={32} className={styles.logoImage} priority />
+          <Image src="/sipef_logo.svg" alt="Logo" width={LOGO_WIDTH} height={LOGO_HEIGHT} className={styles.logoImage} priority />
         </div>
         {isMobile ? (
           <button className={styles.collapseBtn} onClick={onMobileClose}>

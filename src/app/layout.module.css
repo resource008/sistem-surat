@@ -87,7 +87,11 @@
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 }
 
-.logoImage { object-fit: contain; }
+.logoImage {
+  width: 32px;
+  height: auto;
+  object-fit: contain;
+}
 
 .collapseBtn, .expandBtn {
   width: 28px; height: 28px;

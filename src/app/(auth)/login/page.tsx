@@ -18,6 +18,9 @@ interface AuthUser {
   username: string
 }
 
+const LOGO_WIDTH = 1523
+const LOGO_HEIGHT = 1246
+
 // ── Isolated so useSearchParams() is inside a Suspense boundary ───────────────
 function LogoutNotifier() {
   const searchParams = useSearchParams()
@@ -66,6 +69,14 @@ export default function LoginPage() {
       description: `Selamat datang, ${data?.user?.name}`,
     })
 
+    try {
+      await fetch("/api/me/login-activity", {
+        method: "POST",
+      })
+    } catch {
+      // Login tetap dilanjutkan walau pencatatan aktivitas gagal.
+    }
+
     const role = (data?.user as unknown as AuthUser)?.role
     router.push(getRouteByRole(role))
   }
@@ -85,8 +96,8 @@ export default function LoginPage() {
             <Image
               src="/sipef_logo.svg"
               alt="Logo SIPEF"
-              width={80}
-              height={80}
+              width={LOGO_WIDTH}
+              height={LOGO_HEIGHT}
               className={styles.logo}
               priority
             />

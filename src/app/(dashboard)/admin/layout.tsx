@@ -2,6 +2,7 @@
 
 import styles from "@/app/layout.module.css"
 import { AdminSidebar } from "@/components/admin/dashboard/admin-sidebar"
+import { usePresenceHeartbeat } from "@/hooks/use-presence-heartbeat"
 import { ChevronRight, Menu } from "lucide-react"
 import { usePathname, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
@@ -9,6 +10,7 @@ import { useEffect, useState } from "react"
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router   = useRouter()
+  usePresenceHeartbeat()
 
   const [collapsed,  setCollapsed]  = useState(false)
   const [isMounted,  setIsMounted]  = useState(false)

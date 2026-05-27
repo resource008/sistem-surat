@@ -4,6 +4,7 @@ import styles from "@/app/layout.module.css"
 import { PklSidebar } from "./pkl-sidebar" // ← beda dari staff
 import TopbarFilter from "@/components/filters/index"
 import { TutorialCetak } from "@/components/shared/tutorial-cetak"
+import { usePresenceHeartbeat } from "@/hooks/use-presence-heartbeat"
 import {
   ArrowLeftRight, ChevronRight,
   Menu, Plus, Printer, X
@@ -19,6 +20,7 @@ function PklLayoutInner({ children }: Props) {
   const pathname     = usePathname()
   const router       = useRouter()
   const searchParams = useSearchParams()
+  usePresenceHeartbeat()
 
   const [collapsed,   setCollapsed]   = useState(false)
   const [isMounted,   setIsMounted]   = useState(false)
