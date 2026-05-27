@@ -3,10 +3,9 @@
 import { LoadingSkeleton } from "@/components/shared/loading-skeleton"
 import { Role } from "@/components/surat/shared"
 import { EmptyState } from "@/components/ui/empty-state"
-import { Plus } from "lucide-react"
-import { Suspense } from "react"
+import { Loader2, Plus } from "lucide-react"
+import { Suspense, useEffect, useRef } from "react"
 
-// Hooks & Sub-Components
 import { useDataSurat } from "@/hooks/use-data-surat"
 import { FloatingActionBar } from "./action-bar"
 import { DesktopTable } from "./desktop-table"
@@ -20,6 +19,22 @@ interface Props {
 
 function DataSuratInner({ basePath, printPath }: Props) {
   const { state, actions } = useDataSurat(printPath)
+
+  const sentinelRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!sentinelRef.current) return
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && state.hasMore && !state.loadingMore) {
+          actions.loadMore()
+        }
+      },
+      { threshold: 0.1 }
+    )
+    observer.observe(sentinelRef.current)
+    return () => observer.disconnect()
+  }, [state.hasMore, state.loadingMore, actions.loadMore])
 
   if (state.loading) {
     return <div className="w-full mt-2"><LoadingSkeleton type="table" /></div>
@@ -49,7 +64,7 @@ function DataSuratInner({ basePath, printPath }: Props) {
     <div className="w-full animate-in fade-in duration-500 flex flex-col gap-3 pb-24">
       {state.sortedGroupKeys.map((groupKey) => {
         const [date, dept] = groupKey.split("|||")
-        const registers = state.groupedData[groupKey]
+        const registers    = state.groupedData[groupKey]
 
         return (
           <div key={groupKey} className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 overflow-hidden">
@@ -59,12 +74,40 @@ function DataSuratInner({ basePath, printPath }: Props) {
                 {dept}
               </span>
             </div>
-
-            <MobileList registers={registers} showPI={state.showPI} selectedIds={state.selectedIds} basePath={basePath} actions={actions} />
-            <DesktopTable registers={registers} showPI={state.showPI} selectedIds={state.selectedIds} basePath={basePath} actions={actions} />
+            <MobileList
+              registers={registers}
+              showPI={state.showPI}
+              selectedIds={state.selectedIds}
+              basePath={basePath}
+              actions={actions}
+            />
+            <DesktopTable
+              registers={registers}
+              showPI={state.showPI}
+              selectedIds={state.selectedIds}
+              basePath={basePath}
+              actions={actions}
+            />
           </div>
         )
       })}
+
+      {/* Sentinel — trigger load more saat masuk viewport */}
+      <div ref={sentinelRef} className="h-1" />
+
+      {/* Spinner load more */}
+      {state.loadingMore && (
+        <div className="flex justify-center py-4">
+          <Loader2 size={20} className="animate-spin text-slate-400" />
+        </div>
+      )}
+
+      {/* Semua data sudah tampil */}
+      {!state.hasMore && state.filteredData.length > 0 && (
+        <p className="text-center text-[12px] text-slate-400 dark:text-slate-600 py-4">
+          Semua data sudah ditampilkan
+        </p>
+      )}
 
       <FloatingActionBar state={state} actions={actions} />
     </div>
@@ -73,7 +116,7 @@ function DataSuratInner({ basePath, printPath }: Props) {
 
 export default function DataSuratPage(props: Props) {
   return (
-    <Suspense fallback={<div className="flex min-h-[60vh] w-full items-center justify-center"><LoadingSkeleton type="table" /></div>}>
+    <Suspense fallback={<div className="w-full mt-2"><LoadingSkeleton type="table" /></div>}>
       <DataSuratInner {...props} />
     </Suspense>
   )

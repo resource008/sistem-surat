@@ -1,14 +1,14 @@
-// src/hooks/use-data-surat.ts
-// No logic changes — fetchAllSurat is now exported from @/domain/surat/repositories.
+"use client"
 
 import { fetchAllSurat } from "@/domain/surat/repositories"
 import type { RegisterSurat } from "@/types"
 import { format } from "date-fns"
 import { id } from "date-fns/locale"
 import { useRouter, useSearchParams } from "next/navigation"
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 const SESSION_KEY = "datasurat:selectedIds"
+const LIMIT = 20
 
 function readSession(): Set<number> {
   try {
@@ -16,58 +16,82 @@ function readSession(): Set<number> {
     if (!raw) return new Set()
     const parsed = JSON.parse(raw)
     return new Set(Array.isArray(parsed) ? parsed : [])
-  } catch {
-    return new Set()
-  }
+  } catch { return new Set() }
 }
 
 function writeSession(ids: Set<number>) {
-  try {
-    sessionStorage.setItem(SESSION_KEY, JSON.stringify(Array.from(ids)))
-  } catch {}
+  try { sessionStorage.setItem(SESSION_KEY, JSON.stringify(Array.from(ids))) } catch {}
 }
 
 export function useDataSurat(printPath: string) {
   const router       = useRouter()
   const searchParams = useSearchParams()
   const showPI       = searchParams.get("mode") === "pi"
+  const filterDate   = searchParams.get("date")
+  const filterDepts  = useMemo(
+    () => searchParams.get("dept")?.split(",").filter(Boolean) ?? [],
+    [searchParams]
+  )
 
-  // ── States ────────────────────────────────────────────────────────────────
   const [data,        setData]        = useState<RegisterSurat[]>([])
   const [loading,     setLoading]     = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [hasMore,     setHasMore]     = useState(true)
+  const [page,        setPage]        = useState(1)
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
 
-  // ── Session Sync ──────────────────────────────────────────────────────────
   useEffect(() => { setSelectedIds(readSession()) }, [])
   useEffect(() => { writeSession(selectedIds)     }, [selectedIds])
 
-  // ── Data Fetching ─────────────────────────────────────────────────────────
-  const loadData = useCallback(() => {
+  // Reset saat filter/mode berubah
+  const filterKey = `${showPI}|${filterDate}|${filterDepts.join(",")}`
+  useEffect(() => {
+    setData([])
+    setPage(1)
+    setHasMore(true)
     setLoading(true)
-    fetchAllSurat(showPI ? "pi" : undefined)
-      .then(rows => setData(rows as RegisterSurat[]))
-      .catch(() => setData([]))
-      .finally(() => setLoading(false))
+  }, [filterKey])
+
+  const fetchPage = useCallback(async (pageNum: number, replace = false) => {
+    try {
+      const type = showPI ? "pi" : undefined
+      const result = await fetchAllSurat(type, { page: pageNum, limit: LIMIT })
+      const rows = result.data as RegisterSurat[]
+
+      setData(prev => replace ? rows : [...prev, ...rows])
+      setHasMore(result.hasMore)
+    } catch {
+      setHasMore(false)
+    } finally {
+      setLoading(false)
+      setLoadingMore(false)
+    }
   }, [showPI])
 
+  // Initial load
   useEffect(() => {
-    loadData()
+    fetchPage(1, true)
     window.dispatchEvent(new CustomEvent("breadcrumb:sub",    { detail: null }))
     window.dispatchEvent(new CustomEvent("breadcrumb:subsub", { detail: null }))
-  }, [loadData])
+  }, [fetchPage])
 
-  // ── Filtering & Grouping ──────────────────────────────────────────────────
-  const filterDate  = searchParams.get("date")
-  const filterDepts = searchParams.get("dept")?.split(",") ?? []
+  // Load more saat page bertambah
+  useEffect(() => {
+    if (page === 1) return
+    setLoadingMore(true)
+    fetchPage(page)
+  }, [page, fetchPage])
 
+  // Filter di client (date & dept — karena API tidak filter ini)
   const filteredData = useMemo(() => data.filter(reg => {
     const matchDate = filterDate
       ? format(new Date(reg.tanggalTerima), "yyyy-MM-dd") === filterDate
       : true
-    const matchDept = filterDepts.length > 0 ? filterDepts.includes(reg.deptId) : true
-    const matchPI   = showPI ? reg.deptId === "PI" : reg.deptId !== "PI"
-    return matchDate && matchDept && matchPI
-  }), [data, filterDate, filterDepts, showPI])
+    const matchDept = filterDepts.length > 0
+      ? filterDepts.includes(reg.deptId)
+      : true
+    return matchDate && matchDept
+  }), [data, filterDate, filterDepts])
 
   const groupedData = useMemo(() => filteredData.reduce(
     (acc: Record<string, RegisterSurat[]>, reg) => {
@@ -78,8 +102,7 @@ export function useDataSurat(printPath: string) {
       if (!acc[groupKey]) acc[groupKey] = []
       acc[groupKey].push(reg)
       return acc
-    },
-    {},
+    }, {}
   ), [filteredData])
 
   const sortedGroupKeys = useMemo(() =>
@@ -90,7 +113,6 @@ export function useDataSurat(printPath: string) {
     }),
   [groupedData])
 
-  // ── Handlers ──────────────────────────────────────────────────────────────
   const actions = {
     toggleSelect: (itemId: number) => {
       setSelectedIds(prev => {
@@ -112,11 +134,15 @@ export function useDataSurat(printPath: string) {
       }
       router.push(showPI ? `${printPath}/pi` : `${printPath}/all`)
     },
+    loadMore: () => {
+      if (!loadingMore && hasMore) setPage(p => p + 1)
+    },
   }
 
   return {
     state: {
-      loading, showPI, filterDate, filterDepts,
+      loading, loadingMore, hasMore, showPI,
+      filterDate, filterDepts,
       filteredData, groupedData, sortedGroupKeys, selectedIds,
     },
     actions,

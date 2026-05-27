@@ -1,8 +1,3 @@
-// src/infrastructure/repositories/surat-repositories.ts
-//
-// Implementasi ISuratRepository menggunakan Prisma.
-// Satu-satunya file yang boleh import prisma untuk operasi surat.
-
 import { prisma } from "@/infrastructure/databases/prisma-client"
 import { isPIDept } from "@/domain/surat/entities"
 import type { ISuratRepository } from "@/domain/surat/repositories"
@@ -10,27 +5,49 @@ import type { CreateSuratPayload, UpdateSuratPayload } from "@/domain/surat/type
 
 export class SuratRepository implements ISuratRepository {
 
-  // ─── Find all ───────────────────────────────────────────────────────────────
-
-  async findAll(type: string | null, ids: number[] | null) {
+  async findAll(
+    type: string | null,
+    ids: number[] | null,
+    pagination?: { page: number; limit: number }
+  ) {
     const whereIds = ids && ids.length > 0 ? { id: { in: ids } } : undefined
+    const skip = pagination ? (pagination.page - 1) * pagination.limit : undefined
+    const take = pagination?.limit
 
     if (type === "pi") {
-      return prisma.registerPI.findMany({
-        where:   whereIds,
-        include: { dept: true, detailPI: true },
-        orderBy: { tanggalTerima: "desc" },
-      })
+      const [data, total] = await Promise.all([
+        prisma.registerPI.findMany({
+          where:   whereIds,
+          include: { dept: true, detailPI: true },
+          orderBy: { tanggalTerima: "desc" },
+          skip,
+          take,
+        }),
+        pagination
+          ? prisma.registerPI.count({ where: whereIds })
+          : Promise.resolve(0),
+      ])
+      return pagination
+        ? { data, hasMore: (pagination.page - 1) * pagination.limit + data.length < total }
+        : data
     }
 
-    return prisma.registerSurat.findMany({
-      where:   whereIds,
-      include: { dept: true, detailSurat: true },
-      orderBy: { tanggalTerima: "desc" },
-    })
+    const [data, total] = await Promise.all([
+      prisma.registerSurat.findMany({
+        where:   whereIds,
+        include: { dept: true, detailSurat: true },
+        orderBy: { tanggalTerima: "desc" },
+        skip,
+        take,
+      }),
+      pagination
+        ? prisma.registerSurat.count({ where: whereIds })
+        : Promise.resolve(0),
+    ])
+    return pagination
+      ? { data, hasMore: (pagination.page - 1) * pagination.limit + data.length < total }
+      : data
   }
-
-  // ─── Find by id & dept ───────────────────────────────────────────────────────
 
   async findByIdAndDept(id: number, dept: string) {
     if (isPIDept(dept)) {
@@ -39,14 +56,11 @@ export class SuratRepository implements ISuratRepository {
         include: { dept: true, detailPI: true },
       })
     }
-
     return prisma.registerSurat.findFirst({
       where:   { id, deptId: dept },
       include: { dept: true, detailSurat: true },
     })
   }
-
-  // ─── Create ──────────────────────────────────────────────────────────────────
 
   async create(payload: CreateSuratPayload) {
     const { deptId, asalSurat, tanggalTerima, tujuan, isPIDept: isPI, piList, suratList } = payload
@@ -59,10 +73,8 @@ export class SuratRepository implements ISuratRepository {
 
     if (isPI) {
       if (!piList || piList.length === 0) throw new Error("BAD_REQUEST: piList kosong")
-
       return prisma.$transaction(async (tx) => {
         const nomor = await this._generateNomor(tx, deptId, true)
-
         return tx.registerPI.create({
           data: {
             nomor,
@@ -86,10 +98,8 @@ export class SuratRepository implements ISuratRepository {
     }
 
     if (!suratList || suratList.length === 0) throw new Error("BAD_REQUEST: suratList kosong")
-
     return prisma.$transaction(async (tx) => {
       const nomor = await this._generateNomor(tx, deptId, false)
-
       return tx.registerSurat.create({
         data: {
           nomor,
@@ -112,8 +122,6 @@ export class SuratRepository implements ISuratRepository {
     })
   }
 
-  // ─── Update ──────────────────────────────────────────────────────────────────
-
   async update(id: number, dept: string, payload: UpdateSuratPayload) {
     const { asalSurat, tujuan, tanggalTerima, piList, suratList } = payload
 
@@ -134,7 +142,6 @@ export class SuratRepository implements ISuratRepository {
               tanggalSurat: new Date(p.tanggalSurat),
             })),
           } : undefined,
-
         },
         include: { dept: true, detailPI: true },
       })
@@ -161,8 +168,6 @@ export class SuratRepository implements ISuratRepository {
     })
   }
 
-  // ─── Delete ──────────────────────────────────────────────────────────────────
-
   async delete(id: number, dept: string) {
     if (isPIDept(dept)) {
       await prisma.registerPI.delete({ where: { id } })
@@ -170,8 +175,6 @@ export class SuratRepository implements ISuratRepository {
       await prisma.registerSurat.delete({ where: { id } })
     }
   }
-
-  // ─── Get preview nomor (untuk tampilan form, tidak mengikat) ────────────────
 
   async getPreviewNomor(deptId: string): Promise<string> {
     const dept = await prisma.department.findUnique({ where: { id: deptId } })
@@ -192,8 +195,6 @@ export class SuratRepository implements ISuratRepository {
     const lastNumber = last ? parseInt(last.nomor, 10) : 0
     return String(lastNumber + 1).padStart(4, "0")
   }
-
-  // ─── Private helpers ─────────────────────────────────────────────────────────
 
   private async _generateNomor(tx: any, deptId: string, isPI: boolean): Promise<string> {
     const registers = isPI

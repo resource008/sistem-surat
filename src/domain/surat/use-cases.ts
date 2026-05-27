@@ -1,9 +1,14 @@
-// src/domain/surat/use-cases.ts
-
 import type { ISuratRepository } from "./repositories"
 import type { CreateSuratPayload, UpdateSuratPayload, PIItem, SuratItem } from "./types"
 
-// ── Server-side use cases ─────────────────────────────────────────────────────
+export async function getAllSurat(
+  type:       string | null,
+  ids:        number[] | null,
+  pagination: { page: number; limit: number } | undefined,
+  repository: ISuratRepository,
+) {
+  return repository.findAll(type, ids, pagination)
+}
 
 export async function getSuratById(
   id:         number,
@@ -11,14 +16,6 @@ export async function getSuratById(
   repository: ISuratRepository,
 ) {
   return repository.findByIdAndDept(id, dept)
-}
-
-export async function getAllSurat(
-  type:       string | null,
-  ids:        number[] | null,
-  repository: ISuratRepository,
-) {
-  return repository.findAll(type, ids)
 }
 
 export async function createSurat(
@@ -45,8 +42,6 @@ export async function deleteSurat(
   return repository.delete(id, dept)
 }
 
-// ── Lampiran helpers ──────────────────────────────────────────────────────────
-
 export function getLampiranNum(lampiran: string): string {
   return lampiran.replace(/\D/g, "")
 }
@@ -56,8 +51,6 @@ export function formatLampiran(raw: string): string {
   return num ? `${num} Set` : ""
 }
 
-// ── Tujuan propagation ────────────────────────────────────────────────────────
-
 export function applyTujuanToSuratList(list: SuratItem[], tujuan: string): SuratItem[] {
   return list.map(s => ({ ...s, tujuan }))
 }
@@ -65,8 +58,6 @@ export function applyTujuanToSuratList(list: SuratItem[], tujuan: string): Surat
 export function applyTujuanToPIList(list: PIItem[], tujuan: string): PIItem[] {
   return list.map(p => ({ ...p, tujuan }))
 }
-
-// ── Validation ────────────────────────────────────────────────────────────────
 
 interface ValidateSuratFormParams {
   deptId?:        string
@@ -78,19 +69,12 @@ interface ValidateSuratFormParams {
 }
 
 export function validateSuratForm({
-  deptId,
-  asalSurat,
-  tanggalTerima,
-  isPIDept,
-  piList,
-  suratList,
+  deptId, asalSurat, tanggalTerima, isPIDept, piList, suratList,
 }: ValidateSuratFormParams): string[] {
   const missing: string[] = []
-
   if (deptId !== undefined && !deptId)               missing.push("Departemen")
   if (!asalSurat)                                    missing.push("Asal Surat")
   if (tanggalTerima !== undefined && !tanggalTerima) missing.push("Tanggal Terima")
-
   if (isPIDept) {
     piList.forEach((p, i) => {
       if (!p.namaSupplier) missing.push(`Invoice ${i + 1}: Nama Supplier`)
@@ -101,11 +85,8 @@ export function validateSuratForm({
       if (!s.perihal) missing.push(`Surat ${i + 1}: Perihal`)
     })
   }
-
   return missing
 }
-
-// ── Payload builders ──────────────────────────────────────────────────────────
 
 interface BuildCreatePayloadParams {
   deptId:        string
@@ -118,20 +99,10 @@ interface BuildCreatePayloadParams {
 }
 
 export function buildCreatePayload({
-  deptId,
-  asalSurat,
-  tujuan,
-  tanggalTerima,
-  isPIDept,
-  piList,
-  suratList,
+  deptId, asalSurat, tujuan, tanggalTerima, isPIDept, piList, suratList,
 }: BuildCreatePayloadParams): CreateSuratPayload {
   return {
-    deptId,
-    asalSurat,
-    tujuan,
-    tanggalTerima,
-    isPIDept,
+    deptId, asalSurat, tujuan, tanggalTerima, isPIDept,
     ...(isPIDept
       ? { piList:    piList.map(({ id: _id, ...rest }) => rest) }
       : { suratList: suratList.map(({ id: _id, ...rest }) => rest) }
@@ -149,17 +120,10 @@ interface BuildUpdatePayloadParams {
 }
 
 export function buildUpdatePayload({
-  asalSurat,
-  tujuan,
-  tanggalTerima,
-  isPIDept,
-  piList,
-  suratList,
+  asalSurat, tujuan, tanggalTerima, isPIDept, piList, suratList,
 }: BuildUpdatePayloadParams): UpdateSuratPayload {
   return {
-    asalSurat,
-    tujuan,
-    tanggalTerima,
+    asalSurat, tujuan, tanggalTerima,
     ...(isPIDept
       ? { piList:    piList.map(({ id: _id, ...rest }) => rest) }
       : { suratList: suratList.map(({ id: _id, ...rest }) => rest) }
