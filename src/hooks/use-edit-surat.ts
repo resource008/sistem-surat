@@ -7,6 +7,7 @@ import { toast } from "sonner"
 import type { PIItem, SuratItem } from "@/domain/surat/types"
 import { validateSuratForm, buildUpdatePayload, formatLampiran } from "@/domain/surat/use-cases"
 import { fetchSuratById, updateSurat } from "@/domain/surat/repositories"
+import { getErrorMessage } from "@/lib/utils"
 
 // ── Local form-state type ─────────────────────────────────────────────────────
 interface FormState {
@@ -170,7 +171,7 @@ export function useEditSurat(basePath: string) {
         toast.success("Berhasil diubah")
         router.push(`${basePath}/view/${result.dept.id}/${result.id}`)
       } catch (e: unknown) {
-        toast.error((e as Error).message ?? "Terjadi kesalahan")
+        toast.error("Gagal Menyimpan", { description: getErrorMessage(e) })
       } finally {
         setSaving(false)
       }

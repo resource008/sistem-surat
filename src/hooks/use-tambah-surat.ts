@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { format } from "date-fns"
 import { toast } from "sonner"
+import { getErrorMessage } from "@/lib/utils"
 
 import type { DeptOption, PIItem, SuratItem } from "@/domain/surat/types"
 import { isPIDept, emptyPIItem, emptySuratItem } from "@/domain/surat/entities"
@@ -142,7 +143,7 @@ export function useTambahSurat(basePath: string) {
       } catch (err) {
         isNavigating.current = false
         setSaving(false)
-        toast.error("Gagal Menyimpan", { description: (err as Error).message })
+        toast.error("Gagal Menyimpan", { description: getErrorMessage(err) })
       }
     },
   }
