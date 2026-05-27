@@ -1,7 +1,4 @@
 // src/services/surat-service.ts
-//
-// Jembatan antara API routes dan domain use-cases.
-// API routes hanya boleh import dari sini — tidak langsung ke repository.
 
 import {
   getAllSurat,
@@ -15,8 +12,13 @@ import type { CreateSuratPayload, UpdateSuratPayload } from "@/domain/surat/type
 
 const repository = new SuratRepository()
 
-export function fetchAllSurat(type: string | null, ids: number[] | null) {
-  return getAllSurat(type, ids, repository)
+// ← Hanya satu fungsi fetchAllSurat, hapus yang lama
+export function fetchAllSurat(
+  type?: string | null,
+  ids?: number[] | null,
+  pagination?: { page: number; limit: number }
+) {
+  return getAllSurat(type ?? null, ids ?? null, pagination, repository)
 }
 
 export function fetchSuratById(id: number, dept: string) {
