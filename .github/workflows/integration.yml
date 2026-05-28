@@ -37,6 +37,11 @@ jobs:
       - name: 🔎 TypeScript type check
         run: npx tsc --noEmit
 
+      - name : Debug config files
+        run: |
+          ls -la | grep next.config
+          find . -name "next.config.*" -not -path "*/node_modules/*" 
+          
       - name: 🏗️ Build Next.js
         run: npm run build
 
