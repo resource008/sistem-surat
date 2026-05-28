@@ -21,8 +21,13 @@ export function MobileList({ registers, showPI, selectedIds, basePath, actions }
             <span className="text-[11px] text-slate-400 dark:text-slate-500 shrink-0">{reg.dept.shortName}</span>
           </div>
 
-          <div className={showPI && ((reg as any).detailPI ?? []).length > 1 || !showPI && reg.detailSurat.length > 1 ? "rounded-lg border border-slate-100 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800 overflow-hidden" : ""}>
-            {(showPI ? ((reg as any).detailPI ?? []) : reg.detailSurat).map((detail: any) => (
+          <div className={
+            (showPI && ((reg as any).detailPI ?? []).length > 1) ||
+            (!showPI && (reg.detailSurat ?? []).length > 1)
+              ? "rounded-lg border border-slate-100 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800 overflow-hidden"
+              : ""
+          }>
+            {(showPI ? ((reg as any).detailPI ?? []) : (reg.detailSurat ?? [])).map((detail: any) => (
               <div
                 key={detail.id}
                 onClick={() => router.push(`${basePath}/view/${reg.deptId}/${reg.id}`)}

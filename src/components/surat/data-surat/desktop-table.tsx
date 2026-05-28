@@ -32,7 +32,7 @@ export function DesktopTable({ registers, showPI, selectedIds, basePath, actions
         <TableBody>
           {registers.map((reg: any, regIdx: number) => {
             const isLastReg = regIdx === registers.length - 1
-            const details = showPI ? (reg.detailPI ?? []) : reg.detailSurat
+            const details = showPI ? (reg.detailPI ?? []) : (reg.detailSurat ?? [])
             if (details.length === 0) return null
 
             return details.map((detail: any, idx: number) => {

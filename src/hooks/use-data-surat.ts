@@ -34,13 +34,14 @@ function safeFormat(date: string | Date | null | undefined, fmt: string): string
 }
 
 export function useDataSurat(printPath: string) {
-  const router       = useRouter()
-  const searchParams = useSearchParams()
-  const showPI       = searchParams.get("mode") === "pi"
-  const filterDate   = searchParams.get("date")
-  const filterDepts  = useMemo(
-    () => searchParams.get("dept")?.split(",").filter(Boolean) ?? [],
-    [searchParams]
+  const router         = useRouter()
+  const searchParams   = useSearchParams()
+  const showPI         = searchParams.get("mode") === "pi"
+  const filterDate     = searchParams.get("date")
+  const filterDeptsRaw = searchParams.get("dept") ?? ""
+  const filterDepts    = useMemo(
+    () => filterDeptsRaw.split(",").filter(Boolean),
+    [filterDeptsRaw]
   )
 
   const [data,        setData]        = useState<RegisterSurat[]>([])
@@ -59,39 +60,39 @@ export function useDataSurat(printPath: string) {
     setPage(1)
     setHasMore(true)
     setLoading(true)
-  }, [showPI, filterDate, filterDepts])
+  }, [showPI, filterDate, filterDeptsRaw])
 
   const fetchPage = useCallback(async (pageNum: number, replace = false) => {
-  try {
-    const params = new URLSearchParams()
-    if (showPI) params.set("type", "pi")
-    params.set("page",  String(pageNum))
-    params.set("limit", String(LIMIT))
+    try {
+      const params = new URLSearchParams()
+      if (showPI) params.set("type", "pi")
+      params.set("page",  String(pageNum))
+      params.set("limit", String(LIMIT))
 
-    const res    = await fetch(`/api/surat?${params.toString()}`)
-    if (!res.ok) throw new Error("Gagal mengambil data")
-    const result = await res.json()
+      const res    = await fetch(`/api/surat?${params.toString()}`)
+      if (!res.ok) throw new Error("Gagal mengambil data")
+      const result = await res.json()
 
-    if (
-      typeof result === "object" &&
-      result !== null &&
-      "data" in result &&
-      Array.isArray(result.data)
-    ) {
-      const rows = result.data as RegisterSurat[]
-      setData(prev => replace ? rows : [...prev, ...rows])
-      setHasMore("hasMore" in result ? Boolean(result.hasMore) : false)
-    } else {
-      setData([])
+      if (
+        typeof result === "object" &&
+        result !== null &&
+        "data" in result &&
+        Array.isArray(result.data)
+      ) {
+        const rows = result.data as RegisterSurat[]
+        setData(prev => replace ? rows : [...prev, ...rows])
+        setHasMore("hasMore" in result ? Boolean(result.hasMore) : false)
+      } else {
+        setData([])
+        setHasMore(false)
+      }
+    } catch {
       setHasMore(false)
+    } finally {
+      setLoading(false)
+      setLoadingMore(false)
     }
-  } catch {
-    setHasMore(false)
-  } finally {
-    setLoading(false)
-    setLoadingMore(false)
-  }
-}, [showPI])
+  }, [showPI])
 
   // Initial load
   useEffect(() => {
