@@ -1,6 +1,6 @@
 import { betterFetch } from "@better-fetch/fetch"
 import { NextRequest, NextResponse } from "next/server"
-import type { Session } from "better-auth/types"
+import { type ExtendedSession } from "@/types/auth"
 
 // ── Protected paths (Harus Login) ─────────────────────────────────
 const PROTECTED_PATHS = [
@@ -37,7 +37,7 @@ export default async function middleware(request: NextRequest) {
   if (!isProtected && !isAdminPath) return NextResponse.next()
 
   // 2. Cek session Better Auth
-  const { data: session } = await betterFetch<Session>(
+  const { data: session } = await betterFetch<ExtendedSession>(
     "/api/auth/get-session",
     {
       baseURL: request.nextUrl.origin,
@@ -53,7 +53,7 @@ export default async function middleware(request: NextRequest) {
   }
 
   // Ambil Role User
-  const role = (session as any).user?.role
+  const role = session?.user?.role
 
   // ── 4. Logika RBAC (Role-Based Access Control) ──────────────────
 

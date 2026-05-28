@@ -1,26 +1,36 @@
 "use client"
 
-import { fetchAllSurat } from "@/domain/surat/repositories"
 import type { RegisterSurat } from "@/types"
-import { format } from "date-fns"
-import { id } from "date-fns/locale"
+import { format, isValid } from "date-fns"
+import { id }             from "date-fns/locale"
 import { useRouter, useSearchParams } from "next/navigation"
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 
 const SESSION_KEY = "datasurat:selectedIds"
 const LIMIT = 20
 
+function isClient() { return typeof window !== "undefined" }
+
 function readSession(): Set<number> {
+  if (!isClient()) return new Set()
   try {
     const raw = sessionStorage.getItem(SESSION_KEY)
     if (!raw) return new Set()
     const parsed = JSON.parse(raw)
-    return new Set(Array.isArray(parsed) ? parsed : [])
+    if (!Array.isArray(parsed)) return new Set()
+    return new Set(parsed.filter((id): id is number => typeof id === "number"))
   } catch { return new Set() }
 }
 
 function writeSession(ids: Set<number>) {
+  if (!isClient()) return
   try { sessionStorage.setItem(SESSION_KEY, JSON.stringify(Array.from(ids))) } catch {}
+}
+
+function safeFormat(date: string | Date | null | undefined, fmt: string): string | null {
+  if (!date) return null
+  const d = new Date(date)
+  return isValid(d) ? format(d, fmt, { locale: id }) : null
 }
 
 export function useDataSurat(printPath: string) {
@@ -44,29 +54,44 @@ export function useDataSurat(printPath: string) {
   useEffect(() => { writeSession(selectedIds)     }, [selectedIds])
 
   // Reset saat filter/mode berubah
-  const filterKey = `${showPI}|${filterDate}|${filterDepts.join(",")}`
   useEffect(() => {
     setData([])
     setPage(1)
     setHasMore(true)
     setLoading(true)
-  }, [filterKey])
+  }, [showPI, filterDate, filterDepts])
 
   const fetchPage = useCallback(async (pageNum: number, replace = false) => {
-    try {
-      const type = showPI ? "pi" : undefined
-      const result = await fetchAllSurat(type, { page: pageNum, limit: LIMIT })
-      const rows = result.data as RegisterSurat[]
+  try {
+    const params = new URLSearchParams()
+    if (showPI) params.set("type", "pi")
+    params.set("page",  String(pageNum))
+    params.set("limit", String(LIMIT))
 
+    const res    = await fetch(`/api/surat?${params.toString()}`)
+    if (!res.ok) throw new Error("Gagal mengambil data")
+    const result = await res.json()
+
+    if (
+      typeof result === "object" &&
+      result !== null &&
+      "data" in result &&
+      Array.isArray(result.data)
+    ) {
+      const rows = result.data as RegisterSurat[]
       setData(prev => replace ? rows : [...prev, ...rows])
-      setHasMore(result.hasMore)
-    } catch {
+      setHasMore("hasMore" in result ? Boolean(result.hasMore) : false)
+    } else {
+      setData([])
       setHasMore(false)
-    } finally {
-      setLoading(false)
-      setLoadingMore(false)
     }
-  }, [showPI])
+  } catch {
+    setHasMore(false)
+  } finally {
+    setLoading(false)
+    setLoadingMore(false)
+  }
+}, [showPI])
 
   // Initial load
   useEffect(() => {
@@ -82,10 +107,10 @@ export function useDataSurat(printPath: string) {
     fetchPage(page)
   }, [page, fetchPage])
 
-  // Filter di client (date & dept — karena API tidak filter ini)
+  // Filter di client
   const filteredData = useMemo(() => data.filter(reg => {
     const matchDate = filterDate
-      ? format(new Date(reg.tanggalTerima), "yyyy-MM-dd") === filterDate
+      ? safeFormat(reg.tanggalTerima, "yyyy-MM-dd") === filterDate
       : true
     const matchDept = filterDepts.length > 0
       ? filterDepts.includes(reg.deptId)
@@ -95,10 +120,9 @@ export function useDataSurat(printPath: string) {
 
   const groupedData = useMemo(() => filteredData.reduce(
     (acc: Record<string, RegisterSurat[]>, reg) => {
-      const dateKey  = reg.tanggalTerima
-        ? format(new Date(reg.tanggalTerima), "dd MMMM yyyy", { locale: id }).toUpperCase()
-        : "TANPA TANGGAL"
-      const groupKey = `${dateKey}|||${reg.deptId}`
+      const formatted = safeFormat(reg.tanggalTerima, "dd MMMM yyyy")
+      const dateKey   = formatted ? formatted.toUpperCase() : "TANPA TANGGAL"
+      const groupKey  = `${dateKey}|||${reg.deptId}`
       if (!acc[groupKey]) acc[groupKey] = []
       acc[groupKey].push(reg)
       return acc
@@ -123,10 +147,13 @@ export function useDataSurat(printPath: string) {
     },
     clearSelection: () => {
       setSelectedIds(new Set())
-      try { sessionStorage.removeItem(SESSION_KEY) } catch {}
+      if (isClient()) {
+        try { sessionStorage.removeItem(SESSION_KEY) } catch {}
+      }
     },
     handlePrint: () => {
       const idsString = Array.from(selectedIds).join(",")
+      if (!isClient()) return
       if (showPI) {
         try { sessionStorage.setItem("cetak:ids:pi",  idsString) } catch {}
       } else {

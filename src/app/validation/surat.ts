@@ -50,18 +50,14 @@ export const CreateSuratSchema = z.object({
 export const UpdatePISchema = z.object({
   asalSurat:     z.string().min(1).optional(),
   tanggalTerima: z.string().optional(),
-  piList:        z.array(PIItemSchema).check(
-    z.minLength(1, "Minimal 1 invoice harus ada")
-  ),
+  piList:        z.array(PIItemSchema).min(1, "Minimal 1 invoice harus ada"),
 })
 
 export const UpdateSuratSchema = z.object({
   asalSurat:     z.string().min(1).optional(),
   tujuan:        z.string().optional(),
   tanggalTerima: z.string().optional(),
-  suratList:     z.array(SuratItemSchema).check(
-    z.minLength(1, "Minimal 1 surat harus ada")
-  ),
+  suratList:     z.array(SuratItemSchema).min(1, "Minimal 1 surat harus ada"),
 })
 
 // ─── Inferred types ───────────────────────────────────────────────────────────

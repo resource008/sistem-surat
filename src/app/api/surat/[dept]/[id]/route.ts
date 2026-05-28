@@ -1,11 +1,10 @@
-// src/app/api/surat/[dept]/[id]/route.ts
-
 import { NextRequest, NextResponse } from "next/server"
 import { headers } from "next/headers"
 import { auth } from "@/infrastructure/auth/better-auth"
 import { fetchSuratById, editSurat, removeSurat } from "@/services/surat-service"
 import { isPIDept } from "@/domain/surat/entities"
 import { UpdatePISchema, UpdateSuratSchema } from "@/app/validation/surat"
+import { Prisma } from "@/generated/prisma"
 
 type Params = { params: Promise<{ dept: string; id: string }> }
 
@@ -69,25 +68,23 @@ export async function PATCH(req: NextRequest, { params }: Params) {
       return NextResponse.json({ error: "Body tidak valid" }, { status: 400 })
     }
 
-    // Pilih schema sesuai dept
     const schema = isPIDept(dept) ? UpdatePISchema : UpdateSuratSchema
     const result = schema.safeParse(body)
     if (!result.success) {
-      return NextResponse.json(
-        { error: result.error.flatten() },
-        { status: 422 }
-      )
+      return NextResponse.json({ error: result.error.flatten() }, { status: 422 })
     }
 
     const updated = await editSurat(numId, dept, result.data)
     return NextResponse.json(updated)
 
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      console.error("PATCH /api/surat/[dept]/[id]:", error.message)
-      if ((error as any).code === "P2025") {
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === "P2025") {
         return NextResponse.json({ error: "Data tidak ditemukan" }, { status: 404 })
       }
+    }
+    if (error instanceof Error) {
+      console.error("PATCH /api/surat/[dept]/[id]:", error.message)
     }
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
   }
@@ -111,12 +108,14 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
     await removeSurat(numId, dept)
     return NextResponse.json({ success: true })
 
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      console.error("DELETE /api/surat/[dept]/[id]:", error.message)
-      if ((error as any).code === "P2025") {
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === "P2025") {
         return NextResponse.json({ error: "Data tidak ditemukan" }, { status: 404 })
       }
+    }
+    if (error instanceof Error) {
+      console.error("DELETE /api/surat/[dept]/[id]:", error.message)
     }
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
   }

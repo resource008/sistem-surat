@@ -70,7 +70,7 @@ export default function LoginPage() {
     })
 
     try {
-      await fetch("/api/me/login-activity", {
+      await fetch("/api/login-activity", {
         method: "POST",
       })
     } catch {

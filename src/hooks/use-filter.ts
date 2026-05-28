@@ -1,51 +1,61 @@
 import { useState, useEffect, useRef, useCallback } from "react"
 import { useRouter, useSearchParams }               from "next/navigation"
-import { format }                                   from "date-fns"
+import { format, isValid }                          from "date-fns"
 
 type Filters = { date: string | null; departments: string[] }
+
+function parseDate(str: string | null): Date | undefined {
+  if (!str) return undefined
+  const d = new Date(str)
+  return isValid(d) ? d : undefined
+}
 
 export function useFilter(
   onFilterChange?: (f: Filters) => void,
   initialFilters?: Filters,
 ) {
-  const router        = useRouter()
-  const searchParams  = useSearchParams()
-  const isFirstRender = useRef(true)
+  const router       = useRouter()
+  const searchParams = useSearchParams()
+
+  const isFirstRender    = useRef(true)
+  const onFilterChangeRef = useRef(onFilterChange)
+
+  // Selalu update ref tanpa trigger re-render
+  useEffect(() => {
+    onFilterChangeRef.current = onFilterChange
+  }, [onFilterChange])
 
   // ── Init: URL params > initialFilters > kosong ────────────────────────
   const [date, setDateState] = useState<Date | undefined>(() => {
     const urlDate = searchParams.get("date")
-    if (urlDate)              return new Date(urlDate)
-    if (initialFilters?.date) return new Date(initialFilters.date)
+    if (urlDate)              return parseDate(urlDate)
+    if (initialFilters?.date) return parseDate(initialFilters.date)
     return undefined
   })
 
   const [selectedDepts, setSelectedDepts] = useState<string[]>(() => {
     const urlDept = searchParams.get("dept")
-    if (urlDept) return urlDept.split(",")
+    if (urlDept) return urlDept.split(",").filter(Boolean)
     return initialFilters?.departments ?? []
   })
 
-  // ── Sync ketika parent clear filter (tombol Bersihkan) ────────────────
+  // ── Sync ketika parent clear filter ───────────────────────────────────
+  const initialDate  = initialFilters?.date
+  const initialDepts = initialFilters?.departments?.join(",") ?? ""
+
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false
       return
     }
 
-    const isEmpty =
-      !initialFilters?.date &&
-      (initialFilters?.departments?.length ?? 0) === 0
-
+    const isEmpty = !initialDate && initialDepts === ""
     if (isEmpty) {
       setDateState(undefined)
       setSelectedDepts([])
       router.push("?", { scroll: false })
     }
-  }, [
-    initialFilters?.date,
-    initialFilters?.departments?.join(","),
-  ])
+  }, [initialDate, initialDepts, router])
 
   // ── Update URL + notify parent ────────────────────────────────────────
   useEffect(() => {
@@ -54,11 +64,11 @@ export function useFilter(
     if (selectedDepts.length > 0) params.set("dept", selectedDepts.join(","))
 
     router.push(`?${params.toString()}`, { scroll: false })
-    onFilterChange?.({
-      date        : date ? format(date, "yyyy-MM-dd") : null,
-      departments : selectedDepts,
+    onFilterChangeRef.current?.({
+      date:        date ? format(date, "yyyy-MM-dd") : null,
+      departments: selectedDepts,
     })
-  }, [date, selectedDepts])
+  }, [date, selectedDepts, router])
 
   // ── Actions ───────────────────────────────────────────────────────────
   const setDate = useCallback((val: Date | undefined) => {
@@ -75,9 +85,9 @@ export function useFilter(
     setDateState(undefined)
     setSelectedDepts([])
     router.push("?", { scroll: false })
-    onFilterChange?.({ date: null, departments: [] })
+    onFilterChangeRef.current?.({ date: null, departments: [] })
     onDone?.()
-  }, [])
+  }, [router])
 
   const hasFilter = !!date || selectedDepts.length > 0
 

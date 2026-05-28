@@ -4,6 +4,7 @@ import {
   TipeWaktuStatistik,
 } from "@/domain/admin-dashboard/types"
 import { PrismaAdminDashboardRepository } from "@/infrastructure/repositories/admin-dashboard-repositories"
+import { AppError } from "@/lib/errors"
 
 const repository = new PrismaAdminDashboardRepository()
 
@@ -25,7 +26,7 @@ function buildStatistikFilter(searchParams: URLSearchParams): StatistikFilter {
   const deptId = searchParams.get("deptId")
 
   if (!deptId) {
-    throw new Error("BAD_REQUEST: deptId wajib diisi")
+    throw new AppError(400, "deptId wajib diisi")
   }
 
   return {

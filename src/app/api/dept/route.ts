@@ -1,13 +1,15 @@
-// src/app/api/dept/route.ts
-
-import { NextResponse } from "next/server"
-import { headers } from "next/headers"
-import { auth } from "@/infrastructure/auth/better-auth"
-import { fetchDepartemen } from "@/services/departemen-service"
+import { NextResponse }        from "next/server"
+import { headers }             from "next/headers"
+import { auth }                from "@/infrastructure/auth/better-auth"
+import { fetchDepartemen }     from "@/services/departemen-service"
+import type { ExtendedSession } from "@/types/auth"
 
 export async function GET() {
   try {
-    const session = await auth.api.getSession({ headers: await headers() })
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    }) as ExtendedSession | null
+
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }

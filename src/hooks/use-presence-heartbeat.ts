@@ -5,11 +5,11 @@ import { useEffect } from "react"
 const HEARTBEAT_INTERVAL_MS = 15_000
 
 function sendPresenceHeartbeat() {
-  void fetch("/api/me/login-activity", {
+  void fetch("/api/login-activity", {
     method: "POST",
     keepalive: true,
   }).catch(() => {
-    // Status kehadiran tidak boleh mengganggu alur utama pengguna.
+
   })
 }
 
