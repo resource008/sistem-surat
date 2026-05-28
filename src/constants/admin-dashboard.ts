@@ -29,4 +29,4 @@ export const ACTIVITY_CARD_STYLES = [
     iconBg:    "bg-pink-600/30",
     iconColor: "text-white",
   },
-]
+] as const

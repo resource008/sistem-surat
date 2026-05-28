@@ -1,8 +1,7 @@
-import { headers } from "next/headers"
+import { headers }      from "next/headers"
 import { NextResponse } from "next/server"
-
-import { auth } from "@/infrastructure/auth/better-auth"
-import { prisma } from "@/infrastructure/databases/prisma-client"
+import { auth }         from "@/infrastructure/auth/better-auth"
+import { prisma }       from "@/infrastructure/databases/prisma-client"
 
 export async function POST() {
   try {
@@ -19,17 +18,18 @@ export async function POST() {
     await prisma.$transaction([
       prisma.user.update({
         where: { id: session.user.id },
-        data: { lastLoginAt: now },
+        data : { lastLoginAt: now },
       }),
       prisma.session.update({
         where: { token: session.session.token },
-        data: { updatedAt: now },
+        data : { updatedAt: now },
       }),
     ])
 
     return NextResponse.json({ ok: true })
   } catch (error) {
-    console.error("POST /api/me/login-activity:", error)
+    const message = error instanceof Error ? error.message : "Unknown error"
+    console.error("POST /api/login-activity:", message)
 
     return NextResponse.json(
       { error: "Gagal mencatat aktivitas login" },

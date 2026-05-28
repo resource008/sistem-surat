@@ -1,8 +1,12 @@
-import { NextRequest, NextResponse } from "next/server"
-import { headers } from "next/headers"
-import { auth } from "@/infrastructure/auth/better-auth"
-import { fetchAllSurat, saveSurat } from "@/services/surat-service"
-import { CreateSuratSchema } from "@/app/validation/surat"
+import { NextRequest, NextResponse }  from "next/server"
+import { headers }                    from "next/headers"
+import { auth }                       from "@/infrastructure/auth/better-auth"
+import { fetchAllSurat, saveSurat }   from "@/services/surat-service"
+import { CreateSuratSchema }          from "@/app/validation/surat"
+import { AppError }                   from "@/lib/errors"
+import { Prisma }                     from "@/generated/prisma"
+
+const MAX_IDS = 100
 
 export async function GET(req: NextRequest) {
   try {
@@ -11,7 +15,12 @@ export async function GET(req: NextRequest) {
 
     const type     = req.nextUrl.searchParams.get("type")
     const idsParam = req.nextUrl.searchParams.get("ids")
-    const ids      = idsParam?.split(",").map(Number).filter(Boolean) ?? null
+    const ids      = idsParam
+      ?.split(",")
+      .map(Number)
+      .filter((id) => Number.isInteger(id) && id > 0)
+      .slice(0, MAX_IDS) ?? null
+
     const pageRaw  = req.nextUrl.searchParams.get("page")
     const limitRaw = req.nextUrl.searchParams.get("limit")
     const pagination = pageRaw
@@ -48,16 +57,22 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(created, { status: 201 })
 
   } catch (error) {
+    if (error instanceof AppError) {
+      return NextResponse.json({ error: error.message }, { status: error.status })
+    }
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      const prismaErrors: Record<string, { message: string; status: number }> = {
+        P2002: { message: "Nomor sudah ada",            status: 409 },
+        P2003: { message: "Foreign key tidak valid",    status: 400 },
+        P2025: { message: "Data tidak ditemukan",       status: 404 },
+      }
+      const matched = prismaErrors[error.code]
+      if (matched) {
+        return NextResponse.json({ error: matched.message }, { status: matched.status })
+      }
+    }
     if (error instanceof Error) {
       console.error("POST /api/surat:", error.message)
-      if (error.message.startsWith("NOT_FOUND"))
-        return NextResponse.json({ error: error.message.replace("NOT_FOUND: ", "") }, { status: 404 })
-      if (error.message.startsWith("BAD_REQUEST"))
-        return NextResponse.json({ error: error.message.replace("BAD_REQUEST: ", "") }, { status: 400 })
-      const code = (error as any).code
-      if (code === "P2002") return NextResponse.json({ error: "Nomor sudah ada" }, { status: 409 })
-      if (code === "P2003") return NextResponse.json({ error: "Foreign key tidak valid" }, { status: 400 })
-      if (code === "P2025") return NextResponse.json({ error: "Data tidak ditemukan" }, { status: 404 })
     }
     return NextResponse.json({ error: "Gagal menyimpan data" }, { status: 500 })
   }

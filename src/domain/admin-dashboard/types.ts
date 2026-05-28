@@ -57,5 +57,3 @@ export interface DashboardStatsResult {
   statistikSurat: StatistikSurat
   riwayatAktivitasPengguna: RiwayatAktivitasPengguna[]
 }
-
-export type StatsData = DashboardStatsResult

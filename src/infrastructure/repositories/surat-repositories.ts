@@ -1,5 +1,7 @@
 import { prisma } from "@/infrastructure/databases/prisma-client"
 import { isPIDept } from "@/domain/surat/entities"
+import { Prisma } from "@/generated/prisma"
+import { AppError } from "@/lib/errors"
 import type { ISuratRepository } from "@/domain/surat/repositories"
 import type { CreateSuratPayload, UpdateSuratPayload } from "@/domain/surat/types"
 
@@ -66,13 +68,13 @@ export class SuratRepository implements ISuratRepository {
     const { deptId, asalSurat, tanggalTerima, tujuan, isPIDept: isPI, piList, suratList } = payload
 
     const dept = await prisma.department.findUnique({ where: { id: deptId } })
-    if (!dept) throw new Error(`NOT_FOUND: Departemen '${deptId}' tidak ditemukan`)
+    if (!dept) throw new AppError(404, `Departemen '${deptId}' tidak ditemukan`)
 
     const parsedTanggal = new Date(tanggalTerima)
-    if (isNaN(parsedTanggal.getTime())) throw new Error("BAD_REQUEST: Format tanggal tidak valid")
+    if (isNaN(parsedTanggal.getTime())) throw new AppError(400, "Format tanggal tidak valid")
 
     if (isPI) {
-      if (!piList || piList.length === 0) throw new Error("BAD_REQUEST: piList kosong")
+      if (!piList || piList.length === 0) throw new AppError(400, "piList kosong")
       return prisma.$transaction(async (tx) => {
         const nomor = await this._generateNomor(tx, deptId, true)
         return tx.registerPI.create({
@@ -97,7 +99,7 @@ export class SuratRepository implements ISuratRepository {
       })
     }
 
-    if (!suratList || suratList.length === 0) throw new Error("BAD_REQUEST: suratList kosong")
+    if (!suratList || suratList.length === 0) throw new AppError(400, "suratList kosong")
     return prisma.$transaction(async (tx) => {
       const nomor = await this._generateNomor(tx, deptId, false)
       return tx.registerSurat.create({
@@ -196,16 +198,20 @@ export class SuratRepository implements ISuratRepository {
     return String(lastNumber + 1).padStart(4, "0")
   }
 
-  private async _generateNomor(tx: any, deptId: string, isPI: boolean): Promise<string> {
+  private async _generateNomor(
+    tx: Prisma.TransactionClient,
+    deptId: string,
+    isPI: boolean
+  ): Promise<string> {
     const registers = isPI
       ? await tx.registerPI.findMany({ where: { deptId }, select: { nomor: true } })
       : await tx.registerSurat.findMany({ where: { deptId }, select: { nomor: true } })
 
-    const last = registers.reduce((max: number, r: { nomor: string }) => {
+    const last = registers.reduce((max, r) => {
       const n = parseInt(r.nomor, 10)
       return isNaN(n) ? max : Math.max(max, n)
-    }, 0)
+  }, 0)
 
-    return String(last + 1).padStart(4, "0")
+  return String(last + 1).padStart(4, "0")
   }
 }

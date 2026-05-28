@@ -1,6 +1,5 @@
-import { Role } from "@/components/surat/shared"
+import { type Role } from "@/components/surat/shared"
 
-// ─── Semua konstanta route dalam satu objek ───────────────────────
 export const routes = {
   // ── Auth ────────────────────────────────────────────────────────
   login: "/login",
@@ -21,7 +20,6 @@ export const routes = {
     index:     "/staff",
     add:       "/staff/add",
     dataSurat: "/staff/data-surat",
-    // ✅ Route cetak — dilayani (print)/staff/cetak/page.tsx
     cetak: (ids: (number | string)[]) =>
       `/staff/cetak?ids=${ids.join(",")}`,
   },
@@ -42,7 +40,7 @@ export const routes = {
 } as const
 
 // ─── Helper: redirect berdasarkan role setelah login ─────────────
-export function getRouteByRole(role: string): string {
+export function getRouteByRole(role: Role): string {
   switch (role) {
     case "ADMIN": return routes.dashboard.admin
     case "STAFF": return routes.dataSurat.staff
@@ -52,7 +50,7 @@ export function getRouteByRole(role: string): string {
 }
 
 // ─── Helper: base path berdasarkan role ──────────────────────────
-export function getBasePathByRole(role: string): string {
+export function getBasePathByRole(role: Role): string {
   switch (role) {
     case "STAFF": return routes.staff.index
     case "PKL":   return routes.pkl.index
@@ -65,7 +63,7 @@ export function getBasePathByRole(role: string): string {
 export function getCetakRoute(role: Role, ids: (number | string)[]): string {
   switch (role) {
     case "STAFF": return routes.staff.cetak(ids)
-    case "PKL":   return routes.pkl.cetak(ids)   // ← tambahkan kalau perlu
+    case "PKL":   return routes.pkl.cetak(ids)
     default:      return routes.login
   }
 }

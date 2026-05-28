@@ -1,6 +1,8 @@
 import type { ISuratRepository } from "./repositories"
 import type { CreateSuratPayload, UpdateSuratPayload, PIItem, SuratItem } from "./types"
 
+export { applyTujuanToPIList, applyTujuanToSuratList } from "@/domain/surat/entities"
+
 export async function getAllSurat(
   type:       string | null,
   ids:        number[] | null,
@@ -49,14 +51,6 @@ export function getLampiranNum(lampiran: string): string {
 export function formatLampiran(raw: string): string {
   const num = raw.replace(/\D/g, "")
   return num ? `${num} Set` : ""
-}
-
-export function applyTujuanToSuratList(list: SuratItem[], tujuan: string): SuratItem[] {
-  return list.map(s => ({ ...s, tujuan }))
-}
-
-export function applyTujuanToPIList(list: PIItem[], tujuan: string): PIItem[] {
-  return list.map(p => ({ ...p, tujuan }))
 }
 
 interface ValidateSuratFormParams {

@@ -11,7 +11,7 @@ import { routes } from "@/constants/routes"
 import { authClient } from "@/infrastructure/auth/auth-client"
 import {
   ArrowLeftCircle, ArrowRightCircle,
-  FileText, LogOut, Printer, RefreshCcw, X,
+  FileText, LogOut, Printer, RefreshCcw, X
 } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
