@@ -8,5 +8,4 @@ export type {
   RiwayatAktivitasPengguna,
   SuratPerDept,
   DashboardStatsResult,
-  StatsData,
 } from "@/domain/admin-dashboard/types"
