@@ -6,7 +6,7 @@ export function MobileList({ registers, showPI, selectedIds, basePath, actions }
   const router = useRouter()
 
   return (
-    <div className="md:hidden divide-y divide-slate-100 dark:divide-slate-800">
+    <div className="xl:hidden divide-y divide-slate-100 dark:divide-slate-800">
       {registers.map((reg: RegisterSurat) => (
         <div key={reg.id} className="px-4 py-3">
           <div className="flex items-center justify-between mb-2">
@@ -34,13 +34,13 @@ export function MobileList({ registers, showPI, selectedIds, basePath, actions }
                 className="flex items-start gap-3 px-3 py-2.5 hover:bg-blue-50/50 dark:hover:bg-blue-900/10 cursor-pointer active:bg-blue-100/50 transition-colors"
               >
                 <div className="flex-1 min-w-0">
-                  <p className="text-[13px] text-slate-700 dark:text-slate-300 leading-snug mb-1 break-all whitespace-normal">
+                  <p className="text-[13px] text-slate-700 dark:text-slate-300 leading-snug mb-1 break-words whitespace-normal">
                     {showPI ? (detail.namaSupplier ?? "-") : detail.perihal}
                   </p>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 flex-wrap">
                     <span className="text-[11px] text-slate-400 dark:text-slate-500">
                       <span className="text-slate-500 dark:text-slate-400">{showPI ? "Invoice: " : "No: "}</span>
-                      {showPI ? (detail.noInvoice ?? "-") : (detail.noSurat ?? "-")}
+                      {showPI ? (detail.noInvoice ?? "-") : (detail.nomorSurat ?? "-")}
                     </span>
                     <span className="text-[11px] text-slate-400 dark:text-slate-500">
                       <span className="text-slate-500 dark:text-slate-400">{showPI ? "No. Surat: " : "Lamp: "}</span>
@@ -48,7 +48,9 @@ export function MobileList({ registers, showPI, selectedIds, basePath, actions }
                     </span>
                   </div>
                 </div>
-                <svg className="w-4 h-4 text-slate-300 dark:text-slate-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                <svg className="w-4 h-4 text-slate-300 dark:text-slate-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
               </div>
             ))}
           </div>

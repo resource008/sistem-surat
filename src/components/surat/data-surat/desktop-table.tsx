@@ -6,22 +6,22 @@ export function DesktopTable({ registers, showPI, selectedIds, basePath, actions
   const router = useRouter()
 
   return (
-    <div className="hidden md:block overflow-x-auto">
-      <Table className="border-collapse w-full table-fixed">
+    <div className="hidden xl:block overflow-x-auto">
+      <Table className="border-collapse w-full">
         <TableHeader className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
           <TableRow className="hover:bg-transparent border-none">
             <TableHead className="w-12 border-r border-slate-200 dark:border-slate-800 p-0" />
             <TableHead className="w-36 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest px-4 border-r border-slate-200 dark:border-slate-800">Nomor Reg</TableHead>
             {showPI ? (
               <>
-                <TableHead className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest px-4 border-r border-slate-200 dark:border-slate-800">Nama Supplier</TableHead>
+                <TableHead className="min-w-[140px] text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest px-4 border-r border-slate-200 dark:border-slate-800">Nama Supplier</TableHead>
                 <TableHead className="w-36 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest px-4 border-r border-slate-200 dark:border-slate-800">No. Invoice</TableHead>
                 <TableHead className="w-40 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest px-4 border-r border-slate-200 dark:border-slate-800">No. Surat</TableHead>
                 <TableHead className="w-28 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest px-4">Tujuan</TableHead>
               </>
             ) : (
               <>
-                <TableHead className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest px-4 border-r border-slate-200 dark:border-slate-800">Perihal</TableHead>
+                <TableHead className="min-w-[140px] text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest px-4 border-r border-slate-200 dark:border-slate-800">Perihal</TableHead>
                 <TableHead className="w-28 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest px-4 border-r border-slate-200 dark:border-slate-800 text-center">Lampiran</TableHead>
                 <TableHead className="w-28 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest px-4">Tujuan</TableHead>
               </>
@@ -60,7 +60,7 @@ export function DesktopTable({ registers, showPI, selectedIds, basePath, actions
                       <span className="font-mono text-[12px] font-bold text-slate-800 dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{reg.nomor}</span>
                     </TableCell>
                   )}
-                  <TableCell className={`max-w-0 py-3 px-4 border-r border-r-slate-200 dark:border-r-slate-800 text-[13px] text-slate-600 dark:text-slate-300 font-medium leading-relaxed whitespace-normal break-all ${innerBorder}`}>
+                  <TableCell className={`py-3 px-4 border-r border-r-slate-200 dark:border-r-slate-800 text-[13px] text-slate-600 dark:text-slate-300 font-medium leading-relaxed whitespace-normal break-words min-w-[140px] ${innerBorder}`}>
                     {showPI ? (detail.namaSupplier ?? "-") : detail.perihal}
                   </TableCell>
                   <TableCell className={`py-3 px-4 border-r border-r-slate-200 dark:border-r-slate-800 text-[13px] ${showPI ? 'text-slate-500 dark:text-slate-400' : 'text-center font-medium text-slate-400 dark:text-slate-500'} ${innerBorder}`}>

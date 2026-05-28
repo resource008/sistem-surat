@@ -27,7 +27,12 @@ export async function GET(req: NextRequest) {
       ? { page: Number(pageRaw), limit: Number(limitRaw ?? 20) }
       : undefined
 
-    const data = await fetchAllSurat(type, ids, pagination)
+    // ✅ Baca parameter filter date dan dept dari URL
+    const date = req.nextUrl.searchParams.get("date") ?? null
+    const dept = req.nextUrl.searchParams.get("dept") ?? null
+    const depts = dept ? dept.split(",").filter(Boolean) : null
+
+    const data = await fetchAllSurat(type, ids, pagination, date, depts)
     return NextResponse.json(data)
 
   } catch (error) {
@@ -71,9 +76,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: matched.message }, { status: matched.status })
       }
     }
-    if (error instanceof Error) {
-      console.error("POST /api/surat:", error.message)
-    }
+    if (error instanceof Error) console.error("POST /api/surat:", error.message)
     return NextResponse.json({ error: "Gagal menyimpan data" }, { status: 500 })
   }
 }

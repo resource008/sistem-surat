@@ -4,7 +4,7 @@ import type { RegisterSurat } from "@/types"
 import { format, isValid } from "date-fns"
 import { id }             from "date-fns/locale"
 import { useRouter, useSearchParams } from "next/navigation"
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 const SESSION_KEY = "datasurat:selectedIds"
 const LIMIT = 20
@@ -34,8 +34,9 @@ function safeFormat(date: string | Date | null | undefined, fmt: string): string
 }
 
 export function useDataSurat(printPath: string) {
-  const router         = useRouter()
-  const searchParams   = useSearchParams()
+  const router       = useRouter()
+  const searchParams = useSearchParams()
+
   const showPI         = searchParams.get("mode") === "pi"
   const filterDate     = searchParams.get("date")
   const filterDeptsRaw = searchParams.get("dept") ?? ""
@@ -54,22 +55,25 @@ export function useDataSurat(printPath: string) {
   useEffect(() => { setSelectedIds(readSession()) }, [])
   useEffect(() => { writeSession(selectedIds)     }, [selectedIds])
 
-  // Reset saat filter/mode berubah
+  // ✅ Gunakan ref untuk track filter aktif — hindari stale closure di fetchPage
+  const filterRef = useRef({ showPI, filterDate, filterDeptsRaw })
   useEffect(() => {
-    setData([])
-    setPage(1)
-    setHasMore(true)
-    setLoading(true)
+    filterRef.current = { showPI, filterDate, filterDeptsRaw }
   }, [showPI, filterDate, filterDeptsRaw])
 
+  // ✅ fetchPage sekarang kirim filter ke API — bukan filter di client
   const fetchPage = useCallback(async (pageNum: number, replace = false) => {
     try {
+      const { showPI, filterDate, filterDeptsRaw } = filterRef.current
+
       const params = new URLSearchParams()
-      if (showPI) params.set("type", "pi")
+      if (showPI)        params.set("type",  "pi")
+      if (filterDate)    params.set("date",  filterDate)           // ✅ kirim ke API
+      if (filterDeptsRaw) params.set("dept", filterDeptsRaw)      // ✅ kirim ke API
       params.set("page",  String(pageNum))
       params.set("limit", String(LIMIT))
 
-      const res    = await fetch(`/api/surat?${params.toString()}`)
+      const res = await fetch(`/api/surat?${params.toString()}`)
       if (!res.ok) throw new Error("Gagal mengambil data")
       const result = await res.json()
 
@@ -92,34 +96,31 @@ export function useDataSurat(printPath: string) {
       setLoading(false)
       setLoadingMore(false)
     }
-  }, [showPI])
+  }, []) // ✅ tidak ada dependency — pakai ref agar tidak re-create
 
-  // Initial load
+  // ✅ Reset + fetch ulang dari page 1 setiap kali filter berubah
+  // Digabung dalam satu effect agar tidak ada race condition
   useEffect(() => {
+    setData([])
+    setPage(1)
+    setHasMore(true)
+    setLoading(true)
     fetchPage(1, true)
+
     window.dispatchEvent(new CustomEvent("breadcrumb:sub",    { detail: null }))
     window.dispatchEvent(new CustomEvent("breadcrumb:subsub", { detail: null }))
-  }, [fetchPage])
+  }, [showPI, filterDate, filterDeptsRaw, fetchPage])
 
-  // Load more saat page bertambah
+  // Load more saat page bertambah (bukan page 1 — sudah ditangani effect atas)
   useEffect(() => {
     if (page === 1) return
     setLoadingMore(true)
     fetchPage(page)
   }, [page, fetchPage])
 
-  // Filter di client
-  const filteredData = useMemo(() => data.filter(reg => {
-    const matchDate = filterDate
-      ? safeFormat(reg.tanggalTerima, "yyyy-MM-dd") === filterDate
-      : true
-    const matchDept = filterDepts.length > 0
-      ? filterDepts.includes(reg.deptId)
-      : true
-    return matchDate && matchDept
-  }), [data, filterDate, filterDepts])
-
-  const groupedData = useMemo(() => filteredData.reduce(
+  // ✅ groupedData & sortedGroupKeys langsung dari data (tidak perlu filteredData lagi
+  //    karena filter sudah dilakukan di server/API)
+  const groupedData = useMemo(() => data.reduce(
     (acc: Record<string, RegisterSurat[]>, reg) => {
       const formatted = safeFormat(reg.tanggalTerima, "dd MMMM yyyy")
       const dateKey   = formatted ? formatted.toUpperCase() : "TANPA TANGGAL"
@@ -128,7 +129,7 @@ export function useDataSurat(printPath: string) {
       acc[groupKey].push(reg)
       return acc
     }, {}
-  ), [filteredData])
+  ), [data])
 
   const sortedGroupKeys = useMemo(() =>
     Object.keys(groupedData).sort((a, b) => {
@@ -171,7 +172,8 @@ export function useDataSurat(printPath: string) {
     state: {
       loading, loadingMore, hasMore, showPI,
       filterDate, filterDepts,
-      filteredData, groupedData, sortedGroupKeys, selectedIds,
+      filteredData: data,   // ✅ tidak perlu filteredData terpisah lagi
+      groupedData, sortedGroupKeys, selectedIds,
     },
     actions,
   }

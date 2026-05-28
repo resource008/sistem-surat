@@ -1,29 +1,31 @@
-import type { ISuratRepository } from "./repositories"
+import type { ISuratRepository, SuratResult, PaginatedResult } from "./repositories"
 import type { CreateSuratPayload, UpdateSuratPayload, PIItem, SuratItem } from "./types"
 
 export { applyTujuanToPIList, applyTujuanToSuratList } from "@/domain/surat/entities"
 
 export async function getAllSurat(
-  type:       string | null,
-  ids:        number[] | null,
-  pagination: { page: number; limit: number } | undefined,
-  repository: ISuratRepository,
-) {
-  return repository.findAll(type, ids, pagination)
+  type:        string | null,
+  ids:         number[] | null,
+  pagination:  { page: number; limit: number } | undefined,
+  repository:  ISuratRepository,
+  date?:       string | null,
+  depts?:      string[] | null,
+): Promise<SuratResult[] | PaginatedResult<SuratResult>> {
+  return repository.findAll(type, ids, pagination, date, depts)
 }
 
 export async function getSuratById(
   id:         number,
   dept:       string,
   repository: ISuratRepository,
-) {
+): Promise<SuratResult | null> {
   return repository.findByIdAndDept(id, dept)
 }
 
 export async function createSurat(
   payload:    CreateSuratPayload,
   repository: ISuratRepository,
-) {
+): Promise<SuratResult> {
   return repository.create(payload)
 }
 
@@ -32,7 +34,7 @@ export async function updateSurat(
   dept:       string,
   payload:    UpdateSuratPayload,
   repository: ISuratRepository,
-) {
+): Promise<SuratResult> {
   return repository.update(id, dept, payload)
 }
 
@@ -40,7 +42,7 @@ export async function deleteSurat(
   id:         number,
   dept:       string,
   repository: ISuratRepository,
-) {
+): Promise<void> {
   return repository.delete(id, dept)
 }
 
