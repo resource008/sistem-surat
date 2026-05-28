@@ -9,7 +9,6 @@ import {
   buildUpdatePayload,
   formatLampiran,
 }                                      from "@/domain/surat/use-cases"
-import { fetchSuratById, editSurat }   from "@/services/surat-service"
 import { emptyPIItem, emptySuratItem } from "@/domain/surat/entities"
 import { getErrorMessage }             from "@/lib/utils"
 
@@ -46,7 +45,11 @@ export function useEditSurat(basePath: string) {
 
   // ── Fetch Data ──────────────────────────────────────────────────────────────
   useEffect(() => {
-    fetchSuratById(Number(id), dept)
+    fetch(`/api/surat/${dept}/${id}`)
+      .then(async (res) => {
+        if (!res.ok) throw new Error("Gagal mengambil data")
+        return res.json()
+      })
       .then((data: unknown) => {
         if (!data) {
           setError("Data tidak ditemukan")
@@ -151,7 +154,15 @@ export function useEditSurat(basePath: string) {
           suratList,
         })
 
-        const result = await editSurat(Number(id), dept, payload) as RegisterSurat | RegisterPI
+        const res = await fetch(`/api/surat/${dept}/${id}`, {
+          method:  "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body:    JSON.stringify(payload),
+        })
+
+        if (!res.ok) throw new Error("Gagal menyimpan")
+        const result = await res.json() as RegisterSurat | RegisterPI
+
         toast.success("Berhasil diubah")
         router.push(`${basePath}/view/${result.dept.id}/${result.id}`)
       } catch (e: unknown) {

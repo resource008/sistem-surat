@@ -1,6 +1,5 @@
 "use client"
 
-import { fetchAllSurat }  from "@/services/surat-service"
 import type { RegisterSurat } from "@/types"
 import { format, isValid } from "date-fns"
 import { id }             from "date-fns/locale"
@@ -63,30 +62,36 @@ export function useDataSurat(printPath: string) {
   }, [showPI, filterDate, filterDepts])
 
   const fetchPage = useCallback(async (pageNum: number, replace = false) => {
-    try {
-      const type   = showPI ? "pi" : undefined
-      const result = await fetchAllSurat(type, undefined, { page: pageNum, limit: LIMIT })
+  try {
+    const params = new URLSearchParams()
+    if (showPI) params.set("type", "pi")
+    params.set("page",  String(pageNum))
+    params.set("limit", String(LIMIT))
 
-      if (
-        typeof result === "object" &&
-        result !== null &&
-        "data" in result &&
-        Array.isArray(result.data)
-      ) {
-        const rows = result.data as RegisterSurat[]
-        setData(prev => replace ? rows : [...prev, ...rows])
-        setHasMore("hasMore" in result ? Boolean(result.hasMore) : false)
-      } else {
-        setData([])
-        setHasMore(false)
-      }
-    } catch {
+    const res    = await fetch(`/api/surat?${params.toString()}`)
+    if (!res.ok) throw new Error("Gagal mengambil data")
+    const result = await res.json()
+
+    if (
+      typeof result === "object" &&
+      result !== null &&
+      "data" in result &&
+      Array.isArray(result.data)
+    ) {
+      const rows = result.data as RegisterSurat[]
+      setData(prev => replace ? rows : [...prev, ...rows])
+      setHasMore("hasMore" in result ? Boolean(result.hasMore) : false)
+    } else {
+      setData([])
       setHasMore(false)
-    } finally {
-      setLoading(false)
-      setLoadingMore(false)
     }
-  }, [showPI])
+  } catch {
+    setHasMore(false)
+  } finally {
+    setLoading(false)
+    setLoadingMore(false)
+  }
+}, [showPI])
 
   // Initial load
   useEffect(() => {
