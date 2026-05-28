@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react"
-import { useRouter, useSearchParams }               from "next/navigation"
+import { useSearchParams }                          from "next/navigation"
 import { format, isValid }                          from "date-fns"
 
 type Filters = { date: string | null; departments: string[] }
@@ -10,17 +10,33 @@ function parseDate(str: string | null): Date | undefined {
   return isValid(d) ? d : undefined
 }
 
+// ── Custom debounce hook ──────────────────────────────────────────────────
+function useDebounce<T>(value: T, delay: number, skip?: boolean): T {
+  const [debounced, setDebounced] = useState(value)
+
+  useEffect(() => {
+    // Skip debounce saat reset agar langsung trigger tanpa tunggu delay
+    if (skip) {
+      setDebounced(value)
+      return
+    }
+    const timer = setTimeout(() => setDebounced(value), delay)
+    return () => clearTimeout(timer)
+  }, [value, delay, skip])
+
+  return debounced
+}
+
 export function useFilter(
   onFilterChange?: (f: Filters) => void,
   initialFilters?: Filters,
 ) {
-  const router       = useRouter()
   const searchParams = useSearchParams()
 
-  const isFirstRender    = useRef(true)
   const onFilterChangeRef = useRef(onFilterChange)
+  const isMounted         = useRef(false)
+  const isResetting       = useRef(false)
 
-  // Selalu update ref tanpa trigger re-render
   useEffect(() => {
     onFilterChangeRef.current = onFilterChange
   }, [onFilterChange])
@@ -39,55 +55,76 @@ export function useFilter(
     return initialFilters?.departments ?? []
   })
 
-  // ── Sync ketika parent clear filter ───────────────────────────────────
-  const initialDate  = initialFilters?.date
-  const initialDepts = initialFilters?.departments?.join(",") ?? ""
+  // ── Debounce: tunda URL update + API call 400ms setelah user berhenti ──
+  // skip=true saat reset agar langsung update tanpa tunggu debounce
+  const debouncedDate  = useDebounce(date, 400, isResetting.current)
+  const debouncedDepts = useDebounce(selectedDepts, 400, isResetting.current)
+
+  // ── Sync ketika parent clear filter ──────────────────────────────────
+  const prevInitialRef = useRef({
+    date:  initialFilters?.date,
+    depts: initialFilters?.departments,
+  })
 
   useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false
-      return
-    }
+    const prev    = prevInitialRef.current
+    const isEmpty = !initialFilters?.date && !initialFilters?.departments?.length
 
-    const isEmpty = !initialDate && initialDepts === ""
-    if (isEmpty) {
+    if (isEmpty && (prev.date || prev.depts?.length)) {
+      isResetting.current = true
       setDateState(undefined)
       setSelectedDepts([])
-      router.push("?", { scroll: false })
     }
-  }, [initialDate, initialDepts, router])
+
+    prevInitialRef.current = {
+      date:  initialFilters?.date,
+      depts: initialFilters?.departments,
+    }
+  }, [initialFilters?.date, initialFilters?.departments])
 
   // ── Update URL + notify parent ────────────────────────────────────────
   useEffect(() => {
-    const params = new URLSearchParams()
-    if (date)                     params.set("date", format(date, "yyyy-MM-dd"))
-    if (selectedDepts.length > 0) params.set("dept", selectedDepts.join(","))
+    if (!isMounted.current) {
+      isMounted.current = true
+      return
+    }
 
-    router.push(`?${params.toString()}`, { scroll: false })
+    const params = new URLSearchParams()
+    if (debouncedDate)             params.set("date", format(debouncedDate, "yyyy-MM-dd"))
+    if (debouncedDepts.length > 0) params.set("dept", debouncedDepts.join(","))
+
+    // ✅ replaceState: update URL tanpa trigger RSC re-render dari Next.js
+    // Sebelumnya router.push() → Next.js kirim request RSC ke server → lambat
+    window.history.replaceState(null, "", `?${params.toString()}`)
+
     onFilterChangeRef.current?.({
-      date:        date ? format(date, "yyyy-MM-dd") : null,
-      departments: selectedDepts,
+      date:        debouncedDate ? format(debouncedDate, "yyyy-MM-dd") : null,
+      departments: debouncedDepts,
     })
-  }, [date, selectedDepts, router])
+
+    // Reset flag setelah URL dan notify selesai
+    isResetting.current = false
+  }, [debouncedDate, debouncedDepts])
 
   // ── Actions ───────────────────────────────────────────────────────────
   const setDate = useCallback((val: Date | undefined) => {
+    isResetting.current = false
     setDateState(val)
   }, [])
 
   const toggleDept = useCallback((dept: string) => {
+    isResetting.current = false
     setSelectedDepts((prev) =>
       prev.includes(dept) ? prev.filter((d) => d !== dept) : [...prev, dept]
     )
   }, [])
 
   const reset = useCallback((onDone?: () => void) => {
+    isResetting.current = true  // bypass debounce → langsung update
     setDateState(undefined)
     setSelectedDepts([])
-    router.push("?", { scroll: false })
-    onFilterChangeRef.current?.({ date: null, departments: [] })
     onDone?.()
-  }, [router])
+  }, [])
 
   const hasFilter = !!date || selectedDepts.length > 0
 
