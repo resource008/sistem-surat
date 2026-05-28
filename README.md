@@ -316,17 +316,17 @@ Endpoint autentikasi dikelola oleh **Better Auth**. Mencakup login, logout, dan 
 
 ## Ringkasan
 
-| Method   | Endpoint                      | Keterangan                        | Role        |
-|----------|-------------------------------|-----------------------------------|-------------|
-| `GET`    | `/api/surat`                  | Ambil semua surat                 | Semua       |
-| `POST`   | `/api/surat`                  | Buat surat baru                   | Semua       |
-| `GET`    | `/api/surat/[dept]/[id]`      | Ambil satu surat                  | Semua       |
-| `PATCH`  | `/api/surat/[dept]/[id]`      | Edit surat                        | Semua       |
-| `DELETE` | `/api/surat/[dept]/[id]`      | Hapus surat                       | Semua       |
-| `GET`    | `/api/surat/preview-nomor`    | Preview nomor berikutnya          | Semua       |
-| `GET`    | `/api/cetak/all`              | Data cetak RegisterSurat          | Semua       |
-| `GET`    | `/api/cetak/pi`               | Data cetak RegisterPI             | Semua       |
-| `GET`    | `/api/dept`                   | Ambil semua departemen            | Semua       |
-| `POST`   | `/api/users`                  | Buat user baru                    | ADMIN only  |
-| `GET`    | `/api/admin/stats`            | Statistik dashboard admin         | ADMIN only  |
-| `POST`   | `/api/login-activity`         | Catat aktivitas login             | Semua       |
+| Method   | Endpoint                      | Keterangan                        | Role           |
+|----------|-------------------------------|-----------------------------------|----------------|
+| `GET`    | `/api/surat`                  | Ambil semua surat                 | PKL and Staff  |
+| `POST`   | `/api/surat`                  | Buat surat baru                   | PKL and Staff  |
+| `GET`    | `/api/surat/[dept]/[id]`      | Ambil satu surat                  | PKL and Staff  |
+| `PATCH`  | `/api/surat/[dept]/[id]`      | Edit surat                        | PKL and Staff  |
+| `DELETE` | `/api/surat/[dept]/[id]`      | Hapus surat                       | PKL and Staff  |
+| `GET`    | `/api/surat/preview-nomor`    | Preview nomor berikutnya          | PKL and Staff  |
+| `GET`    | `/api/cetak/all`              | Data cetak RegisterSurat          | PKL and Staff  |
+| `GET`    | `/api/cetak/pi`               | Data cetak RegisterPI             | PKL and Staff  |
+| `GET`    | `/api/dept`                   | Ambil semua departemen            | PKL and Staff  |
+| `POST`   | `/api/users`                  | Buat user baru                    | ADMIN only     |
+| `GET`    | `/api/admin/stats`            | Statistik dashboard admin         | ADMIN only     |
+| `POST`   | `/api/login-activity`         | Catat aktivitas login             | ADMIN only     |
