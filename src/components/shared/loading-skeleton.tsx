@@ -9,13 +9,13 @@ export interface DataSuratSkeletonGroup {
 }
 
 export interface DataSuratSkeletonProps {
-  groups?: DataSuratSkeletonGroup[]
+  groups?:   DataSuratSkeletonGroup[]
   fullPage?: boolean
   className?: string
 }
 
 export interface LoadingSkeletonProps {
-  type?: "table" | "form"
+  type?:     "table" | "form"
   className?: string
 }
 
@@ -31,18 +31,15 @@ const DEFAULT_GROUPS: DataSuratSkeletonGroup[] = [
 ]
 
 // ---------------------------------------------------------------------------
-// Style helpers — semua warna pakai CSS variable, otomatis ikut tema
+// Color tokens — light: slate-200/300, dark: white/5 white/10
+// Ganti semua bg-white/xx dan bg-[#0d1526] ke semantic classes
 // ---------------------------------------------------------------------------
 
-const sk: Record<string, React.CSSProperties> = {
-  base:    { background: "var(--sk-base)"     },
-  subtle:  { background: "var(--sk-subtle)"   },
-  badge:   { background: "var(--sk-badge)"    },
-  card:    { background: "var(--sk-card)"     },
-  border:  { borderColor: "var(--sk-border)"  },
-  divider: { borderColor: "var(--sk-divider)" },
-  page:    { background: "var(--sk-page)"     },
-}
+// bg kartu    → light: bg-white           dark: dark:bg-slate-900
+// border      → light: border-slate-200   dark: dark:border-slate-800
+// skeleton    → light: bg-slate-200       dark: dark:bg-slate-700
+// skeleton dim→ light: bg-slate-100       dark: dark:bg-slate-800
+// badge blue  → light: bg-blue-100        dark: dark:bg-blue-900/30
 
 // ---------------------------------------------------------------------------
 // Table skeleton internals
@@ -50,26 +47,29 @@ const sk: Record<string, React.CSSProperties> = {
 
 function RowSkeleton({ isFirst, index }: { isFirst: boolean; index: number }) {
   const perihalWidths = ["55%", "70%", "48%", "62%", "75%", "53%"]
-  const perihalWidth = perihalWidths[index % perihalWidths.length]
+  const perihalWidth  = perihalWidths[index % perihalWidths.length]
 
   return (
-    <div className="flex items-center gap-3 px-4 py-3 border-t" style={sk.divider}>
-      <Skeleton className="h-4 w-4 rounded shrink-0" style={sk.base} />
+    <div className="flex items-center gap-3 px-4 py-3 border-t border-slate-100 dark:border-slate-800">
+      <Skeleton className="h-4 w-4 rounded shrink-0 bg-slate-200 dark:bg-slate-700" />
 
       <div className="w-[100px] shrink-0">
-        {isFirst && <Skeleton className="h-4 w-12 rounded" style={sk.base} />}
+        {isFirst && <Skeleton className="h-4 w-12 bg-slate-200 dark:bg-slate-700 rounded" />}
       </div>
 
       <div className="flex-1">
-        <Skeleton className="h-4 rounded" style={{ ...sk.base, width: perihalWidth }} />
+        <Skeleton
+          className="h-4 bg-slate-200 dark:bg-slate-700 rounded"
+          style={{ width: perihalWidth }}
+        />
       </div>
 
       <div className="w-[120px] shrink-0 flex justify-end">
-        <Skeleton className="h-4 w-16 rounded" style={sk.base} />
+        <Skeleton className="h-4 w-16 bg-slate-200 dark:bg-slate-700 rounded" />
       </div>
 
       <div className="w-[80px] shrink-0 flex justify-end">
-        <Skeleton className="h-4 w-10 rounded" style={sk.base} />
+        <Skeleton className="h-4 w-10 bg-slate-200 dark:bg-slate-700 rounded" />
       </div>
     </div>
   )
@@ -80,42 +80,43 @@ function ColumnHeaderSkeleton() {
     <div className="flex items-center gap-3 px-4 py-2">
       <div className="w-4 shrink-0" />
       <div className="w-[100px] shrink-0">
-        <Skeleton className="h-3 w-20 rounded" style={sk.subtle} />
+        <Skeleton className="h-3 w-20 bg-slate-100 dark:bg-slate-800 rounded" />
       </div>
       <div className="flex-1">
-        <Skeleton className="h-3 w-14 rounded" style={sk.subtle} />
+        <Skeleton className="h-3 w-14 bg-slate-100 dark:bg-slate-800 rounded" />
       </div>
       <div className="w-[120px] shrink-0 flex justify-end">
-        <Skeleton className="h-3 w-16 rounded" style={sk.subtle} />
+        <Skeleton className="h-3 w-16 bg-slate-100 dark:bg-slate-800 rounded" />
       </div>
       <div className="w-[80px] shrink-0 flex justify-end">
-        <Skeleton className="h-3 w-14 rounded" style={sk.subtle} />
+        <Skeleton className="h-3 w-14 bg-slate-100 dark:bg-slate-800 rounded" />
       </div>
     </div>
   )
 }
 
 function GroupCardSkeleton({
-  rowsPerGroup = 1,
+  rowsPerGroup   = 1,
   animationDelay = 0,
 }: {
-  rowsPerGroup?: number
+  rowsPerGroup?:   number
   animationDelay?: number
 }) {
   return (
     <div
-      className="rounded-xl border overflow-hidden animate-pulse"
-      style={{ ...sk.card, ...sk.border, animationDelay: `${animationDelay}ms` }}
+      className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden animate-pulse"
+      style={{ animationDelay: `${animationDelay}ms` }}
     >
-      <div className="flex items-center gap-3 px-4 py-3">
-        <Skeleton className="h-4 w-24 rounded" style={sk.base} />
-        <Skeleton className="h-5 w-10 rounded-full" style={sk.badge} />
+      {/* Group header */}
+      <div className="flex items-center gap-3 px-4 py-3 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+        <Skeleton className="h-4 w-24 bg-slate-200 dark:bg-slate-700 rounded" />
+        <Skeleton className="h-5 w-10 bg-blue-100 dark:bg-blue-900/30 rounded-full" />
       </div>
 
       <ColumnHeaderSkeleton />
 
       {Array.from({ length: rowsPerGroup }).map((_, i) => (
-        <RowSkeleton key={i} isFirst={i === 0} index={i} />
+        <RowSkeleton key={`row-${i}`} isFirst={i === 0} index={i} />
       ))}
     </div>
   )
@@ -127,26 +128,23 @@ function GroupCardSkeleton({
 
 function SuratCardSkeleton() {
   return (
-    <div
-      className="rounded-xl border p-3 space-y-2 animate-pulse"
-      style={{ ...sk.subtle, ...sk.border }}
-    >
-      <Skeleton className="h-2.5 w-20 rounded" style={sk.subtle} />
-      <Skeleton className="h-9 w-full rounded-lg" style={sk.base} />
+    <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 p-3 space-y-2 animate-pulse">
+      <Skeleton className="h-2.5 w-20 bg-slate-100 dark:bg-slate-800 rounded" />
+      <Skeleton className="h-9 w-full bg-slate-200 dark:bg-slate-700 rounded-lg" />
 
       <div className="flex gap-3">
         <div className="flex-1 space-y-1.5">
-          <Skeleton className="h-2.5 w-20 rounded" style={sk.subtle} />
-          <Skeleton className="h-9 w-full rounded-lg" style={sk.base} />
+          <Skeleton className="h-2.5 w-20 bg-slate-100 dark:bg-slate-800 rounded" />
+          <Skeleton className="h-9 w-full bg-slate-200 dark:bg-slate-700 rounded-lg" />
         </div>
         <div className="flex-1 space-y-1.5">
-          <Skeleton className="h-2.5 w-16 rounded" style={sk.subtle} />
-          <Skeleton className="h-9 w-full rounded-lg" style={sk.base} />
+          <Skeleton className="h-2.5 w-16 bg-slate-100 dark:bg-slate-800 rounded" />
+          <Skeleton className="h-9 w-full bg-slate-200 dark:bg-slate-700 rounded-lg" />
         </div>
       </div>
 
-      <Skeleton className="h-2.5 w-24 rounded" style={sk.subtle} />
-      <Skeleton className="h-9 w-full rounded-lg" style={sk.base} />
+      <Skeleton className="h-2.5 w-24 bg-slate-100 dark:bg-slate-800 rounded" />
+      <Skeleton className="h-9 w-full bg-slate-200 dark:bg-slate-700 rounded-lg" />
     </div>
   )
 }
@@ -154,51 +152,35 @@ function SuratCardSkeleton() {
 function FormSkeleton({ className }: { className?: string }) {
   return (
     <div
-      className={[
-        "w-full flex flex-col lg:flex-row gap-6",
-        "animate-in fade-in duration-500",
-        className ?? "",
-      ]
-        .filter(Boolean)
-        .join(" ")}
+      className={`w-full flex flex-col lg:flex-row gap-6 animate-in fade-in duration-500 ${className ?? ""}`}
     >
       {/* ── Left sidebar ── */}
       <div className="w-full lg:w-[220px] xl:w-[260px] shrink-0">
-        <div
-          className="rounded-2xl border p-4 space-y-4 animate-pulse"
-          style={{ ...sk.card, ...sk.border }}
-        >
+        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 space-y-4 animate-pulse">
           <div className="flex items-start justify-between">
             <div className="space-y-1">
-              <Skeleton className="h-2.5 w-12 rounded" style={sk.subtle} />
-              <Skeleton className="h-2.5 w-16 rounded" style={sk.subtle} />
+              <Skeleton className="h-2.5 w-12 bg-slate-100 dark:bg-slate-800 rounded" />
+              <Skeleton className="h-2.5 w-16 bg-slate-100 dark:bg-slate-800 rounded" />
             </div>
-            <Skeleton className="h-5 w-10 rounded-full" style={sk.badge} />
+            <Skeleton className="h-5 w-10 bg-blue-100 dark:bg-blue-900/30 rounded-full" />
           </div>
 
-          <Skeleton className="h-8 w-16 rounded-lg" style={sk.base} />
+          <Skeleton className="h-8 w-16 bg-slate-200 dark:bg-slate-700 rounded-lg" />
+          <Skeleton className="h-px w-full bg-slate-100 dark:bg-slate-800" />
 
-          <Skeleton className="h-px w-full" style={sk.subtle} />
-
-          <div className="space-y-1.5">
-            <Skeleton className="h-2.5 w-16 rounded" style={sk.subtle} />
-            <Skeleton className="h-9 w-full rounded-xl" style={sk.base} />
-          </div>
-          <div className="space-y-1.5">
-            <Skeleton className="h-2.5 w-20 rounded" style={sk.subtle} />
-            <Skeleton className="h-9 w-full rounded-xl" style={sk.base} />
-          </div>
-          <div className="space-y-1.5">
-            <Skeleton className="h-2.5 w-12 rounded" style={sk.subtle} />
-            <Skeleton className="h-9 w-full rounded-xl" style={sk.base} />
-          </div>
+          {["Asal Surat", "Tanggal Terima", "Tujuan"].map((label, i) => (
+            <div key={`filter-${label}`} className="space-y-1.5">
+              <Skeleton className="h-2.5 w-20 bg-slate-100 dark:bg-slate-800 rounded" />
+              <Skeleton className="h-9 w-full bg-slate-200 dark:bg-slate-700 rounded-xl" />
+            </div>
+          ))}
         </div>
       </div>
 
       {/* ── Right content ── */}
       <div className="flex-1 min-w-0 space-y-3">
-        {[1, 2, 3].map((i) => (
-          <SuratCardSkeleton key={i} />
+        {[1, 2, 3].map((idx) => (
+          <SuratCardSkeleton key={`card-${idx}`} />
         ))}
       </div>
     </div>
@@ -210,7 +192,7 @@ function FormSkeleton({ className }: { className?: string }) {
 // ---------------------------------------------------------------------------
 
 export function DataSuratSkeleton({
-  groups = DEFAULT_GROUPS,
+  groups   = DEFAULT_GROUPS,
   fullPage = false,
   className,
 }: DataSuratSkeletonProps) {
@@ -227,16 +209,16 @@ export function DataSuratSkeleton({
   )
 
   if (!fullPage) {
-    return <div className={`w-full ${className ?? ""}`}>{cards}</div>
+    return <div className={className}>{cards}</div>
   }
 
   return (
-    <div className={`w-full min-h-screen ${className ?? ""}`} style={sk.page}>
-      <div className="flex items-center justify-between px-6 py-4 border-b" style={sk.border}>
-        <Skeleton className="h-5 w-24 rounded" style={sk.base} />
+    <div className={`w-full min-h-screen bg-slate-50 dark:bg-slate-950 ${className ?? ""}`}>
+      <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-800">
+        <Skeleton className="h-5 w-24 bg-slate-200 dark:bg-slate-700 rounded" />
         <div className="flex gap-2">
-          <Skeleton className="h-8 w-28 rounded-lg" style={sk.base} />
-          <Skeleton className="h-8 w-20 rounded-lg" style={sk.base} />
+          <Skeleton className="h-8 w-28 bg-slate-200 dark:bg-slate-700 rounded-lg" />
+          <Skeleton className="h-8 w-20 bg-slate-200 dark:bg-slate-700 rounded-lg" />
         </div>
       </div>
       <div className="p-6">{cards}</div>
@@ -249,8 +231,6 @@ export function DataSuratSkeleton({
 // ---------------------------------------------------------------------------
 
 export function LoadingSkeleton({ type = "table", className }: LoadingSkeletonProps) {
-  if (type === "form") {
-    return <FormSkeleton className={className} />
-  }
+  if (type === "form") return <FormSkeleton className={className} />
   return <DataSuratSkeleton className={className} />
 }

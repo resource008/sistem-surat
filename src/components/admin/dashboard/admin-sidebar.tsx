@@ -19,8 +19,8 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
 
-const ICON_SIZE = 18
-const LOGO_WIDTH = 1523
+const ICON_SIZE  = 18
+const LOGO_WIDTH  = 1523
 const LOGO_HEIGHT = 1246
 
 const navItems = [
@@ -35,10 +35,12 @@ interface Props {
   mobileOpen:    boolean
   onCollapse:    (val: boolean) => void
   onMobileClose: () => void
+  hideToggle?:   boolean   // ← prop baru
 }
 
 export function AdminSidebar({
   collapsed, isMobile, mobileOpen, onCollapse, onMobileClose,
+  hideToggle = false,
 }: Props) {
   const pathname = usePathname()
   const [userData, setUserData] = useState({
@@ -65,7 +67,7 @@ export function AdminSidebar({
     await authClient.signOut({
       fetchOptions: {
         onSuccess: () => {
-          window.location.href = `${routes.login}?logout=true`  // ← tambah query param
+          window.location.href = `${routes.login}?logout=true`
         },
       },
     })
@@ -84,24 +86,35 @@ export function AdminSidebar({
       {/* Header */}
       <div className={styles.sidebarHeader}>
         <div className={styles.logoWrapper}>
-          <Image src="/sipef_logo.svg" alt="Logo" width={LOGO_WIDTH} height={LOGO_HEIGHT} className={styles.logoImage} priority />
+          <Image
+            src="/sipef_logo.svg"
+            alt="Logo"
+            width={LOGO_WIDTH}
+            height={LOGO_HEIGHT}
+            className={styles.logoImage}
+            priority
+          />
         </div>
-        {isMobile ? (
-          <button className={styles.collapseBtn} onClick={onMobileClose}>
-            <X size={14} />
-          </button>
-        ) : (
-          <>
-            <button
-              className={`${styles.collapseBtn} ${collapsed ? styles.collapseBtnCollapsed : ""}`}
-              onClick={() => onCollapse(true)}
-            >
-              <ArrowLeftCircle size={14} />
+
+        {/* Tombol collapse/expand — disembunyikan jika hideToggle=true */}
+        {!hideToggle && (
+          isMobile ? (
+            <button className={styles.collapseBtn} onClick={onMobileClose}>
+              <X size={14} />
             </button>
-            <button className={styles.expandBtn} onClick={() => onCollapse(false)}>
-              <ArrowRightCircle size={14} />
-            </button>
-          </>
+          ) : (
+            <>
+              <button
+                className={`${styles.collapseBtn} ${collapsed ? styles.collapseBtnCollapsed : ""}`}
+                onClick={() => onCollapse(true)}
+              >
+                <ArrowLeftCircle size={14} />
+              </button>
+              <button className={styles.expandBtn} onClick={() => onCollapse(false)}>
+                <ArrowRightCircle size={14} />
+              </button>
+            </>
+          )
         )}
       </div>
 
@@ -117,7 +130,10 @@ export function AdminSidebar({
           const isActive = pathname === item.href
           return (
             <div key={item.href} className={styles.navItemWrapper}>
-              <Link href={item.href} className={`${styles.navItem} ${isActive ? styles.navItemActive : ""}`}>
+              <Link
+                href={item.href}
+                className={`${styles.navItem} ${isActive ? styles.navItemActive : ""}`}
+              >
                 <span className={styles.navIcon}>
                   <Icon size={ICON_SIZE} strokeWidth={isActive ? 2.5 : 1.8} />
                 </span>

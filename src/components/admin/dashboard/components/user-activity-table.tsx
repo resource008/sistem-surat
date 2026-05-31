@@ -14,6 +14,17 @@ const ROW_COLORS = [
   "bg-emerald-50/80 dark:bg-emerald-950/20",
 ]
 
+function isValidImageUrl(url: string | null | undefined): url is string {
+  if (!url || typeof url !== "string") return false
+  try {
+    const parsedUrl = new URL(url)
+    const trustedHosts = process.env.NEXT_PUBLIC_TRUSTED_IMAGE_HOSTS?.split(",") || ["localhost"]
+    return trustedHosts.some(host => parsedUrl.hostname?.includes(host))
+  } catch {
+    return false
+  }
+}
+
 export function UserActivityTable({ users }: UserActivityTableProps) {
   return (
     <section className="space-y-3">
@@ -41,7 +52,7 @@ export function UserActivityTable({ users }: UserActivityTableProps) {
                 {/* Nama */}
                 <div className="flex min-w-0 items-center gap-2 font-medium text-foreground">
                   <Avatar className="size-7 shrink-0">
-                    {user.fotoProfil ? (
+                    {isValidImageUrl(user.fotoProfil) ? (
                       <AvatarImage src={user.fotoProfil} alt={user.nama} />
                     ) : null}
                     <AvatarFallback className="bg-cyan-500 text-[10px] text-white">

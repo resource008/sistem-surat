@@ -440,3 +440,10 @@
 @media (max-width: 480px) {
   .breadcrumbSub { max-width: 130px; }
 }
+
+.topbarRight {
+  display:     flex;
+  align-items: center;
+  gap:         0.5rem;
+  margin-left: auto;
+}

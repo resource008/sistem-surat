@@ -29,7 +29,7 @@ export default function AdminDashboard() {
     <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-5 px-4 py-6 sm:px-6">
       {error ? (
         <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-600 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-400">
-          Terjadi kesalahan: {error.message}
+          Terjadi kesalahan saat memuat data. Silakan coba lagi atau hubungi administrator jika masalah berlanjut.
         </div>
       ) : isLoading || !data ? (
         <DashboardLoading />

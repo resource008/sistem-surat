@@ -1,8 +1,11 @@
 import type { Metadata } from "next"
-import { Figtree } from "next/font/google"
+import { Figtree, Geist } from "next/font/google"
 import "./globals.css"
 import { Toaster } from "sonner"
 import { ThemeProvider } from "next-themes"
+import { cn } from "@/lib/utils";
+
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 const figtree = Figtree({
   subsets: ["latin"],
@@ -22,7 +25,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="id" suppressHydrationWarning>
+    <html lang="id" suppressHydrationWarning className={cn("font-sans", geist.variable)}>
       <body className={`${figtree.className} ${figtree.variable}`}>
         <ThemeProvider
           attribute="class"

@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   db:
     image: postgres:18-alpine
@@ -10,7 +8,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
@@ -18,20 +16,22 @@ services:
       retries: 10
 
   app-dev:
-    image: node:22-alpine
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
     container_name: nextjs-sistem-surat-dev
-    working_dir: /app
     volumes:
-      - .:/app
-      - /app/node_modules
+      - .:/app                  # hot reload — sync source code
+      - /app/node_modules       # isolasi node_modules container
+      - /app/.next              # isolasi .next cache container
     ports:
       - "3001:3001"
     env_file:
       - .env
-    command: sh -c "apk add --no-cache openssl && npm install --legacy-peer-deps && npx prisma generate && npx prisma db push && npm run dev"
     depends_on:
       db:
         condition: service_healthy
+    restart: unless-stopped
 
 volumes:
   postgres_data:
