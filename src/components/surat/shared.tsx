@@ -65,9 +65,11 @@ export function DatePicker({
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">
         <Calendar
-          mode="single" selected={selected}
+          mode="single"
+          selected={selected}
           onSelect={(date) => { if (date) { onChange(format(date, "yyyy-MM-dd")); setOpen(false) } }}
-          locale={localeID} initialFocus
+          locale={localeID}
+          // initialFocus dihapus — tidak ada di react-day-picker v9
         />
       </PopoverContent>
     </Popover>
