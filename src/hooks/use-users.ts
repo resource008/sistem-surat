@@ -1,15 +1,9 @@
-// ============================================================
-// src/hooks/use-users.ts
-// React hook untuk CRUD User — dipakai oleh komponen admin
-// ============================================================
-
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
-import { toast }                             from "sonner"
-import type { User }                         from "@/domain/user/types"
-
-// ── Tipe lokal ────────────────────────────────────────────────
+import useSWR                from "swr"
+import { useCallback, useState } from "react"
+import { toast }             from "sonner"
+import type { User }         from "@/domain/user/types"
 
 interface PaginatedUsers {
   data: User[]
@@ -28,80 +22,41 @@ interface UseUsersOptions {
   role?:   string
 }
 
+// ── Fetcher ───────────────────────────────────────────────────
+
+const fetcher = (url: string) =>
+  fetch(url).then((res) => {
+    if (!res.ok) throw new Error("Gagal mengambil data user")
+    return res.json()
+  })
+
 // ── Hook utama ────────────────────────────────────────────────
 
 export function useUsers(options: UseUsersOptions = {}) {
   const { page = 1, limit = 10, search = "", role = "" } = options
 
-  const [data,    setData]    = useState<PaginatedUsers | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error,   setError]   = useState<string | null>(null)
+  const params = new URLSearchParams()
+  params.set("page",  String(page))
+  params.set("limit", String(limit))
+  if (search) params.set("search", search)
+  if (role)   params.set("role",   role)
 
-  const fetchUsers = useCallback(async () => {
-    setLoading(true)
-    setError(null)
-
-    try {
-      const params = new URLSearchParams()
-      params.set("page",  String(page))
-      params.set("limit", String(limit))
-      if (search) params.set("search", search)
-      if (role)   params.set("role",   role)
-
-      const res  = await fetch(`/api/users?${params.toString()}`)
-      const json = await res.json()
-
-      if (!res.ok) throw new Error(json.error ?? "Gagal mengambil data user")
-
-      setData(json)
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : "Terjadi kesalahan"
-      setError(msg)
-    } finally {
-      setLoading(false)
+  const { data, error, isLoading, mutate } = useSWR<PaginatedUsers>(
+    `/api/users?${params.toString()}`,
+    fetcher,
+    {
+      refreshInterval:    10_000,  // polling tiap 10 detik
+      revalidateOnFocus:  true,    // refetch saat tab difokus
+      revalidateOnReconnect: true, // refetch saat koneksi kembali
     }
-  }, [page, limit, search, role])
+  )
 
-  useEffect(() => {
-    fetchUsers()
-  }, [fetchUsers])
-
-  return { data, loading, error, refetch: fetchUsers }
-}
-
-// ── Hook untuk satu user ──────────────────────────────────────
-
-export function useUser(id: string | null) {
-  const [user,    setUser]    = useState<User | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [error,   setError]   = useState<string | null>(null)
-
-  useEffect(() => {
-    if (!id) return
-
-    let cancelled = false
-    setLoading(true)
-    setError(null)
-
-    fetch(`/api/users/${id}`)
-      .then((res) => res.json())
-      .then((json) => {
-        if (cancelled) return
-        if (json.error) throw new Error(json.error)
-        setUser(json)
-      })
-      .catch((err) => {
-        if (cancelled) return
-        setError(err.message ?? "Gagal mengambil detail user")
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false)
-      })
-
-    return () => { cancelled = true }
-  }, [id])
-
-  return { user, loading, error }
+  return {
+    data,
+    loading: isLoading,
+    error:   error?.message ?? null,
+    refetch: mutate,
+  }
 }
 
 // ── Aksi CRUD (dipakai di komponen form/delete) ───────────────
@@ -109,7 +64,6 @@ export function useUser(id: string | null) {
 export function useUserActions(onSuccess?: () => void) {
   const [loading, setLoading] = useState(false)
 
-  // CREATE
   const createUser = useCallback(
     async (body: {
       name:     string
@@ -141,18 +95,11 @@ export function useUserActions(onSuccess?: () => void) {
     [onSuccess]
   )
 
-  // UPDATE
   const updateUser = useCallback(
-    async (
-      id:   string,
-      body: Partial<{
-        name:     string
-        email:    string
-        username: string
-        password: string
-        role:     string
-      }>
-    ) => {
+    async (id: string, body: Partial<{
+      name: string; email: string
+      username: string; password: string; role: string
+    }>) => {
       setLoading(true)
       try {
         const res  = await fetch(`/api/users/${id}`, {
@@ -176,7 +123,6 @@ export function useUserActions(onSuccess?: () => void) {
     [onSuccess]
   )
 
-  // DELETE
   const deleteUser = useCallback(
     async (id: string) => {
       setLoading(true)
@@ -201,16 +147,12 @@ export function useUserActions(onSuccess?: () => void) {
   return { createUser, updateUser, deleteUser, loading }
 }
 
-// ── Util: ratakan error object dari Zod ──────────────────────
+// ── Util ──────────────────────────────────────────────────────
 
-function flattenError(
-  error: unknown
-): string {
+function flattenError(error: unknown): string {
   if (typeof error === "string") return error
   if (typeof error === "object" && error !== null) {
-    return Object.values(error as Record<string, string[]>)
-      .flat()
-      .join(". ")
+    return Object.values(error as Record<string, string[]>).flat().join(". ")
   }
   return "Terjadi kesalahan validasi"
 }

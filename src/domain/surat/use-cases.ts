@@ -107,6 +107,7 @@ export function buildCreatePayload({
 }
 
 interface BuildUpdatePayloadParams {
+  deptId:        string
   asalSurat:     string
   tujuan:        string
   tanggalTerima: string
@@ -116,10 +117,10 @@ interface BuildUpdatePayloadParams {
 }
 
 export function buildUpdatePayload({
-  asalSurat, tujuan, tanggalTerima, isPIDept, piList, suratList,
+  deptId, asalSurat, tujuan, tanggalTerima, isPIDept, piList, suratList,
 }: BuildUpdatePayloadParams): UpdateSuratPayload {
   return {
-    asalSurat, tujuan, tanggalTerima,
+    deptId, asalSurat, tujuan, tanggalTerima,  // ← tambah deptId
     ...(isPIDept
       ? { piList:    piList.map(({ id: _id, ...rest }) => rest) }
       : { suratList: suratList.map(({ id: _id, ...rest }) => rest) }

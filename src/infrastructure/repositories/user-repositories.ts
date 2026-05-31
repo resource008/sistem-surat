@@ -1,8 +1,3 @@
-// ============================================================
-// src/infrastructure/repositories/user-repositories.ts
-// Implementasi UserRepository menggunakan Prisma
-// ============================================================
-
 import { prisma }              from "@/infrastructure/databases/prisma-client"
 import { scryptAsync }         from "@noble/hashes/scrypt.js"
 import { randomBytes, bytesToHex } from "@noble/hashes/utils.js"
@@ -18,14 +13,41 @@ import type {
 // ── Field aman yang dikembalikan ke domain layer ──────────────
 
 const USER_SELECT = {
-  id:        true,
-  name:      true,
-  email:     true,
-  username:  true,
-  role:      true,
-  createdAt: true,
-  updatedAt: true,
+  id:          true,
+  name:        true,
+  email:       true,
+  username:    true,
+  role:        true,
+  createdAt:   true,
+  updatedAt:   true,
+  lastLoginAt: true,
+  sessions: {
+    select: { expiresAt: true },
+    where:  { expiresAt: { gt: new Date() } }, // hanya session belum expired
+  },
 } as const
+
+// ── Map raw user → domain User ────────────────────────────────
+
+function mapUser(user: any): User {
+  const now       = new Date()
+  const lastLogin = user.lastLoginAt ?? null
+  const isActive = user.sessions?.some(
+    (s: { expiresAt: Date }) => new Date(s.expiresAt) > now
+  ) ?? false
+
+  return {
+    id:        user.id,
+    name:      user.name,
+    email:     user.email,
+    username:  user.username,
+    role:      user.role,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
+    lastLogin,
+    status:    isActive ? "Sedang Aktif" : "Tidak Aktif",
+  }
+}
 
 // ── Hash password dengan scrypt ───────────────────────────────
 
@@ -74,7 +96,7 @@ export class PrismaUserRepository implements UserRepository {
     ])
 
     return {
-      data: users as User[],
+      data: users.map(mapUser),
       meta: {
         total,
         page,
@@ -89,7 +111,8 @@ export class PrismaUserRepository implements UserRepository {
       where:  { id },
       select: USER_SELECT,
     })
-    return user as User | null
+    if (!user) return null
+    return mapUser(user)
   }
 
   async findByEmail(email: string): Promise<User | null> {
@@ -97,7 +120,8 @@ export class PrismaUserRepository implements UserRepository {
       where:  { email },
       select: USER_SELECT,
     })
-    return user as User | null
+    if (!user) return null
+    return mapUser(user)
   }
 
   async findByUsername(username: string): Promise<User | null> {
@@ -105,7 +129,8 @@ export class PrismaUserRepository implements UserRepository {
       where:  { username },
       select: USER_SELECT,
     })
-    return user as User | null
+    if (!user) return null
+    return mapUser(user)
   }
 
   async create(input: CreateUserInput): Promise<User> {
@@ -131,14 +156,12 @@ export class PrismaUserRepository implements UserRepository {
       select: USER_SELECT,
     })
 
-    return user as User
+    return mapUser(user)
   }
 
   async update(id: string, input: UpdateUserInput): Promise<User> {
-    // Pisah password dari field lain
     const { password, ...fields } = input
 
-    // Hapus key dengan value undefined agar tidak ditimpa
     const updateData = Object.fromEntries(
       Object.entries(fields).filter(([, v]) => v !== undefined)
     )
@@ -149,7 +172,6 @@ export class PrismaUserRepository implements UserRepository {
       select: USER_SELECT,
     })
 
-    // Update password di tabel account (jika dikirim)
     if (password) {
       const hashedPassword = await hashPassword(password)
       await prisma.account.updateMany({
@@ -158,11 +180,10 @@ export class PrismaUserRepository implements UserRepository {
       })
     }
 
-    return user as User
+    return mapUser(user)
   }
 
   async delete(id: string): Promise<void> {
-    // Hapus relasi dulu agar tidak constraint error, lalu hapus user
     await prisma.$transaction([
       prisma.account.deleteMany({ where: { userId: id } }),
       prisma.session.deleteMany({ where: { userId: id } }),
