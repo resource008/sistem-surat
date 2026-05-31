@@ -1,16 +1,11 @@
+// ============================================================
 // src/services/user-service.ts
+// Singleton service — menghubungkan use-cases dengan repository
+// ============================================================
 
-import { UserRepository } from "@/infrastructure/repositories/user-repositories"
-import type { CreateUserInput } from "@/app/validation/user"
+import { PrismaUserRepository } from "@/infrastructure/repositories/user-repositories"
+import { UserUseCases }         from "@/domain/user/use-cases"
 
-const repository = new UserRepository()
-
-export async function createUser(input: CreateUserInput) {
-  const existingUsername = await repository.findByUsername(input.username)
-  if (existingUsername) throw new Error("CONFLICT: Username sudah dipakai")
-
-  const existingEmail = await repository.findByEmail(input.email)
-  if (existingEmail) throw new Error("CONFLICT: Email sudah dipakai")
-
-  return repository.create(input)
-}
+// Satu instance dipakai di seluruh aplikasi (singleton pola)
+const userRepository = new PrismaUserRepository()
+export const userService = new UserUseCases(userRepository)

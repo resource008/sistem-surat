@@ -35,6 +35,7 @@ interface Props {
   mobileOpen:    boolean
   onCollapse:    (val: boolean) => void
   onMobileClose: () => void
+  hideToggle?:    boolean
 }
 
 export function AdminSidebar({
