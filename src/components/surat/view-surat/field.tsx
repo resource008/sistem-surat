@@ -1,26 +1,32 @@
+import { cn } from "@/lib/utils"
+
 interface FieldProps {
   label: string
-  value: string
-  mono?: boolean
-  icon?: React.ReactNode
+  value?: string
+  placeholder?: string  // ← tambah ini
   fullWidth?: boolean
+  mono?: boolean
 }
 
-export function Field({ label, value, mono = false, icon, fullWidth = false }: FieldProps) {
+export function Field({ label, value, placeholder = "Tidak diisi", fullWidth, mono }: FieldProps) {
+  const isEmpty = !value
+
   return (
-    <div className={fullWidth ? "col-span-2" : ""}>
-      <p className="flex items-center gap-1.5 text-[10px] font-semibold
-                    text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">
-        {icon}<span>{label}</span>
+    <div className={fullWidth ? "col-span-full" : ""}>
+      <p className="text-[11px] font-semibold uppercase tracking-wider
+                    text-slate-400 dark:text-slate-500 mb-1.5">
+        {label}
       </p>
-      <div className={[
-        "w-full px-3.5 py-2.5 rounded-xl",
-        "border border-slate-200 dark:border-slate-800",
-        "bg-slate-50/70 dark:bg-slate-900/50",
-        "text-[13px] text-slate-700 dark:text-slate-300",
-        mono ? "font-mono text-[12px] tracking-wide" : "font-medium",
-      ].join(" ")}>
-        {value}
+      <div className={cn(
+        "rounded-xl border px-3.5 py-2.5 text-[13px] min-h-[38px]",
+        "border-slate-200 dark:border-slate-800",
+        "bg-white dark:bg-slate-950",
+        mono && !isEmpty && "font-mono",
+        isEmpty
+          ? "text-slate-400 dark:text-slate-600 italic"   // ← styling placeholder
+          : "text-slate-800 dark:text-slate-200",
+      )}>
+        {isEmpty ? placeholder : value}
       </div>
     </div>
   )

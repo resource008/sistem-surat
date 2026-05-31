@@ -131,14 +131,16 @@ export default function UsersPage() {
                 </TableCell>
                 <TableCell className="hidden lg:table-cell text-sm text-muted-foreground">{user.email}</TableCell>
                 <TableCell className="hidden lg:table-cell text-sm text-muted-foreground tabular-nums">
-                  {formatTimestamp((user as any).lastLogin)}
+                  {formatTimestamp(user.lastLogin)}
                 </TableCell>
                 <TableCell onClick={(e) => e.stopPropagation()}>
                   <Badge
                     variant="outline"
-                    className={(user as any).status === "Aktif" ? "bg-green-50 text-green-600 border-green-200" : "bg-red-50 text-red-500 border-red-200"}
+                    className={user.status === "Sedang Aktif"
+                      ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/30"
+                      : "bg-slate-500/10 text-slate-400 border-slate-500/30 dark:bg-slate-500/10 dark:text-slate-400 dark:border-slate-500/30"}
                   >
-                    {(user as any).status ?? "Tidak Aktif"}
+                    {user.status ?? "Tidak Aktif"}
                   </Badge>
                 </TableCell>
               </TableRow>
@@ -191,9 +193,11 @@ export default function UsersPage() {
               <div className="flex items-center justify-between border-t border-border/50 pt-3 mt-1">
                 <Badge
                   variant="outline"
-                  className={(user as any).status === "Aktif" ? "bg-green-50 text-green-600 border-green-200" : "bg-red-50 text-red-500 border-red-200"}
+                  className={user.status === "Sedang Aktif"
+                    ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/30"
+                    : "bg-slate-500/10 text-slate-400 border-slate-500/30 dark:bg-slate-500/10 dark:text-slate-400 dark:border-slate-500/30"}
                 >
-                  {(user as any).status ?? "Tidak Aktif"}
+                  {user.status ?? "Tidak Aktif"}
                 </Badge>
                 <span className="text-xs font-medium px-2 py-1 bg-muted rounded-md">
                   {ROLE_LABEL[user.role] ?? user.role}

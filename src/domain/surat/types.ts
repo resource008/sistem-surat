@@ -47,6 +47,7 @@ export interface CreateSuratPayload {
 }
 
 export interface UpdateSuratPayload {
+  deptId?:        string
   asalSurat?:     string
   tujuan?:        string
   tanggalTerima?: string

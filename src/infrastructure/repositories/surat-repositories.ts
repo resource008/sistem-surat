@@ -185,12 +185,20 @@ export class SuratRepository implements ISuratRepository {
   }
 
   async update(id: number, dept: string, payload: UpdateSuratPayload): Promise<SuratResult> {
-    const { asalSurat, tujuan, tanggalTerima, piList, suratList } = payload
+  const { deptId, asalSurat, tujuan, tanggalTerima, piList, suratList } = payload
 
-    if (isPIDept(dept)) {
-      const row = await prisma.registerPI.update({
+  if (isPIDept(dept)) {
+    return prisma.$transaction(async (tx) => {
+      // Generate nomor baru jika dept berubah
+      const nomor = deptId && deptId !== dept
+        ? await this._generateNomor(tx, deptId, true)
+        : undefined
+
+      const row = await tx.registerPI.update({
         where: { id },
         data: {
+          ...(deptId        && { dept: { connect: { id: deptId } } }),
+          ...(nomor         && { nomor }),
           asalSurat,
           tanggalTerima: tanggalTerima ? new Date(tanggalTerima) : undefined,
           detailPI: piList ? {
@@ -208,11 +216,20 @@ export class SuratRepository implements ISuratRepository {
         include: { dept: true, detailPI: true },
       })
       return serializePI(row as unknown as Record<string, unknown>)
-    }
+    })
+  }
 
-    const row = await prisma.registerSurat.update({
+  return prisma.$transaction(async (tx) => {
+    // Generate nomor baru jika dept berubah
+    const nomor = deptId && deptId !== dept
+      ? await this._generateNomor(tx, deptId, false)
+      : undefined
+
+    const row = await tx.registerSurat.update({
       where: { id },
       data: {
+        ...(deptId && { dept: { connect: { id: deptId } } }),
+        ...(nomor  && { nomor }),
         asalSurat,
         tujuan,
         tanggalTerima: tanggalTerima ? new Date(tanggalTerima) : undefined,
@@ -230,7 +247,8 @@ export class SuratRepository implements ISuratRepository {
       include: { dept: true, detailSurat: true },
     })
     return serializeSurat(row as unknown as Record<string, unknown>)
-  }
+  })
+}
 
   async delete(id: number, dept: string): Promise<void> {
     if (isPIDept(dept)) {

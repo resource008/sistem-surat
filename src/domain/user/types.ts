@@ -14,6 +14,8 @@ export interface User {
   role:      UserRole
   createdAt: Date
   updatedAt: Date
+  lastLogin: Date | null
+  status:    "Sedang Aktif" | "Tidak Aktif"
 }
 
 // Input untuk membuat user baru

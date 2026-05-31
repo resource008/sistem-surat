@@ -12,7 +12,6 @@ import {
 import { emptyPIItem, emptySuratItem } from "@/domain/surat/entities"
 import { getErrorMessage }             from "@/lib/utils"
 
-// ── Local form-state type ─────────────────────────────────────────────────────
 interface FormState {
   deptId:        string
   asalSurat:     string
@@ -20,18 +19,17 @@ interface FormState {
   tanggalTerima: string
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-
 export function useEditSurat(basePath: string) {
   const { dept, id } = useParams<{ dept: string; id: string }>()
   const router       = useRouter()
   const isPI         = dept === "PI"
 
-  const [original,   setOriginal]   = useState<RegisterSurat | RegisterPI | null>(null)
-  const [loading,    setLoading]    = useState(true)
-  const [saving,     setSaving]     = useState(false)
-  const [error,      setError]      = useState<string | null>(null)
-  const [formErrors, setFormErrors] = useState<Record<string, string>>({})
+  const [original,      setOriginal]      = useState<RegisterSurat | RegisterPI | null>(null)
+  const [loading,       setLoading]       = useState(true)
+  const [saving,        setSaving]        = useState(false)
+  const [error,         setError]         = useState<string | null>(null)
+  const [formErrors,    setFormErrors]    = useState<Record<string, string>>({})
+  const [previewNomor,  setPreviewNomor]  = useState<string | null>(null)  // ← tambah
 
   const [form, setForm] = useState<FormState>({
     deptId:        "",
@@ -105,6 +103,12 @@ export function useEditSurat(basePath: string) {
       suratList,
     })
 
+    if (missing.length > 0) {
+      toast.error("Gagal menyimpan", {
+        description: `Mohon diisi di bagian: ${missing.join(", ")}`,
+      })
+    }
+
     const errs: Record<string, string> = {}
     missing.forEach((msg: string) => { errs[msg] = msg })
     setFormErrors(errs)
@@ -120,6 +124,18 @@ export function useEditSurat(basePath: string) {
         return next
       })
       setFormErrors(prev => { const n = { ...prev }; delete n[key]; return n })
+
+      // ← fetch preview nomor saat dept berubah
+      if (key === "deptId") {
+        if (value && value !== original?.dept?.shortName) {
+          fetch(`/api/surat/preview-nomor?deptId=${value}`)
+            .then(r => r.json())
+            .then(d => setPreviewNomor(d.nomor))
+            .catch(() => setPreviewNomor(null))
+        } else {
+          setPreviewNomor(null) // kembali ke nomor asli
+        }
+      }
     },
 
     setSuratField: (idx: number, key: keyof SuratItem, value: string) => {
@@ -146,6 +162,7 @@ export function useEditSurat(basePath: string) {
       setSaving(true)
       try {
         const payload = buildUpdatePayload({
+          deptId:        form.deptId,
           asalSurat:     form.asalSurat,
           tujuan:        form.tujuan,
           tanggalTerima: form.tanggalTerima,
@@ -174,7 +191,7 @@ export function useEditSurat(basePath: string) {
   }
 
   return {
-    state: { isPI, loading, saving, error, original, form, suratList, piList, formErrors },
+    state: { isPI, loading, saving, error, original, form, suratList, piList, formErrors, previewNomor },
     actions,
   }
 }

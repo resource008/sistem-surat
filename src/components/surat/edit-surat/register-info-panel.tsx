@@ -17,7 +17,7 @@ export function RegisterInfoPanel({ state, actions }: any) {
                 Nomor Register
               </p>
               <span className="text-[22px] font-mono font-bold text-slate-800 dark:text-slate-100 leading-none">
-                {state.original.nomor}
+                {state.previewNomor ?? state.original.nomor}
               </span>
             </div>
             <Badge className="shrink-0 mt-0.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border-0">

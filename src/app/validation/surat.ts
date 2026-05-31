@@ -48,12 +48,14 @@ export const CreateSuratSchema = z.object({
 // ─── PATCH /api/surat/[dept]/[id] ────────────────────────────────────────────
 
 export const UpdatePISchema = z.object({
+  deptId:        z.string().min(1).optional(),  // ← tambah
   asalSurat:     z.string().min(1).optional(),
   tanggalTerima: z.string().optional(),
   piList:        z.array(PIItemSchema).min(1, "Minimal 1 invoice harus ada"),
 })
 
 export const UpdateSuratSchema = z.object({
+  deptId:        z.string().min(1).optional(),  // ← tambah
   asalSurat:     z.string().min(1).optional(),
   tujuan:        z.string().optional(),
   tanggalTerima: z.string().optional(),

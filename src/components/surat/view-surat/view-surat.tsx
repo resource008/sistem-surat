@@ -19,6 +19,8 @@ import { SuratListPanel }    from "./surat-list-panel"
 import { PIListPanel }       from "./pi-list-panel"
 import { ViewActionBar }     from "./action-bar"
 
+import { toast } from "sonner"
+
 interface Props { role: Role; basePath: string }
 
 export default function ViewSuratPage({ role, basePath }: Props) {
@@ -53,8 +55,14 @@ export default function ViewSuratPage({ role, basePath }: Props) {
     try {
       const res = await fetch(`/api/surat/${dept}/${id}`, { method: "DELETE" })
       if (!res.ok) throw new Error()
+      toast.success("Register berhasil dihapus", {
+        description: `Data ${register?.nomor} telah dihapus permanen.`,
+      })
       router.push(basePath)
     } catch {
+      toast.error("Gagal menghapus register", {
+        description: "Terjadi kesalahan, silakan coba lagi.",
+      })
       setDeleting(false)
       setShowDeleteConf(false)
     }
