@@ -17,35 +17,45 @@ const USER_SELECT = {
   name:        true,
   email:       true,
   username:    true,
+  image:       true,  // ← tambah
   role:        true,
   createdAt:   true,
   updatedAt:   true,
   lastLoginAt: true,
   sessions: {
     select: { expiresAt: true },
-    where:  { expiresAt: { gt: new Date() } }, // hanya session belum expired
+    where:  { expiresAt: { gt: new Date() } },
+  },
+  permissions: {
+    select: {
+      canCreate: true,
+      canEdit:   true,
+      canDelete: true,
+      canPrint:  true,
+      canTrack:  true,
+    },
   },
 } as const
-
-// ── Map raw user → domain User ────────────────────────────────
 
 function mapUser(user: any): User {
   const now       = new Date()
   const lastLogin = user.lastLoginAt ?? null
-  const isActive = user.sessions?.some(
+  const isActive  = user.sessions?.some(
     (s: { expiresAt: Date }) => new Date(s.expiresAt) > now
   ) ?? false
 
   return {
-    id:        user.id,
-    name:      user.name,
-    email:     user.email,
-    username:  user.username,
-    role:      user.role,
-    createdAt: user.createdAt,
-    updatedAt: user.updatedAt,
+    id:          user.id,
+    name:        user.name,
+    email:       user.email,
+    username:    user.username,
+    image:       user.image ?? null,  // ← tambah
+    role:        user.role,
+    createdAt:   user.createdAt,
+    updatedAt:   user.updatedAt,
     lastLogin,
-    status:    isActive ? "Sedang Aktif" : "Tidak Aktif",
+    status:      isActive ? "Sedang Aktif" : "Tidak Aktif",
+    permissions: user.permissions ?? null,
   }
 }
 
@@ -160,7 +170,7 @@ export class PrismaUserRepository implements UserRepository {
   }
 
   async update(id: string, input: UpdateUserInput): Promise<User> {
-    const { password, ...fields } = input
+    const { password, permissions, ...fields } = input
 
     const updateData = Object.fromEntries(
       Object.entries(fields).filter(([, v]) => v !== undefined)
@@ -168,7 +178,29 @@ export class PrismaUserRepository implements UserRepository {
 
     const user = await prisma.user.update({
       where:  { id },
-      data:   updateData,
+      data:   {
+        ...updateData,
+        ...(permissions && {
+          permissions: {
+            upsert: {
+              create: {
+                canCreate: permissions.canCreate ?? false,
+                canEdit:   permissions.canEdit   ?? false,
+                canDelete: permissions.canDelete ?? false,
+                canPrint:  permissions.canPrint  ?? false,
+                canTrack:  permissions.canTrack  ?? false,
+              },
+              update: {
+                canCreate: permissions.canCreate,
+                canEdit:   permissions.canEdit,
+                canDelete: permissions.canDelete,
+                canPrint:  permissions.canPrint,
+                canTrack:  permissions.canTrack,
+              },
+            },
+          },
+        }),
+      },
       select: USER_SELECT,
     })
 

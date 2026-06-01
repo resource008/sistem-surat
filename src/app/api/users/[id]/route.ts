@@ -40,10 +40,13 @@ export async function PATCH(req: NextRequest, { params }: RouteContext) {
 
     const parsed = UpdateUserSchema.safeParse(body)
     if (!parsed.success) {
-      return NextResponse.json(
-        { error: parsed.error.flatten().fieldErrors },
-        { status: 422 }
-      )
+      // Ambil pesan error pertama yang ditemukan, bukan object
+      const fieldErrors = parsed.error.flatten().fieldErrors
+      const firstError  = Object.values(fieldErrors).flat()[0]
+        ?? parsed.error.flatten().formErrors[0]
+        ?? "Data tidak valid"
+
+      return NextResponse.json({ error: firstError }, { status: 422 })
     }
 
     const currentUserId = (session.user as any).id as string

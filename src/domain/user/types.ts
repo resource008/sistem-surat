@@ -1,24 +1,31 @@
 // ============================================================
 // src/domain/user/types.ts
-// Tipe-tipe domain untuk User — tidak bergantung pada Prisma
 // ============================================================
 
 export type UserRole = "ADMIN" | "STAFF" | "PKL"
 
-// User lengkap seperti yang disimpan di DB (tanpa password)
-export interface User {
-  id:        string
-  name:      string
-  email:     string
-  username:  string
-  role:      UserRole
-  createdAt: Date
-  updatedAt: Date
-  lastLogin: Date | null
-  status:    "Sedang Aktif" | "Tidak Aktif"
+export interface UserPermissions {
+  canCreate: boolean
+  canEdit:   boolean
+  canDelete: boolean
+  canPrint:  boolean
+  canTrack:  boolean
 }
 
-// Input untuk membuat user baru
+export interface User {
+  id:          string
+  name:        string
+  email:       string
+  username:    string
+  image:       string | null
+  role:        UserRole
+  createdAt:   Date
+  updatedAt:   Date
+  lastLogin:   Date | null
+  status:      "Sedang Aktif" | "Tidak Aktif"
+  permissions: UserPermissions | null
+}
+
 export interface CreateUserInput {
   name:     string
   email:    string
@@ -27,16 +34,16 @@ export interface CreateUserInput {
   role:     UserRole
 }
 
-// Input untuk update — semua opsional kecuali minimal 1 harus ada
-export interface UpdateUserInput {
-  name?:     string
-  email?:    string
-  username?: string
-  password?: string
-  role?:     UserRole
+export type UpdateUserInput = {
+  name?:        string
+  email?:       string
+  username?:    string
+  image?:       string
+  role?:        UserRole
+  password?:    string
+  permissions?: Partial<UserPermissions>  // ← pastikan 'permissions' bukan 'permission'
 }
 
-// Query params untuk list user
 export interface GetUsersQuery {
   page:    number
   limit:   number
@@ -44,7 +51,6 @@ export interface GetUsersQuery {
   role?:   UserRole
 }
 
-// Response paginated
 export interface PaginatedUsers {
   data: User[]
   meta: {

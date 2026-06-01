@@ -123,7 +123,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [searchExpanded,    setSearchExpanded]    = useState(false)
   const [hideSidebarToggle, setHideSidebarToggle] = useState(false)
 
-  const isUsersPage = pathname.includes("/users")
+ const isUsersPage = /^\/admin\/users\/?$/.test(pathname)
 
   // Init: baca localStorage
   useEffect(() => {

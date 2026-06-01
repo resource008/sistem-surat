@@ -1,6 +1,5 @@
 // ============================================================
 // src/app/validation/user.ts
-// Zod schema untuk semua endpoint User
 // ============================================================
 
 import { z } from "zod"
@@ -8,7 +7,15 @@ import { z } from "zod"
 // ── Shared ────────────────────────────────────────────────────
 
 const RoleEnum = z.enum(["ADMIN", "STAFF", "PKL"] as const, {
-  error: "Role harus ADMIN, STAFF, atau PKL", 
+  error: "Role harus ADMIN, STAFF, atau PKL",
+})
+
+const PermissionSchema = z.object({
+  canCreate: z.boolean().optional(),
+  canEdit:   z.boolean().optional(),
+  canDelete: z.boolean().optional(),
+  canPrint:  z.boolean().optional(),
+  canTrack:  z.boolean().optional(),
 })
 
 // ── POST /api/users ───────────────────────────────────────────
@@ -30,10 +37,7 @@ export const CreateUserSchema = z.object({
     .string({ error: "Username wajib diisi" })
     .min(3,  "Username minimal 3 karakter")
     .max(30, "Username maksimal 30 karakter")
-    .regex(
-      /^[a-z0-9_]+$/,
-      "Username hanya boleh huruf kecil, angka, dan underscore"
-    )
+    .regex(/^[a-z0-9_]+$/, "Username hanya boleh huruf kecil, angka, dan underscore")
     .trim(),
 
   password: z
@@ -68,10 +72,7 @@ export const UpdateUserSchema = z
       .string()
       .min(3,  "Username minimal 3 karakter")
       .max(30, "Username maksimal 30 karakter")
-      .regex(
-        /^[a-z0-9_]+$/,
-        "Username hanya boleh huruf kecil, angka, dan underscore"
-      )
+      .regex(/^[a-z0-9_]+$/, "Username hanya boleh huruf kecil, angka, dan underscore")
       .trim()
       .optional(),
 
@@ -81,7 +82,8 @@ export const UpdateUserSchema = z
       .max(72, "Password maksimal 72 karakter")
       .optional(),
 
-    role: RoleEnum.optional(),
+    role:        RoleEnum.optional(),
+    permissions: PermissionSchema.optional(),  // ← fix: 'permission' → 'permissions'
   })
   .refine(
     (data) => Object.values(data).some((v) => v !== undefined),
@@ -103,9 +105,7 @@ export const GetUsersQuerySchema = z.object({
     .string()
     .optional()
     .transform((v) => (v ? parseInt(v, 10) : 10))
-    .pipe(
-      z.number().int().min(1, "Limit minimal 1").max(100, "Limit maksimal 100")
-    ),
+    .pipe(z.number().int().min(1).max(100)),
 
   search: z
     .string()
