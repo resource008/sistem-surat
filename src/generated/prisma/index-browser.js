@@ -160,6 +160,16 @@ exports.Prisma.AccountScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.UserPermissionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  canCreate: 'canCreate',
+  canEdit: 'canEdit',
+  canDelete: 'canDelete',
+  canPrint: 'canPrint',
+  canTrack: 'canTrack'
+};
+
 exports.Prisma.DepartmentScalarFieldEnum = {
   id: 'id',
   shortName: 'shortName',
@@ -242,6 +252,7 @@ exports.Prisma.ModelName = {
   User: 'User',
   Session: 'Session',
   Account: 'Account',
+  UserPermission: 'UserPermission',
   Department: 'Department',
   RegisterSurat: 'RegisterSurat',
   RegisterPI: 'RegisterPI',

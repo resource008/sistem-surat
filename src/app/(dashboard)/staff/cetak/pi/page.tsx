@@ -1,14 +1,5 @@
-"use client"
-
-import { CetakPageContent }               from "@/components/surat/cetak/cetak-page"
-import { CetakPrintViewPI }               from "@/components/surat/cetak/print-view-pi"
+import { RoleCetakPiPage } from "@/components/role-dashboard/cetak-pages"
 
 export default function CetakPiPage() {
-  return (
-    <CetakPageContent
-      sessionType="pi"
-      activeFilter="PI"
-      PrintView={CetakPrintViewPI}
-    />
-  )
+  return <RoleCetakPiPage />
 }

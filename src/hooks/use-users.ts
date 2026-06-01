@@ -45,7 +45,7 @@ export function useUsers(options: UseUsersOptions = {}) {
     `/api/users?${params.toString()}`,
     fetcher,
     {
-      refreshInterval:    10_000,  // polling tiap 10 detik
+      refreshInterval:    5_000,  // polling tiap 5 detik
       revalidateOnFocus:  true,    // refetch saat tab difokus
       revalidateOnReconnect: true, // refetch saat koneksi kembali
     }

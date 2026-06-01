@@ -1,5 +1,5 @@
-"use client"
-import ViewActionBar from "@/components/surat/view-surat/view-surat"
+import { RoleViewSuratPage } from "@/components/role-dashboard/role-pages"
+
 export default function Page() {
-  return <ViewActionBar role="PKL" basePath="/pkl/data-surat" />
+  return <RoleViewSuratPage role="PKL" />
 }

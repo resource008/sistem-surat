@@ -5,6 +5,7 @@ import { fetchSuratById, editSurat, removeSurat } from "@/services/surat-service
 import { isPIDept } from "@/domain/surat/entities"
 import { UpdatePISchema, UpdateSuratSchema } from "@/app/validation/surat"
 import { Prisma } from "@/generated/prisma"
+import { prisma } from "@/infrastructure/databases/prisma-client"
 
 type Params = { params: Promise<{ dept: string; id: string }> }
 
@@ -12,6 +13,19 @@ type Params = { params: Promise<{ dept: string; id: string }> }
 
 async function getSession() {
   return auth.api.getSession({ headers: await headers() })
+}
+
+async function canDeleteSurat(session: Awaited<ReturnType<typeof getSession>>) {
+  const user = session?.user as { id?: string; role?: string } | undefined
+  if (!user?.id) return false
+  if (user.role === "ADMIN") return true
+
+  const permissions = await prisma.userPermission.findUnique({
+    where: { userId: user.id },
+    select: { canDelete: true },
+  })
+
+  return permissions?.canDelete ?? false
 }
 
 // ─── Parse & validate id ──────────────────────────────────────────────────────
@@ -97,6 +111,9 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
     const session = await getSession()
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+    if (!(await canDeleteSurat(session))) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
     }
 
     const { dept, id } = await params

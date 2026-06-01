@@ -9,17 +9,25 @@ import {
 import { ThemeToggle } from "@/components/ui/theme-toogle"
 import { routes } from "@/constants/routes"
 import { authClient } from "@/infrastructure/auth/auth-client"
+import { getAvatarColor } from "@/lib/avatar"
+import type { Role } from "@/types"
 import {
   ArrowLeftCircle, ArrowRightCircle,
-  FileText, LogOut, Printer, RefreshCcw, X
+  FileText, LogOut, Printer, RefreshCcw, X,
 } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
 
-// --- DEFINISI INTERFACE PROPS ---
-interface PklSidebarProps {
+const ICON_SIZE = 18
+const LOGO_WIDTH = 1523
+const LOGO_HEIGHT = 1246
+
+type DashboardRole = Extract<Role, "STAFF" | "PKL">
+
+interface Props {
+  role: DashboardRole
   collapsed: boolean
   isMobile: boolean
   mobileOpen: boolean
@@ -27,53 +35,56 @@ interface PklSidebarProps {
   onMobileClose: () => void
 }
 
-const ICON_SIZE = 18
-const LOGO_WIDTH = 1523
-const LOGO_HEIGHT = 1246
-
-export function PklSidebar({
-  collapsed,
-  isMobile,
-  mobileOpen,
-  onCollapse,
-  onMobileClose,
-}: PklSidebarProps) {
+export function RoleSidebar({
+  role, collapsed, isMobile, mobileOpen, onCollapse, onMobileClose,
+}: Props) {
   const pathname = usePathname()
+  const base = `/${role.toLowerCase()}`
 
-  const [userData, setUserData] = useState({
-    name: "Loading...", role: "PKL", initials: "??",
+  const [userData, setUserData] = useState<{ name: string; role: string; initials: string }>({
+    name: "",
+    role,
+    initials: "",
   })
-
-  const base = "/pkl"
+  const [userLoading, setUserLoading] = useState(true)
 
   const navItems = [
-    { label: "Data Surat",   icon: FileText,   href: `${base}/data-surat` },
-    { label: "Cetak",        icon: Printer,    href: `${base}/cetak`      }, // Sesuaikan base path cetak
-    { label: "Track Surat",  icon: RefreshCcw, href: `${base}/track`      },
+    { label: "Data Surat", icon: FileText, href: `${base}/data-surat` },
+    { label: "Cetak", icon: Printer, href: `${base}/cetak/all` },
+    { label: "Track Surat", icon: RefreshCcw, href: `${base}/track` },
   ]
 
   useEffect(() => {
     async function fetchUser() {
-      const { data } = await authClient.getSession()
-      if (!data?.user) return
-      const fullName = data.user.name || "User"
-      const initials = fullName
-        .split(" ").map((n: string) => n[0]).join("").toUpperCase().substring(0, 2)
-      const userRole = (data.user as any).role ?? "PKL"
-      setUserData({ name: fullName, role: userRole, initials })
+      try {
+        const { data } = await authClient.getSession()
+        if (!data?.user) return
+
+        const fullName = data.user.name || "User"
+        const initials = fullName
+          .split(" ")
+          .map((name: string) => name[0])
+          .join("")
+          .toUpperCase()
+          .substring(0, 2)
+        const userRole = ((data.user as any).role ?? role) as string
+        setUserData({ name: fullName, role: userRole, initials })
+      } finally {
+        setUserLoading(false)
+      }
     }
+
     fetchUser()
-  }, [])
+  }, [role])
 
   async function handleLogout() {
     const { data: session } = await authClient.getSession()
-    if (session?.session?.token)
+    if (session?.session?.token) {
       await authClient.revokeSession({ token: session.session.token })
+    }
     await authClient.signOut({
       fetchOptions: {
-        onSuccess: () => {
-          window.location.href = `${routes.login}?logout=true`  // ← tambah query param
-        },
+        onSuccess: () => { window.location.href = `${routes.login}?logout=true` },
       },
     })
   }
@@ -83,36 +94,35 @@ export function PklSidebar({
       id="sidebar"
       className={[
         styles.sidebar,
-        !isMobile && collapsed ? styles.collapsed     : "",
-        isMobile               ? styles.mobileSidebar : "",
-        isMobile && mobileOpen ? styles.mobileOpen    : "",
+        !isMobile && collapsed ? styles.collapsed : "",
+        isMobile ? styles.mobileSidebar : "",
+        isMobile && mobileOpen ? styles.mobileOpen : "",
       ].join(" ")}
     >
       <div className={styles.sidebarHeader}>
         <div className={styles.logoWrapper}>
-          <Image src="/sipef_logo.svg" alt="Logo" width={LOGO_WIDTH} height={LOGO_HEIGHT} className={styles.logoImage} priority />
+          <Image
+            src="/sipef_logo.svg"
+            alt="Logo"
+            width={LOGO_WIDTH}
+            height={LOGO_HEIGHT}
+            className={styles.logoImage}
+            priority
+          />
         </div>
+
         {isMobile ? (
           <button className={styles.collapseBtn} onClick={onMobileClose}>
             <X size={14} />
           </button>
         ) : (
           <>
-            {/* Tombol untuk Collapse (Menyusut) */}
             {!collapsed ? (
-              <button
-                className={styles.collapseBtn}
-                onClick={() => onCollapse(true)}
-              >
+              <button className={styles.collapseBtn} onClick={() => onCollapse(true)}>
                 <ArrowLeftCircle size={14} />
               </button>
             ) : (
-              /* Tombol untuk Expand (Melebar) */
-              <button 
-                className={styles.expandBtn} 
-                style={{ display: 'flex' }} // Pastikan terlihat saat collapsed
-                onClick={() => onCollapse(false)}
-              >
+              <button className={styles.expandBtn} style={{ display: "flex" }} onClick={() => onCollapse(false)}>
                 <ArrowRightCircle size={14} />
               </button>
             )}
@@ -126,12 +136,16 @@ export function PklSidebar({
 
       <nav className={styles.nav}>
         {navItems.map((item) => {
-          const Icon     = item.icon
-          const isActive = pathname.startsWith(item.href)
+          const Icon = item.icon
+          const isActive =
+            pathname === item.href ||
+            (item.href.includes("/cetak") && pathname.includes("/cetak")) ||
+            (item.href.includes("/data-surat") && pathname.includes("/data-surat"))
+
           return (
             <div key={item.href} className={styles.navItemWrapper}>
-              <Link 
-                href={item.href} 
+              <Link
+                href={item.href}
                 className={`${styles.navItem} ${isActive ? styles.navItemActive : ""}`}
                 onClick={() => isMobile && onMobileClose()}
               >
@@ -153,12 +167,40 @@ export function PklSidebar({
 
       <div className={styles.userSection}>
         <div className={styles.userCard}>
-          <div className={styles.userAvatar}>{userData.initials}</div>
-          {(!collapsed || isMobile) && (
-            <div className={styles.userInfo}>
-              <div className={styles.userName}>{userData.name}</div>
-              <div className={styles.userRole}>{userData.role}</div>
-            </div>
+          {userLoading ? (
+            <>
+              <div
+                className="shrink-0 rounded-[10px] animate-pulse"
+                style={{ width: 36, height: 36, background: "var(--sk-base, rgba(255,255,255,0.1))" }}
+              />
+              {(!collapsed || isMobile) && (
+                <div className="flex flex-col gap-1.5 flex-1 overflow-hidden">
+                  <div
+                    className="h-3 w-24 rounded-md animate-pulse"
+                    style={{ background: "var(--sk-base, rgba(255,255,255,0.1))" }}
+                  />
+                  <div
+                    className="h-2.5 w-12 rounded-md animate-pulse"
+                    style={{ background: "var(--sk-subtle, rgba(255,255,255,0.06))" }}
+                  />
+                </div>
+              )}
+            </>
+          ) : (
+            <>
+              <div
+                className={styles.userAvatar}
+                style={{ backgroundColor: getAvatarColor(userData.name) }}
+              >
+                {userData.initials}
+              </div>
+              {(!collapsed || isMobile) && (
+                <div className={styles.userInfo}>
+                  <div className={styles.userName}>{userData.name}</div>
+                  <div className={styles.userRole}>{userData.role}</div>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>

@@ -5,6 +5,7 @@ import { useRouter, useParams }   from "next/navigation"
 import { ArrowLeft, AlertTriangle, Loader2, Trash2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import { useSession } from "@/infrastructure/auth/auth-client"
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel,
   AlertDialogContent, AlertDialogDescription,
@@ -27,6 +28,11 @@ export default function ViewSuratPage({ role, basePath }: Props) {
   const { dept, id } = useParams<{ dept: string; id: string }>()
   const router       = useRouter()
   const isPI         = dept === "PI"
+  const { data: session } = useSession()
+  const sessionUser = session?.user as
+    | { role?: Role; permissions?: { canDelete?: boolean } | null }
+    | undefined
+  const canDelete = (sessionUser?.role ?? role) === "ADMIN" || (sessionUser?.permissions?.canDelete ?? false)
 
   const [register,       setRegister]       = useState<RegisterSurat | null>(null)
   const [loading,        setLoading]        = useState(true)
@@ -51,18 +57,35 @@ export default function ViewSuratPage({ role, basePath }: Props) {
 
   /* Delete -------------------------------------------------------- */
   async function handleDelete() {
+    if (!canDelete) {
+      toast.error("Tidak punya izin menghapus", {
+        description: "Permission Hapus Data Surat sedang dinonaktifkan.",
+      })
+      setShowDeleteConf(false)
+      return
+    }
+
     setDeleting(true)
     try {
       const res = await fetch(`/api/surat/${dept}/${id}`, { method: "DELETE" })
+      if (res.status === 403) {
+        throw new Error("FORBIDDEN")
+      }
       if (!res.ok) throw new Error()
       toast.success("Register berhasil dihapus", {
         description: `Data ${register?.nomor} telah dihapus permanen.`,
       })
       router.push(basePath)
-    } catch {
-      toast.error("Gagal menghapus register", {
-        description: "Terjadi kesalahan, silakan coba lagi.",
-      })
+    } catch (error) {
+      if (error instanceof Error && error.message === "FORBIDDEN") {
+        toast.error("Tidak punya izin menghapus", {
+          description: "Permission Hapus Data Surat sedang dinonaktifkan.",
+        })
+      } else {
+        toast.error("Gagal menghapus register", {
+          description: "Terjadi kesalahan, silakan coba lagi.",
+        })
+      }
       setDeleting(false)
       setShowDeleteConf(false)
     }
@@ -140,6 +163,7 @@ export default function ViewSuratPage({ role, basePath }: Props) {
         dept={dept}
         id={id}
         deleting={deleting}
+        canDelete={canDelete}
         onBack={()          => router.push(basePath)}
         onEdit={()          => router.push(`${basePath}/edit/${dept}/${id}`)}
         onDeleteRequest={() => setShowDeleteConf(true)}

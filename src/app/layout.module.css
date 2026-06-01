@@ -256,7 +256,6 @@
 
 .userAvatar {
   width: 36px; height: 36px;
-  background: linear-gradient(135deg, #2563eb, #7c3aed);
   color: white;
   border-radius: 10px;
   display: flex;

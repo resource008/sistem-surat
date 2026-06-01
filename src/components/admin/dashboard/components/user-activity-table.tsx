@@ -1,4 +1,3 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import type { RiwayatAktivitasPengguna } from "@/domain/admin-dashboard/types"
@@ -13,6 +12,27 @@ const ROW_COLORS = [
   "bg-fuchsia-50/80 dark:bg-fuchsia-950/20",
   "bg-emerald-50/80 dark:bg-emerald-950/20",
 ]
+
+const AVATAR_PALETTE = [
+  "#f59e0b", // amber
+  "#ef4444", // red
+  "#8b5cf6", // violet
+  "#3b82f6", // blue
+  "#10b981", // emerald
+  "#f97316", // orange
+  "#06b6d4", // cyan
+  "#ec4899", // pink
+  "#14b8a6", // teal
+  "#6366f1", // indigo
+]
+
+function getAvatarColor(name: string): string {
+  let hash = 0
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash)
+  }
+  return AVATAR_PALETTE[Math.abs(hash) % AVATAR_PALETTE.length]
+}
 
 export function UserActivityTable({ users }: UserActivityTableProps) {
   return (
@@ -40,14 +60,9 @@ export function UserActivityTable({ users }: UserActivityTableProps) {
               >
                 {/* Nama */}
                 <div className="flex min-w-0 items-center gap-2 font-medium text-foreground">
-                  <Avatar className="size-7 shrink-0">
-                    {user.fotoProfil ? (
-                      <AvatarImage src={user.fotoProfil} alt={user.nama} />
-                    ) : null}
-                    <AvatarFallback className="bg-cyan-500 text-[10px] text-white">
-                      {getInitial(user.nama)}
-                    </AvatarFallback>
-                  </Avatar>
+                  <div className="size-7 shrink-0 rounded-full bg-cyan-500 flex items-center justify-center text-[10px] font-semibold text-white">
+                    {getInitial(user.nama)}
+                  </div>
                   <span className="truncate">{user.nama}</span>
                 </div>
 

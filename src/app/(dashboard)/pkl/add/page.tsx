@@ -1,2 +1,5 @@
-// src/app/pkl/add/page.tsx
-export { default } from "@/app/(dashboard)/staff/add/page"
+import { RoleTambahSuratPage } from "@/components/role-dashboard/role-pages"
+
+export default function Page() {
+  return <RoleTambahSuratPage role="PKL" />
+}
