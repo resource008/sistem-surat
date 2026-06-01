@@ -1,4 +1,75 @@
-# API Routes — Sistem Surat
+# Sistem Surat
+
+# Development dengan Docker
+
+Mode ini dibuat supaya developer lain tidak perlu install Node.js, PostgreSQL, atau setup environment manual.
+
+## Menjalankan project
+
+```bash
+docker compose up --build
+```
+
+Aplikasi berjalan di:
+
+```text
+http://localhost:3001
+```
+
+Database PostgreSQL berjalan di container `db` dan dipublish ke host:
+
+```text
+localhost:5433
+```
+
+Compose development sudah mengatur environment default:
+
+```text
+DATABASE_URL=postgresql://postgres:password@db:5432/sistem_surat
+BETTER_AUTH_URL=http://localhost:3001
+```
+
+Saat container app start, Prisma client akan dibuat dan schema database akan disinkronkan otomatis dengan:
+
+```bash
+npx prisma generate
+npx prisma db push
+```
+
+## Seed data development
+
+Kalau ingin mengisi data contoh, ubah `SEED_ON_START` di `docker-compose.yml` menjadi:
+
+```yaml
+SEED_ON_START: "true"
+```
+
+Lalu jalankan ulang:
+
+```bash
+docker compose up --build
+```
+
+Akun contoh dari seed:
+
+| Role  | Username | Password |
+|-------|----------|----------|
+| Admin | admin    | admin123 |
+| Staff | staff1   | staff123 |
+| PKL   | pkl1     | pkl123   |
+
+## Reset database development
+
+Kalau ingin mulai dari database kosong:
+
+```bash
+docker compose down -v
+docker compose up --build
+```
+
+---
+
+## API Routes
 
 Semua endpoint memerlukan sesi yang valid (autentikasi via Better Auth). Request tanpa sesi akan mendapat respons `401 Unauthorized`.
 
