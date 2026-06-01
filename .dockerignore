@@ -1,10 +1,7 @@
 .git
 .gitignore
 .env
-.env.example
 .next
 node_modules
-README.md
-Dockerfile
-docker-compose.yml
-.dockerignore
+npm-debug.log*
+docker-compose.override.yml

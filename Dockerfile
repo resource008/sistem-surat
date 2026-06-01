@@ -1,36 +1,64 @@
-# Menggunakan Node.js versi 20 (Alpine)
-FROM node:20-alpine
+# syntax=docker/dockerfile:1
 
-# Dibutuhkan oleh Prisma agar query engine dapat berjalan
+FROM node:22-alpine AS base
+
 RUN apk add --no-cache openssl
 
 WORKDIR /app
 
-# Menyalin file dependency
-COPY package.json package-lock.json* ./
+ENV NEXT_TELEMETRY_DISABLED=1
 
-# Menginstall dependency dan mengabaikan konflik peer dependencies
-RUN npm install --legacy-peer-deps
+COPY package.json package-lock.json ./
 
-# Menyalin seluruh source code
+FROM base AS deps
+
+RUN npm ci --legacy-peer-deps
+
+FROM base AS development
+
+ENV NODE_ENV=development
+
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Menerima variabel dari docker-compose saat proses build
-ARG DATABASE_URL
-ARG BETTER_AUTH_SECRET
-ARG BETTER_AUTH_URL
+EXPOSE 3001
 
-# Menjadikan ARG sebagai ENV agar bisa dibaca oleh Next.js dan Prisma saat build
+CMD ["sh", "./docker/dev-entrypoint.sh"]
+
+FROM base AS builder
+
+ENV NODE_ENV=production
+
+ARG DATABASE_URL=postgresql://postgres:password@db:5432/sistem_surat
+ARG BETTER_AUTH_SECRET=dev-secret-change-before-production-123456
+ARG BETTER_AUTH_URL=http://localhost:3001
+
 ENV DATABASE_URL=$DATABASE_URL
 ENV BETTER_AUTH_SECRET=$BETTER_AUTH_SECRET
 ENV BETTER_AUTH_URL=$BETTER_AUTH_URL
 
-# Menjalankan script build
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
 RUN npm run build
 
-# Menentukan environment variable untuk produksi
+FROM node:22-alpine AS production
+
+RUN apk add --no-cache openssl
+
+WORKDIR /app
+
 ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3001
+
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/package-lock.json ./package-lock.json
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/src/generated ./src/generated
 
 EXPOSE 3001
 
