@@ -5,6 +5,7 @@ import { fetchAllSurat, saveSurat }   from "@/services/surat-service"
 import { CreateSuratSchema }          from "@/app/validation/surat"
 import { AppError }                   from "@/lib/errors"
 import { Prisma }                     from "@/generated/prisma"
+import { requireUserPermission }      from "@/lib/current-user-permissions"
 
 const MAX_IDS = 100
 
@@ -43,8 +44,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await auth.api.getSession({ headers: await headers() })
-    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    await requireUserPermission("canCreate")
 
     const body = await req.json().catch(() => null)
     if (!body) return NextResponse.json({ error: "Body tidak valid" }, { status: 400 })

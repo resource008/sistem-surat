@@ -3,7 +3,7 @@
 import useSWR                from "swr"
 import { useCallback, useState } from "react"
 import { toast }             from "sonner"
-import type { User }         from "@/domain/user/types"
+import type { User, UserPermissions } from "@/domain/user/types"
 
 interface PaginatedUsers {
   data: User[]
@@ -99,6 +99,7 @@ export function useUserActions(onSuccess?: () => void) {
     async (id: string, body: Partial<{
       name: string; email: string
       username: string; password: string; role: string
+      permissions: Partial<UserPermissions>
     }>) => {
       setLoading(true)
       try {

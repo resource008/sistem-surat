@@ -5,7 +5,8 @@ import { fetchSuratById, editSurat, removeSurat } from "@/services/surat-service
 import { isPIDept } from "@/domain/surat/entities"
 import { UpdatePISchema, UpdateSuratSchema } from "@/app/validation/surat"
 import { Prisma } from "@/generated/prisma"
-import { prisma } from "@/infrastructure/databases/prisma-client"
+import { requireUserPermission } from "@/lib/current-user-permissions"
+import { AppError } from "@/lib/errors"
 
 type Params = { params: Promise<{ dept: string; id: string }> }
 
@@ -13,19 +14,6 @@ type Params = { params: Promise<{ dept: string; id: string }> }
 
 async function getSession() {
   return auth.api.getSession({ headers: await headers() })
-}
-
-async function canDeleteSurat(session: Awaited<ReturnType<typeof getSession>>) {
-  const user = session?.user as { id?: string; role?: string } | undefined
-  if (!user?.id) return false
-  if (user.role === "ADMIN") return true
-
-  const permissions = await prisma.userPermission.findUnique({
-    where: { userId: user.id },
-    select: { canDelete: true },
-  })
-
-  return permissions?.canDelete ?? false
 }
 
 // ─── Parse & validate id ──────────────────────────────────────────────────────
@@ -66,10 +54,7 @@ export async function GET(_req: NextRequest, { params }: Params) {
 
 export async function PATCH(req: NextRequest, { params }: Params) {
   try {
-    const session = await getSession()
-    if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
+    await requireUserPermission("canEdit")
 
     const { dept, id } = await params
     const numId = parseId(id)
@@ -92,6 +77,9 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     return NextResponse.json(updated)
 
   } catch (error) {
+    if (error instanceof AppError) {
+      return NextResponse.json({ error: error.message }, { status: error.status })
+    }
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === "P2025") {
         return NextResponse.json({ error: "Data tidak ditemukan" }, { status: 404 })
@@ -108,13 +96,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
 
 export async function DELETE(_req: NextRequest, { params }: Params) {
   try {
-    const session = await getSession()
-    if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
-    if (!(await canDeleteSurat(session))) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 })
-    }
+    await requireUserPermission("canDelete")
 
     const { dept, id } = await params
     const numId = parseId(id)
@@ -126,6 +108,9 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
     return NextResponse.json({ success: true })
 
   } catch (error) {
+    if (error instanceof AppError) {
+      return NextResponse.json({ error: error.message }, { status: error.status })
+    }
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === "P2025") {
         return NextResponse.json({ error: "Data tidak ditemukan" }, { status: 404 })

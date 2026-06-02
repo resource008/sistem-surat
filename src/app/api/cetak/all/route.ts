@@ -1,21 +1,13 @@
 import { NextResponse }  from "next/server"
-import { headers }       from "next/headers"
 import { prisma }        from "@/infrastructure/databases/prisma-client"
-import { auth }          from "@/infrastructure/auth/better-auth"
 import { AppError }      from "@/lib/errors"
-import type { ExtendedSession } from "@/types/auth"
+import { requireUserPermission } from "@/lib/current-user-permissions"
 
 const MAX_IDS = 100
 
 export async function GET(req: Request) {
   try {
-    const session = await auth.api.getSession({
-      headers: await headers(),
-    }) as ExtendedSession | null
-
-    if (!session) {
-      throw new AppError(401, "Unauthorized")
-    }
+    await requireUserPermission("canPrint")
 
     const { searchParams } = new URL(req.url)
     const idsParam         = searchParams.get("ids")

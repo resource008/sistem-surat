@@ -19,6 +19,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
+import type { UserPermissions } from "@/domain/user/types"
 
 const ICON_SIZE = 18
 const LOGO_WIDTH = 1523
@@ -31,12 +32,14 @@ interface Props {
   collapsed: boolean
   isMobile: boolean
   mobileOpen: boolean
+  permissions?: UserPermissions
+  permissionsLoading: boolean
   onCollapse: (val: boolean) => void
   onMobileClose: () => void
 }
 
 export function RoleSidebar({
-  role, collapsed, isMobile, mobileOpen, onCollapse, onMobileClose,
+  role, collapsed, isMobile, mobileOpen, permissions, permissionsLoading, onCollapse, onMobileClose,
 }: Props) {
   const pathname = usePathname()
   const base = `/${role.toLowerCase()}`
@@ -49,9 +52,9 @@ export function RoleSidebar({
   const [userLoading, setUserLoading] = useState(true)
 
   const navItems = [
-    { label: "Data Surat", icon: FileText, href: `${base}/data-surat` },
-    { label: "Cetak", icon: Printer, href: `${base}/cetak/all` },
-    { label: "Track Surat", icon: RefreshCcw, href: `${base}/track` },
+    { label: "Data Surat", icon: FileText, href: `${base}/data-surat`, permission: null },
+    { label: "Cetak", icon: Printer, href: `${base}/cetak/all`, permission: "canPrint" },
+    { label: "Track Surat", icon: RefreshCcw, href: `${base}/track`, permission: "canTrack" },
   ]
 
   useEffect(() => {
@@ -136,6 +139,14 @@ export function RoleSidebar({
 
       <nav className={styles.nav}>
         {navItems.map((item) => {
+          if (
+            item.permission &&
+            !permissionsLoading &&
+            !(permissions?.[item.permission as keyof UserPermissions] ?? false)
+          ) {
+            return null
+          }
+
           const Icon = item.icon
           const isActive =
             pathname === item.href ||

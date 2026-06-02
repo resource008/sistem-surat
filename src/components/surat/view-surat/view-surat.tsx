@@ -5,7 +5,6 @@ import { useRouter, useParams }   from "next/navigation"
 import { ArrowLeft, AlertTriangle, Loader2, Trash2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { useSession } from "@/infrastructure/auth/auth-client"
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel,
   AlertDialogContent, AlertDialogDescription,
@@ -21,18 +20,33 @@ import { PIListPanel }       from "./pi-list-panel"
 import { ViewActionBar }     from "./action-bar"
 
 import { toast } from "sonner"
+import useSWR from "swr"
+import type { UserPermissions } from "@/domain/user/types"
 
 interface Props { role: Role; basePath: string }
+
+type PermissionResponse = {
+  role: Role
+  permissions: UserPermissions
+}
+
+const fetchPermissions = async (url: string): Promise<PermissionResponse> => {
+  const res = await fetch(url)
+  if (!res.ok) throw new Error("Gagal mengambil hak akses")
+  return res.json()
+}
 
 export default function ViewSuratPage({ role, basePath }: Props) {
   const { dept, id } = useParams<{ dept: string; id: string }>()
   const router       = useRouter()
   const isPI         = dept === "PI"
-  const { data: session } = useSession()
-  const sessionUser = session?.user as
-    | { role?: Role; permissions?: { canDelete?: boolean } | null }
-    | undefined
-  const canDelete = (sessionUser?.role ?? role) === "ADMIN" || (sessionUser?.permissions?.canDelete ?? false)
+  const { data: access } = useSWR<PermissionResponse>(
+    "/api/me/permissions",
+    fetchPermissions,
+    { refreshInterval: 5_000, revalidateOnFocus: true }
+  )
+  const canDelete = access?.role === "ADMIN" || (access?.permissions.canDelete ?? false)
+  const canEdit = access?.role === "ADMIN" || (access?.permissions.canEdit ?? false)
 
   const [register,       setRegister]       = useState<RegisterSurat | null>(null)
   const [loading,        setLoading]        = useState(true)
@@ -159,10 +173,8 @@ export default function ViewSuratPage({ role, basePath }: Props) {
 
       {/* Action Bar */}
       <ViewActionBar
-        basePath={basePath}
-        dept={dept}
-        id={id}
         deleting={deleting}
+        canEdit={canEdit}
         canDelete={canDelete}
         onBack={()          => router.push(basePath)}
         onEdit={()          => router.push(`${basePath}/edit/${dept}/${id}`)}
