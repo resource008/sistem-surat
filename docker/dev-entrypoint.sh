@@ -1,16 +1,16 @@
 #!/bin/sh
 set -e
 
-echo "Generating Prisma client..."
+echo "[entrypoint] Generating Prisma client..."
 npx prisma generate
 
-echo "Syncing database schema..."
+echo "[entrypoint] Syncing database schema..."
 npx prisma db push
 
 if [ "$SEED_ON_START" = "true" ]; then
-  echo "Seeding development data..."
+  echo "[entrypoint] Seeding development data..."
   npm run seed
 fi
 
-echo "Starting Next.js development server..."
-npm run dev
+echo "[entrypoint] Starting Next.js development server..."
+exec npm run dev
