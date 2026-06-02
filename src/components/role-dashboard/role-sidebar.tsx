@@ -77,6 +77,29 @@ export function RoleSidebar({
     fetchUser()
   }, [role])
 
+  useEffect(() => {
+    const handler = (event: Event) => {
+      const user = (event as CustomEvent<{ name?: string; role?: string }>).detail
+      if (!user?.name) return
+
+      const initials = user.name
+        .split(" ")
+        .map((name: string) => name[0])
+        .join("")
+        .toUpperCase()
+        .substring(0, 2)
+
+      setUserData((current) => ({
+        name: user.name ?? current.name,
+        role: user.role ?? current.role,
+        initials,
+      }))
+    }
+
+    window.addEventListener("profile:updated", handler)
+    return () => window.removeEventListener("profile:updated", handler)
+  }, [])
+
   async function handleLogout() {
     const { data: session } = await authClient.getSession()
     if (session?.session?.token) {
@@ -166,7 +189,12 @@ export function RoleSidebar({
       </div>
 
       <div className={styles.userSection}>
-        <div className={styles.userCard}>
+        <Link
+          href={`${base}/akun`}
+          className={`${styles.userCard} ${pathname === `${base}/akun` ? styles.userCardActive : ""}`}
+          onClick={() => isMobile && onMobileClose()}
+          title="Pengaturan akun"
+        >
           {userLoading ? (
             <>
               <div
@@ -202,7 +230,7 @@ export function RoleSidebar({
               )}
             </>
           )}
-        </div>
+        </Link>
       </div>
 
       <div className={styles.sidebarFooter}>

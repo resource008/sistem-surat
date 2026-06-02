@@ -244,7 +244,16 @@
   border-radius: 12px;
   background: var(--sidebar-accent);
   border: 1px solid var(--sidebar-border);
+  color: inherit;
+  cursor: pointer;
+  text-decoration: none;
   transition: all var(--duration) var(--ease);
+}
+
+.userCard:hover,
+.userCardActive {
+  border-color: var(--accent);
+  background: var(--hover-bg);
 }
 
 .sidebar.collapsed .userCard {
