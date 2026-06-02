@@ -2,10 +2,8 @@ import { ArrowLeft, Edit3, Loader2, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 interface Props {
-  basePath:         string
-  dept:             string
-  id:               string
   deleting:         boolean
+  canEdit:          boolean
   canDelete:        boolean
   onBack:           () => void
   onEdit:           () => void
@@ -13,7 +11,7 @@ interface Props {
 }
 
 export function ViewActionBar({
-  basePath, dept, id, deleting, canDelete, onBack, onEdit, onDeleteRequest,
+  deleting, canEdit, canDelete, onBack, onEdit, onDeleteRequest,
 }: Props) {
   return (
     <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-30">
@@ -31,13 +29,15 @@ export function ViewActionBar({
           <ArrowLeft size={14} /> Kembali
         </Button>
 
-        <Button variant="ghost" onClick={onEdit}
-          className="gap-2 h-10 px-4 rounded-xl text-[13px] font-medium
-                     text-blue-600 dark:text-blue-400
-                     hover:text-blue-700 dark:hover:text-blue-300
-                     hover:bg-blue-50 dark:hover:bg-blue-900/30">
-          <Edit3 size={14} /> Edit
-        </Button>
+        {canEdit && (
+          <Button variant="ghost" onClick={onEdit}
+            className="gap-2 h-10 px-4 rounded-xl text-[13px] font-medium
+                       text-blue-600 dark:text-blue-400
+                       hover:text-blue-700 dark:hover:text-blue-300
+                       hover:bg-blue-50 dark:hover:bg-blue-900/30">
+            <Edit3 size={14} /> Edit
+          </Button>
+        )}
 
         {canDelete && (
           <Button variant="ghost" onClick={onDeleteRequest}

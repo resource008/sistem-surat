@@ -8,12 +8,14 @@ import { RoleSidebar } from "@/components/role-dashboard/role-sidebar"
 import { usePresenceHeartbeat } from "@/hooks/use-presence-heartbeat"
 import { useSession } from "@/infrastructure/auth/auth-client"
 import type { Role } from "@/types"
+import type { UserPermissions } from "@/domain/user/types"
 import {
   ArrowLeftRight, ChevronRight,
   Menu, Plus, Printer, X,
 } from "lucide-react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { Suspense, useEffect, useState } from "react"
+import useSWR from "swr"
 
 type DashboardRole = Extract<Role, "STAFF" | "PKL">
 
@@ -22,14 +24,17 @@ interface Props {
   children: React.ReactNode
 }
 
-interface SessionUser {
-  permissions?: {
-    canCreate?: boolean
-    canEdit?: boolean
-    canDelete?: boolean
-    canPrint?: boolean
-    canTrack?: boolean
-  } | null
+interface PermissionResponse {
+  role: Role
+  permissions: UserPermissions
+}
+
+type PermissionKey = keyof UserPermissions
+
+const fetchPermissions = async (url: string): Promise<PermissionResponse> => {
+  const res = await fetch(url)
+  if (!res.ok) throw new Error("Gagal mengambil hak akses")
+  return res.json()
 }
 
 const FEATURE_LABEL: Record<string, string> = {
@@ -43,7 +48,7 @@ const FEATURE_LABEL: Record<string, string> = {
 function getRequiredPermission(
   pathname: string,
   base: string
-): keyof NonNullable<SessionUser["permissions"]> | null {
+): PermissionKey | null {
   if (pathname.startsWith(`${base}/cetak`)) return "canPrint"
   if (pathname.startsWith(`${base}/add`)) return "canCreate"
   if (pathname.includes(`${base}/`) && pathname.includes("/edit/")) return "canEdit"
@@ -60,12 +65,21 @@ function RoleLayoutInner({ role, children }: Props) {
   const roleLower = role.toLowerCase()
   const base = `/${roleLower}`
 
-  const { data: session, isPending } = useSession()
-  const user = session?.user as SessionUser | undefined
-  const permissions = user?.permissions
+  const { isPending } = useSession()
+  const { data: access, isLoading: permissionsLoading } = useSWR<PermissionResponse>(
+    "/api/me/permissions",
+    fetchPermissions,
+    {
+      refreshInterval: 5_000,
+      revalidateOnFocus: true,
+      revalidateOnReconnect: true,
+    }
+  )
+  const permissions = access?.permissions
   const requiredPerm = getRequiredPermission(pathname, base)
+  const permissionsPending = isPending || permissionsLoading
   const isDenied =
-    !isPending &&
+    !permissionsPending &&
     requiredPerm !== null &&
     !(permissions?.[requiredPerm] ?? false)
 
@@ -192,6 +206,8 @@ function RoleLayoutInner({ role, children }: Props) {
         collapsed={collapsed}
         isMobile={isMobile}
         mobileOpen={mobileOpen}
+        permissions={permissions}
+        permissionsLoading={permissionsPending}
         onCollapse={setCollapsed}
         onMobileClose={() => setMobileOpen(false)}
       />
@@ -364,7 +380,7 @@ function RoleLayoutInner({ role, children }: Props) {
           )}
         </div>
 
-        {isDataSuratPage && (
+        {isDataSuratPage && (permissions?.canCreate ?? false) && (
           <button
             onClick={() => {
               sessionStorage.setItem("add_return_mode", showPI ? "pi" : "surat")

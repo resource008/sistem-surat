@@ -2,6 +2,8 @@ import { prisma }              from "@/infrastructure/databases/prisma-client"
 import { scryptAsync }         from "@noble/hashes/scrypt.js"
 import { randomBytes, bytesToHex } from "@noble/hashes/utils.js"
 import type { UserRepository } from "@/domain/user/repositories"
+import { getDefaultPermission } from "@/lib/permission"
+import type { Role } from "@/types"
 import type {
   User,
   CreateUserInput,
@@ -154,6 +156,9 @@ export class PrismaUserRepository implements UserRepository {
         username:      input.username,
         emailVerified: false,
         role:          input.role,
+        permissions: {
+          create: getDefaultPermission(input.role),
+        },
         accounts: {
           create: {
             id:         crypto.randomUUID(),
@@ -175,6 +180,13 @@ export class PrismaUserRepository implements UserRepository {
     const updateData = Object.fromEntries(
       Object.entries(fields).filter(([, v]) => v !== undefined)
     )
+    const currentUser = permissions
+      ? await prisma.user.findUnique({ where: { id }, select: { role: true } })
+      : null
+    const permissionBaseRole = (fields.role ?? currentUser?.role ?? "STAFF") as Role
+    const permissionCreateData = permissions
+      ? { ...getDefaultPermission(permissionBaseRole), ...permissions }
+      : null
 
     const user = await prisma.user.update({
       where:  { id },
@@ -184,11 +196,11 @@ export class PrismaUserRepository implements UserRepository {
           permissions: {
             upsert: {
               create: {
-                canCreate: permissions.canCreate ?? false,
-                canEdit:   permissions.canEdit   ?? false,
-                canDelete: permissions.canDelete ?? false,
-                canPrint:  permissions.canPrint  ?? false,
-                canTrack:  permissions.canTrack  ?? false,
+                canCreate: permissionCreateData!.canCreate,
+                canEdit:   permissionCreateData!.canEdit,
+                canDelete: permissionCreateData!.canDelete,
+                canPrint:  permissionCreateData!.canPrint,
+                canTrack:  permissionCreateData!.canTrack,
               },
               update: {
                 canCreate: permissions.canCreate,
