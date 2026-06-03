@@ -92,6 +92,45 @@ export const UpdateUserSchema = z
 
 export type UpdateUserInput = z.infer<typeof UpdateUserSchema>
 
+// PATCH /api/profile
+
+export const UpdateProfileSchema = z
+  .object({
+    name: z
+      .string()
+      .min(2,   "Nama minimal 2 karakter")
+      .max(100, "Nama maksimal 100 karakter")
+      .trim()
+      .optional(),
+
+    email: z
+      .string()
+      .email("Format email tidak valid")
+      .toLowerCase()
+      .trim()
+      .optional(),
+
+    username: z
+      .string()
+      .min(3,  "Username minimal 3 karakter")
+      .max(30, "Username maksimal 30 karakter")
+      .regex(/^[a-z0-9_]+$/, "Username hanya boleh huruf kecil, angka, dan underscore")
+      .trim()
+      .optional(),
+
+    password: z
+      .string()
+      .min(8,  "Password minimal 8 karakter")
+      .max(72, "Password maksimal 72 karakter")
+      .optional(),
+  })
+  .refine(
+    (data) => Object.values(data).some((v) => v !== undefined && v !== ""),
+    { message: "Minimal satu field harus diisi untuk update" }
+  )
+
+export type UpdateProfileInput = z.infer<typeof UpdateProfileSchema>
+
 // ── GET /api/users (query params) ────────────────────────────
 
 export const GetUsersQuerySchema = z.object({

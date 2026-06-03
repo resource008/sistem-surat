@@ -185,6 +185,7 @@ function RoleLayoutInner({ role, children }: Props) {
   const currentPage = (() => {
     if (pathname.startsWith(`${base}/akun`)) return "Akun Anda"
     if (pathname.includes("/cetak")) return "Cetak"
+    if (pathname.includes("/akun")) return "Akun Anda"
     if (pathname.includes("/data-surat")) return "Data Surat"
     if (pathname.includes("/track")) return "Track Surat"
     if (pathname.includes("/view/") || pathname.includes("/edit/")) return "Data Surat"

@@ -52,11 +52,15 @@ docker compose up --build
 
 Akun contoh dari seed:
 
-| Role  | Username | Password |
-|-------|----------|----------|
-| Admin | admin    | admin123 |
-| Staff | staff1   | staff123 |
-| PKL   | pkl1     | pkl123   |
+| Role  | Username | Password  |
+|-------|----------|-----------|
+| Admin | admin    | admin123. |
+| Staff | staff1   | staff123. |
+| PKL   | pkl1     | pkl123.   |
+
+**Note**
+
+Setelah dibuat nilai true di SEED_ON_START ketika container berhasil jalan, ubah kembali menjadi false agar seed nya tidak berjalan terus ketika menjalankan container.
 
 ## Reset database development
 
