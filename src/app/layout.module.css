@@ -247,10 +247,37 @@
   transition: all var(--duration) var(--ease);
 }
 
+.userCardLink {
+  color: inherit;
+  text-decoration: none;
+}
+
+.userCardLink:hover {
+  background: var(--hover-bg);
+}
+
+.userCardActive {
+  background: var(--sidebar-accent);
+  border-color: var(--sidebar-border);
+  border-width: 1px;
+  color: inherit;
+}
+
+.userCardActive:hover {
+  background: var(--sidebar-accent);
+}
+
 .sidebar.collapsed .userCard {
   background: transparent;
   border-color: transparent;
   justify-content: center;
+  padding: 12px 0;
+}
+
+.sidebar.collapsed .userCardActive {
+  background: transparent;
+  border-color: transparent;
+  border-width: 1px;
   padding: 12px 0;
 }
 

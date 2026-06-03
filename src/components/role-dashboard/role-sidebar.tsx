@@ -50,6 +50,7 @@ export function RoleSidebar({
     initials: "",
   })
   const [userLoading, setUserLoading] = useState(true)
+  const isAccountActive = pathname.startsWith(`${base}/akun`)
 
   const navItems = [
     { label: "Data Surat", icon: FileText, href: `${base}/data-surat`, permission: null },
@@ -58,10 +59,28 @@ export function RoleSidebar({
   ]
 
   useEffect(() => {
+    let alive = true
+
     async function fetchUser() {
       try {
+        const response = await fetch("/api/me/account")
+        if (response.ok) {
+          const data = await response.json()
+          if (!alive) return
+
+          const fullName = data.name || "User"
+          const initials = fullName
+            .split(" ")
+            .map((name: string) => name[0])
+            .join("")
+            .toUpperCase()
+            .substring(0, 2)
+          setUserData({ name: fullName, role: data.role ?? role, initials })
+          return
+        }
+
         const { data } = await authClient.getSession()
-        if (!data?.user) return
+        if (!alive || !data?.user) return
 
         const fullName = data.user.name || "User"
         const initials = fullName
@@ -73,11 +92,16 @@ export function RoleSidebar({
         const userRole = ((data.user as any).role ?? role) as string
         setUserData({ name: fullName, role: userRole, initials })
       } finally {
-        setUserLoading(false)
+        if (alive) setUserLoading(false)
       }
     }
 
     fetchUser()
+    window.addEventListener("account:updated", fetchUser)
+    return () => {
+      alive = false
+      window.removeEventListener("account:updated", fetchUser)
+    }
   }, [role])
 
   async function handleLogout() {
@@ -177,7 +201,12 @@ export function RoleSidebar({
       </div>
 
       <div className={styles.userSection}>
-        <div className={styles.userCard}>
+        <Link
+          href={`${base}/akun`}
+          className={`${styles.userCard} ${styles.userCardLink} ${isAccountActive ? styles.userCardActive : ""}`}
+          onClick={() => isMobile && onMobileClose()}
+          title="Akun Anda"
+        >
           {userLoading ? (
             <>
               <div
@@ -213,7 +242,7 @@ export function RoleSidebar({
               )}
             </>
           )}
-        </div>
+        </Link>
       </div>
 
       <div className={styles.sidebarFooter}>
