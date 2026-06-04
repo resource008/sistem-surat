@@ -1,5 +1,5 @@
 import { AccountPage } from "@/components/role-dashboard/account-page"
 
-export default function Page() {
+export default function PklAccountPage() {
   return <AccountPage />
 }

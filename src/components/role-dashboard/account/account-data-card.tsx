@@ -1,0 +1,87 @@
+"use client"
+
+import { FileText } from "lucide-react"
+import { getAvatarColor, getInitials } from "@/lib/avatar"
+import { AccountField } from "./account-field"
+import { TimestampBlock } from "./timestamp-block"
+import type { AccountForm, FormattedDateTime } from "./types"
+
+type AccountDataCardProps = {
+  form: AccountForm
+  roleLabel: string
+  editing: boolean
+  created: FormattedDateTime
+  updated: FormattedDateTime
+  onFormChange: (next: Partial<AccountForm>) => void
+}
+
+export function AccountDataCard({
+  form,
+  roleLabel,
+  editing,
+  created,
+  updated,
+  onFormChange,
+}: AccountDataCardProps) {
+  const displayName = form.name || "-"
+  const initials = getInitials(form.name || "User")
+  const avatarColor = getAvatarColor(form.name || "User")
+
+  return (
+    <div className="w-full overflow-hidden rounded-[20px] border border-border bg-transparent">
+      <div className="flex h-16 items-center gap-3 border-b border-border px-8 max-sm:h-14 max-sm:px-5">
+        <FileText size={18} className="text-muted-foreground" />
+        <span className="text-[15px] font-semibold text-foreground">Data Akun</span>
+      </div>
+
+      <div className="px-8 py-8 max-lg:px-6 max-lg:py-7 max-sm:px-5 max-sm:py-5">
+        <div className="flex items-start justify-between gap-8 max-md:flex-col">
+          <div className="flex items-center gap-4">
+            <div
+              className="flex size-[52px] shrink-0 items-center justify-center rounded-full text-[17px] font-bold text-white max-sm:size-12 max-sm:text-base"
+              style={{ backgroundColor: avatarColor }}
+            >
+              {initials}
+            </div>
+            <div className="min-w-0">
+              <div className="truncate text-[15px] font-bold text-foreground">
+                {displayName}
+              </div>
+              <div className="mt-0.5 text-[14px] text-muted-foreground">
+                {roleLabel}
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-10 max-sm:w-full max-sm:gap-6">
+            <TimestampBlock title="Diperbarui" value={updated} />
+            <TimestampBlock title="Ditambahkan" value={created} />
+          </div>
+        </div>
+
+        <div className="mt-8 flex flex-col gap-5 max-sm:mt-7 max-sm:gap-4">
+          <AccountField
+            label="Nama Lengkap"
+            value={form.name}
+            editable={editing}
+            onChange={(name) => onFormChange({ name })}
+          />
+          <AccountField
+            label="Nama Pengguna"
+            value={form.username}
+            editable={editing}
+            onChange={(username) => onFormChange({ username })}
+          />
+          <AccountField
+            label="Email"
+            value={form.email}
+            type="email"
+            editable={editing}
+            onChange={(email) => onFormChange({ email })}
+          />
+          <AccountField label="Role" value={roleLabel} />
+        </div>
+      </div>
+    </div>
+  )
+}

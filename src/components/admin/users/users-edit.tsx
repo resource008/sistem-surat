@@ -259,7 +259,7 @@ export default function UserEditPage() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex flex-col gap-1.5 sm:col-span-2">
+            <div className="flex flex-col gap-1.5">
               <Label className="text-xs text-muted-foreground">Password Baru</Label>
               <div className="flex flex-col gap-2 sm:flex-row">
                 <div className="relative flex-1">
@@ -294,6 +294,7 @@ export default function UserEditPage() {
                 </Button>
               </div>
             </div>
+            <div className="hidden sm:block" />
 
           </div>
         </div>
