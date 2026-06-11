@@ -1,11 +1,14 @@
 # Dokumentasi API Routes
 
-Dokumen ini merangkum API route yang tersedia di aplikasi Sistem Surat saat ini. Semua path di bawah memakai base URL aplikasi, misalnya `http://localhost:3001`.
+Dokumen ini merangkum API route yang tersedia di aplikasi Sistem Surat berdasarkan implementasi di `src/app/api`. Semua path memakai base URL aplikasi, misalnya `http://localhost:3001`.
 
 ## Aturan Umum
 
 - Format request dan response utama adalah JSON.
-- Route yang dilindungi membaca session dari Better Auth melalui cookie/session request.
+- Route yang dilindungi membaca session Better Auth dari cookie/session request.
+- Role yang tersedia: `ADMIN`, `STAFF`, dan `PKL`.
+- Permission user: `canCreate`, `canEdit`, `canDelete`, `canPrint`, dan `canTrack`.
+- User `ADMIN` dianggap memiliki semua permission. User non-admin dicek dari tabel permission, atau default sesuai role jika data permission belum ada.
 - Response error umum:
 
 ```json
@@ -22,6 +25,11 @@ Dokumen ini merangkum API route yang tersedia di aplikasi Sistem Surat saat ini.
 | `422` | Validasi field gagal |
 | `500` | Error server |
 
+Catatan validasi:
+- Beberapa route mengembalikan `error` berupa string.
+- `GET /api/users` dan `POST /api/users` mengembalikan `error` berupa object `fieldErrors`.
+- `PATCH /api/surat/[dept]/[id]` mengembalikan `error` berupa hasil `zod.flatten()`.
+
 ## Auth
 
 ### `GET|POST /api/auth/[...all]`
@@ -35,8 +43,11 @@ toNextJsHandler(auth)
 ```
 
 Catatan:
-- Login aplikasi saat ini memakai username/password melalui `authClient.signIn.username`.
-- Disable sign-up aktif di konfigurasi Better Auth.
+- Login aplikasi memakai username/password melalui plugin Better Auth `username`.
+- Email/password aktif, sign-up dinonaktifkan.
+- Plugin `bearer` juga aktif.
+- `role` ditambahkan sebagai field user Better Auth dengan default `STAFF`.
+- `trustedOrigins` saat ini berisi `http://localhost:3001`.
 
 ## Profile
 
@@ -82,11 +93,11 @@ Field yang boleh dikirim:
 | Field | Tipe | Wajib | Catatan |
 | --- | --- | --- | --- |
 | `name` | string | tidak | Minimal 2, maksimal 100 karakter |
-| `email` | string | tidak | Harus format email valid |
+| `email` | string | tidak | Harus format email valid, disimpan lowercase |
 | `username` | string | tidak | 3-30 karakter, huruf kecil/angka/underscore |
 | `password` | string | tidak | 8-72 karakter |
 
-Field `role` dan `permissions` tidak diterima di route ini, sehingga user tidak bisa mengubah role atau hak akses sendiri.
+Minimal satu field harus dikirim. Field `role` dan `permissions` tidak diterima di route ini.
 
 Contoh request:
 
@@ -186,8 +197,8 @@ Query params:
 | Param | Default | Catatan |
 | --- | --- | --- |
 | `page` | `1` | Minimal 1 |
-| `limit` | `10` | Maksimal 100 |
-| `search` | - | Cari pada `name`, `email`, `username` |
+| `limit` | `10` | Minimal 1, maksimal 100 |
+| `search` | - | Maksimal 100 karakter, cari pada `name`, `email`, `username` |
 | `role` | - | `ADMIN`, `STAFF`, atau `PKL` |
 
 Contoh:
@@ -211,7 +222,13 @@ Response `200`:
       "updatedAt": "2026-06-01T16:49:00.000Z",
       "lastLogin": "2026-06-01T16:40:00.000Z",
       "status": "Sedang Aktif",
-      "permissions": null
+      "permissions": {
+        "canCreate": true,
+        "canEdit": true,
+        "canDelete": false,
+        "canPrint": true,
+        "canTrack": false
+      }
     }
   ],
   "meta": {
@@ -234,11 +251,19 @@ Body:
 | Field | Tipe | Wajib | Catatan |
 | --- | --- | --- | --- |
 | `name` | string | ya | Minimal 2, maksimal 100 karakter |
-| `email` | string | ya | Harus unik dan format email valid |
+| `email` | string | ya | Harus unik, format email valid, disimpan lowercase |
 | `username` | string | ya | Harus unik, 3-30 karakter, huruf kecil/angka/underscore |
 | `password` | string | ya | 8-72 karakter |
 | `role` | string | ya | `ADMIN`, `STAFF`, atau `PKL` |
 | `permissions` | object | tidak | Hak akses user. Jika kosong, memakai default permission sesuai role |
+
+Permission dibuat otomatis dari default role:
+
+| Role | Default permission |
+| --- | --- |
+| `ADMIN` | Semua true |
+| `STAFF` | `canCreate`, `canEdit`, `canPrint` true; `canDelete`, `canTrack` false |
+| `PKL` | Semua false |
 
 Contoh request:
 
@@ -280,11 +305,13 @@ Body:
 | Field | Tipe | Wajib | Catatan |
 | --- | --- | --- | --- |
 | `name` | string | tidak | Minimal 2, maksimal 100 karakter |
-| `email` | string | tidak | Harus format email valid |
+| `email` | string | tidak | Harus format email valid, disimpan lowercase |
 | `username` | string | tidak | 3-30 karakter, huruf kecil/angka/underscore |
 | `password` | string | tidak | 8-72 karakter |
 | `role` | string | tidak | `ADMIN`, `STAFF`, atau `PKL` |
-| `permissions` | object | tidak | Hak akses staff/PKL |
+| `permissions` | object | tidak | Partial permission user |
+
+Minimal satu field harus dikirim.
 
 Contoh request:
 
@@ -306,7 +333,9 @@ Response `200`: object `User` terbaru.
 
 Catatan:
 - Admin tidak bisa menurunkan role akun dirinya sendiri dari `ADMIN`.
+- Admin tidak bisa menghapus akun dirinya sendiri.
 - Username dan email dicek agar tidak duplikat.
+- Jika `permissions` dikirim dan record permission belum ada, route melakukan upsert memakai default role lalu menimpa field yang dikirim.
 
 ### `DELETE /api/users/[id]`
 
@@ -320,14 +349,11 @@ Response `200`:
 { "message": "User berhasil dihapus" }
 ```
 
-Catatan:
-- Admin tidak bisa menghapus akun dirinya sendiri.
-
 ## Surat
 
 ### `GET /api/surat`
 
-Mengambil daftar surat atau PI.
+Mengambil daftar surat biasa atau PI.
 
 Auth: wajib login.
 
@@ -336,7 +362,7 @@ Query params:
 | Param | Default | Catatan |
 | --- | --- | --- |
 | `type` | surat biasa | Isi `pi` untuk data PI |
-| `ids` | - | Comma separated id, maksimal 100 id |
+| `ids` | - | Comma separated id, hanya integer positif, maksimal 100 id |
 | `page` | - | Jika dikirim, response menjadi paginated |
 | `limit` | `20` | Dipakai jika `page` dikirim |
 | `date` | - | Filter `tanggalTerima` pada tanggal tertentu |
@@ -427,6 +453,13 @@ Body untuk PI:
 }
 ```
 
+Validasi utama:
+- `deptId`, `asalSurat`, `tanggalTerima`, dan `isPIDept` wajib.
+- Jika `isPIDept: true`, minimal satu item `piList` wajib.
+- Jika `isPIDept: false`, minimal satu item `suratList` wajib.
+- Item PI wajib memiliki `namaSupplier` dan `tanggalSurat`.
+- Item surat biasa wajib memiliki `perihal` dan `tanggalSurat`.
+
 Response `201`: object surat/PI yang dibuat.
 
 ### `GET /api/surat/[dept]/[id]`
@@ -443,6 +476,10 @@ GET /api/surat/PI/1
 ```
 
 Response `200`: object surat biasa jika `dept` bukan PI, atau object register PI jika `dept` adalah PI.
+
+Error khusus:
+- `400` jika `id` bukan angka valid.
+- `404` jika data tidak ditemukan.
 
 ### `PATCH /api/surat/[dept]/[id]`
 
@@ -490,17 +527,18 @@ Body untuk PI:
 }
 ```
 
+Catatan:
+- `deptId`, `asalSurat`, dan `tanggalTerima` opsional pada update.
+- `suratList` atau `piList` wajib ada dan minimal 1 item sesuai tipe route.
+- Jika `deptId` berubah, nomor register akan digenerate ulang untuk department baru.
+
 Response `200`: object surat/PI terbaru.
 
 ### `DELETE /api/surat/[dept]/[id]`
 
 Menghapus surat berdasarkan department dan id.
 
-Auth: wajib login.
-
-Permission:
-- `ADMIN` boleh menghapus.
-- Non-admin harus punya permission `canDelete`.
+Auth: wajib login dan permission `canDelete`.
 
 Response `200`:
 
@@ -532,6 +570,9 @@ Response `200`:
 { "nomor": "0003" }
 ```
 
+Error khusus:
+- `400` jika `deptId` tidak dikirim.
+
 ## Cetak
 
 ### `GET /api/cetak/all`
@@ -544,7 +585,7 @@ Query params:
 
 | Param | Catatan |
 | --- | --- |
-| `ids` | Comma separated id, maksimal 100 id. Jika kosong, mengambil semua data surat biasa. |
+| `ids` | Comma separated id, hanya integer positif, maksimal 100 id. Jika kosong, mengambil semua data surat biasa. |
 
 Contoh:
 
@@ -552,7 +593,7 @@ Contoh:
 GET /api/cetak/all?ids=1,2,3
 ```
 
-Response `200`: array register surat biasa dengan `dept` dan `detailSurat`.
+Response `200`: array register surat biasa dengan `dept` dan `detailSurat`, diurutkan berdasarkan `nomor` ascending.
 
 ### `GET /api/cetak/pi`
 
@@ -564,7 +605,7 @@ Query params:
 
 | Param | Catatan |
 | --- | --- |
-| `ids` | Comma separated id, maksimal 100 id. Jika kosong, mengambil semua data PI. |
+| `ids` | Comma separated id, hanya integer positif, maksimal 100 id. Jika kosong, mengambil semua data PI. |
 
 Contoh:
 
@@ -572,7 +613,7 @@ Contoh:
 GET /api/cetak/pi?ids=1,2,3
 ```
 
-Response `200`: array register PI dengan `dept` dan `detailPI`.
+Response `200`: array register PI dengan `dept` dan `detailPI`, diurutkan berdasarkan `nomor` ascending.
 
 ## Departemen
 
@@ -712,14 +753,14 @@ Mengambil statistik dashboard admin.
 
 Auth: wajib `ADMIN`.
 
-Query params diteruskan ke service statistik:
+Query params:
 
-| Param | Catatan |
-| --- | --- |
-| `deptId` | Department yang dipakai untuk statistik |
-| `tipeWaktu` | `mingguan`, `bulanan`, atau `tahunan` |
-| `bulan` | Angka bulan, opsional |
-| `tahun` | Angka tahun, opsional |
+| Param | Wajib | Default | Catatan |
+| --- | --- | --- | --- |
+| `deptId` | ya | - | Department yang dipakai untuk statistik |
+| `tipeWaktu` | tidak | `mingguan` | `mingguan`, `bulanan`, atau `tahunan` |
+| `bulan` | tidak | - | Angka bulan, nilai non-angka diabaikan |
+| `tahun` | tidak | - | Angka tahun, nilai non-angka diabaikan |
 
 Contoh:
 
@@ -766,6 +807,9 @@ Response `200`:
 }
 ```
 
+Error khusus:
+- `400` jika `deptId` tidak dikirim.
+
 ## Ringkasan Permission
 
 | Route | Auth |
@@ -788,4 +832,4 @@ Response `200`:
 | `/api/dept` `POST` | Admin |
 | `/api/dept/[id]` `PATCH/DELETE` | Admin |
 | `/api/login-activity` | Login |
-| `/api/admin/stats` | Admin |
+| `/api/admin/stats` | `ADMIN` |
