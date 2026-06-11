@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react"
-
-type Filters = { date: string | null; departments: string[] }
+import type { Filters } from "@/hooks/use-filter"
 
 const STORAGE_KEY = "topbar_filters"
 const EMPTY: Filters = { date: null, departments: [] }
@@ -21,7 +20,10 @@ function readStorage(): Filters {
     const saved = localStorage.getItem(STORAGE_KEY)
     if (!saved) return EMPTY
     const parsed = JSON.parse(saved)
-    return isValidFilters(parsed) ? parsed : EMPTY
+    return isValidFilters(parsed) ? {
+      date: parsed.date,
+      departments: parsed.departments,
+    } : EMPTY
   } catch { return EMPTY }
 }
 

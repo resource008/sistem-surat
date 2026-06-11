@@ -28,7 +28,11 @@ export function SuratPerDepartemenTable({ data }: SuratPerDepartemenTableProps) 
 
         {/* Rows */}
         <div className="max-h-90 space-y-1.5 overflow-y-auto pr-0.5">
-          {data.map((item, index) => (
+          {data.length === 0 ? (
+            <div className="rounded-lg border border-dashed border-border px-3 py-8 text-center text-sm text-muted-foreground">
+              Tidak ada departemen.
+            </div>
+          ) : data.map((item, index) => (
             <div
               key={item.departemenId}
               className={`grid grid-cols-[1fr_64px_72px] rounded-lg px-2 py-2 text-sm sm:grid-cols-[1fr_80px_80px] sm:px-3 sm:py-2.5 ${

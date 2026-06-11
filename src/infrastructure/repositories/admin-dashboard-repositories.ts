@@ -98,7 +98,6 @@ export class PrismaAdminDashboardRepository
       select: {
         id: true,
         name: true,
-        image: true,
         lastLoginAt: true,
         sessions: {
           where: {

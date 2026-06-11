@@ -1,10 +1,11 @@
 "use client"
 
-import { getRouteByRole } from "@/constants/routes"
+import { getRouteByRole, routes } from "@/constants/routes"
 import { authClient } from "@/infrastructure/auth/auth-client"
 import type { Role } from "@/types"
 import { Eye, EyeOff, Lock, Loader2, User } from "lucide-react"
 import Image from "next/image"
+import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Suspense, useEffect, useRef, useState } from "react"
 import { toast } from "sonner"
@@ -158,6 +159,10 @@ export default function LoginPage() {
               }
             </button>
           </form>
+
+          <Link href={routes.guest.lacakSurat} className={styles.trackBtn}>
+            Lacak Surat
+          </Link>
 
           <div className={styles.cardFooter}>
             <span>PT Tolan Tiga Indonesia</span>

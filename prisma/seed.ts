@@ -58,6 +58,28 @@ async function main() {
     { name: "Admin",      email: "admin@admin.com", username: "admin",  password: "admin123", role: Role.ADMIN },
     { name: "Staff Satu", email: "staff@staff.com", username: "staff1", password: "staff123", role: Role.STAFF },
     { name: "PKL Satu",   email: "pkl@pkl.com",     username: "pkl1",   password: "pkl123",   role: Role.PKL   },
+    { name: "Staff Dua",  email: "staff2@staff.com", username: "staff2", password: "staff123", role: Role.STAFF },
+    { name: "PKL Dua",    email: "pkl2@pkl.com",    username: "pkl2",   password: "pkl123",   role: Role.PKL   },
+    { name: "Staff Tiga", email: "staff3@staff.com", username: "staff3", password: "staff123", role: Role.STAFF },
+    { name: "PKL Tiga",   email: "pkl3@pkl.com",    username: "pkl3",   password: "pkl123",   role: Role.PKL   },
+    { name: "Staff Empat", email: "staff4@staff.com", username: "staff4", password: "staff123", role: Role.STAFF },
+    { name: "PKL Empat",   email: "pkl4@pkl.com",    username: "pkl4",   password: "pkl123",   role: Role.PKL   },
+    { name: "Staff Lima", email: "staff5@staff.com", username: "staff5", password: "staff123", role: Role.STAFF },
+    { name: "PKL Lima",   email: "pkl5@pkl.com",    username: "pkl5",   password: "pkl123",   role: Role.PKL   },
+    { name: "Staff Enam", email: "staff6@staff.com", username: "staff6", password: "staff123", role: Role.STAFF },
+    { name: "PKL Enam",   email: "pkl6@pkl.com",    username: "pkl6",   password: "pkl123",   role: Role.PKL   },
+    { name: "Staff Tujuh", email: "staff7@staff.com", username: "staff7", password: "staff123", role: Role.STAFF },
+    { name: "PKL Tujuh",   email: "pkl7@pkl.com",    username: "pkl7",   password: "pkl123",   role: Role.PKL   },
+    { name: "Staff Delapan", email: "staff8@staff.com", username: "staff8", password: "staff123", role: Role.STAFF },
+    { name: "PKL Delapan",   email: "pkl8@pkl.com",    username: "pkl8",   password: "pkl123",   role: Role.PKL   },
+    { name: "Staff Sembilan", email: "staff9@staff.com", username: "staff9", password: "staff123", role: Role.STAFF },
+    { name: "PKL Sembilan",   email: "pkl9@pkl.com",    username: "pkl9",   password: "pkl123",   role: Role.PKL   },
+    { name: "Staff Sepuluh", email: "staff10@staff.com", username: "staff10", password: "staff123", role: Role.STAFF },
+    { name: "PKL Sepuluh",   email: "pkl10@pkl.com",   username: "pkl10",  password: "pkl123",   role: Role.PKL   },
+    { name: "Staff Sebelas", email: "staff11@staff.com", username: "staff11", password: "staff123", role: Role.STAFF },
+    { name: "PKL Sebelas",   email: "pkl11@pkl.com",   username: "pkl11",  password: "pkl123",   role: Role.PKL   },
+    { name: "Staff Dua Belas", email: "staff12@staff.com", username: "staff12", password: "staff123", role: Role.STAFF },
+    { name: "PKL Dua Belas",   email: "pkl12@pkl.com",   username: "pkl12",  password: "pkl123",   role: Role.PKL   }
   ]
   for (const u of users) {
     const existing = await prisma.user.findUnique({ where: { email: u.email } })

@@ -13,14 +13,16 @@ export const AVATAR_PALETTE = [
   "#6366f1", // indigo
 ]
 
-export function getAvatarColor(name: string): string {
+export function getAvatarColor(name?: string | null): string {
+  const safeName = name?.trim() || "User"
   let hash = 0
-  for (let i = 0; i < name.length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash)
+  for (let i = 0; i < safeName.length; i++) {
+    hash = safeName.charCodeAt(i) + ((hash << 5) - hash)
   }
   return AVATAR_PALETTE[Math.abs(hash) % AVATAR_PALETTE.length]
 }
 
-export function getInitials(name: string): string {
-  return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
+export function getInitials(name?: string | null): string {
+  const safeName = name?.trim() || "User"
+  return safeName.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
 }

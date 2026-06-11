@@ -40,7 +40,7 @@ Catatan:
 
 ## Profile
 
-Route profile dipakai oleh user yang sedang login untuk melihat dan mengubah akun sendiri. Staff dan PKL memakai route ini, bukan API admin user.
+Route profile dipakai oleh user yang sedang login untuk melihat dan mengubah akun sendiri. Untuk halaman akun Staff/PKL saat ini, frontend memakai route `/api/me/account`.
 
 ### `GET /api/profile`
 
@@ -56,7 +56,6 @@ Response `200`:
   "name": "Staff Satu",
   "email": "staff@staff.com",
   "username": "staff1",
-  "image": null,
   "role": "STAFF",
   "createdAt": "2026-05-16T16:21:00.000Z",
   "updatedAt": "2026-06-01T16:49:00.000Z",
@@ -102,6 +101,76 @@ Contoh request:
 
 Response `200`: object `User` terbaru.
 
+## Me
+
+Route `me` dipakai frontend untuk mengambil data akun dan permission user dari session aktif.
+
+### `GET /api/me/account`
+
+Mengambil data akun Staff atau PKL yang sedang login beserta permission efektifnya.
+
+Auth: wajib login sebagai `STAFF` atau `PKL`.
+
+Response `200`:
+
+```json
+{
+  "id": "user-id",
+  "name": "Staff Satu",
+  "email": "staff@staff.com",
+  "username": "staff1",
+  "role": "STAFF",
+  "createdAt": "2026-05-16T16:21:00.000Z",
+  "updatedAt": "2026-06-01T16:49:00.000Z",
+  "lastLogin": "2026-06-01T16:40:00.000Z",
+  "status": "Sedang Aktif",
+  "permissions": {
+    "canCreate": true,
+    "canEdit": true,
+    "canDelete": false,
+    "canPrint": true,
+    "canTrack": false
+  }
+}
+```
+
+Catatan:
+- `ADMIN` akan mendapat `403` karena halaman akun ini hanya untuk Staff dan PKL.
+- Permission yang dikembalikan adalah permission efektif: data dari `userPermission`, atau default sesuai role jika data permission belum ada.
+
+### `PATCH /api/me/account`
+
+Route ini tersedia tetapi tidak mengubah data.
+
+Auth: wajib login sebagai `STAFF` atau `PKL`.
+
+Response `403`:
+
+```json
+{ "error": "Akun Staff dan PKL hanya dapat dilihat" }
+```
+
+### `GET /api/me/permissions`
+
+Mengambil role dan permission efektif user yang sedang login.
+
+Auth: wajib login.
+
+Response `200`:
+
+```json
+{
+  "role": "STAFF",
+  "permissions": {
+    "canCreate": true,
+    "canEdit": true,
+    "canDelete": false,
+    "canPrint": true,
+    "canTrack": false
+  }
+}
+```
+
 ## Users Admin
 
 Route user admin hanya boleh diakses role `ADMIN`.
@@ -137,7 +206,6 @@ Response `200`:
       "name": "Staff Satu",
       "email": "staff@staff.com",
       "username": "staff1",
-      "image": null,
       "role": "STAFF",
       "createdAt": "2026-05-16T16:21:00.000Z",
       "updatedAt": "2026-06-01T16:49:00.000Z",
@@ -170,6 +238,7 @@ Body:
 | `username` | string | ya | Harus unik, 3-30 karakter, huruf kecil/angka/underscore |
 | `password` | string | ya | 8-72 karakter |
 | `role` | string | ya | `ADMIN`, `STAFF`, atau `PKL` |
+| `permissions` | object | tidak | Hak akses user. Jika kosong, memakai default permission sesuai role |
 
 Contoh request:
 
@@ -179,7 +248,14 @@ Contoh request:
   "email": "pkl@pkl.com",
   "username": "pkl1",
   "password": "pkl12345",
-  "role": "PKL"
+  "role": "PKL",
+  "permissions": {
+    "canCreate": false,
+    "canEdit": false,
+    "canDelete": false,
+    "canPrint": false,
+    "canTrack": false
+  }
 }
 ```
 
@@ -307,7 +383,7 @@ Response dengan pagination `200`:
 
 Membuat register surat biasa atau PI.
 
-Auth: wajib login.
+Auth: wajib login. Non-admin harus punya permission `canCreate`.
 
 Body untuk surat biasa:
 
@@ -372,7 +448,7 @@ Response `200`: object surat biasa jika `dept` bukan PI, atau object register PI
 
 Mengubah surat berdasarkan department dan id.
 
-Auth: wajib login.
+Auth: wajib login. Non-admin harus punya permission `canEdit`.
 
 Body untuk surat biasa:
 
@@ -462,7 +538,7 @@ Response `200`:
 
 Mengambil data surat biasa untuk kebutuhan cetak.
 
-Auth: wajib login.
+Auth: wajib login. Non-admin harus punya permission `canPrint`.
 
 Query params:
 
@@ -482,7 +558,7 @@ Response `200`: array register surat biasa dengan `dept` dan `detailSurat`.
 
 Mengambil data PI untuk kebutuhan cetak.
 
-Auth: wajib login.
+Auth: wajib login. Non-admin harus punya permission `canPrint`.
 
 Query params:
 
@@ -517,6 +593,98 @@ Response `200`:
   }
 ]
 ```
+
+### `POST /api/dept`
+
+Membuat departemen baru.
+
+Auth: wajib `ADMIN`.
+
+Body:
+
+| Field | Tipe | Wajib | Catatan |
+| --- | --- | --- | --- |
+| `shortName` | string | ya | 2-20 karakter, huruf/angka/underscore/strip. Akan disimpan uppercase dan menjadi `id` departemen |
+| `tujuan` | string | ya | 2-100 karakter |
+
+Contoh request:
+
+```json
+{
+  "shortName": "legal",
+  "tujuan": "Legal"
+}
+```
+
+Response `201`:
+
+```json
+{
+  "id": "LEGAL",
+  "shortName": "LEGAL",
+  "tujuan": "Legal"
+}
+```
+
+Catatan:
+- Jika `shortName` sudah dipakai departemen aktif, response `409`.
+- Jika departemen dengan `id` yang sama pernah dihapus/nonaktif, route ini mengaktifkan kembali data tersebut.
+
+### `PATCH /api/dept/[id]`
+
+Mengubah departemen aktif.
+
+Auth: wajib `ADMIN`.
+
+Body sama seperti `POST /api/dept`.
+
+Contoh:
+
+```http
+PATCH /api/dept/LEGAL
+```
+
+```json
+{
+  "shortName": "LEGAL",
+  "tujuan": "Legal & Compliance"
+}
+```
+
+Response `200`:
+
+```json
+{
+  "id": "LEGAL",
+  "shortName": "LEGAL",
+  "tujuan": "Legal & Compliance"
+}
+```
+
+Catatan:
+- Jika `id` tidak ditemukan atau departemen sudah nonaktif, response `404`.
+- Jika `shortName` baru sudah digunakan departemen aktif lain, response `409`.
+
+### `DELETE /api/dept/[id]`
+
+Menonaktifkan departemen.
+
+Auth: wajib `ADMIN`.
+
+Contoh:
+
+```http
+DELETE /api/dept/LEGAL
+```
+
+Response `200`:
+
+```json
+{ "message": "Departemen berhasil dihapus" }
+```
+
+Catatan:
+- Delete bersifat soft delete dengan mengubah `isActive` menjadi `false`.
 
 ## Login Activity
 
@@ -590,7 +758,6 @@ Response `200`:
   "riwayatAktivitasPengguna": [
     {
       "id": "user-id",
-      "fotoProfil": null,
       "nama": "Staff Satu",
       "terakhirMasuk": "2026-06-01T16:40:00.000Z",
       "status": "Sedang aktif"
@@ -605,14 +772,20 @@ Response `200`:
 | --- | --- |
 | `/api/auth/[...all]` | Public/Better Auth handler |
 | `/api/profile` | Login |
+| `/api/me/account` | Staff atau PKL |
+| `/api/me/permissions` | Login |
 | `/api/users` | Admin |
 | `/api/users/[id]` | Admin |
-| `/api/surat` | Login |
-| `/api/surat/[dept]/[id]` `GET/PATCH` | Login |
+| `/api/surat` `GET` | Login |
+| `/api/surat` `POST` | Admin atau `canCreate` |
+| `/api/surat/[dept]/[id]` `GET` | Login |
+| `/api/surat/[dept]/[id]` `PATCH` | Admin atau `canEdit` |
 | `/api/surat/[dept]/[id]` `DELETE` | Admin atau `canDelete` |
 | `/api/surat/preview-nomor` | Login |
-| `/api/cetak/all` | Login |
-| `/api/cetak/pi` | Login |
-| `/api/dept` | Login |
+| `/api/cetak/all` | Admin atau `canPrint` |
+| `/api/cetak/pi` | Admin atau `canPrint` |
+| `/api/dept` `GET` | Login |
+| `/api/dept` `POST` | Admin |
+| `/api/dept/[id]` `PATCH/DELETE` | Admin |
 | `/api/login-activity` | Login |
 | `/api/admin/stats` | Admin |
