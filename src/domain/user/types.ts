@@ -17,7 +17,7 @@ export interface User {
   name:        string
   email:       string
   username:    string
-  image:       string | null
+  image?:      string | null
   role:        UserRole
   createdAt:   Date
   updatedAt:   Date
@@ -27,21 +27,22 @@ export interface User {
 }
 
 export interface CreateUserInput {
-  name:     string
-  email:    string
-  username: string
-  password: string
-  role:     UserRole
+  name:         string
+  email:        string
+  username:     string
+  password:     string
+  role:         UserRole
+  permissions?: Partial<UserPermissions>
 }
 
 export type UpdateUserInput = {
   name?:        string
   email?:       string
   username?:    string
-  image?:       string
+  image?:       string | null
   role?:        UserRole
   password?:    string
-  permissions?: Partial<UserPermissions>  // ← pastikan 'permissions' bukan 'permission'
+  permissions?: Partial<UserPermissions>
 }
 
 export interface GetUsersQuery {

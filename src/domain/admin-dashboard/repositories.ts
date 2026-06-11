@@ -37,7 +37,6 @@ export interface AdminDashboardRepository {
     {
       id: string
       name: string
-      image: string | null
       lastLoginAt: Date | null
       sessions: {
         createdAt: Date

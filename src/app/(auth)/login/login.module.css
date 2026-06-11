@@ -215,6 +215,36 @@
   transform: none;
 }
 
+.trackBtn {
+  width: 100%;
+  min-height: 44px;
+  margin-top: 14px;
+  border: 1.5px solid #d9ddf3;
+  border-radius: 10px;
+  background: #f7f8ff;
+  color: #170b67;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-figtree), sans-serif;
+  font-size: 14.5px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.trackBtn:hover {
+  background: #ffffff;
+  border-color: #170b67;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(23, 11, 103, 0.14);
+}
+
+.trackBtn:active {
+  transform: translateY(0);
+}
+
 .spinner {
   animation: spin 0.7s linear infinite;
 }

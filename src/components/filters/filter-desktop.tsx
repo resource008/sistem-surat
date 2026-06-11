@@ -13,11 +13,13 @@ interface FilterDesktopProps {
   onSelectDate: (d: Date | undefined) => void
   selectedDepts: string[]
   onToggleDept: (dept: string) => void
+  hideDepartments?: boolean
 }
 
 export function FilterDesktop({
   mounted, visible, onClose, hasFilter,
   date, onSelectDate, selectedDepts, onToggleDept,
+  hideDepartments,
 }: FilterDesktopProps) {
   if (!mounted) return null
 
@@ -73,6 +75,7 @@ export function FilterDesktop({
           <FilterPanel
             date={date} onSelectDate={onSelectDate}
             selectedDepts={selectedDepts} onToggleDept={onToggleDept}
+            hideDepartments={hideDepartments}
           />
         </div>
       </div>

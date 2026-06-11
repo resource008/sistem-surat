@@ -4,6 +4,10 @@ export const routes = {
   // ── Auth ────────────────────────────────────────────────────────
   login: "/login",
 
+  guest: {
+    lacakSurat: "/guest/lacak-surat",
+  },
+
   // ── Dashboard ───────────────────────────────────────────────────
   dashboard: {
     admin: "/admin/dashboard",

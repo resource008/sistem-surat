@@ -1,7 +1,10 @@
-import { NextResponse }        from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { headers }             from "next/headers"
 import { auth }                from "@/infrastructure/auth/better-auth"
-import { fetchDepartemen }     from "@/services/departemen-service"
+import { createDepartemen, fetchDepartemen } from "@/services/departemen-service"
+import { CreateDepartemenSchema } from "@/app/validation/departemen"
+import { AppError }            from "@/lib/errors"
+import { requireAdmin }        from "@/lib/require-admin"
 import type { ExtendedSession } from "@/types/auth"
 
 export async function GET() {
@@ -19,5 +22,34 @@ export async function GET() {
   } catch (error) {
     if (error instanceof Error) console.error("GET /api/dept:", error.message)
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
+  }
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    await requireAdmin()
+
+    const body = await req.json().catch(() => null)
+    if (!body) {
+      return NextResponse.json({ error: "Body tidak valid" }, { status: 400 })
+    }
+
+    const parsed = CreateDepartemenSchema.safeParse(body)
+    if (!parsed.success) {
+      const fieldErrors = parsed.error.flatten().fieldErrors
+      const firstError  = Object.values(fieldErrors).flat()[0]
+        ?? parsed.error.flatten().formErrors[0]
+        ?? "Data tidak valid"
+      return NextResponse.json({ error: firstError }, { status: 422 })
+    }
+
+    const data = await createDepartemen(parsed.data)
+    return NextResponse.json(data, { status: 201 })
+  } catch (error) {
+    if (error instanceof AppError) {
+      return NextResponse.json({ error: error.message }, { status: error.status })
+    }
+    if (error instanceof Error) console.error("POST /api/dept:", error.message)
+    return NextResponse.json({ error: "Gagal membuat departemen" }, { status: 500 })
   }
 }
