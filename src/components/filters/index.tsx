@@ -3,24 +3,32 @@
 
 import { Suspense }          from "react"
 import { SlidersHorizontal } from "lucide-react"
-import { useFilter }         from "@/hooks/use-filter"
+import { type FilterMode, type Filters, useFilter } from "@/hooks/use-filter"
 import { usePanel }          from "@/hooks/use-panel"
 import { FilterDesktop }     from "./filter-desktop"
 import { FilterSheet }       from "./filter-sheet"
 
 type Props = {
-  initialFilters?: { date: string | null; departments: string[] }
-  onFilterChange?: (f: { date: string | null; departments: string[] }) => void
+  initialFilters?: Filters
+  onFilterChange?: (f: Filters) => void
+  mode?: FilterMode
+  hideDepartments?: boolean
   disabled?: boolean
 }
 
 // ── Inner component (yang pakai useSearchParams via useFilter) ────────────
-function TopbarFilterInner({ initialFilters, onFilterChange, disabled }: Props) {
+function TopbarFilterInner({
+  initialFilters,
+  onFilterChange,
+  mode = "surat",
+  hideDepartments,
+  disabled,
+}: Props) {
   const {
     date, setDate,
     selectedDepts, toggleDept,
-    hasFilter, reset,
-  } = useFilter(onFilterChange, initialFilters)
+    hasFilter,
+  } = useFilter(onFilterChange, initialFilters, mode)
 
   const {
     isMobile,
@@ -68,6 +76,7 @@ function TopbarFilterInner({ initialFilters, onFilterChange, disabled }: Props) 
         onSelectDate={setDate}
         selectedDepts={selectedDepts}
         onToggleDept={toggleDept}
+        hideDepartments={hideDepartments}
       />
 
       <FilterSheet
@@ -79,6 +88,7 @@ function TopbarFilterInner({ initialFilters, onFilterChange, disabled }: Props) 
         onSelectDate={setDate}
         selectedDepts={selectedDepts}
         onToggleDept={toggleDept}
+        hideDepartments={hideDepartments}
       />
     </>
   )

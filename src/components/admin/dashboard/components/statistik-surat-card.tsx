@@ -1,7 +1,5 @@
 "use client"
 
-import { useMemo } from "react"
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts"
 import { Card, CardContent } from "@/components/ui/card"
 import {
   ChartContainer,
@@ -15,12 +13,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { STATISTIC_TIME_OPTIONS } from "@/constants/admin-dashboard"
 import type {
-  SuratPerDepartemen,
   StatistikSurat,
+  SuratPerDepartemen,
   TipeWaktuStatistik,
 } from "@/domain/admin-dashboard/types"
-import { STATISTIC_TIME_OPTIONS } from "@/constants/admin-dashboard"
+import { useMemo } from "react"
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts"
 
 interface StatistikSuratCardProps {
   departments: SuratPerDepartemen[]
@@ -39,6 +39,8 @@ export function StatistikSuratCard({
   onDeptChange,
   onTipeWaktuChange,
 }: StatistikSuratCardProps) {
+  const hasDepartments = departments.length > 0
+  const selectedDepartment = departments.find((item) => item.departemenId === selectedDeptId)
   const chartData = useMemo(
     () =>
       statistik.labels.map((label: string, index: number) => ({
@@ -56,16 +58,23 @@ export function StatistikSuratCard({
           Statistik Surat
         </h2>
         <div className="flex shrink-0 gap-1.5">
-          <Select value={selectedDeptId} onValueChange={onDeptChange}>
-            <SelectTrigger className="h-7 w-24 text-xs sm:w-32">
-              <SelectValue placeholder="Departemen" />
+          <Select
+            value={selectedDepartment?.departemenId ?? ""}
+            onValueChange={onDeptChange}
+          >
+            <SelectTrigger className="h-8 w-36 text-xs sm:w-40">
+              <SelectValue placeholder="Pilih Departemen" />
             </SelectTrigger>
             <SelectContent>
-              {departments.map((item) => (
+              {hasDepartments ? departments.map((item) => (
                 <SelectItem key={item.departemenId} value={item.departemenId}>
                   {item.departemen}
                 </SelectItem>
-              ))}
+              )) : (
+                <SelectItem value="__empty_departemen__" disabled>
+                  Belum ada departemen
+                </SelectItem>
+              )}
             </SelectContent>
           </Select>
 
@@ -73,8 +82,8 @@ export function StatistikSuratCard({
             value={selectedTipeWaktu}
             onValueChange={(value) => onTipeWaktuChange(value as TipeWaktuStatistik)}
           >
-            <SelectTrigger className="h-7 w-24 text-xs sm:w-32">
-              <SelectValue placeholder="Tipe waktu" />
+            <SelectTrigger className="h-8 w-36 text-xs sm:w-40">
+              <SelectValue placeholder="Pilih Tipe Waktu" />
             </SelectTrigger>
             <SelectContent>
               {STATISTIC_TIME_OPTIONS.map((option) => (
@@ -86,6 +95,12 @@ export function StatistikSuratCard({
           </Select>
         </div>
       </div>
+
+      {!hasDepartments && (
+        <div className="mb-4 rounded-lg border border-yellow-200 bg-yellow-50 px-3 py-2 text-xs text-yellow-700 dark:border-yellow-900/50 dark:bg-yellow-950/30 dark:text-yellow-300">
+          Departemen tidak ada. Silahkan tambah data departemen terlebih dahulu untuk melihat statistik surat.
+        </div>
+      )}
 
       <Card className="overflow-hidden rounded-xl">
         <CardContent className="p-4 sm:p-5">

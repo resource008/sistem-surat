@@ -16,8 +16,8 @@ import {
 // ── Search Context ────────────────────────────────────────────
 
 interface SearchCtx {
-  search:         string   // nilai mentah (untuk tampilan input)
-  debouncedSearch: string  // nilai debounced (untuk fetch API)
+  search:         string  
+  debouncedSearch: string  
   setSearch:      (v: string) => void
 }
 export const SearchContext = createContext<SearchCtx>({
@@ -185,6 +185,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return "Dashboard"
   })()
 
+  const parentHref = (() => {
+    if (pathname.includes("/dashboard"))  return "/admin/dashboard"
+    if (pathname.includes("/users"))      return "/admin/users"
+    if (pathname.includes("/departemen")) return "/admin/departemen"
+    return "/admin/dashboard"
+  })()
+
   const topbarLeft = isMobile ? "0px"
     : collapsed ? "var(--sidebar-w-collapsed)" : "var(--sidebar-w)"
 
@@ -232,7 +239,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     <>
                       <button
                         className={styles.breadcrumbParent}
-                        onClick={() => router.back()}
+                        onClick={() => router.push(parentHref)}
                       >
                         {currentPage}
                       </button>

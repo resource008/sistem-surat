@@ -110,9 +110,7 @@ export async function getAdminDashboardStats(
     totalSuratMasuk,
     totalSuratPI,
     departments,
-    selectedDepartment,
     suratPerDeptRaw,
-    statistikRaw,
     currentSuratMasuk,
     previousSuratMasuk,
     currentSuratPI,
@@ -124,9 +122,7 @@ export async function getAdminDashboardStats(
     repository.countSurat(),
     repository.countPI(),
     repository.findDepartments(),
-    repository.findDepartmentById(filter.deptId),
     repository.countSuratByDepartment(),
-    repository.findSuratStatistics(statisticRange, filter.deptId),
     repository.countSurat(statisticRange),
     repository.countSurat(previousStatisticRange),
     repository.countPI(statisticRange),
@@ -134,9 +130,11 @@ export async function getAdminDashboardStats(
     repository.findUserActivities(),
   ])
 
-  if (!selectedDepartment) {
-    throw new Error("NOT_FOUND: Departemen tidak ditemukan")
-  }
+  const requestedDepartment = await repository.findDepartmentById(filter.deptId)
+  const selectedDepartment  = requestedDepartment ?? departments[0] ?? null
+  const statistikRaw        = selectedDepartment
+    ? await repository.findSuratStatistics(statisticRange, selectedDepartment.id)
+    : []
 
   const countByDept = new Map(
     suratPerDeptRaw.map((item) => [item.deptId, item.count])
@@ -171,7 +169,6 @@ export async function getAdminDashboardStats(
 
     return {
       id:           user.id,
-      fotoProfil:   user.image,
       nama:         user.name,
       terakhirMasuk: terakhirAktif,
       status:       isActive ? "Sedang aktif" : "Tidak aktif",
@@ -189,8 +186,8 @@ export async function getAdminDashboardStats(
     },
     suratPerDepartemen,
     statistikSurat: {
-      departemenId: selectedDepartment.id,
-      departemen:   selectedDepartment.shortName,
+      departemenId: selectedDepartment?.id ?? "",
+      departemen:   selectedDepartment?.shortName ?? "Belum ada departemen",
       tipeWaktu:    filter.tipeWaktu,
       labels,
       data:  statistikData,

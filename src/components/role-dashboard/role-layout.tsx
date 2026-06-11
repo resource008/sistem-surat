@@ -2,6 +2,7 @@
 
 import styles from "@/app/layout.module.css"
 import TopbarFilter from "@/components/filters/index"
+import type { Filters } from "@/hooks/use-filter"
 import { PermissionDenied } from "@/components/shared/permission"
 import { TutorialCetak } from "@/components/shared/tutorial-cetak"
 import { RoleSidebar } from "@/components/role-dashboard/role-sidebar"
@@ -89,10 +90,10 @@ function RoleLayoutInner({ role, children }: Props) {
   const [isMobile, setIsMobile] = useState(false)
   const [subtitle, setSubtitle] = useState<string | null>(null)
   const [subsubtitle, setSubsubtitle] = useState<string | null>(null)
-  const [filters, setFilters] = useState<{
-    date: string | null
-    departments: string[]
-  }>({ date: null, departments: [] })
+  const [filters, setFilters] = useState<Filters>({
+    date: null,
+    departments: [],
+  })
   const [hasCetakData, setHasCetakData] = useState(false)
   const [selectedDataSuratCount, setSelectedDataSuratCount] = useState(0)
 
@@ -107,7 +108,10 @@ function RoleLayoutInner({ role, children }: Props) {
     try {
       const savedFilters = localStorage.getItem("topbar_filters")
       const parsed = savedFilters ? JSON.parse(savedFilters) : {}
-      setFilters({ date: parsed.date ?? null, departments: parsed.departments ?? [] })
+      setFilters({
+        date: parsed.date ?? null,
+        departments: parsed.departments ?? [],
+      })
     } catch {}
     setIsMounted(true)
   }, [])
@@ -184,10 +188,28 @@ function RoleLayoutInner({ role, children }: Props) {
   }, [isDataSuratPage])
 
   function handleClearFilters() {
-    const next = { date: null, departments: [] }
+    const next: Filters = { date: null, departments: [] }
     setFilters(next)
     localStorage.removeItem("topbar_filters")
     router.push(showPI ? `${base}/data-surat?mode=pi` : `${base}/data-surat`)
+  }
+
+  function handleTogglePI() {
+    const dataSuratBase = `${base}/data-surat`
+    const nextFilters: Filters = showPI
+      ? filters
+      : { date: filters.date, departments: [] }
+    const params = new URLSearchParams()
+
+    if (!showPI) params.set("mode", "pi")
+    if (nextFilters.date) params.set("date", nextFilters.date)
+    if (!showPI && filters.departments.length > 0) {
+      localStorage.setItem("topbar_filters", JSON.stringify(nextFilters))
+      setFilters(nextFilters)
+    }
+
+    const query = params.toString()
+    router.push(query ? `${dataSuratBase}?${query}` : dataSuratBase)
   }
 
   function handleClearCetak() {
@@ -287,11 +309,8 @@ function RoleLayoutInner({ role, children }: Props) {
           {isDataSuratPage && (
             <div className="flex items-center gap-1.5">
               <button
-                onClick={() => {
-                  const dataSuratBase = `${base}/data-surat`
-                  router.push(showPI ? dataSuratBase : `${dataSuratBase}?mode=pi`)
-                }}
-                title={showPI ? "Kembali ke semua surat" : "Tampilkan hanya data PI"}
+                onClick={handleTogglePI}
+                title={showPI ? "Kembali ke semua surat" : "Tampilkan data PI"}
                 style={{
                   display: "flex",
                   alignItems: "center",
@@ -317,17 +336,17 @@ function RoleLayoutInner({ role, children }: Props) {
                 )}
               </button>
 
-              {!showPI && (
-                <TopbarFilter
-                  initialFilters={filters}
-                  onFilterChange={(nextFilters) => {
-                    setFilters(nextFilters)
-                    localStorage.setItem("topbar_filters", JSON.stringify(nextFilters))
-                  }}
-                />
-              )}
+              <TopbarFilter
+                initialFilters={filters}
+                mode={showPI ? "pi" : "surat"}
+                hideDepartments={showPI}
+                onFilterChange={(nextFilters) => {
+                  setFilters(nextFilters)
+                  localStorage.setItem("topbar_filters", JSON.stringify(nextFilters))
+                }}
+              />
 
-              {!showPI && hasActiveFilters && (
+              {hasActiveFilters && (
                 <button
                   onClick={handleClearFilters}
                   title="Bersihkan filter"

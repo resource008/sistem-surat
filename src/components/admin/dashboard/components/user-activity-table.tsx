@@ -1,7 +1,8 @@
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import type { RiwayatAktivitasPengguna } from "@/domain/admin-dashboard/types"
-import { formatNullableDate, getInitial } from "@/lib/admin-dashboard"
+import { formatNullableDate } from "@/lib/admin-dashboard"
+import { getAvatarColor, getInitials } from "@/lib/avatar"
 
 interface UserActivityTableProps {
   users: RiwayatAktivitasPengguna[]
@@ -13,27 +14,6 @@ const ROW_COLORS = [
   "bg-emerald-50/80 dark:bg-emerald-950/20",
 ]
 
-const AVATAR_PALETTE = [
-  "#f59e0b", // amber
-  "#ef4444", // red
-  "#8b5cf6", // violet
-  "#3b82f6", // blue
-  "#10b981", // emerald
-  "#f97316", // orange
-  "#06b6d4", // cyan
-  "#ec4899", // pink
-  "#14b8a6", // teal
-  "#6366f1", // indigo
-]
-
-function getAvatarColor(name: string): string {
-  let hash = 0
-  for (let i = 0; i < name.length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash)
-  }
-  return AVATAR_PALETTE[Math.abs(hash) % AVATAR_PALETTE.length]
-}
-
 export function UserActivityTable({ users }: UserActivityTableProps) {
   return (
     <section className="space-y-3">
@@ -43,7 +23,7 @@ export function UserActivityTable({ users }: UserActivityTableProps) {
       <Card className="overflow-hidden rounded-xl">
         <CardContent className="p-4 sm:p-5">
           {/* Header */}
-          <div className="grid grid-cols-[1fr_auto] px-2 pb-2.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground sm:grid-cols-[1.8fr_1.4fr_0.8fr] sm:px-3">
+          <div className="grid grid-cols-[1fr_auto] px-2 pb-2.5 text-xs font-semibold tracking-wide text-muted-foreground sm:grid-cols-[1.8fr_1.4fr_0.8fr] sm:px-3">
             <div>Nama</div>
             <div className="hidden sm:block">Terakhir aktif</div>
             <div>Status</div>
@@ -60,8 +40,11 @@ export function UserActivityTable({ users }: UserActivityTableProps) {
               >
                 {/* Nama */}
                 <div className="flex min-w-0 items-center gap-2 font-medium text-foreground">
-                  <div className="size-7 shrink-0 rounded-full bg-cyan-500 flex items-center justify-center text-[10px] font-semibold text-white">
-                    {getInitial(user.nama)}
+                  <div
+                    style={{ backgroundColor: getAvatarColor(user.nama) }}
+                    className="size-8 shrink-0 rounded-full flex items-center justify-center text-xs font-semibold text-white"
+                  >
+                    {getInitials(user.nama)}
                   </div>
                   <span className="truncate">{user.nama}</span>
                 </div>

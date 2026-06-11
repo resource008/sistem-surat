@@ -32,7 +32,6 @@ export interface StatistikSurat {
 
 export interface RiwayatAktivitasPengguna {
   id: string
-  fotoProfil: string | null
   nama: string
   terakhirMasuk: Date | null
   status: "Sedang aktif" | "Tidak aktif"
