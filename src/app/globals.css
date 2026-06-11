@@ -140,6 +140,13 @@ body {
   color: var(--foreground);
 }
 
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

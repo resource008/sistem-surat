@@ -142,6 +142,8 @@ export default function LoginPage() {
                   type="button"
                   className={styles.togglePassword}
                   onClick={() => setShowPassword(p => !p)}
+                  aria-label={showPassword ? "Sembunyikan password" : "Tampilkan password"}
+                  title={showPassword ? "Sembunyikan password" : "Tampilkan password"}
                 >
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
