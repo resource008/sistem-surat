@@ -36,6 +36,22 @@ function DataSuratInner({ basePath, printPath }: Props) {
     return () => observer.disconnect()
   }, [state.hasMore, state.loadingMore, actions.loadMore])
 
+  useEffect(() => {
+    window.dispatchEvent(
+      new CustomEvent("data-surat:selection", {
+        detail: { count: state.selectedIds.size },
+      })
+    )
+
+    return () => {
+      window.dispatchEvent(
+        new CustomEvent("data-surat:selection", {
+          detail: { count: 0 },
+        })
+      )
+    }
+  }, [state.selectedIds.size])
+
   if (state.loading) {
     return <div className="w-full mt-2"><LoadingSkeleton type="table" /></div>
   }

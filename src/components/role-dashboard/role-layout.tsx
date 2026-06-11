@@ -94,6 +94,7 @@ function RoleLayoutInner({ role, children }: Props) {
     departments: string[]
   }>({ date: null, departments: [] })
   const [hasCetakData, setHasCetakData] = useState(false)
+  const [selectedDataSuratCount, setSelectedDataSuratCount] = useState(0)
 
   const showPI = searchParams.get("mode") === "pi"
   const isDataSuratPage = pathname === `${base}/data-surat`
@@ -160,6 +161,15 @@ function RoleLayoutInner({ role, children }: Props) {
   }, [])
 
   useEffect(() => {
+    const handler = (event: Event) => {
+      const count = (event as CustomEvent<{ count: number }>).detail.count
+      setSelectedDataSuratCount(count)
+    }
+    window.addEventListener("data-surat:selection", handler)
+    return () => window.removeEventListener("data-surat:selection", handler)
+  }, [])
+
+  useEffect(() => {
     const handler = () => setHasCetakData(false)
     window.addEventListener("cetak:cleared", handler)
     return () => window.removeEventListener("cetak:cleared", handler)
@@ -168,6 +178,10 @@ function RoleLayoutInner({ role, children }: Props) {
   useEffect(() => {
     if (!pathname.includes("/cetak")) setHasCetakData(false)
   }, [pathname])
+
+  useEffect(() => {
+    if (!isDataSuratPage) setSelectedDataSuratCount(0)
+  }, [isDataSuratPage])
 
   function handleClearFilters() {
     const next = { date: null, departments: [] }
@@ -381,7 +395,7 @@ function RoleLayoutInner({ role, children }: Props) {
           )}
         </div>
 
-        {isDataSuratPage && (permissions?.canCreate ?? false) && (
+        {isDataSuratPage && (permissions?.canCreate ?? false) && !(isMobile && selectedDataSuratCount > 0) && (
           <button
             onClick={() => {
               sessionStorage.setItem("add_return_mode", showPI ? "pi" : "surat")

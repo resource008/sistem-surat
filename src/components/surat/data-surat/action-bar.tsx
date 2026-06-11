@@ -4,68 +4,55 @@ export function FloatingActionBar({ state, actions }: any) {
   if (state.selectedIds.size === 0) return null
 
   return (
-    <div className="
-      fixed bottom-6 left-1/2 -translate-x-1/2 z-50
-      flex items-center gap-2
-      px-3 py-2
-      bg-white dark:bg-slate-900
-      border border-slate-200 dark:border-slate-700
-      rounded-2xl
-      shadow-md
-    ">
-      {/* Label teks — hanya muncul di sm ke atas */}
-      <span className="
-        hidden sm:block
-        px-2 text-xs font-medium text-slate-600 dark:text-slate-300 whitespace-nowrap
-      ">
+    <div
+      className="
+        fixed bottom-5 left-3 right-3 z-50 sm:bottom-6 sm:left-1/2 sm:right-auto sm:-translate-x-1/2
+        flex w-auto flex-col items-center gap-2 sm:w-fit
+        rounded-2xl border border-slate-200 bg-white
+        px-3 py-2 sm:px-4 sm:py-2.5 md:px-5
+        shadow-xl shadow-slate-900/10
+        dark:border-slate-700 dark:bg-slate-900 dark:shadow-black/40
+      "
+    >
+      <span className="whitespace-nowrap text-xs font-semibold text-slate-700 dark:text-slate-200 sm:text-[13px] md:text-sm">
         {state.selectedIds.size} item dipilih
       </span>
 
-      {/* Badge angka — hanya muncul di mobile */}
-      <span className="
-        sm:hidden
-        flex items-center justify-center
-        w-7 h-7 rounded-full
-        bg-slate-100 dark:bg-slate-800
-        text-xs font-medium text-slate-500 dark:text-slate-400
-      ">
-        {state.selectedIds.size}
-      </span>
+      <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:items-center sm:gap-3">
+        <button
+          onClick={actions.handlePrint}
+          aria-label="Cetak"
+          title="Cetak"
+          className="
+            flex h-9 min-w-0 items-center justify-center gap-1.5 rounded-full
+            bg-blue-600 px-2.5 text-xs font-semibold text-white
+            transition-colors hover:bg-blue-700
+            sm:min-w-28 sm:gap-2 sm:px-4 sm:text-[13px]
+            md:h-10 md:min-w-32 md:text-sm
+          "
+        >
+          <Printer size={16} className="shrink-0 md:size-[18px]" />
+          <span className="truncate">Cetak</span>
+        </button>
 
-      <button
-        onClick={actions.handlePrint}
-        aria-label="Cetak"
-        className="
-          flex items-center justify-center gap-1
-          h-7
-          w-9 sm:w-auto sm:px-3
-          rounded-full
-          bg-blue-600 hover:bg-blue-700
-          text-white text-xs font-medium
-          transition-colors
-        "
-      >
-        <Printer size={14} />
-        <span className="hidden sm:inline">Cetak</span>
-      </button>
-
-      <button
-        onClick={actions.clearSelection}
-        aria-label="Bersihkan"
-        className="
-          flex items-center justify-center gap-1
-          h-7
-          w-9 sm:w-auto sm:px-3
-          rounded-full
-          bg-slate-100 hover:bg-slate-200
-          text-slate-500 hover:text-red-500
-          text-xs font-medium
-          transition-colors
-        "
-      >
-        <BrushCleaning size={14} />
-        <span className="hidden sm:inline">Bersihkan</span>
-      </button>
+        <button
+          onClick={actions.clearSelection}
+          aria-label="Bersihkan"
+          title="Bersihkan"
+          className="
+            flex h-9 min-w-0 items-center justify-center gap-1.5 rounded-full
+            bg-slate-100 px-2.5 text-xs font-semibold text-slate-500
+            transition-colors hover:bg-slate-200 hover:text-red-500
+            sm:min-w-28 sm:gap-2 sm:px-4 sm:text-[13px]
+            md:h-10 md:min-w-32 md:text-sm
+            dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700
+            dark:hover:text-red-400
+          "
+        >
+          <BrushCleaning size={16} className="shrink-0 md:size-[18px]" />
+          <span className="truncate">Bersihkan</span>
+        </button>
+      </div>
     </div>
   )
 }
