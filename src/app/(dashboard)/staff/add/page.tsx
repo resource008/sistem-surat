@@ -1,6 +1,5 @@
-"use client"
-import TambahSuratPage from "@/components/surat/tambah-surat/tambah-surat"
+import { RoleTambahSuratPage } from "@/components/role-dashboard/role-pages"
 
 export default function Page() {
-  return <TambahSuratPage role="STAFF" basePath="/staff/data-surat" />
+  return <RoleTambahSuratPage role="STAFF" />
 }

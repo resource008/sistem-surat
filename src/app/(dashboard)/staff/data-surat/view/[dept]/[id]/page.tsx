@@ -1,6 +1,5 @@
-"use client"
-import ViewSuratPage from "@/components/surat/view-surat"
+import { RoleViewSuratPage } from "@/components/role-dashboard/role-pages"
 
 export default function Page() {
-  return <ViewSuratPage role="STAFF" basePath="/staff/data-surat" />
+  return <RoleViewSuratPage role="STAFF" />
 }

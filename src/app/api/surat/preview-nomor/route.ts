@@ -1,49 +1,31 @@
-// src/app/api/surat/preview-nomor/route.ts
-import { NextResponse } from "next/server"
-import { prisma } from "@/infrastructure/databases/prisma-client"
+import { NextRequest, NextResponse } from "next/server"
+import { headers } from "next/headers"
+import { auth } from "@/infrastructure/auth/better-auth"
+import { fetchPreviewNomor } from "@/services/surat-service"
+import { AppError } from "@/lib/errors"
 
-const PI_DEPT_ID = "PI"
-
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
   try {
-    const { searchParams } = new URL(req.url)
-    const deptId = searchParams.get("deptId")
+    const session = await auth.api.getSession({ headers: await headers() })
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
 
+    const deptId = req.nextUrl.searchParams.get("deptId")
     if (!deptId) {
-      return NextResponse.json({ nomor: null }, { status: 400 })
+      return NextResponse.json({ error: "deptId wajib diisi" }, { status: 400 })
     }
 
-    const dept = await prisma.department.findUnique({
-      where: { id: deptId },
-    })
-
-    if (!dept) {
-      return NextResponse.json({ nomor: null, error: `Department '${deptId}' tidak ditemukan` }, { status: 404 })
-    }
-
-    let lastNumber = 0
-
-    if (deptId === PI_DEPT_ID) {
-      const last = await prisma.registerPI.findFirst({
-        where: { deptId },
-        orderBy: { nomor: "desc" },
-        select: { nomor: true },
-      })
-      lastNumber = last ? parseInt(last.nomor, 10) : 0
-    } else {
-      const last = await prisma.registerSurat.findFirst({
-        where: { deptId },
-        orderBy: { nomor: "desc" },
-        select: { nomor: true },
-      })
-      lastNumber = last ? parseInt(last.nomor, 10) : 0
-    }
-
-    const nomor = String(lastNumber + 1).padStart(4, "0")
+    const nomor = await fetchPreviewNomor(deptId)
     return NextResponse.json({ nomor })
 
-  } catch (error: any) {
-    console.error("❌ preview-nomor error:", error)
+  } catch (error) {
+    if (error instanceof AppError) {
+      return NextResponse.json({ error: error.message }, { status: error.status })
+    }
+    if (error instanceof Error) {
+      console.error("GET /api/surat/preview-nomor:", error.message)
+    }
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
   }
 }

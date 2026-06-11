@@ -13,7 +13,7 @@ export function getMenuItems(role: Role): MenuItem[] {
   const base = getBasePathByRole(role)
   return [
     { label: "Data Surat",  icon: FileText,   href: `${base}/data-surat`, badge: null },
-    { label: "Cetak",       icon: Printer,    href: `${base}/cetak/all`,      badge: null },
+    { label: "Cetak",       icon: Printer,    href: `${base}/cetak/all`,  badge: null },
     { label: "Track Surat", icon: RefreshCcw, href: `${base}/track`,      badge: null },
   ]
 }

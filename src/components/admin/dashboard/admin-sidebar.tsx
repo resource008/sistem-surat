@@ -6,20 +6,23 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader,
   AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { ThemeToggle } from "@/components/ui/theme-toogle"
-import { routes } from "@/constants/routes"
-import { authClient } from "@/infrastructure/auth/auth-client"
-import type { Role } from "@/types"
+import { ThemeToggle }    from "@/components/ui/theme-toogle"
+import { routes }         from "@/constants/routes"
+import { authClient }     from "@/infrastructure/auth/auth-client"
+import { getAvatarColor } from "@/lib/avatar"
+import type { Role }      from "@/types"
 import {
   ArrowLeftCircle, ArrowRightCircle,
   Building2, House, LogOut, UserRoundCog, X,
 } from "lucide-react"
-import Image from "next/image"
-import Link from "next/link"
+import Image           from "next/image"
+import Link            from "next/link"
 import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
 
-const ICON_SIZE = 18
+const ICON_SIZE   = 18
+const LOGO_WIDTH  = 1523
+const LOGO_HEIGHT = 1246
 
 const navItems = [
   { label: "Dashboard",       href: "/admin/dashboard",  icon: House },
@@ -33,25 +36,30 @@ interface Props {
   mobileOpen:    boolean
   onCollapse:    (val: boolean) => void
   onMobileClose: () => void
+  hideToggle?:   boolean
 }
 
 export function AdminSidebar({
   collapsed, isMobile, mobileOpen, onCollapse, onMobileClose,
 }: Props) {
   const pathname = usePathname()
-  const [userData, setUserData] = useState({
-    name: "Loading...", role: "ADMIN", initials: "AD",
-  })
+
+  const [userData, setUserData]       = useState({ name: "", role: "ADMIN", initials: "" })
+  const [userLoading, setUserLoading] = useState(true)
 
   useEffect(() => {
     async function fetchUser() {
-      const { data } = await authClient.getSession()
-      if (!data?.user) return
-      const fullName = data.user.name || "Admin"
-      const initials = fullName
-        .split(" ").map((n: string) => n[0]).join("").toUpperCase().substring(0, 2)
-      const userRole = ((data.user as any).role as Role) ?? "ADMIN"
-      setUserData({ name: fullName, role: userRole, initials })
+      try {
+        const { data } = await authClient.getSession()
+        if (!data?.user) return
+        const fullName = data.user.name || "Admin"
+        const initials = fullName
+          .split(" ").map((n: string) => n[0]).join("").toUpperCase().substring(0, 2)
+        const userRole = ((data.user as any).role as Role) ?? "ADMIN"
+        setUserData({ name: fullName, role: userRole, initials })
+      } finally {
+        setUserLoading(false)
+      }
     }
     fetchUser()
   }, [])
@@ -60,9 +68,10 @@ export function AdminSidebar({
     const { data: session } = await authClient.getSession()
     if (session?.session?.token)
       await authClient.revokeSession({ token: session.session.token })
-    localStorage.setItem("logout_notif", "true")
     await authClient.signOut({
-      fetchOptions: { onSuccess: () => { window.location.href = routes.login } },
+      fetchOptions: {
+        onSuccess: () => { window.location.href = `${routes.login}?logout=true` },
+      },
     })
   }
 
@@ -76,10 +85,9 @@ export function AdminSidebar({
         isMobile && mobileOpen ? styles.mobileOpen    : "",
       ].join(" ")}
     >
-      {/* Header */}
       <div className={styles.sidebarHeader}>
         <div className={styles.logoWrapper}>
-          <Image src="/sipef_logo.svg" alt="Logo" width={32} height={32} className={styles.logoImage} priority />
+          <Image src="/sipef_logo.svg" alt="Logo" width={LOGO_WIDTH} height={LOGO_HEIGHT} className={styles.logoImage} priority />
         </div>
         {isMobile ? (
           <button className={styles.collapseBtn} onClick={onMobileClose}>
@@ -100,12 +108,10 @@ export function AdminSidebar({
         )}
       </div>
 
-      {/* Nav label */}
       <div className={styles.navSection}>
         <span className={styles.navSectionLabel}>Menu</span>
       </div>
 
-      {/* Nav items */}
       <nav className={styles.nav}>
         {navItems.map((item) => {
           const Icon     = item.icon
@@ -125,25 +131,46 @@ export function AdminSidebar({
         })}
       </nav>
 
-      {/* Theme toggle */}
       <div style={{ padding: "0 12px" }}>
         <ThemeToggle collapsed={!isMobile && collapsed} />
       </div>
 
-      {/* User info */}
       <div className={styles.userSection}>
         <div className={styles.userCard}>
-          <div className={styles.userAvatar}>{userData.initials}</div>
-          {(!collapsed || isMobile) && (
-            <div className={styles.userInfo}>
-              <div className={styles.userName}>{userData.name}</div>
-              <div className={styles.userRole}>{userData.role}</div>
-            </div>
+          {userLoading ? (
+            <>
+              <div
+                className="shrink-0 rounded-[10px] animate-pulse"
+                style={{ width: 36, height: 36, background: "var(--sk-base, rgba(255,255,255,0.1))" }}
+              />
+              {(!collapsed || isMobile) && (
+                <div className="flex flex-col gap-1.5 flex-1 overflow-hidden">
+                  <div className="h-3 w-24 rounded-md animate-pulse"
+                    style={{ background: "var(--sk-base, rgba(255,255,255,0.1))" }} />
+                  <div className="h-2.5 w-12 rounded-md animate-pulse"
+                    style={{ background: "var(--sk-subtle, rgba(255,255,255,0.06))" }} />
+                </div>
+              )}
+            </>
+          ) : (
+            <>
+              <div
+                className={styles.userAvatar}
+                style={{ backgroundColor: getAvatarColor(userData.name) }}
+              >
+                {userData.initials}
+              </div>
+              {(!collapsed || isMobile) && (
+                <div className={styles.userInfo}>
+                  <div className={styles.userName}>{userData.name}</div>
+                  <div className={styles.userRole}>{userData.role}</div>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
 
-      {/* Logout */}
       <div className={styles.sidebarFooter}>
         <AlertDialog>
           <AlertDialogTrigger asChild>
@@ -161,10 +188,7 @@ export function AdminSidebar({
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Batal</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={handleLogout}
-                className="bg-red-500 hover:bg-red-600 text-white"
-              >
+              <AlertDialogAction onClick={handleLogout} className="bg-red-500 hover:bg-red-600 text-white">
                 Keluar
               </AlertDialogAction>
             </AlertDialogFooter>

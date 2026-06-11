@@ -31,7 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           {children}
           <Toaster
-            position="bottom-right"
+            position="bottom-center"
             richColors
             toastOptions={{
               style: {

@@ -128,6 +128,7 @@ exports.Prisma.UserScalarFieldEnum = {
   username: 'username',
   image: 'image',
   role: 'role',
+  lastLoginAt: 'lastLoginAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -157,6 +158,16 @@ exports.Prisma.AccountScalarFieldEnum = {
   password: 'password',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
+};
+
+exports.Prisma.UserPermissionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  canCreate: 'canCreate',
+  canEdit: 'canEdit',
+  canDelete: 'canDelete',
+  canPrint: 'canPrint',
+  canTrack: 'canTrack'
 };
 
 exports.Prisma.DepartmentScalarFieldEnum = {
@@ -234,14 +245,14 @@ exports.Prisma.NullsOrder = {
 exports.Role = exports.$Enums.Role = {
   ADMIN: 'ADMIN',
   STAFF: 'STAFF',
-  PKL: 'PKL',
-  GUEST: 'GUEST'
+  PKL: 'PKL'
 };
 
 exports.Prisma.ModelName = {
   User: 'User',
   Session: 'Session',
   Account: 'Account',
+  UserPermission: 'UserPermission',
   Department: 'Department',
   RegisterSurat: 'RegisterSurat',
   RegisterPI: 'RegisterPI',

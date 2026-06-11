@@ -1,14 +1,14 @@
-version: '3.8'
-
 services:
   db:
     image: postgres:18-alpine
     container_name: db-surat
-    restart: always
-    env_file:
-      - .env
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
-      - "5432:5432"
+      - "${DB_HOST_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql
     healthcheck:
@@ -16,22 +16,29 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
-
-  app-dev:
-    image: node:22-alpine
-    container_name: nextjs-sistem-surat-dev
-    working_dir: /app
-    volumes:
-      - .:/app
-      - /app/node_modules
-    ports:
-      - "3001:3001"
     env_file:
       - .env
-    command: sh -c "apk add --no-cache openssl && npm install --legacy-peer-deps && npx prisma generate && npx prisma db push && npm run dev"
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: app-surat
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+      - node_modules:/app/node_modules
+      - next_cache:/app/.next
+    ports:
+      - "${APP_PORT:-3001}:3001"
     depends_on:
       db:
         condition: service_healthy
 
 volumes:
   postgres_data:
+  node_modules:
+  next_cache:

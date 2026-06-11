@@ -1,83 +1,65 @@
-import { prisma } from "@/infrastructure/databases/prisma-client"
-import { auth } from "@/infrastructure/auth/better-auth"
 import { NextRequest, NextResponse } from "next/server"
-import { headers } from "next/headers"
-import { scryptAsync } from "@noble/hashes/scrypt.js"
-import { randomBytes, bytesToHex } from "@noble/hashes/utils.js"
+import { AppError }                  from "@/lib/errors"
+import { requireAdmin }              from "@/lib/require-admin"
+import { userService }               from "@/services/user-service"
+import { GetUsersQuerySchema }       from "@/app/validation/user"
+import { CreateUserSchema }          from "@/app/validation/user"
 
-async function hashPassword(password: string): Promise<string> {
-  const salt = bytesToHex(randomBytes(16))
-  const key = await scryptAsync(password.normalize("NFKC"), salt, {
-    N: 16384,
-    r: 16,
-    p: 1,
-    dkLen: 64,
-    maxmem: 128 * 16384 * 16 * 2,
-  })
-  return `${salt}:${bytesToHex(key)}`
+// ── GET /api/users ────────────────────────────────────────────
+
+export async function GET(req: NextRequest) {
+  try {
+    await requireAdmin()
+
+    const rawQuery = Object.fromEntries(req.nextUrl.searchParams.entries())
+    const parsed   = GetUsersQuerySchema.safeParse(rawQuery)
+
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: parsed.error.flatten().fieldErrors },
+        { status: 422 }
+      )
+    }
+
+    const result = await userService.getAll(parsed.data)
+    return NextResponse.json(result)
+
+  } catch (error) {
+    if (error instanceof AppError) {
+      return NextResponse.json({ error: error.message }, { status: error.status })
+    }
+    console.error("GET /api/users:", error)
+    return NextResponse.json({ error: "Gagal mengambil data user" }, { status: 500 })
+  }
 }
 
+// ── POST /api/users ───────────────────────────────────────────
+
 export async function POST(req: NextRequest) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  })
+  try {
+    await requireAdmin()
 
-  if (!session || (session.user as any).role !== "ADMIN") {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
+    const body = await req.json().catch(() => null)
+    if (!body) {
+      return NextResponse.json({ error: "Body tidak valid" }, { status: 400 })
+    }
+
+    const parsed = CreateUserSchema.safeParse(body)
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: parsed.error.flatten().fieldErrors },
+        { status: 422 }
+      )
+    }
+
+    const user = await userService.create(parsed.data)
+    return NextResponse.json(user, { status: 201 })
+
+  } catch (error) {
+    if (error instanceof AppError) {
+      return NextResponse.json({ error: error.message }, { status: error.status })
+    }
+    console.error("POST /api/users:", error)
+    return NextResponse.json({ error: "Gagal membuat user" }, { status: 500 })
   }
-
-  const { name, email, username, password, role } = await req.json()
-
-  // Cek username sudah ada
-  const existingUsername = await prisma.user.findUnique({
-    where: { username },
-  })
-
-  if (existingUsername) {
-    return NextResponse.json(
-      { message: "Username sudah dipakai" },
-      { status: 400 }
-    )
-  }
-
-  // Cek email sudah ada
-  const existingEmail = await prisma.user.findUnique({
-    where: { email },
-  })
-
-  if (existingEmail) {
-    return NextResponse.json(
-      { message: "Email sudah dipakai" },
-      { status: 400 }
-    )
-  }
-
-  const hashedPassword = await hashPassword(password)
-
-  const user = await prisma.user.create({
-    data: {
-      id: crypto.randomUUID(),
-      name,
-      email,
-      username,
-      emailVerified: false,
-      role,
-      accounts: {
-        create: {
-          id: crypto.randomUUID(),
-          accountId: crypto.randomUUID(),
-          providerId: "credential",
-          password: hashedPassword,
-        },
-      },
-    },
-  })
-
-  return NextResponse.json({
-    id: user.id,
-    name: user.name,
-    email: user.email,
-    username: user.username,
-    role: user.role,
-  })
 }

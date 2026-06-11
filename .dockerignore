@@ -1,10 +1,28 @@
+# Dependencies
+node_modules
+
+# Next.js build output
+.next
+out
+
+# Environment files — jangan masuk ke image
+.env*
+!.env.example
+
+# Git
 .git
 .gitignore
-.env
-.env.example
-.next
-node_modules
-README.md
-Dockerfile
-docker-compose.yml
+
+# Docker files sendiri
+docker-compose*.yml
+Dockerfile*
 .dockerignore
+
+# OS & editor
+.DS_Store
+*.log
+.vscode
+.idea
+
+# Prisma generated (di-generate ulang saat container start)
+src/generated

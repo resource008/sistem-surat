@@ -1,0 +1,618 @@
+# Dokumentasi API Routes
+
+Dokumen ini merangkum API route yang tersedia di aplikasi Sistem Surat saat ini. Semua path di bawah memakai base URL aplikasi, misalnya `http://localhost:3001`.
+
+## Aturan Umum
+
+- Format request dan response utama adalah JSON.
+- Route yang dilindungi membaca session dari Better Auth melalui cookie/session request.
+- Response error umum:
+
+```json
+{ "error": "Pesan error" }
+```
+
+| Status | Arti |
+| --- | --- |
+| `400` | Request/body/query tidak valid |
+| `401` | Belum login atau session tidak ada |
+| `403` | Login valid, tetapi role/permission tidak cukup |
+| `404` | Data tidak ditemukan |
+| `409` | Konflik data, misalnya nomor sudah ada |
+| `422` | Validasi field gagal |
+| `500` | Error server |
+
+## Auth
+
+### `GET|POST /api/auth/[...all]`
+
+Handler bawaan Better Auth.
+
+Dipakai untuk login, logout, session, dan endpoint internal Better Auth lain. Implementasinya berasal dari:
+
+```ts
+toNextJsHandler(auth)
+```
+
+Catatan:
+- Login aplikasi saat ini memakai username/password melalui `authClient.signIn.username`.
+- Disable sign-up aktif di konfigurasi Better Auth.
+
+## Profile
+
+Route profile dipakai oleh user yang sedang login untuk melihat dan mengubah akun sendiri. Staff dan PKL memakai route ini, bukan API admin user.
+
+### `GET /api/profile`
+
+Mengambil data akun user yang sedang login.
+
+Auth: wajib login.
+
+Response `200`:
+
+```json
+{
+  "id": "user-id",
+  "name": "Staff Satu",
+  "email": "staff@staff.com",
+  "username": "staff1",
+  "image": null,
+  "role": "STAFF",
+  "createdAt": "2026-05-16T16:21:00.000Z",
+  "updatedAt": "2026-06-01T16:49:00.000Z",
+  "lastLogin": "2026-06-01T16:40:00.000Z",
+  "status": "Sedang Aktif",
+  "permissions": {
+    "canCreate": true,
+    "canEdit": true,
+    "canDelete": false,
+    "canPrint": true,
+    "canTrack": false
+  }
+}
+```
+
+### `PATCH /api/profile`
+
+Mengubah akun user yang sedang login.
+
+Auth: wajib login.
+
+Field yang boleh dikirim:
+
+| Field | Tipe | Wajib | Catatan |
+| --- | --- | --- | --- |
+| `name` | string | tidak | Minimal 2, maksimal 100 karakter |
+| `email` | string | tidak | Harus format email valid |
+| `username` | string | tidak | 3-30 karakter, huruf kecil/angka/underscore |
+| `password` | string | tidak | 8-72 karakter |
+
+Field `role` dan `permissions` tidak diterima di route ini, sehingga user tidak bisa mengubah role atau hak akses sendiri.
+
+Contoh request:
+
+```json
+{
+  "name": "Staff Satu",
+  "email": "staff@staff.com",
+  "username": "staff1",
+  "password": "passwordbaru"
+}
+```
+
+Response `200`: object `User` terbaru.
+
+## Users Admin
+
+Route user admin hanya boleh diakses role `ADMIN`.
+
+### `GET /api/users`
+
+Mengambil daftar user dengan pagination.
+
+Auth: wajib `ADMIN`.
+
+Query params:
+
+| Param | Default | Catatan |
+| --- | --- | --- |
+| `page` | `1` | Minimal 1 |
+| `limit` | `10` | Maksimal 100 |
+| `search` | - | Cari pada `name`, `email`, `username` |
+| `role` | - | `ADMIN`, `STAFF`, atau `PKL` |
+
+Contoh:
+
+```http
+GET /api/users?page=1&limit=10&search=staff&role=STAFF
+```
+
+Response `200`:
+
+```json
+{
+  "data": [
+    {
+      "id": "user-id",
+      "name": "Staff Satu",
+      "email": "staff@staff.com",
+      "username": "staff1",
+      "image": null,
+      "role": "STAFF",
+      "createdAt": "2026-05-16T16:21:00.000Z",
+      "updatedAt": "2026-06-01T16:49:00.000Z",
+      "lastLogin": "2026-06-01T16:40:00.000Z",
+      "status": "Sedang Aktif",
+      "permissions": null
+    }
+  ],
+  "meta": {
+    "total": 1,
+    "page": 1,
+    "limit": 10,
+    "totalPages": 1
+  }
+}
+```
+
+### `POST /api/users`
+
+Membuat user baru.
+
+Auth: wajib `ADMIN`.
+
+Body:
+
+| Field | Tipe | Wajib | Catatan |
+| --- | --- | --- | --- |
+| `name` | string | ya | Minimal 2, maksimal 100 karakter |
+| `email` | string | ya | Harus unik dan format email valid |
+| `username` | string | ya | Harus unik, 3-30 karakter, huruf kecil/angka/underscore |
+| `password` | string | ya | 8-72 karakter |
+| `role` | string | ya | `ADMIN`, `STAFF`, atau `PKL` |
+
+Contoh request:
+
+```json
+{
+  "name": "PKL Satu",
+  "email": "pkl@pkl.com",
+  "username": "pkl1",
+  "password": "pkl12345",
+  "role": "PKL"
+}
+```
+
+Response `201`: object `User`.
+
+### `GET /api/users/[id]`
+
+Mengambil detail satu user.
+
+Auth: wajib `ADMIN`.
+
+Response `200`: object `User`.
+
+### `PATCH /api/users/[id]`
+
+Mengubah data user oleh admin.
+
+Auth: wajib `ADMIN`.
+
+Body:
+
+| Field | Tipe | Wajib | Catatan |
+| --- | --- | --- | --- |
+| `name` | string | tidak | Minimal 2, maksimal 100 karakter |
+| `email` | string | tidak | Harus format email valid |
+| `username` | string | tidak | 3-30 karakter, huruf kecil/angka/underscore |
+| `password` | string | tidak | 8-72 karakter |
+| `role` | string | tidak | `ADMIN`, `STAFF`, atau `PKL` |
+| `permissions` | object | tidak | Hak akses staff/PKL |
+
+Contoh request:
+
+```json
+{
+  "name": "Staff Satu",
+  "role": "STAFF",
+  "permissions": {
+    "canCreate": true,
+    "canEdit": true,
+    "canDelete": false,
+    "canPrint": true,
+    "canTrack": false
+  }
+}
+```
+
+Response `200`: object `User` terbaru.
+
+Catatan:
+- Admin tidak bisa menurunkan role akun dirinya sendiri dari `ADMIN`.
+- Username dan email dicek agar tidak duplikat.
+
+### `DELETE /api/users/[id]`
+
+Menghapus user.
+
+Auth: wajib `ADMIN`.
+
+Response `200`:
+
+```json
+{ "message": "User berhasil dihapus" }
+```
+
+Catatan:
+- Admin tidak bisa menghapus akun dirinya sendiri.
+
+## Surat
+
+### `GET /api/surat`
+
+Mengambil daftar surat atau PI.
+
+Auth: wajib login.
+
+Query params:
+
+| Param | Default | Catatan |
+| --- | --- | --- |
+| `type` | surat biasa | Isi `pi` untuk data PI |
+| `ids` | - | Comma separated id, maksimal 100 id |
+| `page` | - | Jika dikirim, response menjadi paginated |
+| `limit` | `20` | Dipakai jika `page` dikirim |
+| `date` | - | Filter `tanggalTerima` pada tanggal tertentu |
+| `dept` | - | Comma separated department id, contoh `HRD,IT` |
+
+Contoh:
+
+```http
+GET /api/surat?type=pi&page=1&limit=20&date=2026-06-01&dept=PI
+```
+
+Response tanpa pagination `200`:
+
+```json
+[
+  {
+    "id": 1,
+    "nomor": "0001",
+    "deptId": "HRD",
+    "asalSurat": "PT. Maju Mundur",
+    "tujuan": "HRD",
+    "tanggalTerima": "2026-04-01T00:00:00.000Z",
+    "dept": {
+      "id": "HRD",
+      "shortName": "HRD",
+      "tujuan": "HRD",
+      "isActive": true
+    },
+    "detailSurat": []
+  }
+]
+```
+
+Response dengan pagination `200`:
+
+```json
+{
+  "data": [],
+  "hasMore": false
+}
+```
+
+### `POST /api/surat`
+
+Membuat register surat biasa atau PI.
+
+Auth: wajib login.
+
+Body untuk surat biasa:
+
+```json
+{
+  "deptId": "HRD",
+  "asalSurat": "PT. Maju Mundur",
+  "tanggalTerima": "2026-06-01",
+  "tujuan": "HRD",
+  "isPIDept": false,
+  "suratList": [
+    {
+      "perihal": "Permohonan Cuti",
+      "noSurat": "001/HRD/VI/2026",
+      "lampiran": "1 SET",
+      "tujuan": "HRD",
+      "tanggalSurat": "2026-06-01"
+    }
+  ]
+}
+```
+
+Body untuk PI:
+
+```json
+{
+  "deptId": "PI",
+  "asalSurat": "PT. Investama Nusantara",
+  "tanggalTerima": "2026-06-01",
+  "isPIDept": true,
+  "piList": [
+    {
+      "namaSupplier": "PT. Investama Nusantara",
+      "noInvoice": "INV/2026/06/001",
+      "nomorSurat": "IN/VI/2026/001",
+      "tanggalSurat": "2026-06-01",
+      "tujuan": "PI",
+      "cc": null
+    }
+  ]
+}
+```
+
+Response `201`: object surat/PI yang dibuat.
+
+### `GET /api/surat/[dept]/[id]`
+
+Mengambil detail surat berdasarkan department dan id.
+
+Auth: wajib login.
+
+Contoh:
+
+```http
+GET /api/surat/HRD/1
+GET /api/surat/PI/1
+```
+
+Response `200`: object surat biasa jika `dept` bukan PI, atau object register PI jika `dept` adalah PI.
+
+### `PATCH /api/surat/[dept]/[id]`
+
+Mengubah surat berdasarkan department dan id.
+
+Auth: wajib login.
+
+Body untuk surat biasa:
+
+```json
+{
+  "deptId": "HRD",
+  "asalSurat": "PT. Maju Mundur",
+  "tanggalTerima": "2026-06-01",
+  "tujuan": "HRD",
+  "suratList": [
+    {
+      "perihal": "Permohonan Cuti Revisi",
+      "noSurat": "001/HRD/VI/2026",
+      "lampiran": null,
+      "tujuan": "HRD",
+      "tanggalSurat": "2026-06-01"
+    }
+  ]
+}
+```
+
+Body untuk PI:
+
+```json
+{
+  "deptId": "PI",
+  "asalSurat": "PT. Investama Nusantara",
+  "tanggalTerima": "2026-06-01",
+  "piList": [
+    {
+      "namaSupplier": "PT. Investama Nusantara",
+      "noInvoice": "INV/2026/06/001",
+      "nomorSurat": "IN/VI/2026/001",
+      "tanggalSurat": "2026-06-01",
+      "tujuan": "PI",
+      "cc": null
+    }
+  ]
+}
+```
+
+Response `200`: object surat/PI terbaru.
+
+### `DELETE /api/surat/[dept]/[id]`
+
+Menghapus surat berdasarkan department dan id.
+
+Auth: wajib login.
+
+Permission:
+- `ADMIN` boleh menghapus.
+- Non-admin harus punya permission `canDelete`.
+
+Response `200`:
+
+```json
+{ "success": true }
+```
+
+### `GET /api/surat/preview-nomor`
+
+Melihat nomor register berikutnya untuk department.
+
+Auth: wajib login.
+
+Query params:
+
+| Param | Wajib | Catatan |
+| --- | --- | --- |
+| `deptId` | ya | Id department, contoh `HRD` atau `PI` |
+
+Contoh:
+
+```http
+GET /api/surat/preview-nomor?deptId=HRD
+```
+
+Response `200`:
+
+```json
+{ "nomor": "0003" }
+```
+
+## Cetak
+
+### `GET /api/cetak/all`
+
+Mengambil data surat biasa untuk kebutuhan cetak.
+
+Auth: wajib login.
+
+Query params:
+
+| Param | Catatan |
+| --- | --- |
+| `ids` | Comma separated id, maksimal 100 id. Jika kosong, mengambil semua data surat biasa. |
+
+Contoh:
+
+```http
+GET /api/cetak/all?ids=1,2,3
+```
+
+Response `200`: array register surat biasa dengan `dept` dan `detailSurat`.
+
+### `GET /api/cetak/pi`
+
+Mengambil data PI untuk kebutuhan cetak.
+
+Auth: wajib login.
+
+Query params:
+
+| Param | Catatan |
+| --- | --- |
+| `ids` | Comma separated id, maksimal 100 id. Jika kosong, mengambil semua data PI. |
+
+Contoh:
+
+```http
+GET /api/cetak/pi?ids=1,2,3
+```
+
+Response `200`: array register PI dengan `dept` dan `detailPI`.
+
+## Departemen
+
+### `GET /api/dept`
+
+Mengambil daftar departemen aktif.
+
+Auth: wajib login.
+
+Response `200`:
+
+```json
+[
+  {
+    "id": "HRD",
+    "shortName": "HRD",
+    "tujuan": "HRD"
+  }
+]
+```
+
+## Login Activity
+
+### `POST /api/login-activity`
+
+Mencatat aktivitas login user saat ini.
+
+Auth: wajib login.
+
+Efek:
+- Mengisi `users.lastLoginAt` dengan waktu saat ini.
+- Mengupdate `sessions.updatedAt` untuk token session saat ini.
+
+Response `200`:
+
+```json
+{ "ok": true }
+```
+
+## Admin Dashboard
+
+### `GET /api/admin/stats`
+
+Mengambil statistik dashboard admin.
+
+Auth: wajib `ADMIN`.
+
+Query params diteruskan ke service statistik:
+
+| Param | Catatan |
+| --- | --- |
+| `deptId` | Department yang dipakai untuk statistik |
+| `tipeWaktu` | `mingguan`, `bulanan`, atau `tahunan` |
+| `bulan` | Angka bulan, opsional |
+| `tahun` | Angka tahun, opsional |
+
+Contoh:
+
+```http
+GET /api/admin/stats?deptId=HRD&tipeWaktu=bulanan&bulan=6&tahun=2026
+```
+
+Response `200`:
+
+```json
+{
+  "aktivitas": {
+    "jumlahAkun": 3,
+    "totalDepartemen": 17,
+    "totalSuratMasuk": 12,
+    "totalSuratPI": 2,
+    "perubahanSuratMasuk": null,
+    "perubahanSuratPI": null
+  },
+  "suratPerDepartemen": [
+    {
+      "departemenId": "HRD",
+      "departemen": "HRD",
+      "jumlah": 2,
+      "persen": 16.67
+    }
+  ],
+  "statistikSurat": {
+    "departemenId": "HRD",
+    "departemen": "HRD",
+    "tipeWaktu": "bulanan",
+    "labels": ["Minggu 1", "Minggu 2"],
+    "data": [1, 1],
+    "total": 2
+  },
+  "riwayatAktivitasPengguna": [
+    {
+      "id": "user-id",
+      "fotoProfil": null,
+      "nama": "Staff Satu",
+      "terakhirMasuk": "2026-06-01T16:40:00.000Z",
+      "status": "Sedang aktif"
+    }
+  ]
+}
+```
+
+## Ringkasan Permission
+
+| Route | Auth |
+| --- | --- |
+| `/api/auth/[...all]` | Public/Better Auth handler |
+| `/api/profile` | Login |
+| `/api/users` | Admin |
+| `/api/users/[id]` | Admin |
+| `/api/surat` | Login |
+| `/api/surat/[dept]/[id]` `GET/PATCH` | Login |
+| `/api/surat/[dept]/[id]` `DELETE` | Admin atau `canDelete` |
+| `/api/surat/preview-nomor` | Login |
+| `/api/cetak/all` | Login |
+| `/api/cetak/pi` | Login |
+| `/api/dept` | Login |
+| `/api/login-activity` | Login |
+| `/api/admin/stats` | Admin |

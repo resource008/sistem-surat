@@ -43,7 +43,7 @@ export function RegisterInfoPanel({ register, isPI }: Props) {
                         [-ms-overflow-style:none]
                         [scrollbar-width:none]">
           <div className="flex flex-col gap-4">
-            <Field label="Asal Surat"     value={register.asalSurat}                fullWidth />
+            <Field label="Asal Surat" value={register.asalSurat} fullWidth />
             <Field label="Tanggal Terima" value={formatTanggal(register.tanggalTerima)} fullWidth />
             {!isPI && (
               <Field label="Tujuan" value={(register as any).tujuan || "-"} fullWidth />

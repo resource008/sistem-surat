@@ -11,7 +11,6 @@ enum Role {
   ADMIN
   STAFF
   PKL
-  GUEST
 }
 
 model User {
@@ -21,12 +20,14 @@ model User {
   emailVerified Boolean   @default(false) // Wajib untuk Better Auth
   username      String?   @unique        // Ini yang tadi hilang!
   image         String?
-  role          Role      @default(GUEST)
+  role          Role      @default(STAFF)
+  lastLoginAt   DateTime? @map("last_login_at")
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   
   sessions      Session[]
   accounts      Account[]
+  permissions   UserPermission?
 
   @@map("users")
 }
@@ -62,6 +63,19 @@ model Account {
   updatedAt             DateTime  @updatedAt
 
   @@map("accounts")
+}
+
+model UserPermission {
+  id        String  @id @default(cuid())
+  userId    String  @unique
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  canCreate Boolean @default(false) @map("can_create")
+  canEdit   Boolean @default(false) @map("can_edit")
+  canDelete Boolean @default(false) @map("can_delete")
+  canPrint  Boolean @default(false) @map("can_print")
+  canTrack  Boolean @default(false) @map("can_track")
+
+  @@map("user_permissions")
 }
 
 model Department {
@@ -146,3 +160,4 @@ model NomorCounter {
 
   @@map("nomor_counter")
 }
+

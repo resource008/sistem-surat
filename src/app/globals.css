@@ -81,6 +81,15 @@
   --sidebar-accent-foreground: rgb(22, 18, 84);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  /* ── Skeleton – Light Mode ── */
+  --sk-page:    oklch(0.96 0 0);
+  --sk-card:    oklch(0.98 0 0);
+  --sk-border:  oklch(0.88 0 0);
+  --sk-divider: oklch(0.91 0 0);
+  --sk-base:    oklch(0.88 0 0);
+  --sk-subtle:  oklch(0.92 0 0);
+  --sk-badge:   oklch(0.80 0.08 264);
 }
 
 .dark {
@@ -115,6 +124,15 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+
+  /* ── Skeleton – Dark Mode ── */
+  --sk-page:    oklch(0.10 0.02 264);
+  --sk-card:    oklch(0.14 0.025 264);
+  --sk-border:  oklch(1 0 0 / 10%);
+  --sk-divider: oklch(1 0 0 / 5%);
+  --sk-base:    oklch(1 0 0 / 20%);
+  --sk-subtle:  oklch(1 0 0 / 10%);
+  --sk-badge:   oklch(0.55 0.20 264 / 35%);
 }
 
 body {

@@ -1,96 +1,121 @@
-import { useState, useEffect } from "react"
-import { useRouter, useParams } from "next/navigation"
-import { toast } from "sonner"
-import { FormState, SuratItem, PIItem, EMPTY_SURAT_ITEM, EMPTY_PI_ITEM } from "@/components/surat/shared"
+"use client"
+
+import { useState, useEffect }         from "react"
+import { useRouter, useParams }        from "next/navigation"
+import { toast }                       from "sonner"
+import type { RegisterSurat, RegisterPI, PIItem, SuratItem } from "@/types"
+import {
+  validateSuratForm,
+  buildUpdatePayload,
+  formatLampiran,
+}                                      from "@/domain/surat/use-cases"
+import { emptyPIItem, emptySuratItem } from "@/domain/surat/entities"
+import { getErrorMessage }             from "@/lib/utils"
+
+interface FormState {
+  deptId:        string
+  asalSurat:     string
+  tujuan:        string
+  tanggalTerima: string
+}
 
 export function useEditSurat(basePath: string) {
   const { dept, id } = useParams<{ dept: string; id: string }>()
-  const router = useRouter()
-  const isPI = dept === "PI"
+  const router       = useRouter()
+  const isPI         = dept === "PI"
 
-  const [original, setOriginal] = useState<any | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  
+  const [original,      setOriginal]      = useState<RegisterSurat | RegisterPI | null>(null)
+  const [loading,       setLoading]       = useState(true)
+  const [saving,        setSaving]        = useState(false)
+  const [error,         setError]         = useState<string | null>(null)
+  const [formErrors,    setFormErrors]    = useState<Record<string, string>>({})
+  const [previewNomor,  setPreviewNomor]  = useState<string | null>(null)  // ← tambah
+
   const [form, setForm] = useState<FormState>({
-    deptId: "", asalSurat: "", tujuan: "", tanggalTerima: new Date().toISOString().slice(0, 10),
+    deptId:        "",
+    asalSurat:     "",
+    tujuan:        "",
+    tanggalTerima: new Date().toISOString().slice(0, 10),
   })
-  
-  const [suratList, setSuratList] = useState<SuratItem[]>([])
-  const [piList, setPiList] = useState<PIItem[]>([])
-  const [formErrors, setFormErrors] = useState<Record<string, string>>({})
 
-  // ── Fetch Data ────────────────────────────────────────────────────────
+  const [suratList, setSuratList] = useState<SuratItem[]>([])
+  const [piList,    setPiList]    = useState<PIItem[]>([])
+
+  // ── Fetch Data ──────────────────────────────────────────────────────────────
   useEffect(() => {
     fetch(`/api/surat/${dept}/${id}`)
-      .then(r => { if (!r.ok) throw new Error("Data tidak ditemukan"); return r.json() })
-      .then((data: any) => {
-        setOriginal(data)
+      .then(async (res) => {
+        if (!res.ok) throw new Error("Gagal mengambil data")
+        return res.json()
+      })
+      .then((data: unknown) => {
+        if (!data) {
+          setError("Data tidak ditemukan")
+          return
+        }
+
+        const d = data as RegisterSurat | RegisterPI
+        setOriginal(d)
         setForm({
-          deptId: data.dept?.shortName ?? "",
-          asalSurat: data.asalSurat ?? "",
-          tujuan: data.tujuan ?? "",
-          tanggalTerima: data.tanggalTerima?.slice(0, 10) ?? new Date().toISOString().slice(0, 10),
+          deptId:        d.dept?.shortName             ?? "",
+          asalSurat:     d.asalSurat                   ?? "",
+          tujuan:        "tujuan" in d ? d.tujuan : "",
+          tanggalTerima: d.tanggalTerima?.slice(0, 10) ?? new Date().toISOString().slice(0, 10),
         })
 
         if (isPI) {
-          setPiList((data.detailPI ?? []).map((p: any) => ({
-            id: String(p.id),
-            namaSupplier: p.namaSupplier ?? "",
-            noInvoice: p.noInvoice ?? "",
-            nomorSurat: p.nomorSurat ?? "",
-            tujuan: p.tujuan ?? "",
-            cc: p.cc ?? "",
-            tanggalSurat: p.tanggalSurat?.slice(0, 10) ?? "",
+          const pi = d as RegisterPI
+          setPiList(pi.detailPI.map((p) => ({
+            id:           String(p.id),
+            namaSupplier: p.namaSupplier,
+            noInvoice:    p.noInvoice    ?? "",
+            nomorSurat:   p.nomorSurat   ?? "",
+            tujuan:       p.tujuan       ?? "",
+            cc:           p.cc           ?? "",
+            tanggalSurat: p.tanggalSurat.slice(0, 10),
           })))
         } else {
-          setSuratList((data.detailSurat ?? []).map((d: any) => ({
-            id: String(d.id),
-            perihal: d.perihal ?? "",
-            noSurat: d.noSurat ?? "",
-            lampiran: d.lampiran ?? "",
-            tanggalSurat: d.tanggalSurat?.slice(0, 10) ?? "",
+          const surat = d as RegisterSurat
+          setSuratList(surat.detailSurat.map((s) => ({
+            id:           String(s.id),
+            perihal:      s.perihal,
+            noSurat:      s.noSurat  ?? "",
+            lampiran:     s.lampiran ?? "",
+            tujuan:       "",
+            tanggalSurat: s.tanggalSurat.slice(0, 10),
           })))
         }
 
         window.dispatchEvent(new CustomEvent("breadcrumb:sub", {
-          detail: `Edit · ${data.dept?.shortName} / ${data.nomor}`,
+          detail: `Edit · ${d.dept?.shortName} / ${d.nomor}`,
         }))
       })
-      .catch(e => setError(e.message))
+      .catch((e: unknown) => setError(getErrorMessage(e)))
       .finally(() => setLoading(false))
   }, [dept, id, isPI])
 
-  // ── Validation ────────────────────────────────────────────────────────
+  // ── Validation ──────────────────────────────────────────────────────────────
   function validate(): boolean {
-    const errs: Record<string, string> = {}
-    if (!form.asalSurat) errs.asalSurat = "Asal surat wajib diisi"
+    const missing = validateSuratForm({
+      asalSurat: form.asalSurat,
+      isPIDept:  isPI,
+      piList,
+      suratList,
+    })
 
-    if (isPI) {
-      if (piList.length === 0) errs.piList = "Minimal 1 PI harus ada"
-      else {
-        piList.forEach((p, i) => {
-          if (!p.namaSupplier) errs[`pi_${i}_namaSupplier`] = "Nama supplier wajib diisi"
-          if (!p.tanggalSurat) errs[`pi_${i}_tanggalSurat`] = "Tanggal surat wajib diisi"
-        })
-      }
-    } else {
-      if (!form.deptId) errs.deptId = "Departemen wajib dipilih"
-      if (suratList.length === 0) errs.suratList = "Minimal 1 surat harus ada"
-      else {
-        suratList.forEach((s, i) => {
-          if (!s.perihal) errs[`surat_${i}_perihal`] = "Perihal wajib diisi"
-          if (!s.tanggalSurat) errs[`surat_${i}_tanggalSurat`] = "Tanggal surat wajib diisi"
-        })
-      }
+    if (missing.length > 0) {
+      toast.error("Gagal menyimpan", {
+        description: `Mohon diisi di bagian: ${missing.join(", ")}`,
+      })
     }
 
+    const errs: Record<string, string> = {}
+    missing.forEach((msg: string) => { errs[msg] = msg })
     setFormErrors(errs)
-    return Object.keys(errs).length === 0
+    return missing.length === 0
   }
 
-  // ── Actions ───────────────────────────────────────────────────────────
+  // ── Actions ─────────────────────────────────────────────────────────────────
   const actions = {
     setField: (key: keyof FormState, value: string) => {
       setForm(prev => {
@@ -99,80 +124,74 @@ export function useEditSurat(basePath: string) {
         return next
       })
       setFormErrors(prev => { const n = { ...prev }; delete n[key]; return n })
+
+      // ← fetch preview nomor saat dept berubah
+      if (key === "deptId") {
+        if (value && value !== original?.dept?.shortName) {
+          fetch(`/api/surat/preview-nomor?deptId=${value}`)
+            .then(r => r.json())
+            .then(d => setPreviewNomor(d.nomor))
+            .catch(() => setPreviewNomor(null))
+        } else {
+          setPreviewNomor(null) // kembali ke nomor asli
+        }
+      }
     },
-    
-    // Surat Actions
+
     setSuratField: (idx: number, key: keyof SuratItem, value: string) => {
       setSuratList(prev => prev.map((s, i) => i === idx ? { ...s, [key]: value } : s))
       setFormErrors(prev => { const n = { ...prev }; delete n[`surat_${idx}_${key}`]; return n })
     },
     setLampiranNum: (idx: number, raw: string) => {
-      const num = raw.replace(/[^0-9]/g, "")
-      setSuratList(prev => prev.map((s, i) => i === idx ? { ...s, lampiran: num ? `${num} SET` : "" } : s))
+      setSuratList(prev => prev.map((s, i) => i === idx ? { ...s, lampiran: formatLampiran(raw) } : s))
     },
-    addSurat: () => setSuratList(p => [...p, EMPTY_SURAT_ITEM()]),
+    addSurat:    () => setSuratList(p => [...p, emptySuratItem()]),
     removeSurat: (idx: number) => setSuratList(p => p.filter((_, i) => i !== idx)),
 
-    // PI Actions
     setPiField: (idx: number, key: keyof PIItem, value: string) => {
       setPiList(prev => prev.map((p, i) => i === idx ? { ...p, [key]: value } : p))
       setFormErrors(prev => { const n = { ...prev }; delete n[`pi_${idx}_${key}`]; return n })
     },
-    addPI: () => setPiList(p => [...p, EMPTY_PI_ITEM()]),
+    addPI:    () => setPiList(p => [...p, emptyPIItem()]),
     removePI: (idx: number) => setPiList(p => p.filter((_, i) => i !== idx)),
 
-    // Navigation & Submit
     handleBack: () => router.push(`${basePath}/view/${dept}/${id}`),
-    
+
     handleSave: async () => {
       if (!validate()) return
       setSaving(true)
       try {
-        const body = isPI
-          ? {
-              asalSurat: form.asalSurat,
-              tanggalTerima: form.tanggalTerima,
-              piList: piList.map(p => ({
-                namaSupplier: p.namaSupplier,
-                noInvoice: p.noInvoice || null,
-                nomorSurat: p.nomorSurat || null,
-                tujuan: p.tujuan || null,
-                cc: p.cc || null,
-                tanggalSurat: p.tanggalSurat,
-              })),
-            }
-          : {
-              deptId: form.deptId,
-              asalSurat: form.asalSurat,
-              tujuan: form.tujuan,
-              tanggalTerima: form.tanggalTerima,
-              suratList: suratList.map(s => ({
-                perihal: s.perihal,
-                noSurat: s.noSurat || null,
-                lampiran: s.lampiran || null,
-                tanggalSurat: s.tanggalSurat,
-              })),
-            }
+        const payload = buildUpdatePayload({
+          deptId:        form.deptId,
+          asalSurat:     form.asalSurat,
+          tujuan:        form.tujuan,
+          tanggalTerima: form.tanggalTerima,
+          isPIDept:      isPI,
+          piList,
+          suratList,
+        })
 
         const res = await fetch(`/api/surat/${dept}/${id}`, {
-          method: "PATCH",
+          method:  "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
+          body:    JSON.stringify(payload),
         })
-        if (!res.ok) throw new Error("Gagal menyimpan perubahan")
-        const result = await res.json()
+
+        if (!res.ok) throw new Error("Gagal menyimpan")
+        const result = await res.json() as RegisterSurat | RegisterPI
+
         toast.success("Berhasil diubah")
         router.push(`${basePath}/view/${result.dept.id}/${result.id}`)
-      } catch (e: any) {
-        toast.error(e.message ?? "Terjadi kesalahan")
+      } catch (e: unknown) {
+        toast.error("Gagal Menyimpan", { description: getErrorMessage(e) })
       } finally {
         setSaving(false)
       }
-    }
+    },
   }
 
   return {
-    state: { isPI, loading, saving, error, original, form, suratList, piList, formErrors },
-    actions
+    state: { isPI, loading, saving, error, original, form, suratList, piList, formErrors, previewNomor },
+    actions,
   }
 }

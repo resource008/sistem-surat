@@ -1,6 +1,5 @@
-import { StaffLayout } from "@/components/staff/staff-layout"
+import { RoleLayout } from "@/components/role-dashboard/role-layout"
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  // Hapus role="STAFF", cukup kirimkan children
-  return <StaffLayout>{children}</StaffLayout>
+  return <RoleLayout role="STAFF">{children}</RoleLayout>
 }

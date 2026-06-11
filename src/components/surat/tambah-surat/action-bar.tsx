@@ -9,7 +9,6 @@ export function FloatingActionBar({ state, actions }: any) {
           className="gap-2 h-10 px-4 rounded-xl text-[13px] font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800">
           <X size={14} /> Batal
         </Button>
-        <div className="w-px h-5 bg-slate-200 dark:bg-slate-700 mx-0.5" />
         <Button type="submit" variant="ghost" disabled={state.saving || !state.deptId}
           className="gap-2 h-10 px-4 rounded-xl text-[13px] font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/30 disabled:opacity-50 disabled:cursor-not-allowed">
           {state.saving

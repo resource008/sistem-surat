@@ -1,24 +1,37 @@
-import { useEffect, useState } from "react"
-import { Period, StatsData } from "../components/admin/dashboard/types"
+import useSWR from "swr"
+import type {
+  AdminStatsParams,
+  DashboardStatsResult,
+} from "@/domain/admin-dashboard/types"
 
-export function useAdminStats(period: Period) {
-  const [data, setData] = useState<StatsData | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+const fetcher = async (url: string) => {
+  const res = await fetch(url)
+  if (res.status === 401) throw new Error("Sesi habis, silakan login ulang")
+  if (res.status === 403) throw new Error("Tidak memiliki akses")
+  if (!res.ok)            throw new Error("Gagal mengambil data statistik")
+  return res.json()
+}
 
-  useEffect(() => {
-    setLoading(true)
-    setError(null)
+function buildAdminStatsUrl(params: AdminStatsParams) {
+  const searchParams = new URLSearchParams({
+    deptId:    params.deptId,
+    tipeWaktu: params.tipeWaktu,
+  })
 
-    fetch(`/api/admin/stats?period=${period}`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Gagal mengambil data statistik")
-        return res.json()
-      })
-      .then(setData)
-      .catch((err: Error) => setError(err.message))
-      .finally(() => setLoading(false))
-  }, [period])
+  if (params.bulan !== undefined) searchParams.set("bulan", String(params.bulan))
+  if (params.tahun !== undefined) searchParams.set("tahun", String(params.tahun))
 
-  return { data, loading, error }
+  return `/api/admin/stats?${searchParams.toString()}`
+}
+
+export function useAdminStats(params: AdminStatsParams) {
+  const { data, error, isLoading } = useSWR<DashboardStatsResult>(
+    buildAdminStatsUrl(params),
+    fetcher,
+    {
+      refreshInterval:   60_000,
+      revalidateOnFocus: true,
+    }
+  )
+  return { data, error, isLoading }
 }

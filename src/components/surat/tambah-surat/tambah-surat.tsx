@@ -7,10 +7,10 @@ import { Role } from "../shared"
 
 // Hooks & Sub-Components
 import { useTambahSurat } from "@/hooks/use-tambah-surat"
-import { RegisterInfoPanel } from "./register-info-panel"
-import { PIListPanel } from "./pi-list-panel"
-import { SuratListPanel } from "./surat-list-panel"
 import { FloatingActionBar } from "./action-bar"
+import { PIListPanel } from "./pi-list-panel"
+import { RegisterInfoPanel } from "./register-info-panel"
+import { SuratListPanel } from "./surat-list-panel"
 
 interface Props {
   role: Role
@@ -37,7 +37,7 @@ export default function TambahForm({ role, basePath }: Props) {
           <div className="rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 px-6 py-12 text-center lg:h-full flex flex-col items-center justify-center min-h-[200px]">
             <FileText className="mb-3 h-8 w-8 text-slate-300 dark:text-slate-700" />
             <p className="text-[13px] text-slate-400 dark:text-slate-500">
-              Silakan pilih <strong>Departemen</strong> terlebih dahulu di sebelah kiri untuk menambahkan data.
+              Silakan pilih <strong>Departemen</strong> terlebih dahulu untuk menambahkan data.
             </p>
           </div>
         ) : (

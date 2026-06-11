@@ -1,29 +1,23 @@
-// src/app/api/dept/route.ts
-import { NextResponse } from "next/server"
-import { prisma } from "@/infrastructure/databases/prisma-client"
+import { NextResponse }        from "next/server"
+import { headers }             from "next/headers"
+import { auth }                from "@/infrastructure/auth/better-auth"
+import { fetchDepartemen }     from "@/services/departemen-service"
+import type { ExtendedSession } from "@/types/auth"
 
 export async function GET() {
   try {
-    console.log("=== DEPT ROUTE HIT ===")
-    console.log("Prisma instance:", prisma)
-    console.log("Prisma department:", prisma.department)
-    
-    const data = await prisma.department.findMany({
-      where: { isActive: true },
-      select: {
-        id:        true,
-        shortName: true,
-        tujuan:    true,
-      },
-      orderBy: { shortName: "asc" },
-    })
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    }) as ExtendedSession | null
 
-    console.log("Data fetched:", data)
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const data = await fetchDepartemen()
     return NextResponse.json(data)
   } catch (error) {
-    console.error("DEPT ERROR name:", (error as any)?.name)
-    console.error("DEPT ERROR message:", (error as any)?.message)
-    console.error("DEPT ERROR stack:", (error as any)?.stack)
+    if (error instanceof Error) console.error("GET /api/dept:", error.message)
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
   }
 }

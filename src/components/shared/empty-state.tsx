@@ -1,17 +1,18 @@
 // Generic empty-state — bisa dipakai di seluruh aplikasi
 
 import { cn }             from "@/lib/utils"
-import { type LucideIcon } from "lucide-react"
+import type { ReactNode, ElementType }  from "react" // Gunakan ElementType
 
-interface EmptyStateProps {
+// Tambahkan 'export' agar tipe props ini bisa dikenali penuh oleh TS
+export interface EmptyStateProps {
   /** Icon utama di tengah kotak */
-  icon:        LucideIcon
+  icon:        ElementType
   /** Icon kecil di sudut kanan-bawah (opsional) */
-  badgeIcon?:  LucideIcon
+  badgeIcon?:  ElementType
   title:       string
-  description: React.ReactNode
+  description: ReactNode
   /** Tombol / elemen aksi (opsional) */
-  action?:     React.ReactNode
+  action?:     ReactNode
   className?:  string
 }
 

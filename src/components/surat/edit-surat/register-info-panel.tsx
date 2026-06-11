@@ -1,9 +1,8 @@
-import { CalendarIcon, Hash } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { FormField, inputClass, readonlyClass } from "../shared"
+import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { cn } from "@/lib/utils"
+import { FormField, readonlyClass } from "../shared"
 
 const DEPT_OPTIONS = ["HRD","IT","ENG","BPA","SND","SMD","IAD","MD","GIS","FAD","TAX","PS","ERP","CID","MED", "OMD"]
 
@@ -18,7 +17,7 @@ export function RegisterInfoPanel({ state, actions }: any) {
                 Nomor Register
               </p>
               <span className="text-[22px] font-mono font-bold text-slate-800 dark:text-slate-100 leading-none">
-                {state.original.nomor}
+                {state.previewNomor ?? state.original.nomor}
               </span>
             </div>
             <Badge className="shrink-0 mt-0.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border-0">
