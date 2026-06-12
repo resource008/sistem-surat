@@ -3,14 +3,20 @@
 import { useEffect, useRef, useState } from "react"
 import { useRouter }                 from "next/navigation"
 import { useSearch }                 from "@/app/(dashboard)/admin/layout"
-import { useUsers }                  from "@/hooks/use-users"
+import { useUsers, useUserActions }  from "@/hooks/use-users"
 import { Badge }                     from "@/components/ui/badge"
 import { Button }                    from "@/components/ui/button"
 import { Plus }                      from "lucide-react"
+import {
+  Table, TableBody, TableCell,
+  TableHead, TableHeader, TableRow,
+} from "@/components/ui/table"
 import type { User }                 from "@/domain/user/types"
 import UsersFormModal                from "./users-form-modal"
 import UsersEmpty                    from "./users-empty"
-import { getAvatarColor, getInitials } from "@/lib/avatar"
+import { getAvatarColor, getInitials } from "@/lib/avatar"  // ← shared utility
+
+// ── Helpers ───────────────────────────────────────────────────
 
 function formatTimestamp(dateStr: Date | string | null | undefined) {
   if (!dateStr) return "-"
@@ -43,56 +49,8 @@ export default function UsersPage() {
   const mobileLoadMoreRef           = useRef<HTMLDivElement | null>(null)
   const limit                       = 10
 
-  const { data, loading, refetch } = useUsers({ page, limit, search: debouncedSearch })
-
-  useEffect(() => {
-    setPage(1)
-    setUsers([])
-    setHasMore(true)
-  }, [debouncedSearch])
-
-  useEffect(() => {
-    if (!data) return
-
-    setUsers((current) => {
-      if (data.meta.page === 1) return data.data
-
-      const existingIds = new Set(current.map((user) => user.id))
-      const nextUsers = data.data.filter((user) => !existingIds.has(user.id))
-      return [...current, ...nextUsers]
-    })
-    setHasMore(data.meta.page < data.meta.totalPages)
-  }, [data])
-
-  useEffect(() => {
-    if (loading || !hasMore) return
-
-    const observers: IntersectionObserver[] = []
-    const handleIntersect = (entries: IntersectionObserverEntry[]) => {
-      if (entries.some((entry) => entry.isIntersecting)) {
-        setPage((current) => current + 1)
-      }
-    }
-
-    if (desktopScrollRef.current && desktopLoadMoreRef.current) {
-      const desktopObserver = new IntersectionObserver(handleIntersect, {
-        root: desktopScrollRef.current,
-        rootMargin: "160px",
-      })
-      desktopObserver.observe(desktopLoadMoreRef.current)
-      observers.push(desktopObserver)
-    }
-
-    if (mobileLoadMoreRef.current) {
-      const mobileObserver = new IntersectionObserver(handleIntersect, {
-        rootMargin: "160px",
-      })
-      mobileObserver.observe(mobileLoadMoreRef.current)
-      observers.push(mobileObserver)
-    }
-
-    return () => observers.forEach((observer) => observer.disconnect())
-  }, [hasMore, loading, users.length])
+  const { data, loading, refetch } = useUsers({ page, limit: 10, search: debouncedSearch })
+  const { loading: actionLoading } = useUserActions(refetch)
 
   function handleRowClick(user: User) {
     router.push(`/admin/users/${user.id}`)
@@ -103,14 +61,10 @@ export default function UsersPage() {
     setFormOpen(true)
   }
 
-  function handleFormSuccess() {
-    setPage(1)
-    setUsers([])
-    setHasMore(true)
-    refetch()
-  }
+  const users = data?.data ?? []
+  const meta  = data?.meta
 
-  const meta = data?.meta
+  // ── Render Helpers ──────────────────────────────────────────
 
   const renderDesktopContent = () => {
     if (users.length === 0 && !loading) {
@@ -155,12 +109,15 @@ export default function UsersPage() {
                 className="grid w-full cursor-pointer grid-cols-[minmax(0,1fr)_90px_120px] items-center border-b border-border px-4 py-3 transition-colors hover:bg-muted/30 lg:grid-cols-[minmax(0,1fr)_90px_minmax(0,1fr)_190px_120px]"
                 onClick={() => handleRowClick(user)}
               >
-                <div className="flex min-w-0 items-center gap-3">
-                  <div
-                    style={{ backgroundColor: getAvatarColor(user.name) }}
-                    className="flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white"
-                  >
-                    {getInitials(user.name)}
+                <TableCell>
+                  <div className="flex items-center gap-3">
+                    <div
+                      style={{ backgroundColor: getAvatarColor(user.name) }}
+                      className="size-8 shrink-0 rounded-full flex items-center justify-center text-xs font-semibold text-white"
+                    >
+                      {getInitials(user.name)}
+                    </div>
+                    <span className="text-sm font-medium">{user.name}</span>
                   </div>
                   <span className="truncate text-sm font-medium">{user.name}</span>
                 </div>
@@ -170,36 +127,30 @@ export default function UsersPage() {
                 </div>
                 <div className="hidden min-w-0 truncate text-sm text-muted-foreground tabular-nums lg:block">
                   {formatTimestamp(user.lastLogin)}
-                </div>
-                <div className="min-w-0 overflow-hidden" onClick={(e) => e.stopPropagation()}>
+                </TableCell>
+                <TableCell onClick={(e) => e.stopPropagation()}>
                   <Badge
                     variant="outline"
                     className={user.status === "Sedang Aktif"
-                      ? "max-w-full truncate whitespace-nowrap bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
-                      : "max-w-full truncate whitespace-nowrap bg-slate-500/10 text-slate-400 border-slate-500/30"}
+                      ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
+                      : "bg-slate-500/10 text-slate-400 border-slate-500/30"}
                   >
                     {user.status ?? "Tidak Aktif"}
                   </Badge>
-                </div>
-              </div>
+                </TableCell>
+              </TableRow>
             ))
           )}
-
-          <div ref={desktopLoadMoreRef} className="flex min-h-10 items-center justify-center text-xs text-muted-foreground">
-            {loading && users.length > 0
-              ? "Memuat data..."
-              : meta && !hasMore && users.length > 0
-                ? `${meta.total} pengguna ditampilkan`
-                : null
-            }
-          </div>
-        </div>
-      </>
+        </TableBody>
+      </Table>
     )
   }
 
+  // ── Render Utama ────────────────────────────────────────────
   return (
     <div className="flex flex-col gap-4">
+
+      {/* Mobile */}
       <div className="flex flex-col gap-3 md:hidden">
         {loading && users.length === 0 ? (
           Array.from({ length: 5 }).map((_, i) => (
@@ -223,28 +174,23 @@ export default function UsersPage() {
               onClick={() => handleRowClick(user)}
             >
               <div className="flex items-center gap-3 overflow-hidden">
-                <div
-                  style={{ backgroundColor: getAvatarColor(user.name) }}
-                  className="size-8 shrink-0 rounded-full flex items-center justify-center text-xs font-semibold text-white"
-                >
-                  {getInitials(user.name)}
-                </div>
+                <UserAvatar name={user.name} />
                 <div className="flex flex-col truncate">
                   <span className="text-sm font-medium truncate">{user.name}</span>
                   <span className="text-xs text-muted-foreground truncate">{user.email}</span>
                 </div>
               </div>
 
-              <div className="flex min-w-0 items-center justify-between gap-3 border-t border-border/50 pt-3 mt-1">
+              <div className="flex items-center justify-between border-t border-border/50 pt-3 mt-1">
                 <Badge
                   variant="outline"
                   className={user.status === "Sedang Aktif"
-                    ? "max-w-full truncate whitespace-nowrap bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
-                    : "max-w-full truncate whitespace-nowrap bg-slate-500/10 text-slate-400 border-slate-500/30"}
+                    ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
+                    : "bg-slate-500/10 text-slate-400 border-slate-500/30"}
                 >
                   {user.status ?? "Tidak Aktif"}
                 </Badge>
-                <span className="min-w-0 max-w-[45%] truncate rounded-md bg-muted px-2 py-1 text-xs font-medium">
+                <span className="text-xs font-medium px-2 py-1 bg-muted rounded-md">
                   {ROLE_LABEL[user.role] ?? user.role}
                 </span>
               </div>
@@ -253,24 +199,34 @@ export default function UsersPage() {
         )}
       </div>
 
-      <div className="hidden w-full overflow-hidden rounded-xl border border-border/50 bg-background md:block">
+      {/* Desktop */}
+      <div className="hidden md:block rounded-xl border border-border/50 overflow-hidden bg-background">
         {renderDesktopContent()}
       </div>
 
-      <div ref={mobileLoadMoreRef} className="flex min-h-10 items-center justify-center text-xs text-muted-foreground md:hidden">
-        {loading && users.length > 0
-          ? "Memuat data..."
-          : meta && !hasMore && users.length > 0
-            ? `${meta.total} pengguna ditampilkan`
-            : null
-        }
-      </div>
+      {/* Pagination */}
+      {meta && meta.totalPages > 1 && (
+        <div className="flex items-center justify-between text-sm text-muted-foreground px-1">
+          <span>
+            {((meta.page - 1) * meta.limit) + 1}–{Math.min(meta.page * meta.limit, meta.total)} dari {meta.total} pengguna
+          </span>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" disabled={meta.page <= 1}
+              onClick={() => setPage((p) => p - 1)}>
+              Sebelumnya
+            </Button>
+            <span className="tabular-nums">{meta.page} / {meta.totalPages}</span>
+            <Button variant="outline" size="sm" disabled={meta.page >= meta.totalPages}
+              onClick={() => setPage((p) => p + 1)}>
+              Berikutnya
+            </Button>
+          </div>
+        </div>
+      )}
 
-      <Button
-        onClick={handleAdd}
-        size="icon"
-        className="fixed bottom-8 right-8 size-14 rounded-full shadow-lg bg-blue-600 hover:bg-blue-700"
-      >
+      {/* FAB */}
+      <Button onClick={handleAdd} size="icon"
+        className="fixed bottom-8 right-8 size-14 rounded-full shadow-lg bg-blue-600 hover:bg-blue-700">
         <Plus className="size-6 text-white" />
         <span className="sr-only">Tambah Pengguna</span>
       </Button>
