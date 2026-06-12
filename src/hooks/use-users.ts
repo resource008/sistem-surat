@@ -1,6 +1,7 @@
 "use client"
 
 import useSWR                from "swr"
+import useSWRInfinite        from "swr/infinite"
 import { useCallback, useState } from "react"
 import { toast }             from "sonner"
 import type { User, UserPermissions } from "@/domain/user/types"
@@ -60,6 +61,47 @@ export function useUsers(options: UseUsersOptions = {}) {
 }
 
 // ── Aksi CRUD (dipakai di komponen form/delete) ───────────────
+
+export function useInfiniteUsers(options: Omit<UseUsersOptions, "page"> = {}) {
+  const { limit = 20, search = "", role = "" } = options
+
+  const getKey = (pageIndex: number, previousPage: PaginatedUsers | null) => {
+    if (previousPage && previousPage.meta.page >= previousPage.meta.totalPages) {
+      return null
+    }
+
+    const params = new URLSearchParams()
+    params.set("page", String(pageIndex + 1))
+    params.set("limit", String(limit))
+    if (search) params.set("search", search)
+    if (role) params.set("role", role)
+
+    return `/api/users?${params.toString()}`
+  }
+
+  const { data, error, isLoading, isValidating, mutate, size, setSize } =
+    useSWRInfinite<PaginatedUsers>(getKey, fetcher, {
+      revalidateOnFocus: true,
+      revalidateOnReconnect: true,
+    })
+
+  const users = data?.flatMap((pageData) => pageData.data) ?? []
+  const meta = data?.[data.length - 1]?.meta
+  const hasMore = meta ? meta.page < meta.totalPages : false
+  const loadingMore = Boolean(data) && isValidating
+
+  return {
+    users,
+    meta,
+    loading: isLoading,
+    loadingMore,
+    hasMore,
+    error: error?.message ?? null,
+    size,
+    setSize,
+    refetch: mutate,
+  }
+}
 
 export function useUserActions(onSuccess?: () => void) {
   const [loading, setLoading] = useState(false)
