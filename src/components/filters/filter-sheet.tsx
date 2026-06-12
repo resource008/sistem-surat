@@ -13,11 +13,13 @@ interface FilterSheetProps {
   onSelectDate: (d: Date | undefined) => void
   selectedDepts: string[]
   onToggleDept: (dept: string) => void
+  hideDepartments?: boolean
 }
 
 export function FilterSheet({
   mounted, visible, onClose, hasFilter,
   date, onSelectDate, selectedDepts, onToggleDept,
+  hideDepartments,
 }: FilterSheetProps) {
   const sheetRef = useRef<HTMLDivElement>(null)
   const dragStartY = useRef<number | null>(null)
@@ -129,6 +131,7 @@ export function FilterSheet({
           <FilterPanel
             date={date} onSelectDate={onSelectDate}
             selectedDepts={selectedDepts} onToggleDept={onToggleDept}
+            hideDepartments={hideDepartments}
             isMobile
           />
         </div>

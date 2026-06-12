@@ -6,7 +6,11 @@ import { AccountDataCard } from "@/components/role-dashboard/account/account-dat
 import { PermissionsPanel } from "@/components/role-dashboard/account/permissions-panel"
 import { useAccountPage } from "@/components/role-dashboard/account/use-account-page"
 
-export function AccountPage() {
+type AccountPageProps = {
+  readOnly?: boolean
+}
+
+export function AccountPage({ readOnly = false }: AccountPageProps) {
   const {
     user,
     form,
@@ -43,7 +47,7 @@ export function AccountPage() {
       <AccountDataCard
         form={form}
         roleLabel={roleLabel}
-        editing={editing}
+        editing={!readOnly && editing}
         created={created}
         updated={updated}
         onFormChange={updateForm}
@@ -51,13 +55,15 @@ export function AccountPage() {
 
       <PermissionsPanel user={user} />
 
-      <AccountActions
-        editing={editing}
-        saving={saving}
-        onEdit={() => setEditing(true)}
-        onCancel={handleCancel}
-        onSave={handleSave}
-      />
+      {!readOnly && (
+        <AccountActions
+          editing={editing}
+          saving={saving}
+          onEdit={() => setEditing(true)}
+          onCancel={handleCancel}
+          onSave={handleSave}
+        />
+      )}
     </section>
   )
 }

@@ -1,14 +1,16 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { useParams, useRouter } from "next/navigation"
-import { toast } from "sonner"
-import {
-  ArrowLeft, FileText, KeyRound, Loader2, Pencil,
-} from "lucide-react"
+import UsersDelete from "@/components/admin/users/users-delete"
+import { UserAvatar } from "@/components/shared/user-avatar"
 import { Button } from "@/components/ui/button"
 import { UserAvatar } from "@/components/shared/user-avatar"
 import type { User } from "@/domain/user/types"
+import {
+  ArrowLeft, FileText, KeyRound, Loader2, Pencil, Trash2,
+} from "lucide-react"
+import { useParams, useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
+import { toast } from "sonner"
 
 function formatDate(dateStr: Date | string | null | undefined) {
   if (!dateStr) return "-"
@@ -73,15 +75,20 @@ export default function UserDetailPage() {
 
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  const [deleteOpen, setDeleteOpen] = useState(false)
 
   useEffect(() => {
     fetch(`/api/users/${id}`)
-      .then((response) => response.json())
+      .then(async (response) => {
+        const data = await response.json().catch(() => null)
+        if (!response.ok) throw new Error(data?.error ?? "Gagal memuat data user")
+        return data
+      })
       .then((data: User) => {
         setUser(data)
         window.dispatchEvent(new CustomEvent("breadcrumb:sub", { detail: "Info Akun" }))
       })
-      .catch(() => toast.error("Gagal memuat data user"))
+      .catch((error) => toast.error(error instanceof Error ? error.message : "Gagal memuat data user"))
       .finally(() => setLoading(false))
   }, [id])
 
@@ -173,14 +180,34 @@ export default function UserDetailPage() {
         </div>
       )}
 
-      <Button
-        size="icon"
-        onClick={() => router.push(`/admin/users/${id}/edit`)}
-        className="fixed bottom-8 right-8 size-14 rounded-full shadow-lg bg-blue-600 hover:bg-blue-700"
-      >
-        <Pencil size={20} className="text-white" />
-        <span className="sr-only">Edit Pengguna</span>
-      </Button>
+      <div className="fixed bottom-8 right-8 z-50 flex items-center gap-3">
+        <Button
+          size="icon"
+          variant="secondary"
+          onClick={() => setDeleteOpen(true)}
+          className="size-14 rounded-full shadow-lg bg-red-500 text-white hover:bg-red-600"
+          title="Hapus Pengguna"
+        >
+          <Trash2 size={20} />
+          <span className="sr-only">Hapus Pengguna</span>
+        </Button>
+        <Button
+          size="icon"
+          onClick={() => router.push(`/admin/users/${id}/edit`)}
+          className="size-14 rounded-full shadow-lg bg-blue-600 hover:bg-blue-700"
+          title="Edit Pengguna"
+        >
+          <Pencil size={20} className="text-white" />
+          <span className="sr-only">Edit Pengguna</span>
+        </Button>
+      </div>
+
+      <UsersDelete
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        user={user}
+        onSuccess={() => window.location.assign("/admin/users")}
+      />
     </div>
   )
 }

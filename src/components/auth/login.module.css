@@ -53,6 +53,82 @@
   margin-bottom: 28px;
 }
 
+/* ================================
+   LOGIN PAGE - CSS MODULE
+   ================================ */
+
+.root {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-figtree), sans-serif;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ================================
+   BACKGROUND
+   ================================ */
+
+.bgImage {
+  position: fixed;
+  inset: 0;
+  background-image: url('/bg-image.jpg');
+  background-size: cover;
+  background-position: center;
+  filter: blur(4px) brightness(0.5);
+  transform: scale(1.08);
+  z-index: 0;
+}
+
+
+/* ================================
+   CARD WRAPPER
+   ================================ */
+
+.cardWrapper {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 420px;
+  padding: 0 24px;
+  animation: cardEnter 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes cardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ================================
+   CARD
+   ================================ */
+
+.card {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 40px 36px;
+  box-shadow:
+    0 24px 48px rgba(0, 0, 0, 0.35),
+    0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* ================================
+   CARD HEADER
+   ================================ */
+
+.cardHeader {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
 .logo {
   margin: 0 auto 20px;
   display: block;
@@ -194,6 +270,36 @@
   transform: none;
 }
 
+.trackBtn {
+  width: 100%;
+  min-height: 44px;
+  margin-top: 14px;
+  border: 1.5px solid #d9ddf3;
+  border-radius: 10px;
+  background: #f7f8ff;
+  color: #170b67;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-figtree), sans-serif;
+  font-size: 14.5px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.trackBtn:hover {
+  background: #ffffff;
+  border-color: #170b67;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(23, 11, 103, 0.14);
+}
+
+.trackBtn:active {
+  transform: translateY(0);
+}
+
 .spinner {
   animation: spin 0.7s linear infinite;
 }
@@ -211,6 +317,10 @@
   flex-direction: column;
   display:flex;
 }
+
+/* ================================
+   AUTOFILL FIX
+   ================================ */
 
 .fieldInput:-webkit-autofill,
 .fieldInput:-webkit-autofill:hover,

@@ -42,7 +42,10 @@ function RoleLayoutInner({ role, children }: Props) {
   const [isMobile, setIsMobile] = useState(false)
   const [subtitle, setSubtitle] = useState<string | null>(null)
   const [subsubtitle, setSubsubtitle] = useState<string | null>(null)
-  const [filters, setFilters] = useState<RoleTopbarFilters>({ date: null, departments: [] })
+  const [filters, setFilters] = useState<Filters>({
+    date: null,
+    departments: [],
+  })
   const [hasCetakData, setHasCetakData] = useState(false)
   const [selectedDataSuratCount, setSelectedDataSuratCount] = useState(0)
 
@@ -57,7 +60,10 @@ function RoleLayoutInner({ role, children }: Props) {
     try {
       const savedFilters = localStorage.getItem("topbar_filters")
       const parsed = savedFilters ? JSON.parse(savedFilters) : {}
-      setFilters({ date: parsed.date ?? null, departments: parsed.departments ?? [] })
+      setFilters({
+        date: parsed.date ?? null,
+        departments: parsed.departments ?? [],
+      })
     } catch {}
     setIsMounted(true)
   }, [])
@@ -134,10 +140,28 @@ function RoleLayoutInner({ role, children }: Props) {
   }, [isDataSuratPage])
 
   function handleClearFilters() {
-    const next = { date: null, departments: [] }
+    const next: Filters = { date: null, departments: [] }
     setFilters(next)
     localStorage.removeItem("topbar_filters")
     router.push(showPI ? `${base}/data-surat?mode=pi` : `${base}/data-surat`)
+  }
+
+  function handleTogglePI() {
+    const dataSuratBase = `${base}/data-surat`
+    const nextFilters: Filters = showPI
+      ? filters
+      : { date: filters.date, departments: [] }
+    const params = new URLSearchParams()
+
+    if (!showPI) params.set("mode", "pi")
+    if (nextFilters.date) params.set("date", nextFilters.date)
+    if (!showPI && filters.departments.length > 0) {
+      localStorage.setItem("topbar_filters", JSON.stringify(nextFilters))
+      setFilters(nextFilters)
+    }
+
+    const query = params.toString()
+    router.push(query ? `${dataSuratBase}?${query}` : dataSuratBase)
   }
 
   function handleClearCetak() {
@@ -178,32 +202,153 @@ function RoleLayoutInner({ role, children }: Props) {
         `}
         style={{ "--topbar-left": topbarLeft } as React.CSSProperties}
       >
-        <RoleTopbar
-          currentPage={currentPage}
-          subtitle={subtitle}
-          subsubtitle={subsubtitle}
-          isMobile={isMobile}
-          isDataSuratPage={isDataSuratPage}
-          isCetakPage={isCetakPage}
-          isDenied={isDenied}
-          showPI={showPI}
-          filters={filters}
-          hasActiveFilters={hasActiveFilters}
-          hasCetakData={hasCetakData}
-          onOpenMobileMenu={() => setMobileOpen(true)}
-          onNavigateToDataSurat={() => router.push(`${base}/data-surat`)}
-          onNavigateBack={() => router.back()}
-          onToggleMode={() => {
-            const dataSuratBase = `${base}/data-surat`
-            router.push(showPI ? dataSuratBase : `${dataSuratBase}?mode=pi`)
-          }}
-          onFilterChange={(nextFilters) => {
-            setFilters(nextFilters)
-            localStorage.setItem("topbar_filters", JSON.stringify(nextFilters))
-          }}
-          onClearFilters={handleClearFilters}
-          onClearCetak={handleClearCetak}
-        />
+        <div id="topbar" className={styles.topbar}>
+          <div className={styles.topbarLeft}>
+            {isMobile && (
+              <button
+                className={styles.hamburger}
+                onClick={() => setMobileOpen(true)}
+                aria-label="Buka menu"
+              >
+                <Menu size={20} />
+              </button>
+            )}
+
+            <nav className={styles.breadcrumb} aria-label="breadcrumb">
+              {subtitle && subsubtitle ? (
+                <>
+                  <button
+                    className={styles.breadcrumbParent}
+                    onClick={() => router.push(`${base}/data-surat`)}
+                  >
+                    {currentPage}
+                  </button>
+                  <ChevronRight size={14} className={styles.breadcrumbSep} />
+                  <button
+                    className={styles.breadcrumbParent}
+                    onClick={() => router.back()}
+                  >
+                    {subtitle}
+                  </button>
+                  <ChevronRight size={14} className={styles.breadcrumbSep} />
+                  <span className={styles.breadcrumbSub}>{subsubtitle}</span>
+                </>
+              ) : subtitle ? (
+                <>
+                  <button
+                    className={styles.breadcrumbParent}
+                    onClick={() => router.push(`${base}/data-surat`)}
+                  >
+                    {currentPage}
+                  </button>
+                  <ChevronRight size={14} className={styles.breadcrumbSep} />
+                  <span className={styles.breadcrumbSub}>{subtitle}</span>
+                </>
+              ) : (
+                <span className={styles.topbarTitle}>{currentPage}</span>
+              )}
+            </nav>
+          </div>
+
+          {isDataSuratPage && (
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={handleTogglePI}
+                title={showPI ? "Kembali ke semua surat" : "Tampilkan data PI"}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  padding: "0 12px",
+                  height: "34px",
+                  borderRadius: "8px",
+                  border: showPI ? "1px solid #2563eb" : "1px solid var(--border)",
+                  background: showPI ? "#2563eb" : "transparent",
+                  color: showPI ? "#ffffff" : "var(--muted-foreground)",
+                  fontSize: "13px",
+                  fontWeight: 500,
+                  fontFamily: "inherit",
+                  cursor: "pointer",
+                  whiteSpace: "nowrap",
+                  flexShrink: 0,
+                  transition: "all 0.2s ease",
+                }}
+              >
+                <ArrowLeftRight size={14} />
+                {!isMobile && (
+                  <span>{showPI ? "Alihkan ke Surat" : "Alihkan ke PI"}</span>
+                )}
+              </button>
+
+              <TopbarFilter
+                initialFilters={filters}
+                mode={showPI ? "pi" : "surat"}
+                hideDepartments={showPI}
+                onFilterChange={(nextFilters) => {
+                  setFilters(nextFilters)
+                  localStorage.setItem("topbar_filters", JSON.stringify(nextFilters))
+                }}
+              />
+
+              {hasActiveFilters && (
+                <button
+                  onClick={handleClearFilters}
+                  title="Bersihkan filter"
+                  className="flex items-center justify-center w-9 h-9 rounded-lg
+                    border border-red-200 dark:border-red-800
+                    bg-red-50 dark:bg-red-900/20
+                    text-red-500 dark:text-red-400
+                    hover:bg-red-100 dark:hover:bg-red-900/40
+                    transition-colors shrink-0"
+                >
+                  <X size={15} />
+                </button>
+              )}
+            </div>
+          )}
+
+          {isCetakPage && !isDenied && (
+            <div className="flex items-center gap-2">
+              <TutorialCetak />
+              <button
+                onClick={hasCetakData ? handleClearCetak : undefined}
+                disabled={!hasCetakData}
+                title={hasCetakData ? "Bersihkan & kembali" : "Tidak ada data"}
+                className={[
+                  "flex items-center gap-1.5 px-4 h-9 rounded-lg",
+                  "border text-[13px] font-medium transition-colors shrink-0",
+                  hasCetakData
+                    ? `border-slate-200 dark:border-slate-700
+                       text-slate-500 dark:text-slate-400
+                       hover:text-red-500 dark:hover:text-red-400
+                       hover:border-red-200 dark:hover:border-red-800
+                       hover:bg-red-50 dark:hover:bg-red-900/20`
+                    : `border-slate-100 dark:border-slate-800
+                       text-slate-300 dark:text-slate-600
+                       cursor-not-allowed`,
+                ].join(" ")}
+              >
+                <X size={14} />
+                {!isMobile && "Bersihkan"}
+              </button>
+              <button
+                onClick={hasCetakData ? () => window.print() : undefined}
+                disabled={!hasCetakData}
+                title={hasCetakData ? "Cetak sekarang" : "Tidak ada data untuk dicetak"}
+                className={[
+                  "flex items-center gap-2 px-4 h-9 rounded-lg",
+                  "text-[13px] font-semibold transition-colors shrink-0",
+                  hasCetakData
+                    ? "bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white"
+                    : "bg-blue-200 dark:bg-blue-950 text-blue-300 dark:text-blue-800 cursor-not-allowed",
+                ].join(" ")}
+              >
+                <Printer size={15} />
+                {!isMobile && "Cetak Sekarang"}
+              </button>
+            </div>
+          )}
+        </div>
 
         <div className={styles.content}>
           {isDenied ? (

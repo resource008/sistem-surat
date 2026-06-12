@@ -19,7 +19,6 @@ const USER_SELECT = {
   name:        true,
   email:       true,
   username:    true,
-  image:       true,  // ← tambah
   role:        true,
   createdAt:   true,
   updatedAt:   true,
@@ -51,7 +50,6 @@ function mapUser(user: any): User {
     name:        user.name,
     email:       user.email,
     username:    user.username,
-    image:       user.image ?? null,  // ← tambah
     role:        user.role,
     createdAt:   user.createdAt,
     updatedAt:   user.updatedAt,

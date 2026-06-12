@@ -176,7 +176,6 @@ export async function getAdminDashboardStats(
 
     return {
       id:           user.id,
-      fotoProfil:   user.image,
       nama:         user.name,
       terakhirMasuk: terakhirAktif,
       status:       isActive ? "Sedang aktif" : "Tidak aktif",
@@ -194,8 +193,8 @@ export async function getAdminDashboardStats(
     },
     suratPerDepartemen,
     statistikSurat: {
-      departemenId: selectedDepartment.id,
-      departemen:   selectedDepartment.shortName,
+      departemenId: selectedDepartment?.id ?? "",
+      departemen:   selectedDepartment?.shortName ?? "Belum ada departemen",
       tipeWaktu:    filter.tipeWaktu,
       labels,
       data:  statistikData,

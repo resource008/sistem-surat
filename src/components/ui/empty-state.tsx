@@ -1,22 +1,24 @@
 "use client"
 
-import { Inbox, Plus } from "lucide-react"
+import { Inbox } from "lucide-react"
 import React from "react"
 
 interface EmptyStateProps {
   title?: string;
   description?: React.ReactNode; // Menggunakan ReactNode agar bisa memasukkan ikon
+  icon?: React.ReactNode;
 }
 
 export function EmptyState({ 
   title = "Tidak ada data surat", 
-  description 
+  description,
+  icon,
 }: EmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center min-h-125 w-full space-y-4 animate-in fade-in duration-700">
       {/* Ikon Inbox Statis */}
       <div className="text-slate-200 dark:text-slate-800">
-        <Inbox size={120} strokeWidth={1} />
+        {icon ?? <Inbox size={120} strokeWidth={1} />}
       </div>
 
       {/* Deskripsi Teks */}

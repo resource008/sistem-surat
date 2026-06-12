@@ -1,6 +1,9 @@
 "use client"
 
 import { useEffect, useState } from "react"
+"use client"
+
+import { useEffect, useState } from "react"
 import { useAdminStats } from "@/hooks/use-admin-stats"
 import type { StatistikFilter, TipeWaktuStatistik } from "@/domain/admin-dashboard/types"
 import { DEFAULT_STATS_DEPT_ID } from "@/constants/admin-dashboard"
@@ -23,6 +26,16 @@ export default function AdminDashboard() {
     tahun: now.getFullYear(),
   }
 
+  const { data, error, isLoading } = useAdminStats(params)
+
+  useEffect(() => {
+    const selectedDeptId = data?.statistikSurat.departemenId
+    if (selectedDeptId && selectedDeptId !== deptId) {
+      setDeptId(selectedDeptId)
+    }
+  }, [data?.statistikSurat.departemenId, deptId])
+
+  return (
   const { data, error, isLoading } = useAdminStats(params)
 
   useEffect(() => {
@@ -75,4 +88,5 @@ export default function AdminDashboard() {
       )}
     </div>
   )
+}
 }
