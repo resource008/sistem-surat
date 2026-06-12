@@ -1,19 +1,11 @@
+import { FloatingActionBarShell } from "@/components/shared/floating-action-bar"
 import { BrushCleaning, Printer } from "lucide-react"
 
 export function FloatingActionBar({ state, actions }: any) {
-  if (state.selectedIds.size === 0) return null
-
   return (
-    <div
-      className="
-        fixed bottom-5 left-3 right-3 z-50
-        flex flex-col items-center gap-2 rounded-2xl
-        border border-slate-200/80 bg-white/95 px-3 py-2.5
-        shadow-xl shadow-slate-900/10 backdrop-blur
-        dark:border-slate-700/70 dark:bg-slate-900/95 dark:shadow-black/40
-        sm:bottom-6 sm:left-1/2 sm:right-auto sm:w-fit sm:-translate-x-1/2
-        sm:flex-row sm:gap-3 sm:px-4
-      "
+    <FloatingActionBarShell
+      hidden={state.selectedIds.size === 0}
+      variant="selection"
     >
       <span className="whitespace-nowrap text-xs font-semibold text-slate-700 dark:text-slate-200 sm:px-1 sm:text-[13px] md:text-sm">
         {state.selectedIds.size} item dipilih
@@ -53,6 +45,6 @@ export function FloatingActionBar({ state, actions }: any) {
           <span className="truncate">Bersihkan</span>
         </button>
       </div>
-    </div>
+    </FloatingActionBarShell>
   )
 }
