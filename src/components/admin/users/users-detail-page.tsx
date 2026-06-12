@@ -7,9 +7,9 @@ import {
   ArrowLeft, FileText, KeyRound, Loader2, Pencil, Trash2,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { UserAvatar } from "@/components/shared/user-avatar"
 import type { User } from "@/domain/user/types"
 import { getAvatarColor, getInitials } from "@/lib/avatar"
-import UsersDelete from "./users-delete"
 
 function formatDate(dateStr: Date | string | null | undefined) {
   if (!dateStr) return "-"
@@ -121,12 +121,7 @@ export default function UserDetailPage() {
         <div className="px-6 py-6 flex flex-col gap-6">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div
-                style={{ backgroundColor: getAvatarColor(user.name) }}
-                className="size-10 shrink-0 rounded-full flex items-center justify-center text-sm font-semibold text-white"
-              >
-                {getInitials(user.name)}
-              </div>
+              <UserAvatar name={user.name} className="size-10 text-sm" />
               <div className="flex flex-col gap-0.5">
                 <span className="text-sm font-semibold">{user.name}</span>
                 <span className="text-xs text-muted-foreground">

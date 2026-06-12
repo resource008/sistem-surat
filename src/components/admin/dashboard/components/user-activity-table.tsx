@@ -1,8 +1,8 @@
-import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
+import { UserAvatar } from "@/components/shared/user-avatar"
+import { UserStatusBadge } from "@/components/shared/user-status-badge"
 import type { RiwayatAktivitasPengguna } from "@/domain/admin-dashboard/types"
 import { formatNullableDate } from "@/lib/admin-dashboard"
-import { getAvatarColor, getInitials } from "@/lib/avatar"
 
 interface UserActivityTableProps {
   users: RiwayatAktivitasPengguna[]
@@ -40,12 +40,7 @@ export function UserActivityTable({ users }: UserActivityTableProps) {
               >
                 {/* Nama */}
                 <div className="flex min-w-0 items-center gap-2 font-medium text-foreground">
-                  <div
-                    style={{ backgroundColor: getAvatarColor(user.nama) }}
-                    className="size-8 shrink-0 rounded-full flex items-center justify-center text-xs font-semibold text-white"
-                  >
-                    {getInitials(user.nama)}
-                  </div>
+                  <UserAvatar name={user.nama} />
                   <span className="truncate">{user.nama}</span>
                 </div>
 
@@ -56,12 +51,7 @@ export function UserActivityTable({ users }: UserActivityTableProps) {
 
                 {/* Status */}
                 <div>
-                  <Badge
-                    variant={user.status === "Sedang aktif" ? "default" : "secondary"}
-                    className="text-[11px]"
-                  >
-                    {user.status}
-                  </Badge>
+                  <UserStatusBadge status={user.status} className="text-[11px]" />
                 </div>
               </div>
             ))}
