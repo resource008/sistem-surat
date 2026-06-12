@@ -19,12 +19,18 @@
 .bgImage {
   position: fixed;
   inset: 0;
-  background-image: url('/bg-image.jpg');
+  background-image: url('/bg-image.webp');
   background-size: cover;
   background-position: center;
-  filter: blur(4px) brightness(0.5);
+  filter: brightness(0.5);
   transform: scale(1.08);
   z-index: 0;
+}
+
+@media (max-width: 768px) {
+  .bgImage {
+    background-image: url('/bg-image-mobile.webp');
+  }
 }
 
 

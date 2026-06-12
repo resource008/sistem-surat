@@ -19,10 +19,14 @@ export function LoginForm() {
   return (
     <form className={styles.form} onSubmit={handleSubmit}>
       <div className={styles.field}>
-        <label className={styles.fieldLabel}>Username</label>
+        <label className={styles.fieldLabel} htmlFor="username">
+          Username
+        </label>
         <div className={styles.inputWrapper}>
           <User className={styles.inputIcon} size={16} />
           <input
+            id="username"
+            name="username"
             className={styles.fieldInput}
             type="text"
             placeholder="Masukkan username"
@@ -35,10 +39,14 @@ export function LoginForm() {
       </div>
 
       <div className={styles.field}>
-        <label className={styles.fieldLabel}>Password</label>
+        <label className={styles.fieldLabel} htmlFor="password">
+          Password
+        </label>
         <div className={styles.inputWrapper}>
           <Lock className={styles.inputIcon} size={16} />
           <input
+            id="password"
+            name="password"
             className={styles.fieldInput}
             type={showPassword ? "text" : "password"}
             placeholder="Masukkan password"
