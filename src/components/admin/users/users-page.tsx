@@ -1,31 +1,36 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
-import { useRouter }                 from "next/navigation"
-import { useSearch }                 from "@/app/(dashboard)/admin/layout"
-import { useUsers, useUserActions }  from "@/hooks/use-users"
-import { Badge }                     from "@/components/ui/badge"
-import { Button }                    from "@/components/ui/button"
-import { Plus }                      from "lucide-react"
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
+import { ChevronLeft, ChevronRight, Plus } from "lucide-react"
+import { useAdminSearch } from "@/components/admin/layout/admin-search-context"
+import { UserAvatar } from "@/components/shared/user-avatar"
+import { UserStatusBadge } from "@/components/shared/user-status-badge"
+import { Button } from "@/components/ui/button"
 import {
-  Table, TableBody, TableCell,
-  TableHead, TableHeader, TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table"
-import type { User }                 from "@/domain/user/types"
-import UsersFormModal                from "./users-form-modal"
-import UsersEmpty                    from "./users-empty"
-import { getAvatarColor, getInitials } from "@/lib/avatar"  // ← shared utility
-
-// ── Helpers ───────────────────────────────────────────────────
+import { useUsers } from "@/hooks/use-users"
+import type { User } from "@/domain/user/types"
+import UsersEmpty from "./users-empty"
+import UsersFormModal from "./users-form-modal"
 
 function formatTimestamp(dateStr: Date | string | null | undefined) {
   if (!dateStr) return "-"
-  const date      = new Date(dateStr)
+  const date = new Date(dateStr)
   const dateLabel = date.toLocaleDateString("id-ID", {
-    day: "2-digit", month: "short", year: "numeric",
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
   })
   const timeLabel = date.toLocaleTimeString("id-ID", {
-    hour: "2-digit", minute: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
   })
   return `${dateLabel}, ${timeLabel}`
 }
@@ -33,24 +38,49 @@ function formatTimestamp(dateStr: Date | string | null | undefined) {
 const ROLE_LABEL: Record<string, string> = {
   ADMIN: "Admin",
   STAFF: "Staff",
-  PKL:   "PKL",
+  PKL: "PKL",
+}
+
+function DesktopSkeletonRow() {
+  return (
+    <TableRow>
+      <TableCell><div className="h-4 rounded-md bg-muted animate-pulse" /></TableCell>
+      <TableCell><div className="h-4 rounded-md bg-muted animate-pulse" /></TableCell>
+      <TableCell className="hidden lg:table-cell"><div className="h-4 rounded-md bg-muted animate-pulse" /></TableCell>
+      <TableCell className="hidden lg:table-cell"><div className="h-4 rounded-md bg-muted animate-pulse" /></TableCell>
+      <TableCell><div className="h-4 rounded-md bg-muted animate-pulse" /></TableCell>
+    </TableRow>
+  )
+}
+
+function MobileSkeletonCard() {
+  return (
+    <div className="space-y-3 rounded-xl border border-border/50 p-4">
+      <div className="flex items-center gap-3">
+        <div className="size-10 shrink-0 rounded-full bg-muted animate-pulse" />
+        <div className="h-4 w-1/2 rounded-md bg-muted animate-pulse" />
+      </div>
+      <div className="h-3 w-full rounded-md bg-muted animate-pulse" />
+    </div>
+  )
 }
 
 export default function UsersPage() {
-  const router                      = useRouter()
-  const { debouncedSearch }         = useSearch()
-  const [page, setPage]             = useState(1)
-  const [users, setUsers]           = useState<User[]>([])
-  const [hasMore, setHasMore]       = useState(true)
-  const [formOpen, setFormOpen]     = useState(false)
+  const router = useRouter()
+  const { debouncedSearch } = useAdminSearch()
+  const [page, setPage] = useState(1)
+  const [formOpen, setFormOpen] = useState(false)
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
-  const desktopScrollRef            = useRef<HTMLDivElement | null>(null)
-  const desktopLoadMoreRef          = useRef<HTMLDivElement | null>(null)
-  const mobileLoadMoreRef           = useRef<HTMLDivElement | null>(null)
-  const limit                       = 10
 
-  const { data, loading, refetch } = useUsers({ page, limit: 10, search: debouncedSearch })
-  const { loading: actionLoading } = useUserActions(refetch)
+  const { data, loading, refetch } = useUsers({
+    page,
+    limit: 15,
+    search: debouncedSearch,
+  })
+
+  useEffect(() => {
+    setPage(1)
+  }, [debouncedSearch])
 
   function handleRowClick(user: User) {
     router.push(`/admin/users/${user.id}`)
@@ -62,171 +92,142 @@ export default function UsersPage() {
   }
 
   const users = data?.data ?? []
-  const meta  = data?.meta
-
-  // ── Render Helpers ──────────────────────────────────────────
+  const meta = data?.meta
+  const showEmpty = users.length === 0 && !loading
 
   const renderDesktopContent = () => {
-    if (users.length === 0 && !loading) {
+    if (showEmpty) {
       return (
-        <div className="min-h-[400px] flex items-center justify-center">
+        <div className="flex min-h-[400px] items-center justify-center">
           <UsersEmpty searchQuery={debouncedSearch} />
         </div>
       )
     }
 
     return (
-      <>
-        <div className="grid w-full grid-cols-[minmax(0,1fr)_90px_120px] border-b border-border bg-muted/40 px-4 py-3 text-xs font-medium text-muted-foreground lg:grid-cols-[minmax(0,1fr)_90px_minmax(0,1fr)_190px_120px]">
-          <div className="min-w-0">Nama Pengguna</div>
-          <div className="min-w-0">Role</div>
-          <div className="hidden min-w-0 lg:block">Email</div>
-          <div className="hidden min-w-0 lg:block">Terakhir Masuk</div>
-          <div className="min-w-0">Status</div>
-        </div>
+      <Table>
+        <TableHeader>
+          <TableRow className="bg-muted/40 hover:bg-muted/40">
+            <TableHead className="text-xs font-medium text-muted-foreground">Nama Pengguna</TableHead>
+            <TableHead className="w-[90px] text-xs font-medium text-muted-foreground">Role</TableHead>
+            <TableHead className="hidden text-xs font-medium text-muted-foreground lg:table-cell">Email</TableHead>
+            <TableHead className="hidden w-[190px] text-xs font-medium text-muted-foreground lg:table-cell">Terakhir Masuk</TableHead>
+            <TableHead className="w-[120px] text-xs font-medium text-muted-foreground">Status</TableHead>
+          </TableRow>
+        </TableHeader>
 
-        <div
-          ref={desktopScrollRef}
-          className="max-h-[calc(100vh-260px)] w-full overflow-y-auto"
-        >
-          {loading && users.length === 0 ? (
-            Array.from({ length: 5 }).map((_, i) => (
-              <div
-                key={i}
-                className="grid w-full grid-cols-[minmax(0,1fr)_90px_120px] items-center border-b border-border px-4 py-3 lg:grid-cols-[minmax(0,1fr)_90px_minmax(0,1fr)_190px_120px]"
-              >
-                <div className="h-4 rounded-md bg-muted animate-pulse" />
-                <div className="h-4 rounded-md bg-muted animate-pulse" />
-                <div className="hidden h-4 rounded-md bg-muted animate-pulse lg:block" />
-                <div className="hidden h-4 rounded-md bg-muted animate-pulse lg:block" />
-                <div className="h-4 rounded-md bg-muted animate-pulse" />
-              </div>
+        <TableBody>
+          {loading ? (
+            Array.from({ length: 5 }).map((_, index) => (
+              <DesktopSkeletonRow key={index} />
             ))
-          ) : (
-            users.map((user) => (
-              <div
-                key={user.id}
-                className="grid w-full cursor-pointer grid-cols-[minmax(0,1fr)_90px_120px] items-center border-b border-border px-4 py-3 transition-colors hover:bg-muted/30 lg:grid-cols-[minmax(0,1fr)_90px_minmax(0,1fr)_190px_120px]"
-                onClick={() => handleRowClick(user)}
-              >
-                <TableCell>
-                  <div className="flex items-center gap-3">
-                    <div
-                      style={{ backgroundColor: getAvatarColor(user.name) }}
-                      className="size-8 shrink-0 rounded-full flex items-center justify-center text-xs font-semibold text-white"
-                    >
-                      {getInitials(user.name)}
-                    </div>
-                    <span className="text-sm font-medium">{user.name}</span>
-                  </div>
-                  <span className="truncate text-sm font-medium">{user.name}</span>
+          ) : users.map((user) => (
+            <TableRow
+              key={user.id}
+              className="cursor-pointer transition-colors hover:bg-muted/30"
+              onClick={() => handleRowClick(user)}
+            >
+              <TableCell>
+                <div className="flex items-center gap-3">
+                  <UserAvatar name={user.name} />
+                  <span className="text-sm font-medium">{user.name}</span>
                 </div>
-                <div className="min-w-0 truncate text-sm">{ROLE_LABEL[user.role] ?? user.role}</div>
-                <div className="hidden truncate text-sm text-muted-foreground lg:block">
-                  {user.email}
-                </div>
-                <div className="hidden min-w-0 truncate text-sm text-muted-foreground tabular-nums lg:block">
-                  {formatTimestamp(user.lastLogin)}
-                </TableCell>
-                <TableCell onClick={(e) => e.stopPropagation()}>
-                  <Badge
-                    variant="outline"
-                    className={user.status === "Sedang Aktif"
-                      ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
-                      : "bg-slate-500/10 text-slate-400 border-slate-500/30"}
-                  >
-                    {user.status ?? "Tidak Aktif"}
-                  </Badge>
-                </TableCell>
-              </TableRow>
-            ))
-          )}
+              </TableCell>
+              <TableCell className="text-sm">
+                {ROLE_LABEL[user.role] ?? user.role}
+              </TableCell>
+              <TableCell className="hidden text-sm text-muted-foreground lg:table-cell">
+                {user.email}
+              </TableCell>
+              <TableCell className="hidden text-sm text-muted-foreground tabular-nums lg:table-cell">
+                {formatTimestamp(user.lastLogin)}
+              </TableCell>
+              <TableCell onClick={(event) => event.stopPropagation()}>
+                <UserStatusBadge status={user.status} />
+              </TableCell>
+            </TableRow>
+          ))}
         </TableBody>
       </Table>
     )
   }
 
-  // ── Render Utama ────────────────────────────────────────────
   return (
     <div className="flex flex-col gap-4">
-
-      {/* Mobile */}
       <div className="flex flex-col gap-3 md:hidden">
-        {loading && users.length === 0 ? (
-          Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="p-4 rounded-xl border border-border/50 space-y-3">
-              <div className="flex items-center gap-3">
-                <div className="size-10 bg-muted animate-pulse rounded-full shrink-0" />
-                <div className="h-4 bg-muted animate-pulse rounded-md w-1/2" />
-              </div>
-              <div className="h-3 bg-muted animate-pulse rounded-md w-full" />
-            </div>
+        {loading ? (
+          Array.from({ length: 5 }).map((_, index) => (
+            <MobileSkeletonCard key={index} />
           ))
-        ) : users.length === 0 ? (
-          <div className="border border-border/50 rounded-xl overflow-hidden bg-background">
+        ) : showEmpty ? (
+          <div className="overflow-hidden rounded-xl border border-border/50 bg-background">
             <UsersEmpty searchQuery={debouncedSearch} />
           </div>
-        ) : (
-          users.map((user) => (
-            <div
-              key={user.id}
-              className="p-4 rounded-xl border border-border/50 flex flex-col gap-3 hover:bg-muted/20 transition-colors cursor-pointer"
-              onClick={() => handleRowClick(user)}
-            >
-              <div className="flex items-center gap-3 overflow-hidden">
-                <UserAvatar name={user.name} />
-                <div className="flex flex-col truncate">
-                  <span className="text-sm font-medium truncate">{user.name}</span>
-                  <span className="text-xs text-muted-foreground truncate">{user.email}</span>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between border-t border-border/50 pt-3 mt-1">
-                <Badge
-                  variant="outline"
-                  className={user.status === "Sedang Aktif"
-                    ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
-                    : "bg-slate-500/10 text-slate-400 border-slate-500/30"}
-                >
-                  {user.status ?? "Tidak Aktif"}
-                </Badge>
-                <span className="text-xs font-medium px-2 py-1 bg-muted rounded-md">
-                  {ROLE_LABEL[user.role] ?? user.role}
-                </span>
+        ) : users.map((user) => (
+          <div
+            key={user.id}
+            className="flex cursor-pointer flex-col gap-3 rounded-xl border border-border/50 p-4 transition-colors hover:bg-muted/20"
+            onClick={() => handleRowClick(user)}
+          >
+            <div className="flex items-center gap-3 overflow-hidden">
+              <UserAvatar name={user.name} />
+              <div className="flex flex-col truncate">
+                <span className="truncate text-sm font-medium">{user.name}</span>
+                <span className="truncate text-xs text-muted-foreground">{user.email}</span>
               </div>
             </div>
-          ))
-        )}
+
+            <div className="mt-1 flex items-center justify-between border-t border-border/50 pt-3">
+              <UserStatusBadge status={user.status} />
+              <span className="rounded-md bg-muted px-2 py-1 text-xs font-medium">
+                {ROLE_LABEL[user.role] ?? user.role}
+              </span>
+            </div>
+          </div>
+        ))}
       </div>
 
-      {/* Desktop */}
-      <div className="hidden md:block rounded-xl border border-border/50 overflow-hidden bg-background">
+      <div className="hidden overflow-hidden rounded-xl border border-border/50 bg-background md:block">
         {renderDesktopContent()}
       </div>
 
-      {/* Pagination */}
       {meta && meta.totalPages > 1 && (
-        <div className="flex items-center justify-between text-sm text-muted-foreground px-1">
-          <span>
-            {((meta.page - 1) * meta.limit) + 1}–{Math.min(meta.page * meta.limit, meta.total)} dari {meta.total} pengguna
-          </span>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" disabled={meta.page <= 1}
-              onClick={() => setPage((p) => p - 1)}>
-              Sebelumnya
+        <div className="fixed bottom-6 left-1/2 z-40 -translate-x-1/2">
+          <div className="flex items-center gap-2 rounded-2xl border border-border/70 bg-background/95 p-1.5 text-sm shadow-2xl shadow-black/10 backdrop-blur-xl dark:shadow-black/40">
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-9 rounded-xl"
+              disabled={meta.page <= 1 || loading}
+              onClick={() => setPage((current) => Math.max(1, current - 1))}
+              aria-label="Halaman sebelumnya"
+              title="Sebelumnya"
+            >
+              <ChevronLeft className="size-4" />
             </Button>
-            <span className="tabular-nums">{meta.page} / {meta.totalPages}</span>
-            <Button variant="outline" size="sm" disabled={meta.page >= meta.totalPages}
-              onClick={() => setPage((p) => p + 1)}>
-              Berikutnya
+            <span className="min-w-16 px-2 text-center text-xs font-medium text-muted-foreground tabular-nums">
+              {meta.page} / {meta.totalPages}
+            </span>
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-9 rounded-xl"
+              disabled={meta.page >= meta.totalPages || loading}
+              onClick={() => setPage((current) => current + 1)}
+              aria-label="Halaman selanjutnya"
+              title="Selanjutnya"
+            >
+              <ChevronRight className="size-4" />
             </Button>
           </div>
         </div>
       )}
 
-      {/* FAB */}
-      <Button onClick={handleAdd} size="icon"
-        className="fixed bottom-8 right-8 size-14 rounded-full shadow-lg bg-blue-600 hover:bg-blue-700">
+      <Button
+        onClick={handleAdd}
+        size="icon"
+        className="fixed bottom-8 right-8 size-14 rounded-full bg-blue-600 shadow-lg hover:bg-blue-700"
+      >
         <Plus className="size-6 text-white" />
         <span className="sr-only">Tambah Pengguna</span>
       </Button>
@@ -235,7 +236,7 @@ export default function UsersPage() {
         open={formOpen}
         onOpenChange={setFormOpen}
         user={selectedUser}
-        onSuccess={handleFormSuccess}
+        onSuccess={refetch}
       />
     </div>
   )
