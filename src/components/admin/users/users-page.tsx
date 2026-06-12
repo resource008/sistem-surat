@@ -1,8 +1,5 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
-import { ChevronLeft, ChevronRight, Plus } from "lucide-react"
 import { useAdminSearch } from "@/components/admin/layout/admin-search-context"
 import { UserAvatar } from "@/components/shared/user-avatar"
 import { UserStatusBadge } from "@/components/shared/user-status-badge"
@@ -15,8 +12,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { useUsers } from "@/hooks/use-users"
 import type { User } from "@/domain/user/types"
+import { useUsers } from "@/hooks/use-users"
+import { ChevronLeft, ChevronRight, Plus } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
 import UsersEmpty from "./users-empty"
 import UsersFormModal from "./users-form-modal"
 
