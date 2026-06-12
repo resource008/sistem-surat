@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useAdminStats } from "@/hooks/use-admin-stats"
 import type { StatistikFilter, TipeWaktuStatistik } from "@/domain/admin-dashboard/types"
 import { DEFAULT_STATS_DEPT_ID } from "@/constants/admin-dashboard"
@@ -24,6 +24,13 @@ export default function AdminDashboard() {
   }
 
   const { data, error, isLoading } = useAdminStats(params)
+
+  useEffect(() => {
+    const selectedDeptId = data?.statistikSurat.departemenId
+    if (selectedDeptId && selectedDeptId !== deptId) {
+      setDeptId(selectedDeptId)
+    }
+  }, [data?.statistikSurat.departemenId, deptId])
 
   return (
     <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-5 px-4 py-6 sm:px-6">

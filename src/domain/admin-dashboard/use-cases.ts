@@ -110,33 +110,38 @@ export async function getAdminDashboardStats(
     totalSuratMasuk,
     totalSuratPI,
     departments,
-    selectedDepartment,
     suratPerDeptRaw,
-    statistikRaw,
     currentSuratMasuk,
     previousSuratMasuk,
     currentSuratPI,
     previousSuratPI,
     users,
+    requestedDepartment,
   ] = await Promise.all([
     repository.countUsers(),
     repository.countActiveDepartments(),
     repository.countSurat(),
     repository.countPI(),
     repository.findDepartments(),
-    repository.findDepartmentById(filter.deptId),
     repository.countSuratByDepartment(),
-    repository.findSuratStatistics(statisticRange, filter.deptId),
     repository.countSurat(statisticRange),
     repository.countSurat(previousStatisticRange),
     repository.countPI(statisticRange),
     repository.countPI(previousStatisticRange),
     repository.findUserActivities(),
+    repository.findDepartmentById(filter.deptId),
   ])
 
+  const selectedDepartment = requestedDepartment ?? departments[0]
+
   if (!selectedDepartment) {
-    throw new Error("NOT_FOUND: Departemen tidak ditemukan")
+    throw new Error("NOT_FOUND: Tidak ada departemen aktif")
   }
+
+  const statistikRaw = await repository.findSuratStatistics(
+    statisticRange,
+    selectedDepartment.id
+  )
 
   const countByDept = new Map(
     suratPerDeptRaw.map((item) => [item.deptId, item.count])
