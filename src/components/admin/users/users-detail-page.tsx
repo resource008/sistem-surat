@@ -1,15 +1,15 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { useParams, useRouter } from "next/navigation"
-import { toast } from "sonner"
+import UsersDelete from "@/components/admin/users/users-delete"
+import { UserAvatar } from "@/components/shared/user-avatar"
+import { Button } from "@/components/ui/button"
+import type { User } from "@/domain/user/types"
 import {
   ArrowLeft, FileText, KeyRound, Loader2, Pencil, Trash2,
 } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { UserAvatar } from "@/components/shared/user-avatar"
-import type { User } from "@/domain/user/types"
-import { getAvatarColor, getInitials } from "@/lib/avatar"
+import { useParams, useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
+import { toast } from "sonner"
 
 function formatDate(dateStr: Date | string | null | undefined) {
   if (!dateStr) return "-"
