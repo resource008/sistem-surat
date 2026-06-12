@@ -1,59 +1,25 @@
 "use client"
 
 import styles from "@/app/layout.module.css"
-import TopbarFilter from "@/components/filters/index"
 import { PermissionDenied } from "@/components/shared/permission"
-import { TutorialCetak } from "@/components/shared/tutorial-cetak"
 import { RoleSidebar } from "@/components/role-dashboard/role-sidebar"
+import { RoleTopbar } from "@/components/role-dashboard/role-topbar"
+import type { DashboardRole, RoleTopbarFilters } from "@/components/role-dashboard/types"
 import { usePresenceHeartbeat } from "@/hooks/use-presence-heartbeat"
-import { useSession } from "@/infrastructure/auth/auth-client"
-import type { Role } from "@/types"
-import type { UserPermissions } from "@/domain/user/types"
+import { useRolePermissions } from "@/hooks/use-role-permissions"
 import {
-  ArrowLeftRight, ChevronRight,
-  Menu, Plus, Printer, X,
-} from "lucide-react"
+  getRequiredPermission,
+  getRoleBasePath,
+  getRolePageTitle,
+  ROLE_FEATURE_LABEL,
+} from "@/lib/role-dashboard"
+import { Plus } from "lucide-react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { Suspense, useEffect, useState } from "react"
-import useSWR from "swr"
-
-type DashboardRole = Extract<Role, "STAFF" | "PKL">
 
 interface Props {
   role: DashboardRole
   children: React.ReactNode
-}
-
-interface PermissionResponse {
-  role: Role
-  permissions: UserPermissions
-}
-
-type PermissionKey = keyof UserPermissions
-
-const fetchPermissions = async (url: string): Promise<PermissionResponse> => {
-  const res = await fetch(url)
-  if (!res.ok) throw new Error("Gagal mengambil hak akses")
-  return res.json()
-}
-
-const FEATURE_LABEL: Record<string, string> = {
-  canPrint: "Cetak Surat",
-  canCreate: "Tambah Data Surat",
-  canEdit: "Edit Data Surat",
-  canDelete: "Hapus Data Surat",
-  canTrack: "Lacak Surat",
-}
-
-function getRequiredPermission(
-  pathname: string,
-  base: string
-): PermissionKey | null {
-  if (pathname.startsWith(`${base}/cetak`)) return "canPrint"
-  if (pathname.startsWith(`${base}/add`)) return "canCreate"
-  if (pathname.includes(`${base}/`) && pathname.includes("/edit/")) return "canEdit"
-  if (pathname.startsWith(`${base}/track`)) return "canTrack"
-  return null
 }
 
 function RoleLayoutInner({ role, children }: Props) {
@@ -62,22 +28,9 @@ function RoleLayoutInner({ role, children }: Props) {
   const searchParams = useSearchParams()
   usePresenceHeartbeat()
 
-  const roleLower = role.toLowerCase()
-  const base = `/${roleLower}`
-
-  const { isPending } = useSession()
-  const { data: access, isLoading: permissionsLoading } = useSWR<PermissionResponse>(
-    "/api/me/permissions",
-    fetchPermissions,
-    {
-      refreshInterval: 5_000,
-      revalidateOnFocus: true,
-      revalidateOnReconnect: true,
-    }
-  )
-  const permissions = access?.permissions
+  const base = getRoleBasePath(role)
+  const { permissions, isLoading: permissionsPending } = useRolePermissions()
   const requiredPerm = getRequiredPermission(pathname, base)
-  const permissionsPending = isPending || permissionsLoading
   const isDenied =
     !permissionsPending &&
     requiredPerm !== null &&
@@ -89,10 +42,7 @@ function RoleLayoutInner({ role, children }: Props) {
   const [isMobile, setIsMobile] = useState(false)
   const [subtitle, setSubtitle] = useState<string | null>(null)
   const [subsubtitle, setSubsubtitle] = useState<string | null>(null)
-  const [filters, setFilters] = useState<{
-    date: string | null
-    departments: string[]
-  }>({ date: null, departments: [] })
+  const [filters, setFilters] = useState<RoleTopbarFilters>({ date: null, departments: [] })
   const [hasCetakData, setHasCetakData] = useState(false)
   const [selectedDataSuratCount, setSelectedDataSuratCount] = useState(0)
 
@@ -196,15 +146,7 @@ function RoleLayoutInner({ role, children }: Props) {
 
   if (!isMounted) return <div className="min-h-screen bg-background" />
 
-  const currentPage = (() => {
-    if (pathname.startsWith(`${base}/akun`)) return "Akun Anda"
-    if (pathname.includes("/cetak")) return "Cetak"
-    if (pathname.includes("/akun")) return "Akun Anda"
-    if (pathname.includes("/data-surat")) return "Data Surat"
-    if (pathname.includes("/track")) return "Track Surat"
-    if (pathname.includes("/view/") || pathname.includes("/edit/")) return "Data Surat"
-    return "Data Surat"
-  })()
+  const currentPage = getRolePageTitle(pathname, base)
 
   const topbarLeft = isMobile
     ? "0px"
@@ -236,160 +178,36 @@ function RoleLayoutInner({ role, children }: Props) {
         `}
         style={{ "--topbar-left": topbarLeft } as React.CSSProperties}
       >
-        <div id="topbar" className={styles.topbar}>
-          <div className={styles.topbarLeft}>
-            {isMobile && (
-              <button
-                className={styles.hamburger}
-                onClick={() => setMobileOpen(true)}
-                aria-label="Buka menu"
-              >
-                <Menu size={20} />
-              </button>
-            )}
-
-            <nav className={styles.breadcrumb} aria-label="breadcrumb">
-              {subtitle && subsubtitle ? (
-                <>
-                  <button
-                    className={styles.breadcrumbParent}
-                    onClick={() => router.push(`${base}/data-surat`)}
-                  >
-                    {currentPage}
-                  </button>
-                  <ChevronRight size={14} className={styles.breadcrumbSep} />
-                  <button
-                    className={styles.breadcrumbParent}
-                    onClick={() => router.back()}
-                  >
-                    {subtitle}
-                  </button>
-                  <ChevronRight size={14} className={styles.breadcrumbSep} />
-                  <span className={styles.breadcrumbSub}>{subsubtitle}</span>
-                </>
-              ) : subtitle ? (
-                <>
-                  <button
-                    className={styles.breadcrumbParent}
-                    onClick={() => router.push(`${base}/data-surat`)}
-                  >
-                    {currentPage}
-                  </button>
-                  <ChevronRight size={14} className={styles.breadcrumbSep} />
-                  <span className={styles.breadcrumbSub}>{subtitle}</span>
-                </>
-              ) : (
-                <span className={styles.topbarTitle}>{currentPage}</span>
-              )}
-            </nav>
-          </div>
-
-          {isDataSuratPage && (
-            <div className="flex items-center gap-1.5">
-              <button
-                onClick={() => {
-                  const dataSuratBase = `${base}/data-surat`
-                  router.push(showPI ? dataSuratBase : `${dataSuratBase}?mode=pi`)
-                }}
-                title={showPI ? "Kembali ke semua surat" : "Tampilkan hanya data PI"}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "6px",
-                  padding: "0 12px",
-                  height: "34px",
-                  borderRadius: "8px",
-                  border: showPI ? "1px solid #2563eb" : "1px solid var(--border)",
-                  background: showPI ? "#2563eb" : "transparent",
-                  color: showPI ? "#ffffff" : "var(--muted-foreground)",
-                  fontSize: "13px",
-                  fontWeight: 500,
-                  fontFamily: "inherit",
-                  cursor: "pointer",
-                  whiteSpace: "nowrap",
-                  flexShrink: 0,
-                  transition: "all 0.2s ease",
-                }}
-              >
-                <ArrowLeftRight size={14} />
-                {!isMobile && (
-                  <span>{showPI ? "Alihkan ke Surat" : "Alihkan ke PI"}</span>
-                )}
-              </button>
-
-              {!showPI && (
-                <TopbarFilter
-                  initialFilters={filters}
-                  onFilterChange={(nextFilters) => {
-                    setFilters(nextFilters)
-                    localStorage.setItem("topbar_filters", JSON.stringify(nextFilters))
-                  }}
-                />
-              )}
-
-              {!showPI && hasActiveFilters && (
-                <button
-                  onClick={handleClearFilters}
-                  title="Bersihkan filter"
-                  className="flex items-center justify-center w-9 h-9 rounded-lg
-                    border border-red-200 dark:border-red-800
-                    bg-red-50 dark:bg-red-900/20
-                    text-red-500 dark:text-red-400
-                    hover:bg-red-100 dark:hover:bg-red-900/40
-                    transition-colors shrink-0"
-                >
-                  <X size={15} />
-                </button>
-              )}
-            </div>
-          )}
-
-          {isCetakPage && !isDenied && (
-            <div className="flex items-center gap-2">
-              <TutorialCetak />
-              <button
-                onClick={hasCetakData ? handleClearCetak : undefined}
-                disabled={!hasCetakData}
-                title={hasCetakData ? "Bersihkan & kembali" : "Tidak ada data"}
-                className={[
-                  "flex items-center gap-1.5 px-4 h-9 rounded-lg",
-                  "border text-[13px] font-medium transition-colors shrink-0",
-                  hasCetakData
-                    ? `border-slate-200 dark:border-slate-700
-                       text-slate-500 dark:text-slate-400
-                       hover:text-red-500 dark:hover:text-red-400
-                       hover:border-red-200 dark:hover:border-red-800
-                       hover:bg-red-50 dark:hover:bg-red-900/20`
-                    : `border-slate-100 dark:border-slate-800
-                       text-slate-300 dark:text-slate-600
-                       cursor-not-allowed`,
-                ].join(" ")}
-              >
-                <X size={14} />
-                {!isMobile && "Bersihkan"}
-              </button>
-              <button
-                onClick={hasCetakData ? () => window.print() : undefined}
-                disabled={!hasCetakData}
-                title={hasCetakData ? "Cetak sekarang" : "Tidak ada data untuk dicetak"}
-                className={[
-                  "flex items-center gap-2 px-4 h-9 rounded-lg",
-                  "text-[13px] font-semibold transition-colors shrink-0",
-                  hasCetakData
-                    ? "bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white"
-                    : "bg-blue-200 dark:bg-blue-950 text-blue-300 dark:text-blue-800 cursor-not-allowed",
-                ].join(" ")}
-              >
-                <Printer size={15} />
-                {!isMobile && "Cetak Sekarang"}
-              </button>
-            </div>
-          )}
-        </div>
+        <RoleTopbar
+          currentPage={currentPage}
+          subtitle={subtitle}
+          subsubtitle={subsubtitle}
+          isMobile={isMobile}
+          isDataSuratPage={isDataSuratPage}
+          isCetakPage={isCetakPage}
+          isDenied={isDenied}
+          showPI={showPI}
+          filters={filters}
+          hasActiveFilters={hasActiveFilters}
+          hasCetakData={hasCetakData}
+          onOpenMobileMenu={() => setMobileOpen(true)}
+          onNavigateToDataSurat={() => router.push(`${base}/data-surat`)}
+          onNavigateBack={() => router.back()}
+          onToggleMode={() => {
+            const dataSuratBase = `${base}/data-surat`
+            router.push(showPI ? dataSuratBase : `${dataSuratBase}?mode=pi`)
+          }}
+          onFilterChange={(nextFilters) => {
+            setFilters(nextFilters)
+            localStorage.setItem("topbar_filters", JSON.stringify(nextFilters))
+          }}
+          onClearFilters={handleClearFilters}
+          onClearCetak={handleClearCetak}
+        />
 
         <div className={styles.content}>
           {isDenied ? (
-            <PermissionDenied feature={FEATURE_LABEL[requiredPerm!] ?? "fitur ini"} />
+            <PermissionDenied feature={ROLE_FEATURE_LABEL[requiredPerm!] ?? "fitur ini"} />
           ) : (
             children
           )}

@@ -2,7 +2,7 @@
 
 import { useState }                  from "react"
 import { useRouter }                 from "next/navigation"
-import { useSearch }                 from "@/app/(dashboard)/admin/layout"
+import { useAdminSearch }            from "@/components/admin/layout/admin-search-context"
 import { useUsers }                  from "@/hooks/use-users"
 import { Button }                    from "@/components/ui/button"
 import { Plus }                      from "lucide-react"
@@ -36,7 +36,7 @@ const ROLE_LABEL: Record<string, string> = {
 
 export default function UsersPage() {
   const router                      = useRouter()
-  const { search, debouncedSearch } = useSearch()
+  const { debouncedSearch } = useAdminSearch()
   const [page, setPage]             = useState(1)
   const [formOpen,     setFormOpen]     = useState(false)
   const [selectedUser, setSelectedUser] = useState<User | null>(null)

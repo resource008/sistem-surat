@@ -10,7 +10,8 @@ import { UserAvatar } from "@/components/shared/user-avatar"
 import { ThemeToggle } from "@/components/ui/theme-toogle"
 import { routes } from "@/constants/routes"
 import { authClient } from "@/infrastructure/auth/auth-client"
-import type { Role } from "@/types"
+import type { DashboardRole } from "@/components/role-dashboard/types"
+import { getRoleBasePath } from "@/lib/role-dashboard"
 import {
   ArrowLeftCircle, ArrowRightCircle,
   FileText, LogOut, Printer, RefreshCcw, X,
@@ -24,8 +25,6 @@ import type { UserPermissions } from "@/domain/user/types"
 const ICON_SIZE = 18
 const LOGO_WIDTH = 1523
 const LOGO_HEIGHT = 1246
-
-type DashboardRole = Extract<Role, "STAFF" | "PKL">
 
 interface Props {
   role: DashboardRole
@@ -42,7 +41,7 @@ export function RoleSidebar({
   role, collapsed, isMobile, mobileOpen, permissions, permissionsLoading, onCollapse, onMobileClose,
 }: Props) {
   const pathname = usePathname()
-  const base = `/${role.toLowerCase()}`
+  const base = getRoleBasePath(role)
 
   const [userData, setUserData] = useState<{ name: string; role: string }>({
     name: "",
