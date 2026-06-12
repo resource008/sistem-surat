@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 "use client"
 
 import { getRouteByRole, routes } from "@/constants/routes"
@@ -174,3 +175,10 @@ export default function LoginPage() {
     </div>
   )
 }
+=======
+import { LoginPage } from "@/components/auth/login-page"
+
+export default function Page() {
+  return <LoginPage />
+}
+>>>>>>> 22b8a54 (refactor: reusable admin and staff/pkl components)

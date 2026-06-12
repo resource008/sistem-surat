@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // src/app/(dashboard)/admin/layout.tsx
 "use client"
 
@@ -270,3 +271,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     </SearchContext.Provider>
   )
 }
+=======
+import { AdminLayout } from "@/components/admin/layout/admin-layout"
+
+export default function Layout({ children }: { children: React.ReactNode }) {
+  return <AdminLayout>{children}</AdminLayout>
+}
+>>>>>>> 22b8a54 (refactor: reusable admin and staff/pkl components)
