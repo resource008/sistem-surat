@@ -14,10 +14,7 @@ const figtree = Figtree({
 export const metadata: Metadata = {
   title: "Sistem Surat",
   description: "Sistem Manajemen Surat",
-  icons: {
-    icon: "/database.svg?v=2",
-    shortcut: "/database.svg?v=2",
-  },
+  // Pastikan strukturnya bersih seperti ini
   other: {
     google: "notranslate",
   },
