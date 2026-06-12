@@ -1,7 +1,7 @@
 "use client"
 
 import { FileText } from "lucide-react"
-import { getAvatarColor, getInitials } from "@/lib/avatar"
+import { UserAvatar } from "@/components/shared/user-avatar"
 import { AccountField } from "./account-field"
 import { TimestampBlock } from "./timestamp-block"
 import type { AccountForm, FormattedDateTime } from "./types"
@@ -24,8 +24,6 @@ export function AccountDataCard({
   onFormChange,
 }: AccountDataCardProps) {
   const displayName = form.name || "-"
-  const initials = getInitials(form.name || "User")
-  const avatarColor = getAvatarColor(form.name || "User")
 
   return (
     <div className="w-full overflow-hidden rounded-[20px] border border-border bg-transparent">
@@ -37,12 +35,10 @@ export function AccountDataCard({
       <div className="px-8 py-8 max-lg:px-6 max-lg:py-7 max-sm:px-5 max-sm:py-5">
         <div className="flex items-start justify-between gap-8 max-md:flex-col">
           <div className="flex items-center gap-4">
-            <div
-              className="flex size-[52px] shrink-0 items-center justify-center rounded-full text-[17px] font-bold text-white max-sm:size-12 max-sm:text-base"
-              style={{ backgroundColor: avatarColor }}
-            >
-              {initials}
-            </div>
+            <UserAvatar
+              name={form.name || "User"}
+              className="size-[52px] text-[17px] font-bold max-sm:size-12 max-sm:text-base"
+            />
             <div className="min-w-0">
               <div className="truncate text-[15px] font-bold text-foreground">
                 {displayName}

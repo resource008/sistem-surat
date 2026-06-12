@@ -6,10 +6,10 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader,
   AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { UserAvatar } from "@/components/shared/user-avatar"
 import { ThemeToggle } from "@/components/ui/theme-toogle"
 import { routes } from "@/constants/routes"
 import { authClient } from "@/infrastructure/auth/auth-client"
-import { getAvatarColor } from "@/lib/avatar"
 import type { Role } from "@/types"
 import {
   ArrowLeftCircle, ArrowRightCircle,
@@ -44,10 +44,9 @@ export function RoleSidebar({
   const pathname = usePathname()
   const base = `/${role.toLowerCase()}`
 
-  const [userData, setUserData] = useState<{ name: string; role: string; initials: string }>({
+  const [userData, setUserData] = useState<{ name: string; role: string }>({
     name: "",
     role,
-    initials: "",
   })
   const [userLoading, setUserLoading] = useState(true)
   const isAccountActive = pathname.startsWith(`${base}/akun`)
@@ -69,13 +68,7 @@ export function RoleSidebar({
           if (!alive) return
 
           const fullName = data.name || "User"
-          const initials = fullName
-            .split(" ")
-            .map((name: string) => name[0])
-            .join("")
-            .toUpperCase()
-            .substring(0, 2)
-          setUserData({ name: fullName, role: data.role ?? role, initials })
+          setUserData({ name: fullName, role: data.role ?? role })
           return
         }
 
@@ -83,14 +76,8 @@ export function RoleSidebar({
         if (!alive || !data?.user) return
 
         const fullName = data.user.name || "User"
-        const initials = fullName
-          .split(" ")
-          .map((name: string) => name[0])
-          .join("")
-          .toUpperCase()
-          .substring(0, 2)
         const userRole = ((data.user as any).role ?? role) as string
-        setUserData({ name: fullName, role: userRole, initials })
+        setUserData({ name: fullName, role: userRole })
       } finally {
         if (alive) setUserLoading(false)
       }
@@ -109,17 +96,9 @@ export function RoleSidebar({
       const user = (event as CustomEvent<{ name?: string; role?: string }>).detail
       if (!user?.name) return
 
-      const initials = user.name
-        .split(" ")
-        .map((name: string) => name[0])
-        .join("")
-        .toUpperCase()
-        .substring(0, 2)
-
       setUserData((current) => ({
         name: user.name ?? current.name,
         role: user.role ?? current.role,
-        initials,
       }))
     }
 
@@ -251,12 +230,7 @@ export function RoleSidebar({
             </>
           ) : (
             <>
-              <div
-                className={styles.userAvatar}
-                style={{ backgroundColor: getAvatarColor(userData.name) }}
-              >
-                {userData.initials}
-              </div>
+              <UserAvatar name={userData.name} className={styles.userAvatar} />
               {(!collapsed || isMobile) && (
                 <div className={styles.userInfo}>
                   <div className={styles.userName}>{userData.name}</div>

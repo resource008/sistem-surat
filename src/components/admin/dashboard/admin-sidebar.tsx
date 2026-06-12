@@ -6,10 +6,10 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader,
   AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { UserAvatar }    from "@/components/shared/user-avatar"
 import { ThemeToggle }    from "@/components/ui/theme-toogle"
 import { routes }         from "@/constants/routes"
 import { authClient }     from "@/infrastructure/auth/auth-client"
-import { getAvatarColor } from "@/lib/avatar"
 import type { Role }      from "@/types"
 import {
   ArrowLeftCircle, ArrowRightCircle,
@@ -44,7 +44,7 @@ export function AdminSidebar({
 }: Props) {
   const pathname = usePathname()
 
-  const [userData, setUserData]       = useState({ name: "", role: "ADMIN", initials: "" })
+  const [userData, setUserData]       = useState({ name: "", role: "ADMIN" })
   const [userLoading, setUserLoading] = useState(true)
 
   useEffect(() => {
@@ -53,10 +53,8 @@ export function AdminSidebar({
         const { data } = await authClient.getSession()
         if (!data?.user) return
         const fullName = data.user.name || "Admin"
-        const initials = fullName
-          .split(" ").map((n: string) => n[0]).join("").toUpperCase().substring(0, 2)
         const userRole = ((data.user as any).role as Role) ?? "ADMIN"
-        setUserData({ name: fullName, role: userRole, initials })
+        setUserData({ name: fullName, role: userRole })
       } finally {
         setUserLoading(false)
       }
@@ -154,12 +152,7 @@ export function AdminSidebar({
             </>
           ) : (
             <>
-              <div
-                className={styles.userAvatar}
-                style={{ backgroundColor: getAvatarColor(userData.name) }}
-              >
-                {userData.initials}
-              </div>
+              <UserAvatar name={userData.name} className={styles.userAvatar} />
               {(!collapsed || isMobile) && (
                 <div className={styles.userInfo}>
                   <div className={styles.userName}>{userData.name}</div>

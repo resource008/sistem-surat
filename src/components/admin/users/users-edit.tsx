@@ -13,10 +13,8 @@ import {
   Select, SelectContent, SelectItem,
   SelectTrigger, SelectValue,
 } from "@/components/ui/select"
+import { UserAvatar }                  from "@/components/shared/user-avatar"
 import type { User }                    from "@/domain/user/types"
-import { getAvatarColor, getInitials }  from "@/lib/avatar"
-
-// ── Helpers ───────────────────────────────────────────────────
 
 const PERMISSIONS = [
   { key: "canCreate", label: "Tambah Data Surat" },
@@ -48,8 +46,6 @@ function generatePassword(length = 12) {
     .join("")
 }
 
-// ── Toggle Button ─────────────────────────────────────────────
-
 function PermissionToggle({
   value, onChange,
 }: { value: boolean; onChange: (v: boolean) => void }) {
@@ -79,8 +75,6 @@ function PermissionToggle({
   )
 }
 
-// ── Main Component ────────────────────────────────────────────
-
 export default function UserEditPage() {
   const { id }  = useParams<{ id: string }>()
   const router  = useRouter()
@@ -105,8 +99,6 @@ export default function UserEditPage() {
     canPrint:  false,
     canTrack:  false,
   })
-
-  // ── Fetch ─────────────────────────────────────────────────
 
   useEffect(() => {
     fetch(`/api/users/${id}`)
@@ -133,10 +125,7 @@ export default function UserEditPage() {
       .finally(() => setLoading(false))
   }, [id])
 
-  // ── Save ──────────────────────────────────────────────────
-
   async function handleSave() {
-    // ── Validasi client-side ──────────────────────────────
     if (!form.name.trim()) { toast.error("Nama lengkap wajib diisi"); setSaving(false); return }
     if (!form.username.trim()) { toast.error("Nama pengguna wajib diisi"); setSaving(false); return }
     if (!form.email.trim()) { toast.error("Email wajib diisi"); setSaving(false); return }
@@ -170,8 +159,6 @@ export default function UserEditPage() {
     }
   }
 
-  // ── Loading ───────────────────────────────────────────────
-
   if (loading) return (
     <div className="flex items-center justify-center min-h-[400px]">
       <Loader2 className="animate-spin text-muted-foreground" size={24} />
@@ -187,12 +174,9 @@ export default function UserEditPage() {
     </div>
   )
 
-  // ── Render ────────────────────────────────────────────────
-
   return (
     <div className="flex flex-col gap-4 pb-32">
 
-      {/* Data Akun */}
       <div className="rounded-2xl border border-border/50 bg-background overflow-hidden">
         <div className="flex items-center gap-2.5 px-6 py-4 border-b border-border/50">
           <FileText size={16} className="text-muted-foreground" />
@@ -201,14 +185,11 @@ export default function UserEditPage() {
 
         <div className="px-6 py-6 flex flex-col gap-6">
 
-          {/* Avatar + nama (preview real-time dari form.name) */}
           <div className="flex items-center gap-4">
-            <div
-              style={{ backgroundColor: getAvatarColor(form.name || user.name) }}
-              className="size-10 shrink-0 rounded-full flex items-center justify-center text-sm font-semibold text-white transition-colors"
-            >
-              {getInitials(form.name || user.name)}
-            </div>
+            <UserAvatar
+              name={form.name || user.name}
+              className="size-10 text-sm transition-colors"
+            />
             <div className="flex flex-col gap-0.5">
               <span className="text-sm font-semibold">
                 {form.name || user.name}
@@ -217,7 +198,6 @@ export default function UserEditPage() {
             </div>
           </div>
 
-          {/* Form fields */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="flex flex-col gap-1.5">
               <Label className="text-xs text-muted-foreground">Nama Lengkap</Label>
@@ -300,7 +280,6 @@ export default function UserEditPage() {
         </div>
       </div>
 
-      {/* Hak Akses — hanya untuk STAFF dan PKL */}
       {form.role !== "ADMIN" && (
         <div className="rounded-2xl border border-border/50 bg-background overflow-hidden">
           <div className="flex items-center gap-2.5 px-6 py-4 border-b border-border/50">
@@ -324,7 +303,6 @@ export default function UserEditPage() {
         </div>
       )}
 
-      {/* Action Bar */}
       <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
         <div className="inline-flex items-center gap-1 p-1.5 rounded-2xl
                         border border-slate-200/80 dark:border-slate-700/60
