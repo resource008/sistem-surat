@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 "use client"
 
 import { useEffect, useState } from "react"
+=======
+"use client"
+
+import { useEffect, useState } from "react"
+>>>>>>> bdb44ddac66c2bcc57f6783d5279725cb67968e0
 import { useAdminStats } from "@/hooks/use-admin-stats"
 import type { StatistikFilter, TipeWaktuStatistik } from "@/domain/admin-dashboard/types"
 import { DEFAULT_STATS_DEPT_ID } from "@/constants/admin-dashboard"
@@ -23,6 +29,7 @@ export default function AdminDashboard() {
     tahun: now.getFullYear(),
   }
 
+<<<<<<< HEAD
   const { data, error, isLoading } = useAdminStats(params)
 
   useEffect(() => {
@@ -33,6 +40,18 @@ export default function AdminDashboard() {
   }, [data?.statistikSurat.departemenId, deptId])
 
   return (
+=======
+  const { data, error, isLoading } = useAdminStats(params)
+
+  useEffect(() => {
+    const selectedDeptId = data?.statistikSurat.departemenId
+    if (selectedDeptId && selectedDeptId !== deptId) {
+      setDeptId(selectedDeptId)
+    }
+  }, [data?.statistikSurat.departemenId, deptId])
+
+  return (
+>>>>>>> bdb44ddac66c2bcc57f6783d5279725cb67968e0
     <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-5 px-4 py-6 sm:px-6">
       {error ? (
         <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-600 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-400">
@@ -75,4 +94,8 @@ export default function AdminDashboard() {
       )}
     </div>
   )
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> bdb44ddac66c2bcc57f6783d5279725cb67968e0
