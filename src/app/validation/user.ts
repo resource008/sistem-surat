@@ -46,6 +46,7 @@ export const CreateUserSchema = z.object({
     .max(72, "Password maksimal 72 karakter"),
 
   role: RoleEnum,
+  permissions: PermissionSchema.optional(),
 })
 
 export type CreateUserInput = z.infer<typeof CreateUserSchema>

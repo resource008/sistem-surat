@@ -1,8 +1,8 @@
-import { FileText } from "lucide-react"
-import { format }   from "date-fns"
-import { id }       from "date-fns/locale"
-import { Field }    from "./field"
 import { RegisterSurat } from "@/components/surat/shared"
+import { format } from "date-fns"
+import { id } from "date-fns/locale"
+import { FileText } from "lucide-react"
+import { Field } from "./field"
 
 interface Props {
   register: RegisterSurat
@@ -13,7 +13,7 @@ export function SuratListPanel({ register }: Props) {
     return (
       <div className="rounded-2xl border border-dashed border-slate-200 dark:border-slate-800
                       px-6 py-12 text-center lg:h-full
-                      flex flex-col items-center justify-center min-h-[200px]">
+                      flex flex-col items-center justify-center min-h-50">
         <FileText className="mb-3 h-8 w-8 text-slate-300 dark:text-slate-700" />
         <p className="text-[13px] text-slate-400 dark:text-slate-500">
           Belum ada surat dalam register ini.
