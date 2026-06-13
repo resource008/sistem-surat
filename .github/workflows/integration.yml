@@ -1,4 +1,4 @@
-name: Validasi Kode
+name: Validasi Code
 
 on:
   push:
@@ -12,7 +12,7 @@ on:
 
 jobs:
   validate:
-    name: Cek Code
+    name: Validasi Code
     runs-on: ubuntu-latest
 
     env:
