@@ -25,7 +25,7 @@ jobs:
                 push: true
                 tags: ${{ secrets.DOCKERHUB_USERNAME }}/sistem-surat:staging
                 build-args: |
-                    DATABASE_URL: ${{ secrets.DATABASE_URL }}
+                    DATABASE_URL=${{ secrets.DATABASE_URL }}
             
     deploy:
         name: Pembaruan Container di VPS
