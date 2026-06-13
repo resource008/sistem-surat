@@ -37,7 +37,7 @@ jobs:
         run: npx prisma generate
 
       - name: Periksa code dengan ESLint
-        run: npx run lint
+        run: npm run lint
 
       - name: Periksa dengan TypeScript
         run: npx tsc --noEmit
