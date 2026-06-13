@@ -216,6 +216,10 @@ function RoleLayoutInner({ role, children }: Props) {
     window.dispatchEvent(new CustomEvent("cetak:clear"))
   }
 
+  function handleBreadcrumbParentClick() {
+    router.push(isCetakPage ? `${base}/cetak/all` : `${base}/data-surat`)
+  }
+
   if (!isMounted) return <div className="min-h-screen bg-background" />
 
   const currentPage = (() => {
@@ -275,7 +279,7 @@ function RoleLayoutInner({ role, children }: Props) {
                 <>
                   <button
                     className={styles.breadcrumbParent}
-                    onClick={() => router.push(`${base}/data-surat`)}
+                    onClick={handleBreadcrumbParentClick}
                   >
                     {currentPage}
                   </button>
@@ -293,7 +297,7 @@ function RoleLayoutInner({ role, children }: Props) {
                 <>
                   <button
                     className={styles.breadcrumbParent}
-                    onClick={() => router.push(`${base}/data-surat`)}
+                    onClick={handleBreadcrumbParentClick}
                   >
                     {currentPage}
                   </button>

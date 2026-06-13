@@ -145,6 +145,10 @@ export class PrismaUserRepository implements UserRepository {
 
   async create(input: CreateUserInput): Promise<User> {
     const hashedPassword = await hashPassword(input.password)
+    const permissions = {
+      ...getDefaultPermission(input.role),
+      ...input.permissions,
+    }
 
     const user = await prisma.user.create({
       data: {
@@ -155,7 +159,7 @@ export class PrismaUserRepository implements UserRepository {
         emailVerified: false,
         role:          input.role,
         permissions: {
-          create: getDefaultPermission(input.role),
+          create: permissions,
         },
         accounts: {
           create: {

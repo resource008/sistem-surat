@@ -104,6 +104,20 @@ export function AdminLayout({ children }: AdminLayoutProps) {
       ? "var(--sidebar-w-collapsed)"
       : "var(--sidebar-w)"
 
+  function handleBreadcrumbBack() {
+    if (pathname.includes("/users")) {
+      router.push("/admin/users")
+      return
+    }
+
+    if (pathname.includes("/departemen")) {
+      router.push("/admin/departemen")
+      return
+    }
+
+    router.back()
+  }
+
   return (
     <AdminSearchContext.Provider value={{ search, debouncedSearch, setSearch }}>
       <div className={styles.root}>
@@ -136,7 +150,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
             isUsersPage={usersPage}
             searchExpanded={searchExpanded}
             onOpenMobileMenu={() => setMobileOpen(true)}
-            onBack={() => router.back()}
+            onBack={handleBreadcrumbBack}
             onSearchExpand={setSearchExpanded}
           />
 

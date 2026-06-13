@@ -55,7 +55,7 @@ export function AccountDataCard({
           </div>
         </div>
 
-        <div className="mt-8 flex flex-col gap-5 max-sm:mt-7 max-sm:gap-4">
+        <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 max-sm:mt-7 max-sm:gap-4">
           <AccountField
             label="Nama Lengkap"
             value={form.name}

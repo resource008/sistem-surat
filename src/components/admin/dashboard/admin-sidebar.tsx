@@ -113,7 +113,7 @@ export function AdminSidebar({
       <nav className={styles.nav}>
         {navItems.map((item) => {
           const Icon     = item.icon
-          const isActive = pathname === item.href
+          const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`)
           return (
             <div key={item.href} className={styles.navItemWrapper}>
               <Link href={item.href} className={`${styles.navItem} ${isActive ? styles.navItemActive : ""}`}>

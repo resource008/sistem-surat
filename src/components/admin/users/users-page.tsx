@@ -18,7 +18,6 @@ import { ChevronLeft, ChevronRight, Plus } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import UsersEmpty from "./users-empty"
-import UsersFormModal from "./users-form-modal"
 
 function formatTimestamp(dateStr: Date | string | null | undefined) {
   if (!dateStr) return "-"
@@ -69,10 +68,8 @@ export default function UsersPage() {
   const router = useRouter()
   const { debouncedSearch } = useAdminSearch()
   const [page, setPage] = useState(1)
-  const [formOpen, setFormOpen] = useState(false)
-  const [selectedUser, setSelectedUser] = useState<User | null>(null)
 
-  const { data, loading, refetch } = useUsers({
+  const { data, loading } = useUsers({
     page,
     limit: 15,
     search: debouncedSearch,
@@ -87,8 +84,7 @@ export default function UsersPage() {
   }
 
   function handleAdd() {
-    setSelectedUser(null)
-    setFormOpen(true)
+    router.push("/admin/users/add")
   }
 
   const users = data?.data ?? []
@@ -232,12 +228,6 @@ export default function UsersPage() {
         <span className="sr-only">Tambah Pengguna</span>
       </Button>
 
-      <UsersFormModal
-        open={formOpen}
-        onOpenChange={setFormOpen}
-        user={selectedUser}
-        onSuccess={refetch}
-      />
     </div>
   )
 }

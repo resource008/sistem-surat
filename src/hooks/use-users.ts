@@ -113,6 +113,7 @@ export function useUserActions(onSuccess?: () => void) {
       username: string
       password: string
       role:     string
+      permissions?: Partial<UserPermissions>
     }) => {
       setLoading(true)
       try {
