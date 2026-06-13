@@ -1,4 +1,4 @@
-name: Validasi Kode - CI
+name: Validasi Kode
 
 on:
   push:
