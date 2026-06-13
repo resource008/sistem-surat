@@ -1,33 +1,26 @@
-# === STAGE 1: Base Image ===
-FROM node:22-alpine AS base
+FROM node:22-alpine
 RUN apk add --no-cache openssl
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
+
+# 1. Salin berkas package manager
 COPY package.json package-lock.json ./
 
-# === STAGE 2: Dependencies ===
-FROM base AS deps
+# 2. Instal semua dependensi (termasuk Prisma CLI)
 RUN npm ci --legacy-peer-deps
 
-# === STAGE 3: Builder (Kompilasi Kode) ===
-FROM base AS builder
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
-# SOLUSI: Pastikan modul prisma CLI tersedia dan siap dieksekusi
-RUN npm install prisma --legacy-peer-deps
+# 3. Salin folder prisma secara spesifik agar skema wajib terbaca
+COPY prisma ./prisma/
+
+# 4. Generate Prisma Client sebelum kompilasi Next.js
 RUN npx prisma generate
+
+# 5. Salin sisa kode proyek dan build aplikasi
+COPY . .
 RUN npm run build
 
-# === STAGE 4: Production Runner (Lingkungan Staging/Prod) ===
-FROM base AS runner
+EXPOSE 3001
 ENV NODE_ENV=production
 ENV PORT=3001
-
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/public ./public
-
-EXPOSE 3001
 
 CMD ["npm", "run", "start"]
