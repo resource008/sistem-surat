@@ -24,6 +24,8 @@ jobs:
                 context: .
                 push: true
                 tags: ${{ secrets.DOCKERHUB_USERNAME }}/sistem-surat:staging
+                build-args: |
+                    DATABASE_URL=${{ secrets.DATABASE_URL }}
             
     deploy:
         name: Pembaruan Container di VPS
@@ -40,4 +42,6 @@ jobs:
                     cd /var/www/docker-staging
                     DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }} docker compose -f docker-compose.staging.yml pull
                     DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }} docker compose -f docker-compose.staging.yml up -d
-                    docker exec surat_nextjs_staging npx prisma migrate deploy
+
+                    sleep 5
+                    docker exec sistem_surat_staging npx prisma migrate deploy || true

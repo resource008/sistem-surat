@@ -1,17 +1,21 @@
-# syntax=docker/dockerfile:1
-
-FROM node:22-alpine AS base
+FROM node:22-alpine
 RUN apk add --no-cache openssl
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
+
 COPY package.json package-lock.json ./
 
-FROM base AS deps
 RUN npm ci --legacy-peer-deps
 
-FROM base AS development
-ENV NODE_ENV=development
-COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+ARG DATABASE_URL
+ENV DATABASE_URL=$DATABASE_URL
+
+RUN npx prisma generate
+RUN npm run build
+
 EXPOSE 3001
-CMD ["sh", "./docker/dev-entrypoint.sh"]
+ENV NODE_ENV=production
+ENV PORT=3001
+
+CMD ["npm", "run", "start"]
