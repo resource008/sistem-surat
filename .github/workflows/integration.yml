@@ -1,13 +1,14 @@
-# =============================================================
-# Workflow: CI — Validasi Code
-# Berjalan setiap kali ada Pull Request baru.
-# Mengecek apakah ada error pada code.
-# =============================================================
-
-name: ✅ CI - Validasi Code
+name: Validasi Code
 
 on:
+  push:
+    branches:
+      -staging
+      - main
+  
   pull_request:
+    branches:
+      - main
 
 jobs:
   validate:
@@ -15,35 +16,35 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DATABASE_URL: "postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@localhost:5432/${{ secrets.POSTGRES_DB }}"
       BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
-      BETTER_AUTH_URL: ${{ secrets.BETTER_AUTH_URL }}
-
+      BETTER_AUTH_URL: "http://localhost:3001"
+    
     steps:
-      - name: 📥 Checkout branch
-        uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v6
 
-      - name: ⚙️ Setup Node.js 22
-        uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
         with:
           node-version: '22'
+          cache: 'npm'
 
-      - name: 📦 Install dependencies
-        run: npm ci --legacy-peer-deps
+      - name: Install dependencies
+        run: npm ci
 
-      - name: 🔎 Lint check
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: Periksa code dengan ESLint
         run: npm run lint
 
-      - name: 🔎 TypeScript type check
+      - name: Periksa dengan TypeScript
         run: npx tsc --noEmit
 
-      - name : Debug config files
-        run: |
-          ls -la | grep next.config
-          find . -name "next.config.*" -not -path "*/node_modules/*" 
-          
-      - name: 🏗️ Build Next.js
+      - name: Build aplikasi Next.js
         run: npm run build
 
-      - name: ✅ Semua pengecekan lolos
-        run: echo "🎉 Tidak ada error — PR siap untuk di-review."
+      - name: Pengecekan berhasil
+        run: echo "Semua pengecekan berhasil! Tidak ada error yang ditemukan. Kode siap untuk di merge ke main."
+
