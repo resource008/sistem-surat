@@ -39,5 +39,5 @@ jobs:
                 script: |
                     cd /var/www/docker-staging
                     docker compose -f docker-compose.staging.yml pull
+                    docker compose -f docker-compose.staging.yml up 0d
                     DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }} docker compose -f docker-compose.staging.yml up -d
-                    docker exec surat_nextjs_staging npx prisma migrate deploy
