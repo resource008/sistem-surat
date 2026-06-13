@@ -13,7 +13,8 @@ RUN npm ci --legacy-peer-deps
 FROM base AS builder
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-# Generate Prisma Client sebelum melakukan build Next.js
+# SOLUSI: Pastikan modul prisma CLI tersedia dan siap dieksekusi
+RUN npm install prisma --legacy-peer-deps
 RUN npx prisma generate
 RUN npm run build
 
@@ -22,7 +23,6 @@ FROM base AS runner
 ENV NODE_ENV=production
 ENV PORT=3001
 
-# Salin hasil kompilasi produksi murni
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/prisma ./prisma
@@ -30,5 +30,4 @@ COPY --from=builder /app/public ./public
 
 EXPOSE 3001
 
-# Perintah jalannya langsung menggunakan server produksi murni Next.js
 CMD ["npm", "run", "start"]
