@@ -26,9 +26,9 @@ interface StatistikSuratCardProps {
   departments: SuratPerDepartemen[]
   statistik: StatistikSurat
   selectedDeptId: string
-  selectedTipeWaktu: TipeWaktuStatistik
+  selectedTipeWaktu: TipeWaktuStatistik | ""
   onDeptChange: (deptId: string) => void
-  onTipeWaktuChange: (tipeWaktu: TipeWaktuStatistik) => void
+  onTipeWaktuChange: (tipeWaktu: TipeWaktuStatistik | "") => void
 }
 
 export function StatistikSuratCard({
@@ -52,17 +52,17 @@ export function StatistikSuratCard({
 
   return (
     <section className="space-y-3">
-      {/* Header: judul kiri, dropdown kanan — selalu horizontal */}
-      <div className="flex items-center justify-between gap-3">
+      {/* Header responsif agar dropdown tidak terpotong di area konten sempit */}
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <h2 className="whitespace-nowrap text-base font-semibold tracking-normal">
           Statistik Surat
         </h2>
-        <div className="flex shrink-0 gap-1.5">
+        <div className="grid w-full grid-cols-1 gap-2 sm:grid-cols-2 lg:w-auto">
           <Select
             value={selectedDepartment?.departemenId ?? ""}
             onValueChange={onDeptChange}
           >
-            <SelectTrigger className="h-8 w-36 text-xs sm:w-40">
+            <SelectTrigger className="h-9 w-full min-w-0 justify-between text-xs sm:min-w-44 lg:w-44">
               <SelectValue placeholder="Pilih Departemen" />
             </SelectTrigger>
             <SelectContent>
@@ -82,8 +82,8 @@ export function StatistikSuratCard({
             value={selectedTipeWaktu}
             onValueChange={(value) => onTipeWaktuChange(value as TipeWaktuStatistik)}
           >
-            <SelectTrigger className="h-8 w-36 text-xs sm:w-40">
-              <SelectValue placeholder="Pilih Tipe Waktu" />
+            <SelectTrigger className="h-9 w-full min-w-0 justify-between text-xs sm:min-w-44 lg:w-44">
+              <SelectValue placeholder="Pilih tipe waktu" />
             </SelectTrigger>
             <SelectContent>
               {STATISTIC_TIME_OPTIONS.map((option) => (

@@ -54,11 +54,11 @@ function ActivityCard({
 }: ActivityCardProps) {
   return (
     <Card className={`border-0 bg-gradient-to-br ${gradient} shadow-sm ring-0 dark:shadow-none`}>
-      <CardContent className="flex h-full min-h-[160px] flex-col justify-between p-4 sm:p-5">
-        <div className={`flex size-9 items-center justify-center rounded-xl sm:size-10 ${iconBg}`}>
+      <CardContent className="flex h-full min-h-[160px] flex-col p-4 sm:p-5">
+        <div className={`-mt-1 flex size-9 items-center justify-center rounded-xl sm:size-10 ${iconBg}`}>
           <Icon className={`size-4 sm:size-5 ${iconColor}`} />
         </div>
-        <div className="flex flex-col gap-1">
+        <div className="mt-auto flex translate-y-1 flex-col gap-1 sm:translate-y-1.5">
           <span className="text-2xl font-bold tracking-tight text-white drop-shadow-sm sm:text-3xl">
             {formatNumber(value)}
           </span>

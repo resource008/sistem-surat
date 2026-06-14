@@ -49,7 +49,7 @@ export function AccountDataCard({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-10 max-sm:w-full max-sm:gap-6">
+          <div className="hidden grid-cols-2 gap-10 sm:grid">
             <TimestampBlock title="Diperbarui" value={updated} />
             <TimestampBlock title="Ditambahkan" value={created} />
           </div>

@@ -13,12 +13,12 @@ import { UserActivityTable }       from "./components/user-activity-table"
 
 export default function AdminDashboard() {
   const now = new Date()
-  const [deptId, setDeptId]       = useState(DEFAULT_STATS_DEPT_ID)
-  const [tipeWaktu, setTipeWaktu] = useState<TipeWaktuStatistik>("mingguan")
+  const [deptId, setDeptId]       = useState("")
+  const [tipeWaktu, setTipeWaktu] = useState<TipeWaktuStatistik | "">("")
 
   const params: StatistikFilter = {
-    deptId,
-    tipeWaktu,
+    deptId:    deptId || DEFAULT_STATS_DEPT_ID,
+    tipeWaktu: tipeWaktu || "mingguan",
     bulan: now.getMonth() + 1,
     tahun: now.getFullYear(),
   }
@@ -27,13 +27,13 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     const selectedDeptId = data?.statistikSurat.departemenId
-    if (selectedDeptId && selectedDeptId !== deptId) {
+    if (deptId && selectedDeptId && selectedDeptId !== deptId) {
       setDeptId(selectedDeptId)
     }
   }, [data?.statistikSurat.departemenId, deptId])
 
   return (
-    <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-5 px-4 py-6 sm:px-6">
+    <div className="flex w-full max-w-none flex-col gap-5 pb-6">
       {error ? (
         <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-600 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-400">
           Terjadi kesalahan: {error.message}
@@ -42,8 +42,8 @@ export default function AdminDashboard() {
         <DashboardLoading />
       ) : (
         <>
-          {/* Baris 1: stack di mobile, berdampingan di xl */}
-          <div className="grid grid-cols-1 gap-5 xl:grid-cols-[1fr_1.1fr] xl:items-stretch">
+          {/* Baris 1: stack di layar sedang, berdampingan saat ruang benar-benar cukup */}
+          <div className="grid grid-cols-1 gap-5 2xl:grid-cols-[1fr_1.1fr] 2xl:items-stretch">
 
             <section className="flex flex-col gap-3">
               <h2 className="text-base font-semibold tracking-normal">Aktivitas</h2>

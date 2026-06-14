@@ -5,6 +5,7 @@
 
 import type {
   User,
+  UserRole,
   CreateUserInput,
   UpdateUserInput,
   GetUsersQuery,
@@ -16,6 +17,7 @@ export interface UserRepository {
   findById(id: string): Promise<User | null>
   findByEmail(email: string): Promise<User | null>
   findByUsername(username: string): Promise<User | null>
+  countByRole(role: UserRole): Promise<number>
   create(input: CreateUserInput): Promise<User>
   update(id: string, input: UpdateUserInput): Promise<User>
   delete(id: string): Promise<void>
