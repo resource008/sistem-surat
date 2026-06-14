@@ -4,6 +4,7 @@
 // Tidak ada dependency ke Prisma, fetch, atau framework apapun.
 
 import type { PIItem, SuratItem } from "@/types"
+import { createRandomId } from "@/lib/random-id"
 
 // ─── Business rules ───────────────────────────────────────────────────────────
 
@@ -13,7 +14,7 @@ export const isPIDept = (deptId: string): boolean => deptId === "PI"
 // ─── Empty item factories ─────────────────────────────────────────────────────
 
 export const emptyPIItem = (tujuanDef?: string): PIItem => ({
-  id:           crypto.randomUUID(),
+  id:           createRandomId(),
   namaSupplier: "",
   noInvoice:    "",
   nomorSurat:   "",
@@ -23,7 +24,7 @@ export const emptyPIItem = (tujuanDef?: string): PIItem => ({
 })
 
 export const emptySuratItem = (tujuanDef?: string): SuratItem => ({
-  id:           crypto.randomUUID(),
+  id:           createRandomId(),
   perihal:      "",
   noSurat:      "",
   lampiran:     "",

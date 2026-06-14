@@ -1,3 +1,5 @@
+import { createRandomId } from "@/lib/random-id"
+
 export type Role = "ADMIN" | "STAFF" | "PKL"
 
 // ─── Surat ────────────────────────────────────────────────────────────────────
@@ -32,7 +34,7 @@ export interface SuratItem {
 }
 
 export const EMPTY_SURAT_ITEM = (): SuratItem => ({
-  id:           crypto.randomUUID(),
+  id:           createRandomId(),
   perihal:      "",
   noSurat:      "",
   lampiran:     "",
@@ -74,7 +76,7 @@ export interface PIItem {
 }
 
 export const EMPTY_PI_ITEM = (): PIItem => ({
-  id:           crypto.randomUUID(),
+  id:           createRandomId(),
   namaSupplier: "",
   noInvoice:    "",
   nomorSurat:   "",
