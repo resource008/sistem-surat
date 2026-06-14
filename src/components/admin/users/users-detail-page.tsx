@@ -68,6 +68,23 @@ function PermissionBadge({ active }: { active: boolean }) {
   )
 }
 
+function AccountDateInfo({ user }: { user: User }) {
+  return (
+    <div className="grid grid-cols-2 gap-4 sm:gap-6 sm:text-right">
+      <div className="flex flex-col gap-0.5">
+        <span className="text-xs text-muted-foreground">Diperbarui</span>
+        <span className="text-sm font-medium">{formatDate(user.updatedAt)}</span>
+        <span className="text-xs text-muted-foreground">{formatTime(user.updatedAt)}</span>
+      </div>
+      <div className="flex flex-col gap-0.5">
+        <span className="text-xs text-muted-foreground">Ditambahkan</span>
+        <span className="text-sm font-medium">{formatDate(user.createdAt)}</span>
+        <span className="text-xs text-muted-foreground">{formatTime(user.createdAt)}</span>
+      </div>
+    </div>
+  )
+}
+
 export default function UserDetailPage() {
   const { id } = useParams<{ id: string }>()
   const router = useRouter()
@@ -75,20 +92,44 @@ export default function UserDetailPage() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
   const [deleteOpen, setDeleteOpen] = useState(false)
+  const [adminCount, setAdminCount] = useState<number | null>(null)
 
   useEffect(() => {
-    fetch(`/api/users/${id}`)
-      .then(async (response) => {
+    let active = true
+
+    async function loadUser() {
+      try {
+        const response = await fetch(`/api/users/${id}`)
         const data = await response.json().catch(() => null)
         if (!response.ok) throw new Error(data?.error ?? "Gagal memuat data user")
-        return data
-      })
-      .then((data: User) => {
+
+        if (!active) return
         setUser(data)
+
+        if (data.role === "ADMIN") {
+          const adminResponse = await fetch("/api/users?role=ADMIN&page=1&limit=1")
+          const adminData = await adminResponse.json().catch(() => null)
+          if (adminResponse.ok && active) {
+            setAdminCount(adminData?.meta?.total ?? null)
+          }
+        } else {
+          setAdminCount(null)
+        }
+
         window.dispatchEvent(new CustomEvent("breadcrumb:sub", { detail: "Info Akun" }))
-      })
-      .catch((error) => toast.error(error instanceof Error ? error.message : "Gagal memuat data user"))
-      .finally(() => setLoading(false))
+      } catch (error) {
+        if (active) {
+          toast.error(error instanceof Error ? error.message : "Gagal memuat data user")
+        }
+      } finally {
+        if (active) setLoading(false)
+      }
+    }
+
+    loadUser()
+    return () => {
+      active = false
+    }
   }, [id])
 
   if (loading) {
@@ -110,8 +151,17 @@ export default function UserDetailPage() {
     )
   }
 
+  const isLastAdmin = user.role === "ADMIN" && adminCount !== null && adminCount <= 1
+
   return (
     <div className="flex flex-col gap-4 pb-32">
+      {isLastAdmin && (
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-100">
+          Akun ini adalah satu-satunya admin, jadi tidak bisa diubah atau dihapus.
+          Tambahkan admin lain terlebih dahulu untuk membuka aksi edit dan hapus.
+        </div>
+      )}
+
       <div className="rounded-2xl border border-border/50 bg-background overflow-hidden">
         <div className="flex items-center gap-2.5 px-6 py-4 border-b border-border/50">
           <FileText size={16} className="text-muted-foreground" />
@@ -130,17 +180,8 @@ export default function UserDetailPage() {
               </div>
             </div>
 
-            <div className="flex gap-6 shrink-0">
-              <div className="flex flex-col items-end gap-0.5">
-                <span className="text-xs text-muted-foreground">Diperbarui</span>
-                <span className="text-sm font-medium">{formatDate(user.updatedAt)}</span>
-                <span className="text-xs text-muted-foreground">{formatTime(user.updatedAt)}</span>
-              </div>
-              <div className="flex flex-col items-end gap-0.5">
-                <span className="text-xs text-muted-foreground">Ditambahkan</span>
-                <span className="text-sm font-medium">{formatDate(user.createdAt)}</span>
-                <span className="text-xs text-muted-foreground">{formatTime(user.createdAt)}</span>
-              </div>
+            <div className="hidden shrink-0 gap-6 sm:flex">
+              <AccountDateInfo user={user} />
             </div>
           </div>
 
@@ -179,27 +220,33 @@ export default function UserDetailPage() {
         </div>
       )}
 
-      <div className="fixed bottom-8 right-8 z-50 flex items-center gap-3">
-        <Button
-          size="icon"
-          variant="secondary"
-          onClick={() => setDeleteOpen(true)}
-          className="size-14 rounded-full shadow-lg bg-red-500 text-white hover:bg-red-600"
-          title="Hapus Pengguna"
-        >
-          <Trash2 size={20} />
-          <span className="sr-only">Hapus Pengguna</span>
-        </Button>
-        <Button
-          size="icon"
-          onClick={() => router.push(`/admin/users/${id}/edit`)}
-          className="size-14 rounded-full shadow-lg bg-blue-600 hover:bg-blue-700"
-          title="Edit Pengguna"
-        >
-          <Pencil size={20} className="text-white" />
-          <span className="sr-only">Edit Pengguna</span>
-        </Button>
+      <div className="rounded-2xl border border-border/50 bg-background px-6 py-5 sm:hidden">
+        <AccountDateInfo user={user} />
       </div>
+
+      {!isLastAdmin && (
+        <div className="fixed bottom-8 right-8 z-50 flex items-center gap-3">
+          <Button
+            size="icon"
+            variant="secondary"
+            onClick={() => setDeleteOpen(true)}
+            className="size-14 rounded-full shadow-lg bg-red-500 text-white hover:bg-red-600"
+            title="Hapus Pengguna"
+          >
+            <Trash2 size={20} />
+            <span className="sr-only">Hapus Pengguna</span>
+          </Button>
+          <Button
+            size="icon"
+            onClick={() => router.push(`/admin/users/${id}/edit`)}
+            className="size-14 rounded-full shadow-lg bg-blue-600 hover:bg-blue-700"
+            title="Edit Pengguna"
+          >
+            <Pencil size={20} className="text-white" />
+            <span className="sr-only">Edit Pengguna</span>
+          </Button>
+        </div>
+      )}
 
       <UsersDelete
         open={deleteOpen}

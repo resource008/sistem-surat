@@ -54,6 +54,13 @@ export class UserUseCases {
     const existing = await this.repo.findById(id)
     if (!existing) throw new AppError(404, "User tidak ditemukan")
 
+    if (existing.role === "ADMIN") {
+      const adminCount = await this.repo.countByRole("ADMIN")
+      if (adminCount <= 1) {
+        throw new AppError(400, "Akun admin terakhir tidak bisa diubah")
+      }
+    }
+
     // Cek duplikat username (hanya jika berubah)
     if (input.username && input.username !== existing.username) {
       const dup = await this.repo.findByUsername(input.username)
@@ -83,6 +90,13 @@ export class UserUseCases {
 
     const existing = await this.repo.findById(id)
     if (!existing) throw new AppError(404, "User tidak ditemukan")
+
+    if (existing.role === "ADMIN") {
+      const adminCount = await this.repo.countByRole("ADMIN")
+      if (adminCount <= 1) {
+        throw new AppError(400, "Akun admin terakhir tidak bisa dihapus")
+      }
+    }
 
     return this.repo.delete(id)
   }

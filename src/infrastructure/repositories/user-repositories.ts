@@ -6,6 +6,7 @@ import { getDefaultPermission } from "@/lib/permission"
 import type { Role } from "@/types"
 import type {
   User,
+  UserRole,
   CreateUserInput,
   UpdateUserInput,
   GetUsersQuery,
@@ -141,6 +142,10 @@ export class PrismaUserRepository implements UserRepository {
     })
     if (!user) return null
     return mapUser(user)
+  }
+
+  async countByRole(role: UserRole): Promise<number> {
+    return prisma.user.count({ where: { role } })
   }
 
   async create(input: CreateUserInput): Promise<User> {

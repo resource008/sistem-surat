@@ -4,10 +4,27 @@ import { Loader2 } from "lucide-react"
 import { AccountActions } from "@/components/role-dashboard/account/account-actions"
 import { AccountDataCard } from "@/components/role-dashboard/account/account-data-card"
 import { PermissionsPanel } from "@/components/role-dashboard/account/permissions-panel"
+import { TimestampBlock } from "@/components/role-dashboard/account/timestamp-block"
 import { useAccountPage } from "@/components/role-dashboard/account/use-account-page"
+import type { FormattedDateTime } from "@/components/role-dashboard/account/types"
 
 type AccountPageProps = {
   readOnly?: boolean
+}
+
+function MobileTimestampCard({
+  created,
+  updated,
+}: {
+  created: FormattedDateTime
+  updated: FormattedDateTime
+}) {
+  return (
+    <div className="mt-5 grid grid-cols-2 gap-4 rounded-[20px] border border-border bg-transparent px-5 py-5 sm:hidden">
+      <TimestampBlock title="Diperbarui" value={updated} />
+      <TimestampBlock title="Ditambahkan" value={created} />
+    </div>
+  )
 }
 
 export function AccountPage({ readOnly = false }: AccountPageProps) {
@@ -54,6 +71,8 @@ export function AccountPage({ readOnly = false }: AccountPageProps) {
       />
 
       <PermissionsPanel user={user} />
+
+      <MobileTimestampCard created={created} updated={updated} />
 
       {!readOnly && (
         <AccountActions

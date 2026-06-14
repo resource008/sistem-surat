@@ -2,7 +2,7 @@ export function DashboardLoading() {
   return (
     <div className="flex flex-col gap-5">
       {/* Baris 1 */}
-      <div className="grid grid-cols-1 gap-5 xl:grid-cols-[1fr_1.1fr]">
+      <div className="grid grid-cols-1 gap-5 2xl:grid-cols-[1fr_1.1fr]">
         <div className="flex flex-col gap-3">
           <div className="h-5 w-24 animate-pulse rounded-md bg-muted" />
           <div className="grid grid-cols-2 gap-2.5">

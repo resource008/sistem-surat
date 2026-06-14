@@ -83,6 +83,7 @@ export default function UserEditPage() {
   const [loading, setLoading] = useState(true)
   const [saving,  setSaving]  = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+  const [adminCount, setAdminCount] = useState<number | null>(null)
 
   const [form, setForm] = useState({
     name:     "",
@@ -101,9 +102,15 @@ export default function UserEditPage() {
   })
 
   useEffect(() => {
-    fetch(`/api/users/${id}`)
-      .then(r => r.json())
-      .then((data: User) => {
+    let active = true
+
+    async function loadUser() {
+      try {
+        const response = await fetch(`/api/users/${id}`)
+        const data = await response.json().catch(() => null)
+        if (!response.ok) throw new Error(data?.error ?? "Gagal memuat data user")
+        if (!active) return
+
         setUser(data)
         setForm({
           name:     data.name,
@@ -119,13 +126,39 @@ export default function UserEditPage() {
           canPrint:  data.permissions?.canPrint  ?? false,
           canTrack:  data.permissions?.canTrack  ?? false,
         })
+
+        if (data.role === "ADMIN") {
+          const adminResponse = await fetch("/api/users?role=ADMIN&page=1&limit=1")
+          const adminData = await adminResponse.json().catch(() => null)
+          if (adminResponse.ok && active) {
+            setAdminCount(adminData?.meta?.total ?? null)
+          }
+        } else {
+          setAdminCount(null)
+        }
+
         window.dispatchEvent(new CustomEvent("breadcrumb:sub", { detail: "Edit Akun" }))
-      })
-      .catch(() => toast.error("Gagal memuat data user"))
-      .finally(() => setLoading(false))
+      } catch (error) {
+        if (active) {
+          toast.error(error instanceof Error ? error.message : "Gagal memuat data user")
+        }
+      } finally {
+        if (active) setLoading(false)
+      }
+    }
+
+    loadUser()
+    return () => {
+      active = false
+    }
   }, [id])
 
   async function handleSave() {
+    if (user?.role === "ADMIN" && adminCount !== null && adminCount <= 1) {
+      toast.error("Akun admin terakhir tidak bisa diubah")
+      return
+    }
+
     if (!form.name.trim()) { toast.error("Nama lengkap wajib diisi"); setSaving(false); return }
     if (!form.username.trim()) { toast.error("Nama pengguna wajib diisi"); setSaving(false); return }
     if (!form.email.trim()) { toast.error("Email wajib diisi"); setSaving(false); return }
@@ -174,8 +207,16 @@ export default function UserEditPage() {
     </div>
   )
 
+  const isLastAdmin = user.role === "ADMIN" && adminCount !== null && adminCount <= 1
+
   return (
     <div className="flex flex-col gap-4 pb-32">
+      {isLastAdmin && (
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-100">
+          Akun ini adalah satu-satunya admin, jadi data akun tidak bisa diubah.
+          Tambahkan admin lain terlebih dahulu jika akun ini perlu diedit.
+        </div>
+      )}
 
       <div className="rounded-2xl border border-border/50 bg-background overflow-hidden">
         <div className="flex items-center gap-2.5 px-6 py-4 border-b border-border/50">
@@ -204,6 +245,7 @@ export default function UserEditPage() {
               <Input
                 value={form.name}
                 onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                disabled={isLastAdmin}
                 className="rounded-xl h-10 text-sm"
               />
             </div>
@@ -212,6 +254,7 @@ export default function UserEditPage() {
               <Input
                 value={form.username}
                 onChange={e => setForm(f => ({ ...f, username: e.target.value }))}
+                disabled={isLastAdmin}
                 className="rounded-xl h-10 text-sm"
                 autoComplete="new-password"
               />
@@ -222,13 +265,18 @@ export default function UserEditPage() {
                 type="email"
                 value={form.email}
                 onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+                disabled={isLastAdmin}
                 className="rounded-xl h-10 text-sm"
                 autoComplete="off"
               />
             </div>
             <div className="flex flex-col gap-1.5">
               <Label className="text-xs text-muted-foreground">Role</Label>
-              <Select value={form.role} onValueChange={v => setForm(f => ({ ...f, role: v }))}>
+              <Select
+                value={form.role}
+                onValueChange={v => setForm(f => ({ ...f, role: v }))}
+                disabled={isLastAdmin}
+              >
                 <SelectTrigger className="rounded-xl h-10 text-sm">
                   <SelectValue />
                 </SelectTrigger>
@@ -247,6 +295,7 @@ export default function UserEditPage() {
                     type={showPassword ? "text" : "password"}
                     value={form.password}
                     onChange={e => setForm(f => ({ ...f, password: e.target.value }))}
+                    disabled={isLastAdmin}
                     placeholder="Kosongkan jika tidak ingin mengubah password"
                     className="h-10 rounded-xl pr-11 text-sm"
                     autoComplete="new-password"
@@ -254,6 +303,7 @@ export default function UserEditPage() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(v => !v)}
+                    disabled={isLastAdmin}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
                     title={showPassword ? "Sembunyikan password" : "Lihat password"}
                   >
@@ -268,6 +318,7 @@ export default function UserEditPage() {
                     setForm(f => ({ ...f, password: nextPassword }))
                     setShowPassword(true)
                   }}
+                  disabled={isLastAdmin}
                   className="h-10 gap-2 rounded-xl text-sm"
                 >
                   <Shuffle size={14} /> Generate
@@ -319,7 +370,7 @@ export default function UserEditPage() {
             <X size={14} /> Batal
           </Button>
           <Button
-            disabled={saving}
+            disabled={saving || isLastAdmin}
             onClick={handleSave}
             className="gap-2 h-10 px-5 rounded-xl text-[13px] font-semibold
                        bg-blue-600 hover:bg-blue-700 text-white"
