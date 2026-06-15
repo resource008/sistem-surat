@@ -45,3 +45,4 @@ jobs:
 
                     sleep 5
                     docker exec sistem_surat_staging npx prisma migrate deploy || true
+                    docker image prune -f
