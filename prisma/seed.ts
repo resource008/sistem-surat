@@ -3,6 +3,7 @@ import { scryptAsync } from "@noble/hashes/scrypt.js"
 import { bytesToHex, randomBytes } from "@noble/hashes/utils.js"
 import { PrismaPg } from "@prisma/adapter-pg"
 import 'dotenv/config'
+import { randomUUID } from "node:crypto"
 import { Pool } from "pg"
 import { PrismaClient, Role } from "../src/generated/prisma"
 
@@ -32,7 +33,7 @@ async function main() {
 
     const user = await prisma.user.create({
       data: {
-        id:            crypto.randomUUID(),
+        id:            randomUUID(),
         name:          u.name,
         email:         u.email,
         username:      u.username,
@@ -42,7 +43,7 @@ async function main() {
     })
     await prisma.account.create({
       data: {
-        id:         crypto.randomUUID(),
+        id:         randomUUID(),
         accountId:  user.id,
         providerId: "credential",
         userId:     user.id,

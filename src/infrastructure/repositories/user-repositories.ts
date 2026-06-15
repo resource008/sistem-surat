@@ -1,6 +1,7 @@
 import { prisma }              from "@/infrastructure/databases/prisma-client"
 import { scryptAsync }         from "@noble/hashes/scrypt.js"
 import { randomBytes, bytesToHex } from "@noble/hashes/utils.js"
+import { randomUUID }          from "node:crypto"
 import type { UserRepository } from "@/domain/user/repositories"
 import { getDefaultPermission } from "@/lib/permission"
 import type { Role } from "@/types"
@@ -157,7 +158,7 @@ export class PrismaUserRepository implements UserRepository {
 
     const user = await prisma.user.create({
       data: {
-        id:            crypto.randomUUID(),
+        id:            randomUUID(),
         name:          input.name,
         email:         input.email,
         username:      input.username,
@@ -168,8 +169,8 @@ export class PrismaUserRepository implements UserRepository {
         },
         accounts: {
           create: {
-            id:         crypto.randomUUID(),
-            accountId:  crypto.randomUUID(),
+            id:         randomUUID(),
+            accountId:  randomUUID(),
             providerId: "credential",
             password:   hashedPassword,
           },
