@@ -11,6 +11,7 @@ function toIso(value: unknown) {
 
 function serializePI(row: Record<string, unknown>) {
   const dept = row.dept as Record<string, unknown> | undefined
+  const deptShortName = String(dept?.shortName ?? row.deptId)
 
   return {
     id:            Number(row.id),
@@ -20,14 +21,14 @@ function serializePI(row: Record<string, unknown>) {
     asalSurat:     String(row.asalSurat ?? ""),
     dept: {
       id:        String(dept?.id ?? row.deptId),
-      shortName: String(dept?.shortName ?? row.deptId),
+      shortName: deptShortName,
     },
     detailPI: (row.detailPI as Record<string, unknown>[]).map((detail) => ({
       id:           Number(detail.id),
       namaSupplier: String(detail.namaSupplier ?? ""),
       noInvoice:    detail.noInvoice  === null || detail.noInvoice  === undefined ? null : String(detail.noInvoice),
       nomorSurat:   detail.nomorSurat === null || detail.nomorSurat === undefined ? null : String(detail.nomorSurat),
-      tujuan:       detail.tujuan     === null || detail.tujuan     === undefined ? null : String(detail.tujuan),
+      tujuan:       deptShortName,
       cc:           detail.cc         === null || detail.cc         === undefined ? null : String(detail.cc),
       tanggalSurat: toIso(detail.tanggalSurat),
     })),
