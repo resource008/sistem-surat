@@ -40,7 +40,7 @@ export async function GET(_req: NextRequest, { params }: Params) {
 
     const data = await fetchSuratById(numId, dept)
     if (!data) {
-      return NextResponse.json({ error: "Data tidak ditemukan" }, { status: 404 })
+      return NextResponse.json({ message: "Data tidak ditemukan" }, { status: 404 })
     }
 
     return NextResponse.json(data)
@@ -73,8 +73,8 @@ export async function PATCH(req: NextRequest, { params }: Params) {
       return NextResponse.json({ error: result.error.flatten() }, { status: 422 })
     }
 
-    const updated = await editSurat(numId, dept, result.data)
-    return NextResponse.json(updated)
+    await editSurat(numId, dept, result.data)
+    return NextResponse.json({ message: "Data surat berhasil diubah" })
 
   } catch (error) {
     if (error instanceof AppError) {
@@ -82,7 +82,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     }
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === "P2025") {
-        return NextResponse.json({ error: "Data tidak ditemukan" }, { status: 404 })
+        return NextResponse.json({ message: "Data tidak ditemukan" }, { status: 404 })
       }
     }
     if (error instanceof Error) {
@@ -105,7 +105,7 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
     }
 
     await removeSurat(numId, dept)
-    return NextResponse.json({ success: true })
+    return NextResponse.json({ message: "Data surat berhasil dihapus" })
 
   } catch (error) {
     if (error instanceof AppError) {
@@ -113,7 +113,7 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
     }
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === "P2025") {
-        return NextResponse.json({ error: "Data tidak ditemukan" }, { status: 404 })
+        return NextResponse.json({ message: "Data tidak ditemukan" }, { status: 404 })
       }
     }
     if (error instanceof Error) {
