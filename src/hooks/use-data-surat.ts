@@ -124,7 +124,7 @@ export function useDataSurat(printPath: string) {
     (acc: Record<string, RegisterSurat[]>, reg) => {
       const formatted = safeFormat(reg.tanggalTerima, "dd MMMM yyyy")
       const dateKey   = formatted ? formatted.toUpperCase() : "TANPA TANGGAL"
-      const groupKey  = `${dateKey}|||${reg.deptId}`
+      const groupKey  = `${dateKey}|||${reg.deptId}|||${reg.dept.shortName}`
       if (!acc[groupKey]) acc[groupKey] = []
       acc[groupKey].push(reg)
       return acc

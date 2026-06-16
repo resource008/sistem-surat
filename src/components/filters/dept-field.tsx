@@ -1,13 +1,12 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { Check } from "lucide-react"
 
-// ← Sesuaikan dengan DEPT_LIST di _types.ts
-const DEPARTMENTS = [
-  "HRD", "ENG", "IAD", "BPA", "GIS", "SND",
-  "MD", "PS", "FAD", "ITD", "ESD", "LCA",
-  "SMD", "ERP", "CID", "MED",
-]
+type DepartmentOption = {
+  id: string
+  shortName: string
+}
 
 interface DeptFieldProps {
   selected: string[]
@@ -16,20 +15,88 @@ interface DeptFieldProps {
 }
 
 export function DeptField({ selected, onToggle, maxHeight = 200 }: DeptFieldProps) {
-  const allSelected = DEPARTMENTS.every(d => selected.includes(d))
+  const [departments, setDepartments] = useState<DepartmentOption[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  function handleToggleAll() {
-    if (allSelected) {
-      // deselect semua
-      DEPARTMENTS.forEach(d => {
-        if (selected.includes(d)) onToggle(d)
-      })
-    } else {
-      // select semua yang belum terpilih
-      DEPARTMENTS.forEach(d => {
-        if (!selected.includes(d)) onToggle(d)
-      })
+  useEffect(() => {
+    let ignore = false
+
+    async function loadDepartments() {
+      setLoading(true)
+      setError(null)
+      try {
+        const res = await fetch("/api/dept")
+        const json = await res.json().catch(() => null)
+        if (!res.ok) throw new Error(json?.error ?? "Gagal mengambil departemen")
+        if (!ignore) setDepartments(Array.isArray(json) ? json : [])
+      } catch (err) {
+        if (!ignore) {
+          setError(err instanceof Error ? err.message : "Gagal mengambil departemen")
+        }
+      } finally {
+        if (!ignore) setLoading(false)
+      }
     }
+
+    loadDepartments()
+    return () => {
+      ignore = true
+    }
+  }, [])
+
+  function getSelectedValue(dept: DepartmentOption) {
+    if (selected.includes(dept.id)) return dept.id
+    if (selected.includes(dept.shortName)) return dept.shortName
+    return dept.id
+  }
+
+  function isSelected(dept: DepartmentOption) {
+    return selected.includes(dept.id) || selected.includes(dept.shortName)
+  }
+
+  function renderContent() {
+    if (loading) {
+      return (
+        <div className="px-3 py-2 text-[12px] text-muted-foreground">
+          Memuat departemen...
+        </div>
+      )
+    }
+
+    if (error) {
+      return (
+        <div className="px-3 py-2 text-[12px] text-red-500">
+          {error}
+        </div>
+      )
+    }
+
+    if (departments.length === 0) {
+      return (
+        <div className="px-3 py-2 text-[12px] text-muted-foreground">
+          Belum ada departemen
+        </div>
+      )
+    }
+
+    return departments.map((dept) => {
+      const checked = isSelected(dept)
+      return (
+        <button
+          key={dept.id}
+          onClick={() => onToggle(getSelectedValue(dept))}
+          className={`dept-item-tf${checked ? " sel" : ""}`}
+        >
+          <span>{dept.shortName}</span>
+          {checked && (
+            <span style={{ display: "flex", flexShrink: 0 }}>
+              <Check size={14} />
+            </span>
+          )}
+        </button>
+      )
+    })
   }
 
   return (
@@ -65,24 +132,7 @@ export function DeptField({ selected, onToggle, maxHeight = 200 }: DeptFieldProp
           border: "1px solid var(--border)",
         }}
       >
-
-        {DEPARTMENTS.map((dept) => {
-          const isSelected = selected.includes(dept)
-          return (
-            <button
-              key={dept}
-              onClick={() => onToggle(dept)}
-              className={`dept-item-tf${isSelected ? " sel" : ""}`}
-            >
-              <span>{dept}</span>
-              {isSelected && (
-                <span style={{ display: "flex", flexShrink: 0 }}>
-                  <Check size={14} />
-                </span>
-              )}
-            </button>
-          )
-        })}
+        {renderContent()}
       </div>
     </div>
   )
