@@ -182,8 +182,8 @@ export default function UserEditPage() {
         body:    JSON.stringify(body),
       })
       const json = await res.json()
-      if (!res.ok) throw new Error(getApiMessage(json, "Gagal menyimpan"))
-      toast.success(json.message ?? "Data akun berhasil diubah")
+      if (!res.ok) throw new Error(json.error ?? "Gagal menyimpan")
+      toast.success("Berhasil disimpan")
       router.push(`/admin/users/${id}`)
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Gagal menyimpan")
@@ -384,25 +384,4 @@ export default function UserEditPage() {
 
     </div>
   )
-}
-
-function getApiMessage(json: unknown, fallback: string): string {
-  if (typeof json !== "object" || json === null) return fallback
-  const body = json as { message?: unknown; error?: unknown; errors?: unknown }
-  const baseMessage = typeof body.message === "string"
-    ? body.message
-    : typeof body.error === "string"
-      ? body.error
-      : fallback
-
-  if (typeof body.errors === "object" && body.errors !== null) {
-    const details = Object.values(body.errors as Record<string, string[]>)
-      .flat()
-      .filter(Boolean)
-      .join(". ")
-
-    if (details) return `${baseMessage}: ${details}`
-  }
-
-  return baseMessage
 }

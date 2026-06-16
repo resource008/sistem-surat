@@ -8,8 +8,8 @@ import { createRandomId } from "@/lib/random-id"
 
 // ─── Business rules ───────────────────────────────────────────────────────────
 
-/** Satu-satunya tempat yang mendefinisikan departemen mana yang dianggap PI */
-export const isPIDept = (shortName: string): boolean => shortName === "PI"
+/** Satu-satunya tempat yang mendefinisikan dept mana yang dianggap PI */
+export const isPIDept = (deptId: string): boolean => deptId === "PI"
 
 // ─── Empty item factories ─────────────────────────────────────────────────────
 

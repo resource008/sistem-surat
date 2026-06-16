@@ -10,7 +10,6 @@ export interface DetailSurat {
   perihal:      string
   noSurat:      string | null
   lampiran:     string | null
-  tujuan:       string | null
   tanggalSurat: string
 }
 

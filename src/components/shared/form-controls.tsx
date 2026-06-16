@@ -16,7 +16,7 @@ import {
 import { cn } from "@/lib/utils"
 
 export const inputClass = cn(
-  "w-full rounded-lg px-3 py-2 text-[14px] font-medium transition-all duration-200",
+  "w-full rounded-lg px-3 py-2 text-[13px] font-medium transition-all duration-200",
   "border border-slate-200 dark:border-slate-800",
   "bg-white dark:bg-slate-950",
   "text-slate-800 dark:text-slate-200",
@@ -26,7 +26,7 @@ export const inputClass = cn(
 )
 
 export const readonlyClass = cn(
-  "w-full rounded-lg px-3 py-2 text-[14px] font-medium",
+  "w-full rounded-lg px-3 py-2 text-[13px] font-medium",
   "border border-slate-100 dark:border-slate-800/60",
   "bg-slate-50 dark:bg-slate-900/50",
   "text-slate-400 dark:text-slate-500",
@@ -59,7 +59,7 @@ export function DatePicker({
           variant="outline"
           disabled={disabled}
           className={cn(
-            "h-9 w-full justify-start px-3 text-left text-[14px] font-normal",
+            "h-9 w-full justify-start px-3 text-left text-[13px] font-normal",
             "text-slate-800 dark:text-slate-200",
             !value && "text-slate-400 dark:text-slate-500",
             hasError &&
@@ -110,7 +110,7 @@ export function FormField({
       <div className="flex items-center gap-1.5">
         <Label
           className={cn(
-            "cursor-default text-[12px] font-medium",
+            "cursor-default text-[10px] font-medium uppercase tracking-wider",
             error
               ? "text-red-500 dark:text-red-400"
               : "text-slate-500 dark:text-slate-400"
@@ -119,19 +119,19 @@ export function FormField({
           {label}
         </Label>
         {optional ? (
-          <span className="text-[12px] font-normal text-slate-400">
+          <span className="text-[10px] font-normal normal-case text-slate-400">
             (opsional)
           </span>
         ) : null}
         {hint ? (
-          <span className="text-[12px] font-normal text-blue-500">
+          <span className="text-[10px] font-normal normal-case text-blue-500">
             {hint}
           </span>
         ) : null}
       </div>
       {children}
       {error ? (
-        <p className="text-[12px] font-medium leading-none text-red-500 dark:text-red-400">
+        <p className="text-[11px] font-medium leading-none text-red-500 dark:text-red-400">
           {error}
         </p>
       ) : null}

@@ -42,9 +42,8 @@ export function useTambahSurat(basePath: string) {
   const [suratList,     setSuratList]     = useState<SuratItem[]>([emptySuratItem()])
 
   // ── Derived ───────────────────────────────────────────────────────────────
-  const isPI         = isPIDept(deptList.find(d => d.id === deptId)?.shortName ?? "")
+  const isPI         = isPIDept(deptId)
   const selectedDept = deptList.find(d => d.id === deptId)
-  const selectedTujuan = selectedDept?.shortName ?? ""
   const itemCount    = isPI ? piList.length : suratList.length
   const itemLabel    = isPI ? "Invoice" : "Surat"
 
@@ -66,9 +65,9 @@ export function useTambahSurat(basePath: string) {
 
   useEffect(() => {
     if (!selectedDept) return
-    if (isPI) setPiList(prev => applyTujuanToPIList(prev, selectedTujuan))
-    else setSuratList(prev => applyTujuanToSuratList(prev, selectedTujuan))
-  }, [deptId, selectedDept, selectedTujuan, isPI])
+    if (isPI) setPiList(prev => applyTujuanToPIList(prev, selectedDept.tujuan))
+    else setSuratList(prev => applyTujuanToSuratList(prev, selectedDept.tujuan))
+  }, [deptId, selectedDept, isPI])
 
   useEffect(() => {
     if (!deptId) { setPreviewNomor(null); return }
@@ -85,13 +84,13 @@ export function useTambahSurat(basePath: string) {
     setAsalSurat,
 
     // PI Actions
-    addPI:      () => setPiList(prev => [...prev, emptyPIItem(selectedTujuan)]),
+    addPI:      () => setPiList(prev => [...prev, emptyPIItem(selectedDept?.tujuan)]),
     removePI:   (id: string) => setPiList(prev => prev.filter(p => p.id !== id)),
     updatePI:   (id: string, field: keyof Omit<PIItem, "id">, value: string) =>
       setPiList(prev => prev.map(p => p.id === id ? { ...p, [field]: value } : p)),
 
     // Surat Actions
-    addSurat:    () => setSuratList(prev => [...prev, emptySuratItem(selectedTujuan)]),
+    addSurat:    () => setSuratList(prev => [...prev, emptySuratItem(selectedDept?.tujuan)]),
     removeSurat: (id: string) => setSuratList(prev => prev.filter(s => s.id !== id)),
     updateSurat: (id: string, field: keyof Omit<SuratItem, "id">, value: string) =>
       setSuratList(prev => prev.map(s => s.id === id ? { ...s, [field]: value } : s)),
@@ -126,7 +125,7 @@ export function useTambahSurat(basePath: string) {
       try {
         const payload = buildCreatePayload({
           deptId, asalSurat,
-          tujuan:        selectedTujuan,
+          tujuan:        selectedDept?.tujuan || "",
           tanggalTerima, isPIDept: isPI,
           piList, suratList,
         })

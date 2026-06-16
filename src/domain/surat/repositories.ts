@@ -5,7 +5,6 @@ import type { RegisterSurat, RegisterPI }                          from "@/types
 
 export type SuratResult = RegisterSurat | RegisterPI
 export type PaginatedResult<T> = { data: T[]; hasMore: boolean }
-type SaveSuratResponse = { message: string; id: number }
 
 // ─── Interface ────────────────────────────────────────────────────────────────
 
@@ -59,8 +58,8 @@ export async function fetchSuratById(dept: string, id: string): Promise<SuratRes
   )
 }
 
-export async function saveSurat(payload: CreateSuratPayload): Promise<SaveSuratResponse> {
-  return apiFetch<SaveSuratResponse>("/api/surat", {
+export async function saveSurat(payload: CreateSuratPayload): Promise<SuratResult> {
+  return apiFetch<SuratResult>("/api/surat", {
     method:  "POST",
     headers: { "Content-Type": "application/json" },
     body:    JSON.stringify(payload),

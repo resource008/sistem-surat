@@ -13,12 +13,12 @@ export function Field({ label, value, placeholder = "Tidak diisi", fullWidth, mo
 
   return (
     <div className={fullWidth ? "col-span-full" : ""}>
-      <p className="text-[12px] font-medium
+      <p className="text-[11px] font-semibold uppercase tracking-wider
                     text-slate-400 dark:text-slate-500 mb-1.5">
         {label}
       </p>
       <div className={cn(
-        "rounded-xl border px-3.5 py-2.5 text-[14px] min-h-[38px]",
+        "rounded-xl border px-3.5 py-2.5 text-[13px] min-h-[38px]",
         "border-slate-200 dark:border-slate-800",
         "bg-white dark:bg-slate-950",
         mono && !isEmpty && "font-mono",

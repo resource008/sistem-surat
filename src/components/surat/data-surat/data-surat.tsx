@@ -79,7 +79,7 @@ function DataSuratInner({ basePath, printPath }: Props) {
   return (
     <div className="w-full animate-in fade-in duration-500 flex flex-col gap-3 pb-24">
       {state.sortedGroupKeys.map((groupKey) => {
-        const [date,, dept] = groupKey.split("|||")
+        const [date, dept] = groupKey.split("|||")
         const registers    = state.groupedData[groupKey]
 
         return (

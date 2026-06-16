@@ -9,28 +9,13 @@ import type { RegisterSurat, RegisterPI }                      from "@/types"
 // ─── Serializer: Date → string agar cocok dengan type RegisterSurat/RegisterPI ─
 
 function serializeSurat(row: Record<string, unknown>): RegisterSurat {
-  const dept = row.dept as Record<string, unknown> | undefined
-  const deptShortName = String(dept?.shortName ?? row.deptId)
-
   return {
-    id:            Number(row.id),
-    nomor:         String(row.nomor),
-    deptId:        String(row.deptId),
-    dept: {
-      id:        String(dept?.id ?? row.deptId),
-      shortName: deptShortName,
-    },
-    asalSurat:     String(row.asalSurat ?? ""),
-    tujuan:        deptShortName,
+    ...row,
     tanggalTerima: row.tanggalTerima instanceof Date
       ? row.tanggalTerima.toISOString()
       : String(row.tanggalTerima),
     detailSurat: (row.detailSurat as Record<string, unknown>[])?.map((d) => ({
-      id:       Number(d.id),
-      perihal:  String(d.perihal ?? ""),
-      noSurat:  d.noSurat  === null || d.noSurat  === undefined ? null : String(d.noSurat),
-      lampiran: d.lampiran === null || d.lampiran === undefined ? null : String(d.lampiran),
-      tujuan:   deptShortName,
+      ...d,
       tanggalSurat: d.tanggalSurat instanceof Date
         ? d.tanggalSurat.toISOString()
         : String(d.tanggalSurat),
@@ -39,28 +24,13 @@ function serializeSurat(row: Record<string, unknown>): RegisterSurat {
 }
 
 function serializePI(row: Record<string, unknown>): RegisterPI {
-  const dept = row.dept as Record<string, unknown> | undefined
-  const deptShortName = String(dept?.shortName ?? row.deptId)
-
   return {
-    id:            Number(row.id),
-    nomor:         String(row.nomor),
-    deptId:        String(row.deptId),
-    dept: {
-      id:        String(dept?.id ?? row.deptId),
-      shortName: deptShortName,
-    },
-    asalSurat:     String(row.asalSurat ?? ""),
+    ...row,
     tanggalTerima: row.tanggalTerima instanceof Date
       ? row.tanggalTerima.toISOString()
       : String(row.tanggalTerima),
     detailPI: (row.detailPI as Record<string, unknown>[])?.map((d) => ({
-      id:           Number(d.id),
-      namaSupplier: String(d.namaSupplier ?? ""),
-      noInvoice:    d.noInvoice  === null || d.noInvoice  === undefined ? null : String(d.noInvoice),
-      nomorSurat:   d.nomorSurat === null || d.nomorSurat === undefined ? null : String(d.nomorSurat),
-      tujuan:       deptShortName,
-      cc:           d.cc         === null || d.cc         === undefined ? null : String(d.cc),
+      ...d,
       tanggalSurat: d.tanggalSurat instanceof Date
         ? d.tanggalSurat.toISOString()
         : String(d.tanggalSurat),
@@ -85,12 +55,7 @@ export class SuratRepository implements ISuratRepository {
     const buildWhere = () => {
       const where: Record<string, unknown> = {}
       if (ids?.length)   where.id     = { in: ids }
-      if (depts?.length) {
-        where.OR = [
-          { deptId: { in: depts } },
-          { dept: { is: { shortName: { in: depts } } } },
-        ]
-      }
+      if (depts?.length) where.deptId = { in: depts }
       if (date) {
         const start = new Date(date); start.setHours(0,  0,  0,   0)
         const end   = new Date(date); end.setHours(23, 59, 59, 999)
@@ -143,11 +108,7 @@ export class SuratRepository implements ISuratRepository {
   }
 
   async findByIdAndDept(id: number, dept: string): Promise<SuratResult | null> {
-    const department = await prisma.department.findUnique({
-      where: { id: dept },
-      select: { shortName: true },
-    })
-    if (isPIDept(department?.shortName ?? "")) {
+    if (isPIDept(dept)) {
       const row = await prisma.registerPI.findFirst({
         where:   { id, deptId: dept },
         include: { dept: true, detailPI: true },
@@ -162,12 +123,10 @@ export class SuratRepository implements ISuratRepository {
   }
 
   async create(payload: CreateSuratPayload): Promise<SuratResult> {
-    const { deptId, asalSurat, tanggalTerima, piList, suratList } = payload
+    const { deptId, asalSurat, tanggalTerima, tujuan, isPIDept: isPI, piList, suratList } = payload
 
     const dept = await prisma.department.findUnique({ where: { id: deptId } })
     if (!dept) throw new AppError(404, `Departemen '${deptId}' tidak ditemukan`)
-    const tujuan = dept.shortName
-    const isPI = isPIDept(dept.shortName)
 
     const parsedTanggal = new Date(tanggalTerima)
     if (isNaN(parsedTanggal.getTime())) throw new AppError(400, "Format tanggal tidak valid")
@@ -187,7 +146,7 @@ export class SuratRepository implements ISuratRepository {
                 namaSupplier: p.namaSupplier,
                 noInvoice:    p.noInvoice    ?? null,
                 nomorSurat:   p.nomorSurat   ?? null,
-                tujuan,
+                tujuan:       p.tujuan       ?? null,
                 cc:           p.cc           ?? null,
                 tanggalSurat: new Date(p.tanggalSurat),
               })),
@@ -214,7 +173,7 @@ export class SuratRepository implements ISuratRepository {
               perihal:      s.perihal,
               noSurat:      s.noSurat   ?? null,
               lampiran:     s.lampiran  ?? null,
-              tujuan,
+              tujuan:       s.tujuan    ?? null,
               tanggalSurat: new Date(s.tanggalSurat),
             })),
           },
@@ -226,17 +185,9 @@ export class SuratRepository implements ISuratRepository {
   }
 
   async update(id: number, dept: string, payload: UpdateSuratPayload): Promise<SuratResult> {
-  const { deptId, asalSurat, tanggalTerima, piList, suratList } = payload
-  const nextDeptId = deptId ?? dept
-  const currentDepartment = await prisma.department.findUnique({
-    where: { id: dept },
-    select: { shortName: true },
-  })
-  const department = await prisma.department.findUnique({ where: { id: nextDeptId } })
-  if (!department) throw new AppError(404, `Departemen '${nextDeptId}' tidak ditemukan`)
-  const tujuan = department.shortName
+  const { deptId, asalSurat, tujuan, tanggalTerima, piList, suratList } = payload
 
-  if (isPIDept(currentDepartment?.shortName ?? "")) {
+  if (isPIDept(dept)) {
     return prisma.$transaction(async (tx) => {
       // Generate nomor baru jika dept berubah
       const nomor = deptId && deptId !== dept
@@ -256,7 +207,7 @@ export class SuratRepository implements ISuratRepository {
               namaSupplier: p.namaSupplier,
               noInvoice:    p.noInvoice  ?? null,
               nomorSurat:   p.nomorSurat ?? null,
-              tujuan,
+              tujuan:       p.tujuan     ?? null,
               cc:           p.cc         ?? null,
               tanggalSurat: new Date(p.tanggalSurat),
             })),
@@ -288,7 +239,7 @@ export class SuratRepository implements ISuratRepository {
             perihal:      s.perihal,
             noSurat:      s.noSurat   ?? null,
             lampiran:     s.lampiran  ?? null,
-            tujuan,
+            tujuan:       s.tujuan    ?? null,
             tanggalSurat: new Date(s.tanggalSurat),
           })),
         } : undefined,
@@ -300,12 +251,7 @@ export class SuratRepository implements ISuratRepository {
 }
 
   async delete(id: number, dept: string): Promise<void> {
-    const department = await prisma.department.findUnique({
-      where: { id: dept },
-      select: { shortName: true },
-    })
-
-    if (isPIDept(department?.shortName ?? "")) {
+    if (isPIDept(dept)) {
       await prisma.registerPI.delete({ where: { id } })
     } else {
       await prisma.registerSurat.delete({ where: { id } })
@@ -316,7 +262,7 @@ export class SuratRepository implements ISuratRepository {
     const dept = await prisma.department.findUnique({ where: { id: deptId } })
     if (!dept) throw new Error(`NOT_FOUND: Departemen '${deptId}' tidak ditemukan`)
 
-    const last = isPIDept(dept.shortName)
+    const last = isPIDept(deptId)
       ? await prisma.registerPI.findFirst({
           where:   { deptId },
           orderBy: { nomor: "desc" },

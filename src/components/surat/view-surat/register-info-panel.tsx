@@ -1,7 +1,6 @@
 import { Badge } from "@/components/ui/badge"
 import { Field } from "./field"
 import { RegisterSurat, formatTanggal } from "@/components/surat/shared"
-import { getSuratTujuan } from "@/lib/surat-helpers"
 
 interface Props {
   register: RegisterSurat
@@ -12,15 +11,17 @@ export function RegisterInfoPanel({ register, isPI }: Props) {
   return (
     <div className="w-full lg:w-4/12 xl:w-4/12 flex flex-col gap-4 lg:h-full lg:pb-6">
       <div className="rounded-2xl border border-slate-200 dark:border-slate-800
-                      bg-white dark:bg-slate-950 overflow-hidden
+                      bg-white dark:bg-slate-950 overflow-hidden shadow-sm
                       flex flex-col max-h-full">
 
         {/* Header */}
-        <div className="px-6 py-4 bg-slate-50 dark:bg-slate-900
+        <div className="px-6 py-4 bg-linear-to-r from-slate-50 to-white
+                        dark:from-slate-900 dark:to-slate-950
                         border-b border-slate-200 dark:border-slate-800 shrink-0">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <p className="text-[12px] font-medium text-slate-400 dark:text-slate-500 mb-1">
+              <p className="text-[10px] font-semibold text-slate-400 dark:text-slate-500
+                            uppercase tracking-widest mb-1">
                 Nomor Register
               </p>
               <p className="text-[22px] font-mono font-bold text-slate-800
@@ -28,10 +29,9 @@ export function RegisterInfoPanel({ register, isPI }: Props) {
                 {register.nomor}
               </p>
             </div>
-            <Badge className="text-[12px] font-medium px-2.5 py-0.5 rounded-full
-                              bg-slate-100 dark:bg-slate-800
-                              text-slate-700 dark:text-slate-300
-                              border border-slate-200 dark:border-slate-700 mt-0.5">
+            <Badge className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full
+                              bg-blue-100 dark:bg-blue-900/40
+                              text-blue-700 dark:text-blue-300 border-0 mt-0.5">
               {register.dept.shortName}
             </Badge>
           </div>
@@ -46,7 +46,7 @@ export function RegisterInfoPanel({ register, isPI }: Props) {
             <Field label="Asal Surat" value={register.asalSurat} fullWidth />
             <Field label="Tanggal Terima" value={formatTanggal(register.tanggalTerima)} fullWidth />
             {!isPI && (
-              <Field label="Tujuan" value={getSuratTujuan(register)} fullWidth />
+              <Field label="Tujuan" value={(register as any).tujuan || "-"} fullWidth />
             )}
           </div>
         </div>

@@ -1,7 +1,6 @@
 import type { CetakGroup } from "@/types/surat-types"
 import { format } from "date-fns"
 import { id } from "date-fns/locale"
-import { getSuratTujuan } from "@/lib/surat-helpers"
 
 function esc(str: string | null | undefined): string {
   if (!str) return ""
@@ -74,7 +73,7 @@ function buildRows(groups: CetakGroup[]): string {
               ${esc(detail.noSurat ?? "-")}
             </td>
             <td class="cell-center">
-              ${isFirst ? esc(getSuratTujuan(reg, detail)) : ""}
+              ${isFirst ? esc(reg.tujuan ?? "-") : ""}
             </td>
           </tr>`
 

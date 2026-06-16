@@ -4,7 +4,7 @@ import { Loader2, Plus, Save, X } from "lucide-react"
 
 export function FloatingActionBar({ state, actions }: any) {
   return (
-    <FloatingActionBarShell contentClassName="border-slate-200 bg-white shadow-none backdrop-blur-none dark:border-slate-700 dark:bg-slate-950">
+    <FloatingActionBarShell>
       <Button
         variant="ghost"
         onClick={actions.handleBack}
