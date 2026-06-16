@@ -6,6 +6,16 @@ import { UpdateUserSchema }          from "@/app/validation/user"
 
 type RouteContext = { params: Promise<{ id: string }> }
 
+function validationResponse(fieldErrors: Record<string, string[] | undefined>) {
+  return NextResponse.json(
+    {
+      message: "Request tidak sesuai",
+      errors: fieldErrors,
+    },
+    { status: 422 }
+  )
+}
+
 // ── GET /api/users/[id] ───────────────────────────────────────
 
 export async function GET(_req: NextRequest, { params }: RouteContext) {
@@ -40,19 +50,13 @@ export async function PATCH(req: NextRequest, { params }: RouteContext) {
 
     const parsed = UpdateUserSchema.safeParse(body)
     if (!parsed.success) {
-      // Ambil pesan error pertama yang ditemukan, bukan object
-      const fieldErrors = parsed.error.flatten().fieldErrors
-      const firstError  = Object.values(fieldErrors).flat()[0]
-        ?? parsed.error.flatten().formErrors[0]
-        ?? "Data tidak valid"
-
-      return NextResponse.json({ error: firstError }, { status: 422 })
+      return validationResponse(parsed.error.flatten().fieldErrors)
     }
 
     const currentUserId = (session.user as any).id as string
-    const user = await userService.update(id, parsed.data, currentUserId)
+    await userService.update(id, parsed.data, currentUserId)
 
-    return NextResponse.json(user)
+    return NextResponse.json({ message: "Data akun berhasil diubah" })
 
   } catch (error) {
     if (error instanceof AppError) {
@@ -73,7 +77,7 @@ export async function DELETE(_req: NextRequest, { params }: RouteContext) {
     const currentUserId = (session.user as any).id as string
     await userService.delete(id, currentUserId)
 
-    return NextResponse.json({ message: "User berhasil dihapus" })
+    return NextResponse.json({ message: "Akun berhasil dihapus" })
 
   } catch (error) {
     if (error instanceof AppError) {
