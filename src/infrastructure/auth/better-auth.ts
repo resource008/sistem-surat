@@ -1,6 +1,6 @@
 import { betterAuth } from "better-auth"
 import { prismaAdapter } from "better-auth/adapters/prisma"
-import { bearer,username } from "better-auth/plugins"
+import { bearer, username } from "better-auth/plugins"
 import { prisma } from "../databases/prisma-client"
 
 const splitOrigins = (value?: string) =>

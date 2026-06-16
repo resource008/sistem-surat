@@ -16,7 +16,7 @@ export type {
 export interface DeptOption {
   id:        string
   shortName: string
-  tujuan:    string
+  fullName:  string
 }
 
 // ─── Create payload ───────────────────────────────────────────────────────────

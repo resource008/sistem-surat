@@ -39,7 +39,6 @@ const fetchPermissions = async (url: string): Promise<PermissionResponse> => {
 export default function ViewSuratPage({ role, basePath }: Props) {
   const { dept, id } = useParams<{ dept: string; id: string }>()
   const router       = useRouter()
-  const isPI         = dept === "PI"
   const { data: access } = useSWR<PermissionResponse>(
     "/api/me/permissions",
     fetchPermissions,
@@ -53,6 +52,7 @@ export default function ViewSuratPage({ role, basePath }: Props) {
   const [error,          setError]          = useState<string | null>(null)
   const [deleting,       setDeleting]       = useState(false)
   const [showDeleteConf, setShowDeleteConf] = useState(false)
+  const isPI = register?.dept?.shortName === "PI"
 
   /* Fetch --------------------------------------------------------- */
   useEffect(() => {
@@ -82,11 +82,12 @@ export default function ViewSuratPage({ role, basePath }: Props) {
     setDeleting(true)
     try {
       const res = await fetch(`/api/surat/${dept}/${id}`, { method: "DELETE" })
+      const json = await res.json().catch(() => null) as { message?: string } | null
       if (res.status === 403) {
         throw new Error("FORBIDDEN")
       }
-      if (!res.ok) throw new Error()
-      toast.success("Register berhasil dihapus", {
+      if (!res.ok) throw new Error(json?.message)
+      toast.success(json?.message ?? "Data surat berhasil dihapus", {
         description: `Data ${register?.nomor} telah dihapus permanen.`,
       })
       router.push(basePath)
@@ -114,15 +115,15 @@ export default function ViewSuratPage({ role, basePath }: Props) {
 
   if (error || !register) return (
     <div className="flex h-full w-full flex-col items-center justify-center gap-3 mt-20">
-      <div className="w-10 h-10 rounded-2xl bg-red-50 dark:bg-red-900/20
+      <div className="w-10 h-10 rounded-2xl bg-slate-100 dark:bg-slate-900
                       flex items-center justify-center">
-        <AlertTriangle className="h-5 w-5 text-red-400" />
+        <AlertTriangle className="h-5 w-5 text-slate-500 dark:text-slate-400" />
       </div>
-      <p className="text-[13px] text-red-400 font-medium">
+      <p className="text-[13px] text-slate-500 dark:text-slate-400 font-medium">
         {error ?? "Data tidak ditemukan"}
       </p>
       <Button variant="outline" size="sm" onClick={() => router.push(basePath)}
-        className="text-[12px] gap-1.5 rounded-xl mt-1">
+        className="text-[13px] gap-1.5 rounded-xl mt-1">
         <ArrowLeft size={12} /> Kembali
       </Button>
     </div>
@@ -135,7 +136,7 @@ export default function ViewSuratPage({ role, basePath }: Props) {
       <AlertDialog open={showDeleteConf} onOpenChange={setShowDeleteConf}>
         <AlertDialogContent className="bg-white dark:bg-slate-950
                                        border border-slate-200 dark:border-slate-800
-                                       shadow-xl shadow-black/20">
+                                       shadow-none">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-slate-900 dark:text-slate-100
                                          text-[15px] font-semibold">

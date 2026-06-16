@@ -7,6 +7,16 @@ import { AppError }            from "@/lib/errors"
 import { requireAdmin }        from "@/lib/require-admin"
 import type { ExtendedSession } from "@/types/auth"
 
+function validationResponse(fieldErrors: Record<string, string[] | undefined>) {
+  return NextResponse.json(
+    {
+      message: "Request tidak sesuai",
+      errors: fieldErrors,
+    },
+    { status: 422 }
+  )
+}
+
 export async function GET() {
   try {
     const session = await auth.api.getSession({
@@ -36,15 +46,17 @@ export async function POST(req: NextRequest) {
 
     const parsed = CreateDepartemenSchema.safeParse(body)
     if (!parsed.success) {
-      const fieldErrors = parsed.error.flatten().fieldErrors
-      const firstError  = Object.values(fieldErrors).flat()[0]
-        ?? parsed.error.flatten().formErrors[0]
-        ?? "Data tidak valid"
-      return NextResponse.json({ error: firstError }, { status: 422 })
+      return validationResponse(parsed.error.flatten().fieldErrors)
     }
 
-    const data = await createDepartemen(parsed.data)
-    return NextResponse.json(data, { status: 201 })
+    const departemen = await createDepartemen(parsed.data)
+    return NextResponse.json(
+      {
+        message: "Departemen berhasil ditambahkan",
+        id: departemen.id,
+      },
+      { status: 201 }
+    )
   } catch (error) {
     if (error instanceof AppError) {
       return NextResponse.json({ error: error.message }, { status: error.status })
