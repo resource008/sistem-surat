@@ -61,3 +61,18 @@ export function getDetailLabel(detail: any, field: "perihal" | "lampiran" | "noS
   if (field === "noSurat")  return detail.noSurat  ?? detail.nomorSurat   ?? "-"
   return "-"
 }
+
+function readTujuan(source?: object | null): string | undefined {
+  if (!source || !("tujuan" in source)) return undefined
+  return (source as { tujuan?: string | null }).tujuan || undefined
+}
+
+function readDeptShortName(source: object): string | undefined {
+  if (!("dept" in source)) return undefined
+  const dept = (source as { dept?: { shortName?: string | null } | null }).dept
+  return dept?.shortName || undefined
+}
+
+export function getSuratTujuan(register: object, detail?: object | null): string {
+  return readTujuan(detail) ?? readTujuan(register) ?? readDeptShortName(register) ?? "-"
+}
