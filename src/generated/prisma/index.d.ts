@@ -6406,21 +6406,21 @@ export namespace Prisma {
   export type DepartmentMinAggregateOutputType = {
     id: string | null
     shortName: string | null
-    tujuan: string | null
+    fullName: string | null
     isActive: boolean | null
   }
 
   export type DepartmentMaxAggregateOutputType = {
     id: string | null
     shortName: string | null
-    tujuan: string | null
+    fullName: string | null
     isActive: boolean | null
   }
 
   export type DepartmentCountAggregateOutputType = {
     id: number
     shortName: number
-    tujuan: number
+    fullName: number
     isActive: number
     _all: number
   }
@@ -6429,21 +6429,21 @@ export namespace Prisma {
   export type DepartmentMinAggregateInputType = {
     id?: true
     shortName?: true
-    tujuan?: true
+    fullName?: true
     isActive?: true
   }
 
   export type DepartmentMaxAggregateInputType = {
     id?: true
     shortName?: true
-    tujuan?: true
+    fullName?: true
     isActive?: true
   }
 
   export type DepartmentCountAggregateInputType = {
     id?: true
     shortName?: true
-    tujuan?: true
+    fullName?: true
     isActive?: true
     _all?: true
   }
@@ -6523,7 +6523,7 @@ export namespace Prisma {
   export type DepartmentGroupByOutputType = {
     id: string
     shortName: string
-    tujuan: string
+    fullName: string
     isActive: boolean
     _count: DepartmentCountAggregateOutputType | null
     _min: DepartmentMinAggregateOutputType | null
@@ -6547,7 +6547,7 @@ export namespace Prisma {
   export type DepartmentSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     shortName?: boolean
-    tujuan?: boolean
+    fullName?: boolean
     isActive?: boolean
     registerSurat?: boolean | Department$registerSuratArgs<ExtArgs>
     registerPI?: boolean | Department$registerPIArgs<ExtArgs>
@@ -6558,25 +6558,25 @@ export namespace Prisma {
   export type DepartmentSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     shortName?: boolean
-    tujuan?: boolean
+    fullName?: boolean
     isActive?: boolean
   }, ExtArgs["result"]["department"]>
 
   export type DepartmentSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     shortName?: boolean
-    tujuan?: boolean
+    fullName?: boolean
     isActive?: boolean
   }, ExtArgs["result"]["department"]>
 
   export type DepartmentSelectScalar = {
     id?: boolean
     shortName?: boolean
-    tujuan?: boolean
+    fullName?: boolean
     isActive?: boolean
   }
 
-  export type DepartmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "shortName" | "tujuan" | "isActive", ExtArgs["result"]["department"]>
+  export type DepartmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "shortName" | "fullName" | "isActive", ExtArgs["result"]["department"]>
   export type DepartmentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     registerSurat?: boolean | Department$registerSuratArgs<ExtArgs>
     registerPI?: boolean | Department$registerPIArgs<ExtArgs>
@@ -6596,7 +6596,7 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: string
       shortName: string
-      tujuan: string
+      fullName: string
       isActive: boolean
     }, ExtArgs["result"]["department"]>
     composites: {}
@@ -7026,7 +7026,7 @@ export namespace Prisma {
   interface DepartmentFieldRefs {
     readonly id: FieldRef<"Department", 'String'>
     readonly shortName: FieldRef<"Department", 'String'>
-    readonly tujuan: FieldRef<"Department", 'String'>
+    readonly fullName: FieldRef<"Department", 'String'>
     readonly isActive: FieldRef<"Department", 'Boolean'>
   }
     
@@ -13281,7 +13281,7 @@ export namespace Prisma {
   export const DepartmentScalarFieldEnum: {
     id: 'id',
     shortName: 'shortName',
-    tujuan: 'tujuan',
+    fullName: 'fullName',
     isActive: 'isActive'
   };
 
@@ -13785,7 +13785,7 @@ export namespace Prisma {
     NOT?: DepartmentWhereInput | DepartmentWhereInput[]
     id?: StringFilter<"Department"> | string
     shortName?: StringFilter<"Department"> | string
-    tujuan?: StringFilter<"Department"> | string
+    fullName?: StringFilter<"Department"> | string
     isActive?: BoolFilter<"Department"> | boolean
     registerSurat?: RegisterSuratListRelationFilter
     registerPI?: RegisterPIListRelationFilter
@@ -13795,7 +13795,7 @@ export namespace Prisma {
   export type DepartmentOrderByWithRelationInput = {
     id?: SortOrder
     shortName?: SortOrder
-    tujuan?: SortOrder
+    fullName?: SortOrder
     isActive?: SortOrder
     registerSurat?: RegisterSuratOrderByRelationAggregateInput
     registerPI?: RegisterPIOrderByRelationAggregateInput
@@ -13804,21 +13804,21 @@ export namespace Prisma {
 
   export type DepartmentWhereUniqueInput = Prisma.AtLeast<{
     id?: string
+    shortName?: string
     AND?: DepartmentWhereInput | DepartmentWhereInput[]
     OR?: DepartmentWhereInput[]
     NOT?: DepartmentWhereInput | DepartmentWhereInput[]
-    shortName?: StringFilter<"Department"> | string
-    tujuan?: StringFilter<"Department"> | string
+    fullName?: StringFilter<"Department"> | string
     isActive?: BoolFilter<"Department"> | boolean
     registerSurat?: RegisterSuratListRelationFilter
     registerPI?: RegisterPIListRelationFilter
     nomorCounter?: XOR<NomorCounterNullableScalarRelationFilter, NomorCounterWhereInput> | null
-  }, "id">
+  }, "id" | "shortName">
 
   export type DepartmentOrderByWithAggregationInput = {
     id?: SortOrder
     shortName?: SortOrder
-    tujuan?: SortOrder
+    fullName?: SortOrder
     isActive?: SortOrder
     _count?: DepartmentCountOrderByAggregateInput
     _max?: DepartmentMaxOrderByAggregateInput
@@ -13831,7 +13831,7 @@ export namespace Prisma {
     NOT?: DepartmentScalarWhereWithAggregatesInput | DepartmentScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Department"> | string
     shortName?: StringWithAggregatesFilter<"Department"> | string
-    tujuan?: StringWithAggregatesFilter<"Department"> | string
+    fullName?: StringWithAggregatesFilter<"Department"> | string
     isActive?: BoolWithAggregatesFilter<"Department"> | boolean
   }
 
@@ -14541,9 +14541,9 @@ export namespace Prisma {
   }
 
   export type DepartmentCreateInput = {
-    id: string
+    id?: string
     shortName: string
-    tujuan?: string
+    fullName?: string
     isActive?: boolean
     registerSurat?: RegisterSuratCreateNestedManyWithoutDeptInput
     registerPI?: RegisterPICreateNestedManyWithoutDeptInput
@@ -14551,9 +14551,9 @@ export namespace Prisma {
   }
 
   export type DepartmentUncheckedCreateInput = {
-    id: string
+    id?: string
     shortName: string
-    tujuan?: string
+    fullName?: string
     isActive?: boolean
     registerSurat?: RegisterSuratUncheckedCreateNestedManyWithoutDeptInput
     registerPI?: RegisterPIUncheckedCreateNestedManyWithoutDeptInput
@@ -14563,7 +14563,7 @@ export namespace Prisma {
   export type DepartmentUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     shortName?: StringFieldUpdateOperationsInput | string
-    tujuan?: StringFieldUpdateOperationsInput | string
+    fullName?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     registerSurat?: RegisterSuratUpdateManyWithoutDeptNestedInput
     registerPI?: RegisterPIUpdateManyWithoutDeptNestedInput
@@ -14573,7 +14573,7 @@ export namespace Prisma {
   export type DepartmentUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     shortName?: StringFieldUpdateOperationsInput | string
-    tujuan?: StringFieldUpdateOperationsInput | string
+    fullName?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     registerSurat?: RegisterSuratUncheckedUpdateManyWithoutDeptNestedInput
     registerPI?: RegisterPIUncheckedUpdateManyWithoutDeptNestedInput
@@ -14581,23 +14581,23 @@ export namespace Prisma {
   }
 
   export type DepartmentCreateManyInput = {
-    id: string
+    id?: string
     shortName: string
-    tujuan?: string
+    fullName?: string
     isActive?: boolean
   }
 
   export type DepartmentUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     shortName?: StringFieldUpdateOperationsInput | string
-    tujuan?: StringFieldUpdateOperationsInput | string
+    fullName?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type DepartmentUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     shortName?: StringFieldUpdateOperationsInput | string
-    tujuan?: StringFieldUpdateOperationsInput | string
+    fullName?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
   }
 
@@ -15308,21 +15308,21 @@ export namespace Prisma {
   export type DepartmentCountOrderByAggregateInput = {
     id?: SortOrder
     shortName?: SortOrder
-    tujuan?: SortOrder
+    fullName?: SortOrder
     isActive?: SortOrder
   }
 
   export type DepartmentMaxOrderByAggregateInput = {
     id?: SortOrder
     shortName?: SortOrder
-    tujuan?: SortOrder
+    fullName?: SortOrder
     isActive?: SortOrder
   }
 
   export type DepartmentMinOrderByAggregateInput = {
     id?: SortOrder
     shortName?: SortOrder
-    tujuan?: SortOrder
+    fullName?: SortOrder
     isActive?: SortOrder
   }
 
@@ -16803,18 +16803,18 @@ export namespace Prisma {
   }
 
   export type DepartmentCreateWithoutRegisterSuratInput = {
-    id: string
+    id?: string
     shortName: string
-    tujuan?: string
+    fullName?: string
     isActive?: boolean
     registerPI?: RegisterPICreateNestedManyWithoutDeptInput
     nomorCounter?: NomorCounterCreateNestedOneWithoutDeptInput
   }
 
   export type DepartmentUncheckedCreateWithoutRegisterSuratInput = {
-    id: string
+    id?: string
     shortName: string
-    tujuan?: string
+    fullName?: string
     isActive?: boolean
     registerPI?: RegisterPIUncheckedCreateNestedManyWithoutDeptInput
     nomorCounter?: NomorCounterUncheckedCreateNestedOneWithoutDeptInput
@@ -16870,7 +16870,7 @@ export namespace Prisma {
   export type DepartmentUpdateWithoutRegisterSuratInput = {
     id?: StringFieldUpdateOperationsInput | string
     shortName?: StringFieldUpdateOperationsInput | string
-    tujuan?: StringFieldUpdateOperationsInput | string
+    fullName?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     registerPI?: RegisterPIUpdateManyWithoutDeptNestedInput
     nomorCounter?: NomorCounterUpdateOneWithoutDeptNestedInput
@@ -16879,7 +16879,7 @@ export namespace Prisma {
   export type DepartmentUncheckedUpdateWithoutRegisterSuratInput = {
     id?: StringFieldUpdateOperationsInput | string
     shortName?: StringFieldUpdateOperationsInput | string
-    tujuan?: StringFieldUpdateOperationsInput | string
+    fullName?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     registerPI?: RegisterPIUncheckedUpdateManyWithoutDeptNestedInput
     nomorCounter?: NomorCounterUncheckedUpdateOneWithoutDeptNestedInput
@@ -16917,18 +16917,18 @@ export namespace Prisma {
   }
 
   export type DepartmentCreateWithoutRegisterPIInput = {
-    id: string
+    id?: string
     shortName: string
-    tujuan?: string
+    fullName?: string
     isActive?: boolean
     registerSurat?: RegisterSuratCreateNestedManyWithoutDeptInput
     nomorCounter?: NomorCounterCreateNestedOneWithoutDeptInput
   }
 
   export type DepartmentUncheckedCreateWithoutRegisterPIInput = {
-    id: string
+    id?: string
     shortName: string
-    tujuan?: string
+    fullName?: string
     isActive?: boolean
     registerSurat?: RegisterSuratUncheckedCreateNestedManyWithoutDeptInput
     nomorCounter?: NomorCounterUncheckedCreateNestedOneWithoutDeptInput
@@ -16986,7 +16986,7 @@ export namespace Prisma {
   export type DepartmentUpdateWithoutRegisterPIInput = {
     id?: StringFieldUpdateOperationsInput | string
     shortName?: StringFieldUpdateOperationsInput | string
-    tujuan?: StringFieldUpdateOperationsInput | string
+    fullName?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     registerSurat?: RegisterSuratUpdateManyWithoutDeptNestedInput
     nomorCounter?: NomorCounterUpdateOneWithoutDeptNestedInput
@@ -16995,7 +16995,7 @@ export namespace Prisma {
   export type DepartmentUncheckedUpdateWithoutRegisterPIInput = {
     id?: StringFieldUpdateOperationsInput | string
     shortName?: StringFieldUpdateOperationsInput | string
-    tujuan?: StringFieldUpdateOperationsInput | string
+    fullName?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     registerSurat?: RegisterSuratUncheckedUpdateManyWithoutDeptNestedInput
     nomorCounter?: NomorCounterUncheckedUpdateOneWithoutDeptNestedInput
@@ -17146,18 +17146,18 @@ export namespace Prisma {
   }
 
   export type DepartmentCreateWithoutNomorCounterInput = {
-    id: string
+    id?: string
     shortName: string
-    tujuan?: string
+    fullName?: string
     isActive?: boolean
     registerSurat?: RegisterSuratCreateNestedManyWithoutDeptInput
     registerPI?: RegisterPICreateNestedManyWithoutDeptInput
   }
 
   export type DepartmentUncheckedCreateWithoutNomorCounterInput = {
-    id: string
+    id?: string
     shortName: string
-    tujuan?: string
+    fullName?: string
     isActive?: boolean
     registerSurat?: RegisterSuratUncheckedCreateNestedManyWithoutDeptInput
     registerPI?: RegisterPIUncheckedCreateNestedManyWithoutDeptInput
@@ -17182,7 +17182,7 @@ export namespace Prisma {
   export type DepartmentUpdateWithoutNomorCounterInput = {
     id?: StringFieldUpdateOperationsInput | string
     shortName?: StringFieldUpdateOperationsInput | string
-    tujuan?: StringFieldUpdateOperationsInput | string
+    fullName?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     registerSurat?: RegisterSuratUpdateManyWithoutDeptNestedInput
     registerPI?: RegisterPIUpdateManyWithoutDeptNestedInput
@@ -17191,7 +17191,7 @@ export namespace Prisma {
   export type DepartmentUncheckedUpdateWithoutNomorCounterInput = {
     id?: StringFieldUpdateOperationsInput | string
     shortName?: StringFieldUpdateOperationsInput | string
-    tujuan?: StringFieldUpdateOperationsInput | string
+    fullName?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     registerSurat?: RegisterSuratUncheckedUpdateManyWithoutDeptNestedInput
     registerPI?: RegisterPIUncheckedUpdateManyWithoutDeptNestedInput

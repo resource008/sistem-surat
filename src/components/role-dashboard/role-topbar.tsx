@@ -2,9 +2,8 @@
 
 import styles from "@/app/layout.module.css"
 import TopbarFilter from "@/components/filters/index"
-import { TutorialCetak } from "@/components/shared/tutorial-cetak"
 import type { RoleTopbarFilters } from "@/components/role-dashboard/types"
-import { ArrowLeftRight, ChevronRight, Menu, Printer, X } from "lucide-react"
+import { ChevronRight, Menu, Printer, X } from "lucide-react"
 
 interface RoleTopbarProps {
   currentPage: string
@@ -21,7 +20,6 @@ interface RoleTopbarProps {
   onOpenMobileMenu: () => void
   onNavigateToDataSurat: () => void
   onNavigateBack: () => void
-  onToggleMode: () => void
   onFilterChange: (nextFilters: RoleTopbarFilters) => void
   onClearFilters: () => void
   onClearCetak: () => void
@@ -42,7 +40,6 @@ export function RoleTopbar({
   onOpenMobileMenu,
   onNavigateToDataSurat,
   onNavigateBack,
-  onToggleMode,
   onFilterChange,
   onClearFilters,
   onClearCetak,
@@ -89,34 +86,6 @@ export function RoleTopbar({
 
       {isDataSuratPage && (
         <div className="flex items-center gap-1.5">
-          <button
-            onClick={onToggleMode}
-            title={showPI ? "Kembali ke semua surat" : "Tampilkan hanya data PI"}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "6px",
-              padding: "0 12px",
-              height: "34px",
-              borderRadius: "8px",
-              border: showPI ? "1px solid #2563eb" : "1px solid var(--border)",
-              background: showPI ? "#2563eb" : "transparent",
-              color: showPI ? "#ffffff" : "var(--muted-foreground)",
-              fontSize: "13px",
-              fontWeight: 500,
-              fontFamily: "inherit",
-              cursor: "pointer",
-              whiteSpace: "nowrap",
-              flexShrink: 0,
-              transition: "all 0.2s ease",
-            }}
-          >
-            <ArrowLeftRight size={14} />
-            {!isMobile && (
-              <span>{showPI ? "Alihkan ke Surat" : "Alihkan ke PI"}</span>
-            )}
-          </button>
-
           {!showPI && (
             <TopbarFilter
               initialFilters={filters}
@@ -143,7 +112,6 @@ export function RoleTopbar({
 
       {isCetakPage && !isDenied && (
         <div className="flex items-center gap-2">
-          <TutorialCetak />
           <button
             onClick={hasCetakData ? onClearCetak : undefined}
             disabled={!hasCetakData}

@@ -1,7 +1,7 @@
 "use client"
 
 import { useSidebar } from "@/components/ui/sidebar"
-import { formatTanggalCetak, formatTanggalShort, getDetailLabel } from "@/lib/surat-helpers"
+import { formatTanggalCetak, formatTanggalShort, getDetailLabel, getSuratTujuan } from "@/lib/surat-helpers"
 import type { CetakGroup } from "@/types/surat-types"
 import { usePathname, useRouter } from "next/navigation"
 
@@ -70,7 +70,7 @@ function MobileList({ group }: { group: CetakGroup }) {
                 <span className="text-slate-200 dark:text-slate-700">·</span>
                 <span className="whitespace-nowrap"><span className="text-slate-500">Tgl: </span>{formatTanggalShort(detail.tanggalSurat)}</span>
                 {isFirst && (
-                  <><span className="text-slate-200 dark:text-slate-700">·</span><span><span className="text-slate-500">Tujuan: </span>{detail.tujuan ?? reg.tujuan ?? "-"}</span></>
+                  <><span className="text-slate-200 dark:text-slate-700">·</span><span><span className="text-slate-500">Tujuan: </span>{getSuratTujuan(reg, detail)}</span></>
                 )}
               </div>
             </div>
@@ -130,7 +130,7 @@ function DesktopTable({ group, activeFilter }: { group: CetakGroup, activeFilter
                     {getDetailLabel(detail, "noSurat")}
                   </td>
                   <td className="px-4 py-3.5 text-[13px] text-slate-500 dark:text-slate-400">
-                    {isFirst ? (detail.tujuan ?? reg.tujuan ?? "-") : ""}
+                    {isFirst ? getSuratTujuan(reg, detail) : ""}
                   </td>
                 </tr>
               )

@@ -79,9 +79,9 @@ model UserPermission {
 }
 
 model Department {
-  id             String          @id
-  shortName      String          @map("short_name")
-  tujuan         String          @default("")
+  id             String          @id @default(cuid())
+  shortName      String          @unique @map("short_name")
+  fullName       String          @default("")
   isActive       Boolean         @default(true) @map("is_active")
 
   registerSurat  RegisterSurat[]

@@ -173,7 +173,7 @@ exports.Prisma.UserPermissionScalarFieldEnum = {
 exports.Prisma.DepartmentScalarFieldEnum = {
   id: 'id',
   shortName: 'shortName',
-  tujuan: 'tujuan',
+  fullName: 'fullName',
   isActive: 'isActive'
 };
 
