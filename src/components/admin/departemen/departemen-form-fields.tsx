@@ -24,8 +24,8 @@ export function DepartemenFormFields({
       <LabelTag className="grid gap-1.5 text-sm font-medium sm:flex sm:flex-col">
         <span className="text-xs text-muted-foreground">Nama Departemen</span>
         <Input
-          value={form.tujuan}
-          onChange={(e) => onChange((current) => ({ ...current, tujuan: e.target.value }))}
+          value={form.fullName}
+          onChange={(e) => onChange((current) => ({ ...current, fullName: e.target.value }))}
           placeholder="Contoh: Human Resources"
           className="h-10 rounded-xl text-sm"
           disabled={disabled}

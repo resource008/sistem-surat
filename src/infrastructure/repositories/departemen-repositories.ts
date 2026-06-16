@@ -11,7 +11,7 @@ export class DepartemenRepository {
   findAllActive() {
     return prisma.department.findMany({
       where  : { isActive: true },
-      select : { id: true, shortName: true, tujuan: true },
+      select : { id: true, shortName: true, fullName: true },
       orderBy: { shortName: "asc" },
     })
   }
@@ -19,7 +19,7 @@ export class DepartemenRepository {
   async findById(id: string) {
     const departemen = await prisma.department.findFirst({
       where: { id, isActive: true },
-      select: { id: true, shortName: true, tujuan: true },
+      select: { id: true, shortName: true, fullName: true },
     })
 
     if (!departemen) throw new AppError(404, "Departemen tidak ditemukan")
@@ -27,8 +27,9 @@ export class DepartemenRepository {
   }
 
   async create(input: CreateDepartemenInput) {
-    const id = input.shortName
-    const existing = await prisma.department.findUnique({ where: { id } })
+    const existing = await prisma.department.findUnique({
+      where: { shortName: input.shortName },
+    })
 
     if (existing?.isActive) {
       throw new AppError(409, "Singkatan departemen sudah digunakan")
@@ -36,23 +37,22 @@ export class DepartemenRepository {
 
     if (existing) {
       return prisma.department.update({
-        where: { id },
+        where: { id: existing.id },
         data: {
           shortName: input.shortName,
-          tujuan:    input.tujuan,
+          fullName:  input.fullName,
           isActive:  true,
         },
-        select: { id: true, shortName: true, tujuan: true },
+        select: { id: true, shortName: true, fullName: true },
       })
     }
 
     return prisma.department.create({
       data: {
-        id,
         shortName: input.shortName,
-        tujuan:    input.tujuan,
+        fullName:  input.fullName,
       },
-      select: { id: true, shortName: true, tujuan: true },
+      select: { id: true, shortName: true, fullName: true },
     })
   }
 
@@ -63,9 +63,10 @@ export class DepartemenRepository {
 
     if (!current) throw new AppError(404, "Departemen tidak ditemukan")
 
-    const nextId = input.shortName
-    if (nextId !== id) {
-      const duplicate = await prisma.department.findUnique({ where: { id: nextId } })
+    if (input.shortName !== current.shortName) {
+      const duplicate = await prisma.department.findUnique({
+        where: { shortName: input.shortName },
+      })
       if (duplicate?.isActive) {
         throw new AppError(409, "Singkatan departemen sudah digunakan")
       }
@@ -77,11 +78,10 @@ export class DepartemenRepository {
     return prisma.department.update({
       where: { id },
       data: {
-        id:        nextId,
         shortName: input.shortName,
-        tujuan:    input.tujuan,
+        fullName:  input.fullName,
       },
-      select: { id: true, shortName: true, tujuan: true },
+      select: { id: true, shortName: true, fullName: true },
     })
   }
 

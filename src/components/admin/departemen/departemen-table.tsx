@@ -57,7 +57,7 @@ export function DepartemenTable({
             key={departemen.id}
             className="grid grid-cols-[minmax(0,1fr)_180px_140px] items-center border-b border-border px-4 py-3 last:border-b-0"
           >
-            <div className="truncate text-sm font-medium">{departemen.tujuan}</div>
+            <div className="truncate text-sm font-medium">{departemen.fullName}</div>
             <div className="text-sm text-muted-foreground">{departemen.shortName}</div>
             <div className="flex justify-end gap-2">
               <Button

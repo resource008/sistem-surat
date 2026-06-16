@@ -42,7 +42,7 @@ export function DepartemenMobileList({
           <div key={departemen.id} className="rounded-xl border border-border/50 p-4">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <div className="truncate text-sm font-semibold">{departemen.tujuan}</div>
+                <div className="truncate text-sm font-semibold">{departemen.fullName}</div>
                 <div className="mt-1 text-xs text-muted-foreground">{departemen.shortName}</div>
               </div>
               <div className="flex shrink-0 gap-2">

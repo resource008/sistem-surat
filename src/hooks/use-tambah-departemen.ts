@@ -28,7 +28,7 @@ export function useTambahDepartemen() {
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
 
-    if (!form.tujuan.trim()) {
+    if (!form.fullName.trim()) {
       toast.error("Nama departemen wajib diisi")
       return
     }
@@ -43,17 +43,17 @@ export function useTambahDepartemen() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          tujuan: form.tujuan,
+          fullName: form.fullName,
           shortName: form.shortName,
         }),
       })
       const json = await res.json().catch(() => null)
 
       if (!res.ok) {
-        throw new Error(json?.error ?? "Gagal menyimpan departemen")
+        throw new Error(getApiMessage(json, "Gagal menyimpan departemen"))
       }
 
-      toast.success("Departemen berhasil ditambahkan")
+      toast.success(json?.message ?? "Departemen berhasil ditambahkan")
       router.push("/admin/departemen")
     } catch (err) {
       toast.error(getErrorMessage(err, "Gagal menyimpan departemen"))
@@ -66,4 +66,25 @@ export function useTambahDepartemen() {
     state: { form, saving },
     actions: { setForm, submit, cancel },
   }
+}
+
+function getApiMessage(json: unknown, fallback: string): string {
+  if (typeof json !== "object" || json === null) return fallback
+  const body = json as { message?: unknown; error?: unknown; errors?: unknown }
+  const baseMessage = typeof body.message === "string"
+    ? body.message
+    : typeof body.error === "string"
+      ? body.error
+      : fallback
+
+  if (typeof body.errors === "object" && body.errors !== null) {
+    const details = Object.values(body.errors as Record<string, string[]>)
+      .flat()
+      .filter(Boolean)
+      .join(". ")
+
+    if (details) return `${baseMessage}: ${details}`
+  }
+
+  return baseMessage
 }

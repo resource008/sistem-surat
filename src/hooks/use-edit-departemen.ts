@@ -41,7 +41,7 @@ export function useEditDepartemen(id: string) {
         const data = json as Departemen
         setDepartemen(data)
         setForm({
-          tujuan: data.tujuan,
+          fullName: data.fullName,
           shortName: data.shortName,
         })
       } catch (err) {
@@ -64,7 +64,7 @@ export function useEditDepartemen(id: string) {
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
 
-    if (!form.tujuan.trim()) {
+    if (!form.fullName.trim()) {
       toast.error("Nama departemen wajib diisi")
       return
     }
@@ -79,17 +79,17 @@ export function useEditDepartemen(id: string) {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          tujuan: form.tujuan,
+          fullName: form.fullName,
           shortName: form.shortName,
         }),
       })
       const json = await res.json().catch(() => null)
 
       if (!res.ok) {
-        throw new Error(json?.error ?? "Gagal menyimpan departemen")
+        throw new Error(getApiMessage(json, "Gagal menyimpan departemen"))
       }
 
-      toast.success("Departemen berhasil diupdate")
+      toast.success(json?.message ?? "Data departemen berhasil diubah")
       router.push("/admin/departemen")
     } catch (err) {
       toast.error(getErrorMessage(err, "Gagal menyimpan departemen"))
@@ -102,4 +102,25 @@ export function useEditDepartemen(id: string) {
     state: { departemen, form, loading, saving },
     actions: { setForm, submit, cancel },
   }
+}
+
+function getApiMessage(json: unknown, fallback: string): string {
+  if (typeof json !== "object" || json === null) return fallback
+  const body = json as { message?: unknown; error?: unknown; errors?: unknown }
+  const baseMessage = typeof body.message === "string"
+    ? body.message
+    : typeof body.error === "string"
+      ? body.error
+      : fallback
+
+  if (typeof body.errors === "object" && body.errors !== null) {
+    const details = Object.values(body.errors as Record<string, string[]>)
+      .flat()
+      .filter(Boolean)
+      .join(". ")
+
+    if (details) return `${baseMessage}: ${details}`
+  }
+
+  return baseMessage
 }

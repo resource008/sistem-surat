@@ -16,7 +16,7 @@ const DepartmentNameSchema = z
 
 export const CreateDepartemenSchema = z.object({
   shortName: ShortNameSchema,
-  tujuan:    DepartmentNameSchema,
+  fullName:  DepartmentNameSchema,
 })
 
 export const UpdateDepartemenSchema = CreateDepartemenSchema
