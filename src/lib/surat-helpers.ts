@@ -61,3 +61,7 @@ export function getDetailLabel(detail: any, field: "perihal" | "lampiran" | "noS
   if (field === "noSurat")  return detail.noSurat  ?? detail.nomorSurat   ?? "-"
   return "-"
 }
+
+export function getSuratTujuan(reg: RegisterSurat, detail?: { tujuan?: string | null }): string {
+  return reg.dept?.shortName ?? detail?.tujuan ?? reg.tujuan ?? "-"
+}

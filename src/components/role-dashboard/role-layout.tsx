@@ -4,15 +4,13 @@ import styles from "@/app/layout.module.css"
 import TopbarFilter from "@/components/filters/index"
 import type { Filters } from "@/hooks/use-filter"
 import { PermissionDenied } from "@/components/shared/permission"
-import { TutorialCetak } from "@/components/shared/tutorial-cetak"
 import { RoleSidebar } from "@/components/role-dashboard/role-sidebar"
 import { usePresenceHeartbeat } from "@/hooks/use-presence-heartbeat"
 import { useSession } from "@/infrastructure/auth/auth-client"
 import type { Role } from "@/types"
 import type { UserPermissions } from "@/domain/user/types"
 import {
-  ArrowLeftRight, ChevronRight,
-  Menu, Plus, Printer, X,
+  ChevronRight, Menu, Plus, Printer, X,
 } from "lucide-react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { Suspense, useEffect, useState } from "react"
@@ -194,24 +192,6 @@ function RoleLayoutInner({ role, children }: Props) {
     router.push(showPI ? `${base}/data-surat?mode=pi` : `${base}/data-surat`)
   }
 
-  function handleTogglePI() {
-    const dataSuratBase = `${base}/data-surat`
-    const nextFilters: Filters = showPI
-      ? filters
-      : { date: filters.date, departments: [] }
-    const params = new URLSearchParams()
-
-    if (!showPI) params.set("mode", "pi")
-    if (nextFilters.date) params.set("date", nextFilters.date)
-    if (!showPI && filters.departments.length > 0) {
-      localStorage.setItem("topbar_filters", JSON.stringify(nextFilters))
-      setFilters(nextFilters)
-    }
-
-    const query = params.toString()
-    router.push(query ? `${dataSuratBase}?${query}` : dataSuratBase)
-  }
-
   function handleClearCetak() {
     window.dispatchEvent(new CustomEvent("cetak:clear"))
   }
@@ -312,34 +292,6 @@ function RoleLayoutInner({ role, children }: Props) {
 
           {isDataSuratPage && (
             <div className="flex items-center gap-1.5">
-              <button
-                onClick={handleTogglePI}
-                title={showPI ? "Kembali ke semua surat" : "Tampilkan data PI"}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "6px",
-                  padding: "0 12px",
-                  height: "34px",
-                  borderRadius: "8px",
-                  border: showPI ? "1px solid #2563eb" : "1px solid var(--border)",
-                  background: showPI ? "#2563eb" : "transparent",
-                  color: showPI ? "#ffffff" : "var(--muted-foreground)",
-                  fontSize: "13px",
-                  fontWeight: 500,
-                  fontFamily: "inherit",
-                  cursor: "pointer",
-                  whiteSpace: "nowrap",
-                  flexShrink: 0,
-                  transition: "all 0.2s ease",
-                }}
-              >
-                <ArrowLeftRight size={14} />
-                {!isMobile && (
-                  <span>{showPI ? "Alihkan ke Surat" : "Alihkan ke PI"}</span>
-                )}
-              </button>
-
               <TopbarFilter
                 initialFilters={filters}
                 mode={showPI ? "pi" : "surat"}
@@ -369,7 +321,6 @@ function RoleLayoutInner({ role, children }: Props) {
 
           {isCetakPage && !isDenied && (
             <div className="flex items-center gap-2">
-              <TutorialCetak />
               <button
                 onClick={hasCetakData ? handleClearCetak : undefined}
                 disabled={!hasCetakData}

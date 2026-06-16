@@ -5,6 +5,7 @@ import { fetchSuratById, editSurat, removeSurat } from "@/services/surat-service
 import { isPIDept } from "@/domain/surat/entities"
 import { UpdatePISchema, UpdateSuratSchema } from "@/app/validation/surat"
 import { Prisma } from "@/generated/prisma"
+import { prisma } from "@/infrastructure/databases/prisma-client"
 import { requireUserPermission } from "@/lib/current-user-permissions"
 import { AppError } from "@/lib/errors"
 
@@ -67,7 +68,11 @@ export async function PATCH(req: NextRequest, { params }: Params) {
       return NextResponse.json({ error: "Body tidak valid" }, { status: 400 })
     }
 
-    const schema = isPIDept(dept) ? UpdatePISchema : UpdateSuratSchema
+    const department = await prisma.department.findUnique({
+      where: { id: dept },
+      select: { shortName: true },
+    })
+    const schema = isPIDept(department?.shortName ?? "") ? UpdatePISchema : UpdateSuratSchema
     const result = schema.safeParse(body)
     if (!result.success) {
       return NextResponse.json({ error: result.error.flatten() }, { status: 422 })
