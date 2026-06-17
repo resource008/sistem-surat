@@ -8,20 +8,72 @@ import type {
 } from "@/app/validation/departemen"
 
 export class DepartemenRepository {
-  findAllActive() {
-    return prisma.department.findMany({
-      where  : { isActive: true },
-      select : { id: true, shortName: true, tujuan: true },
-      orderBy: { shortName: "asc" },
-    })
+  private async usesFullNameColumn() {
+    const columns = await prisma.$queryRaw<Array<{ column_name: string }>>`
+      SELECT column_name
+      FROM information_schema.columns
+      WHERE table_name = 'departments'
+        AND column_name IN ('full_name', 'tujuan')
+    `
+
+    return columns.some((column) => column.column_name === "full_name")
+  }
+
+  async findAllActive() {
+    const usesFullName = await this.usesFullNameColumn()
+
+    if (usesFullName) {
+      return prisma.$queryRaw<Array<{ id: string; shortName: string; fullName: string; tujuan: string }>>`
+        SELECT
+          id,
+          short_name AS "shortName",
+          full_name AS "fullName",
+          full_name AS tujuan
+        FROM departments
+        WHERE is_active = true
+        ORDER BY short_name ASC
+      `
+    }
+
+    return prisma.$queryRaw<Array<{ id: string; shortName: string; fullName: string; tujuan: string }>>`
+      SELECT
+        id,
+        short_name AS "shortName",
+        tujuan AS "fullName",
+        tujuan
+      FROM departments
+      WHERE is_active = true
+      ORDER BY short_name ASC
+    `
   }
 
   async findById(id: string) {
-    const departemen = await prisma.department.findFirst({
-      where: { id, isActive: true },
-      select: { id: true, shortName: true, tujuan: true },
-    })
+    const usesFullName = await this.usesFullNameColumn()
+    const rows = usesFullName
+      ? await prisma.$queryRaw<Array<{ id: string; shortName: string; fullName: string; tujuan: string }>>`
+          SELECT
+            id,
+            short_name AS "shortName",
+            full_name AS "fullName",
+            full_name AS tujuan
+          FROM departments
+          WHERE id = ${id}
+            AND is_active = true
+          LIMIT 1
+        `
+      : await prisma.$queryRaw<Array<{ id: string; shortName: string; fullName: string; tujuan: string }>>`
+          SELECT
+            id,
+            short_name AS "shortName",
+            tujuan AS "fullName",
+            tujuan
+          FROM departments
+          WHERE id = ${id}
+            AND is_active = true
+          LIMIT 1
+        `
 
+    const departemen = rows[0]
     if (!departemen) throw new AppError(404, "Departemen tidak ditemukan")
     return departemen
   }
