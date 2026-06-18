@@ -6,6 +6,16 @@ import { deleteDepartemen, fetchDepartemenById, updateDepartemen } from "@/servi
 
 type RouteContext = { params: Promise<{ id: string }> }
 
+function validationResponse(fieldErrors: Record<string, string[] | undefined>) {
+  return NextResponse.json(
+    {
+      message: "Request tidak sesuai",
+      errors: fieldErrors,
+    },
+    { status: 422 }
+  )
+}
+
 export async function GET(_req: NextRequest, { params }: RouteContext) {
   try {
     await requireAdmin()
@@ -34,15 +44,11 @@ export async function PATCH(req: NextRequest, { params }: RouteContext) {
 
     const parsed = UpdateDepartemenSchema.safeParse(body)
     if (!parsed.success) {
-      const fieldErrors = parsed.error.flatten().fieldErrors
-      const firstError  = Object.values(fieldErrors).flat()[0]
-        ?? parsed.error.flatten().formErrors[0]
-        ?? "Data tidak valid"
-      return NextResponse.json({ error: firstError }, { status: 422 })
+      return validationResponse(parsed.error.flatten().fieldErrors)
     }
 
-    const data = await updateDepartemen(decodeURIComponent(id), parsed.data)
-    return NextResponse.json(data)
+    await updateDepartemen(decodeURIComponent(id), parsed.data)
+    return NextResponse.json({ message: "Data departemen berhasil diubah" })
   } catch (error) {
     if (error instanceof AppError) {
       return NextResponse.json({ error: error.message }, { status: error.status })

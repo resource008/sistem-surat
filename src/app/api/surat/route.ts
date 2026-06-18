@@ -58,8 +58,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: firstError }, { status: 422 })
     }
 
-    const created = await saveSurat(result.data)
-    return NextResponse.json(created, { status: 201 })
+    const surat = await saveSurat(result.data)
+    return NextResponse.json(
+      {
+        message: "Data surat berhasil ditambahkan",
+        id: surat.id,
+      },
+      { status: 201 }
+    )
 
   } catch (error) {
     if (error instanceof AppError) {

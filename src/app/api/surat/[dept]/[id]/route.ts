@@ -5,6 +5,7 @@ import { fetchSuratById, editSurat, removeSurat } from "@/services/surat-service
 import { isPIDept } from "@/domain/surat/entities"
 import { UpdatePISchema, UpdateSuratSchema } from "@/app/validation/surat"
 import { Prisma } from "@/generated/prisma"
+import { prisma } from "@/infrastructure/databases/prisma-client"
 import { requireUserPermission } from "@/lib/current-user-permissions"
 import { AppError } from "@/lib/errors"
 
@@ -40,7 +41,7 @@ export async function GET(_req: NextRequest, { params }: Params) {
 
     const data = await fetchSuratById(numId, dept)
     if (!data) {
-      return NextResponse.json({ error: "Data tidak ditemukan" }, { status: 404 })
+      return NextResponse.json({ message: "Data tidak ditemukan" }, { status: 404 })
     }
 
     return NextResponse.json(data)
@@ -67,14 +68,18 @@ export async function PATCH(req: NextRequest, { params }: Params) {
       return NextResponse.json({ error: "Body tidak valid" }, { status: 400 })
     }
 
-    const schema = isPIDept(dept) ? UpdatePISchema : UpdateSuratSchema
+    const department = await prisma.department.findUnique({
+      where: { id: dept },
+      select: { shortName: true },
+    })
+    const schema = isPIDept(department?.shortName ?? "") ? UpdatePISchema : UpdateSuratSchema
     const result = schema.safeParse(body)
     if (!result.success) {
       return NextResponse.json({ error: result.error.flatten() }, { status: 422 })
     }
 
-    const updated = await editSurat(numId, dept, result.data)
-    return NextResponse.json(updated)
+    await editSurat(numId, dept, result.data)
+    return NextResponse.json({ message: "Data surat berhasil diubah" })
 
   } catch (error) {
     if (error instanceof AppError) {
@@ -82,7 +87,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     }
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === "P2025") {
-        return NextResponse.json({ error: "Data tidak ditemukan" }, { status: 404 })
+        return NextResponse.json({ message: "Data tidak ditemukan" }, { status: 404 })
       }
     }
     if (error instanceof Error) {
@@ -105,7 +110,7 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
     }
 
     await removeSurat(numId, dept)
-    return NextResponse.json({ success: true })
+    return NextResponse.json({ message: "Data surat berhasil dihapus" })
 
   } catch (error) {
     if (error instanceof AppError) {
@@ -113,7 +118,7 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
     }
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === "P2025") {
-        return NextResponse.json({ error: "Data tidak ditemukan" }, { status: 404 })
+        return NextResponse.json({ message: "Data tidak ditemukan" }, { status: 404 })
       }
     }
     if (error instanceof Error) {

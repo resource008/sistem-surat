@@ -1,4 +1,4 @@
-import { formatTanggalCetak } from "@/lib/surat-helpers"
+import { formatTanggalCetak, getSuratTujuan } from "@/lib/surat-helpers"
 import type { CetakGroup, DetailSurat, RegisterSurat } from "@/types/surat-types"
 import React from 'react'
 
@@ -70,7 +70,7 @@ export function CetakPrintView({ groups = [], totalSurat = 0, printedAt = '' }: 
                         <td>{detail.lampiran ?? '-'}</td>
                         <td>{tglSurat}</td>
                         <td>{detail.noSurat ?? '-'}</td>
-                        {idx === 0 && <td rowSpan={span}>{reg.tujuan}</td>}
+                        {idx === 0 && <td rowSpan={span}>{getSuratTujuan(reg, detail)}</td>}
                         {isVeryFirstRow && <td rowSpan={totalDetailRows} className="td-ttd"></td>}
                       </tr>
                     )
