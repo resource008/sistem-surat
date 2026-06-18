@@ -2,7 +2,7 @@
 
 import type { Dispatch, ReactNode, SetStateAction } from "react"
 import { useMemo, useState } from "react"
-import { ArrowDown, ArrowUp, ChevronDown, CirclePlus, Eye, GripVertical, List, Plus, Printer, Trash2 } from "lucide-react"
+import { ArrowDown, ArrowUp, ChevronDown, CirclePlus, Eye, List, Plus, Printer, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
@@ -130,7 +130,6 @@ export function DepartemenFormFields({
   const [openAddColumns, setOpenAddColumns] = useState(true)
   const [openDisplayColumns, setOpenDisplayColumns] = useState(true)
   const [openColumnIds, setOpenColumnIds] = useState<Set<string>>(() => new Set())
-  const [draggingColumnId, setDraggingColumnId] = useState<string | null>(null)
   const LabelTag = useLabelComponent ? Label : "label"
   const orderedColumns = useMemo(() => orderColumnsWithTujuanLast(form.columns), [form.columns])
   const customColumns = orderedColumns.filter((column) => !column.isDefault)
@@ -162,30 +161,6 @@ export function DepartemenFormFields({
         current.columns.filter((column) => column.id !== columnId || column.isDefault)
       ),
     }))
-  }
-
-  const reorderCustomColumns = (activeId: string, overId: string) => {
-    if (activeId === overId) return
-
-    onChange((current) => {
-      const custom = current.columns.filter((column) => !column.isDefault)
-      const fromIndex = custom.findIndex((column) => column.id === activeId)
-      const toIndex = custom.findIndex((column) => column.id === overId)
-
-      if (fromIndex < 0 || toIndex < 0) return current
-
-      const reordered = [...custom]
-      const [movedColumn] = reordered.splice(fromIndex, 1)
-      reordered.splice(toIndex, 0, movedColumn)
-
-      return {
-        ...current,
-        columns: orderColumnsWithTujuanLast([
-          ...current.columns.filter((column) => column.isDefault),
-          ...reordered,
-        ]),
-      }
-    })
   }
 
   const moveCustomColumn = (columnId: string, direction: -1 | 1) => {
@@ -405,14 +380,6 @@ export function DepartemenFormFields({
                     <div
                       key={column.id}
                       className={`${innerPanelClass} px-4 py-4 ${column.isDefault ? "opacity-85" : ""}`}
-                      onDragOver={(event) => {
-                        if (!disabled && draggingColumnId && !column.isDefault) event.preventDefault()
-                      }}
-                      onDrop={(event) => {
-                        event.preventDefault()
-                        if (!disabled && draggingColumnId && !column.isDefault) reorderCustomColumns(draggingColumnId, column.id)
-                        setDraggingColumnId(null)
-                      }}
                     >
                       <div
                         role="button"
@@ -430,18 +397,6 @@ export function DepartemenFormFields({
                         <div className="flex min-w-0 items-center gap-3">
                           {!column.isDefault && (
                             <div className="flex shrink-0 items-center gap-1" onClick={(event) => event.stopPropagation()}>
-                            <button
-                              type="button"
-                              draggable={!disabled}
-                              disabled={disabled}
-                              aria-label={`Urutkan ${getColumnLabel(column)}`}
-                              className="flex size-7 cursor-grab items-center justify-center rounded-lg text-slate-950 hover:bg-slate-100 active:cursor-grabbing disabled:cursor-not-allowed dark:text-slate-100 dark:hover:bg-slate-800"
-                              onClick={(event) => event.stopPropagation()}
-                              onDragStart={() => setDraggingColumnId(column.id)}
-                              onDragEnd={() => setDraggingColumnId(null)}
-                            >
-                              <GripVertical size={20} />
-                            </button>
                             <button
                               type="button"
                               disabled={disabled || customIndex <= 0}

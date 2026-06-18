@@ -2,7 +2,7 @@
 
 import type { Dispatch, ReactNode, SetStateAction } from "react"
 import { useMemo, useState } from "react"
-import { ArrowDown, ArrowUp, ChevronDown, CirclePlus, Eye, GripVertical, Printer, Trash2 } from "lucide-react"
+import { ArrowDown, ArrowUp, ChevronDown, CirclePlus, Eye, Printer, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
@@ -124,7 +124,6 @@ function SectionButton({
 
 export function DepartemenEditFormFields({
   form,
-  departments = [],
   disabled,
   readOnly = false,
   onChange,
@@ -133,7 +132,6 @@ export function DepartemenEditFormFields({
   const [openDisplay, setOpenDisplay] = useState(true)
   const [openPrintIdentity, setOpenPrintIdentity] = useState(true)
   const [openColumnIds, setOpenColumnIds] = useState<Set<string>>(() => new Set())
-  const [draggingColumnId, setDraggingColumnId] = useState<string | null>(null)
   const orderedColumns = useMemo(() => orderColumnsWithTujuanLast(form.columns), [form.columns])
   const customColumns = orderedColumns.filter((column) => !column.isDefault)
 
@@ -145,30 +143,6 @@ export function DepartemenEditFormFields({
       ...current,
       columns: current.columns.map((column) => column.id === columnId ? updater(column) : column),
     }))
-  }
-
-  const reorderCustomColumns = (activeId: string, overId: string) => {
-    if (activeId === overId) return
-
-    onChange((current) => {
-      const custom = current.columns.filter((column) => !column.isDefault)
-      const fromIndex = custom.findIndex((column) => column.id === activeId)
-      const toIndex = custom.findIndex((column) => column.id === overId)
-
-      if (fromIndex < 0 || toIndex < 0) return current
-
-      const reordered = [...custom]
-      const [movedColumn] = reordered.splice(fromIndex, 1)
-      reordered.splice(toIndex, 0, movedColumn)
-
-      return {
-        ...current,
-        columns: orderColumnsWithTujuanLast([
-          ...current.columns.filter((column) => column.isDefault),
-          ...reordered,
-        ]),
-      }
-    })
   }
 
   const moveCustomColumn = (columnId: string, direction: -1 | 1) => {
@@ -256,18 +230,6 @@ export function DepartemenEditFormFields({
     !column.id.includes(TUJUAN_DEFAULT_ID)
   )
   const selectedMiddleColumns = selectableDisplayColumns.filter((column) => column.showInDataSurat)
-  const existingIdentities = Array.from(
-    new Set(departments.map((department) => department.printColumnName?.trim()).filter(Boolean))
-  ) as string[]
-
-  const setPrintColumnMode = (value: DepartemenFormState["printColumnMode"]) => {
-    onChange((current) => ({
-      ...current,
-      printColumnMode: value,
-      printColumnName: value === "existing" ? "" : current.printColumnName,
-    }))
-  }
-
   return (
     <div className="flex flex-col gap-7">
       <div className="grid gap-x-20 gap-y-6 lg:grid-cols-2">
@@ -311,14 +273,6 @@ export function DepartemenEditFormFields({
                 <div
                   key={column.id}
                   className={`${innerPanelClass} px-4 py-4 ${column.isDefault && !readOnly ? "opacity-85" : ""}`}
-                  onDragOver={(event) => {
-                    if (!disabled && !readOnly && draggingColumnId && !column.isDefault) event.preventDefault()
-                  }}
-                  onDrop={(event) => {
-                    event.preventDefault()
-                    if (!disabled && !readOnly && draggingColumnId && !column.isDefault) reorderCustomColumns(draggingColumnId, column.id)
-                    setDraggingColumnId(null)
-                  }}
                 >
                   <div
                     role="button"
@@ -336,18 +290,6 @@ export function DepartemenEditFormFields({
                     <div className="flex min-w-0 items-center gap-3">
                       {!column.isDefault && !readOnly && (
                         <div className="flex shrink-0 items-center gap-1" onClick={(event) => event.stopPropagation()}>
-                          <button
-                            type="button"
-                            draggable={!disabled}
-                            disabled={disabled}
-                            aria-label={`Urutkan ${label}`}
-                            className="flex size-7 cursor-grab items-center justify-center rounded-lg text-slate-950 hover:bg-slate-100 active:cursor-grabbing disabled:cursor-not-allowed dark:text-slate-100 dark:hover:bg-slate-800"
-                            onClick={(event) => event.stopPropagation()}
-                            onDragStart={() => setDraggingColumnId(column.id)}
-                            onDragEnd={() => setDraggingColumnId(null)}
-                          >
-                            <GripVertical size={20} />
-                          </button>
                           <button
                             type="button"
                             disabled={disabled || customIndex <= 0}
@@ -557,54 +499,15 @@ export function DepartemenEditFormFields({
           <div className="px-6 pb-5 pt-1">
             <div className={`${innerPanelClass} grid gap-4 px-4 py-4`}>
               <FieldRow label="Pilih">
-                {readOnly ? (
-                  <div className={`flex items-center ${fieldClass}`}>
-                    {form.printColumnMode === "existing" ? "Yang sudah ada" : "Buat baru"}
-                  </div>
-                ) : (
-                  <Select
-                    value={form.printColumnMode}
-                    onValueChange={(value) => setPrintColumnMode(value as DepartemenFormState["printColumnMode"])}
-                    disabled={disabled}
-                  >
-                    <SelectTrigger className={`${fieldClass} w-full`}>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="new">Buat baru</SelectItem>
-                      <SelectItem value="existing">Yang sudah ada</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
+                <div className={`flex items-center ${fieldClass}`}>
+                  {form.printColumnMode === "existing" ? "Yang sudah ada" : "Buat baru"}
+                </div>
               </FieldRow>
 
               <FieldRow label="Nama Identifikasi">
-                {form.printColumnMode === "existing" && !readOnly ? (
-                  <Select
-                    value={form.printColumnName}
-                    onValueChange={(value) => onChange((current) => ({ ...current, printColumnName: value }))}
-                    disabled={disabled || existingIdentities.length === 0}
-                  >
-                    <SelectTrigger className={`${fieldClass} w-full`}>
-                      <SelectValue placeholder="Pilih identifikasi cetak" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {existingIdentities.map((identity) => (
-                        <SelectItem key={identity} value={identity}>
-                          {identity}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                ) : (
-                  <Input
-                    value={form.printColumnName}
-                    onChange={(event) => onChange((current) => ({ ...current, printColumnName: event.target.value }))}
-                    placeholder="Masukkan nama"
-                    className={fieldClass}
-                    disabled={disabled || readOnly}
-                  />
-                )}
+                <div className={`flex items-center ${fieldClass}`}>
+                  {form.printColumnName || "Tidak ada data"}
+                </div>
               </FieldRow>
             </div>
           </div>
