@@ -79,16 +79,36 @@ model UserPermission {
 }
 
 model Department {
-  id        String  @id
-  shortName String  @map("short_name")
-  tujuan    String  @default("")
-  isActive  Boolean @default(true) @map("is_active")
+  id              String  @id
+  shortName       String  @map("short_name")
+  tujuan          String  @default("")
+  printColumnName String  @default("") @map("print_column_name")
+  isActive        Boolean @default(true) @map("is_active")
 
   registerSurat RegisterSurat[]
-  registerPI    RegisterPI[]
   nomorCounter  NomorCounter?
+  columns       DepartmentColumn[]
 
   @@map("departments")
+}
+
+model DepartmentColumn {
+  id              String     @id
+  departmentId    String     @map("department_id")
+  department      Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  label           String
+  dataType        String     @map("data_type")
+  defaultValue    String     @default("") @map("default_value")
+  isDefault       Boolean    @default(false) @map("is_default")
+  isRequired      Boolean    @default(false) @map("is_required")
+  showInDataSurat Boolean    @default(false) @map("show_in_data_surat")
+  showInPrint     Boolean    @default(true) @map("show_in_print")
+  sortOrder       Int        @default(0) @map("sort_order")
+  createdAt       DateTime   @default(now()) @map("created_at")
+  updatedAt       DateTime   @updatedAt @map("updated_at")
+
+  @@index([departmentId])
+  @@map("department_columns")
 }
 
 model RegisterSurat {
@@ -107,37 +127,6 @@ model RegisterSurat {
   @@map("register_surat")
 }
 
-model RegisterPI {
-  id            Int        @id @default(autoincrement())
-  nomor         String
-  deptId        String     @map("dept_id")
-  dept          Department @relation(fields: [deptId], references: [id])
-  tanggalTerima DateTime   @map("tanggal_terima")
-  asalSurat     String     @map("asal_surat")
-  createdAt     DateTime   @default(now()) @map("created_at")
-  updatedAt     DateTime   @updatedAt @map("updated_at")
-
-  detailPI DetailPI[]
-
-  @@map("register_pi")
-}
-
-model DetailPI {
-  id           Int        @id @default(autoincrement())
-  registerId   Int        @map("register_id")
-  register     RegisterPI @relation(fields: [registerId], references: [id], onDelete: Cascade)
-  namaSupplier String     @map("nama_supplier")
-  noInvoice    String?    @map("no_invoice")
-  nomorSurat   String?    @map("nomor_surat")
-  tanggalSurat DateTime   @map("tanggal_surat")
-  tujuan       String?
-  cc           String?
-  createdAt    DateTime   @default(now()) @map("created_at")
-  updatedAt    DateTime   @updatedAt @map("updated_at")
-
-  @@map("detail_pi")
-}
-
 model DetailSurat {
   id           Int           @id @default(autoincrement())
   registerId   Int           @map("register_id")
@@ -147,6 +136,7 @@ model DetailSurat {
   lampiran     String?
   tanggalSurat DateTime      @map("tanggal_surat")
   tujuan       String?
+  customFields Json          @default("{}") @map("custom_fields")
   createdAt    DateTime      @default(now()) @map("created_at")
   updatedAt    DateTime      @updatedAt @map("updated_at")
 

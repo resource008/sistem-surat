@@ -1,50 +1,78 @@
 "use client"
 
-import { useState, useEffect, Suspense }   from "react"
+import { useState, useEffect, Suspense, useMemo }   from "react"
 import { useSearchParams }                  from "next/navigation"
 import { format }                           from "date-fns"
 import { id }                              from "date-fns/locale"
 
 import { useCetakData, clearCetakSession } from "@/hooks/use-cetak"
-import { groupCetakData, calcTotalSurat }  from "@/lib/surat-helpers"
+import { groupCetakData }                  from "@/lib/surat-helpers"
 import { CetakEmpty }                      from "@/components/surat/cetak/empty-state"
 import { LoadingSkeleton }                 from "@/components/shared/loading-skeleton"
 import { CetakPrintStyles }               from "@/components/surat/cetak/print-styles"
 import { CetakScreenView }                from "@/components/surat/cetak/screen-view"
 import type { CetakGroup }                from "@/types/surat-types"
-import type { CetakGroupPI }              from "@/components/surat/cetak/print-view-pi"
 
-type SessionType  = "all" | "pi"
-type ActiveFilter = "ALL" | "PI"
+type ActiveFilter = string
+const ALL_TAB = "ALL"
 
-interface CetakPageContentProps<G> {
-  sessionType  : SessionType
+interface CetakPageContentProps {
   activeFilter : ActiveFilter
-  PrintView    : React.ComponentType<{ groups: G[]; totalSurat: number; printedAt: string }>
+  PrintView    : React.ComponentType<{ groups: CetakGroup[]; totalSurat: number; printedAt: string }>
   /** Hanya diperlukan jika berbeda dari default (auto-detect dari pathname) */
   basePath?    : string
 }
 
-function CetakContent<G extends CetakGroup | CetakGroupPI>({
-  sessionType,
+function CetakContent({
   activeFilter,
   PrintView,
-  basePath,
-}: CetakPageContentProps<G>) {
+}: CetakPageContentProps) {
   const searchParams          = useSearchParams()
   const idsParam              = searchParams.get("ids") ?? ""
-  const { data, loading }     = useCetakData(idsParam, sessionType)
+  const { data, loading, error } = useCetakData(idsParam)
   const [cleared, setCleared] = useState(false)
+  const [activeTab, setActiveTab] = useState(activeFilter)
 
   useEffect(() => {
     const handler = () => {
-      clearCetakSession(sessionType)
+      clearCetakSession()
       setCleared(true)
       window.dispatchEvent(new CustomEvent("cetak:cleared"))
     }
     window.addEventListener("cetak:clear", handler)
     return () => window.removeEventListener("cetak:clear", handler)
-  }, [sessionType])
+  }, [])
+
+  useEffect(() => {
+    if (idsParam) setCleared(false)
+  }, [idsParam])
+
+  const groups     = useMemo(() => cleared ? [] : groupCetakData(data), [cleared, data])
+  const tabLabels  = useMemo(() => {
+    const groupLabels = groups
+      .map((group) => group.label)
+      .filter((label): label is string => Boolean(label))
+      .filter((label) => label.trim().toUpperCase() !== ALL_TAB)
+
+    return [ALL_TAB, ...Array.from(new Set(groupLabels))]
+  }, [groups])
+  const effectiveActiveTab = tabLabels.includes(activeTab) ? activeTab : tabLabels[0] ?? ""
+  const visibleGroups = effectiveActiveTab && effectiveActiveTab !== ALL_TAB
+    ? groups.filter((group) => group.label === effectiveActiveTab)
+    : groups
+  const totalSurat = cleared
+    ? 0
+    : visibleGroups.reduce((sum, group) => {
+        return sum + group.registers.reduce((groupTotal, register) => {
+          return groupTotal + (register.detailSurat ?? []).length
+        }, 0)
+      }, 0)
+  const printedAt  = format(new Date(), "dd MMMM yyyy, HH:mm", { locale: id })
+
+  useEffect(() => {
+    if (tabLabels.length === 0) return
+    if (!tabLabels.includes(activeTab)) setActiveTab(tabLabels[0])
+  }, [activeTab, tabLabels])
 
   if (loading) {
     return (
@@ -54,34 +82,36 @@ function CetakContent<G extends CetakGroup | CetakGroupPI>({
     )
   }
 
-  const groups     = cleared ? [] : (groupCetakData(data) as unknown as G[])
-  const totalSurat = cleared ? 0  : calcTotalSurat(data)
-  const printedAt  = format(new Date(), "dd MMMM yyyy, HH:mm", { locale: id })
-
   return (
     <>
       <CetakPrintStyles />
       <CetakScreenView
-        groups={groups as any}
-        activeFilter={activeFilter}
-        basePath={basePath}
+        groups={visibleGroups}
+        activeFilter={effectiveActiveTab}
+        tabs={tabLabels}
+        onTabChange={setActiveTab}
         onBersihkan={() => window.dispatchEvent(new CustomEvent("cetak:clear"))}
       />
-      {groups.length === 0 && (
+      {error ? (
+        <div className="flex min-h-[60vh] items-center justify-center">
+          <CetakEmpty
+            title="Gagal Mengambil Data Cetak"
+            description={error}
+          />
+        </div>
+      ) : visibleGroups.length === 0 && (
         <div className="flex min-h-[60vh] items-center justify-center">
           <CetakEmpty />
         </div>
       )}
-      {groups.length > 0 && (
-        <PrintView groups={groups} totalSurat={totalSurat} printedAt={printedAt} />
+      {!error && visibleGroups.length > 0 && (
+        <PrintView groups={visibleGroups} totalSurat={totalSurat} printedAt={printedAt} />
       )}
     </>
   )
 }
 
-export function CetakPageContent<G extends CetakGroup | CetakGroupPI>(
-  props: CetakPageContentProps<G>
-) {
+export function CetakPageContent(props: CetakPageContentProps) {
   return (
     <Suspense
       fallback={

@@ -9,17 +9,15 @@ export default function DepartemenAddPage() {
   const { state, actions } = useTambahDepartemen()
 
   return (
-    <form onSubmit={actions.submit} className="flex flex-col gap-4 pb-32">
-      <div className="overflow-hidden rounded-2xl border border-border/50 bg-background">
-        <div className="flex flex-col gap-5 px-6 py-6">
-          <DepartemenFormInfo />
-          <DepartemenFormFields
-            form={state.form}
-            onChange={actions.setForm}
-            disabled={state.saving}
-          />
-        </div>
-      </div>
+    <form onSubmit={actions.submit} className="flex flex-col gap-7 pb-32 [overflow-anchor:none]">
+      <DepartemenFormInfo />
+      <DepartemenFormFields
+        form={state.form}
+        departments={state.departments}
+        onChange={actions.setForm}
+        disabled={state.saving}
+        showColumnMode
+      />
 
       <DepartemenFormActionBar
         saving={state.saving}

@@ -5,10 +5,9 @@ import { getSuratTujuan } from "@/lib/surat-helpers"
 
 interface Props {
   register: RegisterSurat
-  isPI: boolean
 }
 
-export function RegisterInfoPanel({ register, isPI }: Props) {
+export function RegisterInfoPanel({ register }: Props) {
   return (
     <div className="w-full lg:w-4/12 xl:w-4/12 flex flex-col gap-4 lg:h-full lg:pb-6">
       <div className="rounded-2xl border border-slate-200 dark:border-slate-800
@@ -45,9 +44,7 @@ export function RegisterInfoPanel({ register, isPI }: Props) {
           <div className="flex flex-col gap-4">
             <Field label="Asal Surat" value={register.asalSurat} fullWidth />
             <Field label="Tanggal Terima" value={formatTanggal(register.tanggalTerima)} fullWidth />
-            {!isPI && (
-              <Field label="Tujuan" value={getSuratTujuan(register)} fullWidth />
-            )}
+            <Field label="Tujuan" value={getSuratTujuan(register)} fullWidth />
           </div>
         </div>
 

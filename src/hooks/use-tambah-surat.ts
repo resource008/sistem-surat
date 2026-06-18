@@ -4,16 +4,28 @@ import { format } from "date-fns"
 import { toast } from "sonner"
 import { getErrorMessage } from "@/lib/utils"
 
-import type { DeptOption, PIItem, SuratItem } from "@/domain/surat/types"
-import { isPIDept, emptyPIItem, emptySuratItem } from "@/domain/surat/entities"
+import type { DeptOption, SuratItem } from "@/domain/surat/types"
+import { emptySuratItem } from "@/domain/surat/entities"
+import {
+  getCustomFieldInputValue,
+  validateCustomFieldValue,
+} from "@/domain/surat/custom-fields"
 import {
   validateSuratForm,
   buildCreatePayload,
   formatLampiran,
-  applyTujuanToPIList,
   applyTujuanToSuratList,
 } from "@/domain/surat/use-cases"
 import { saveSurat, fetchDeptList, fetchPreviewNomor } from "@/domain/surat/repositories"
+
+const DEPT_NOT_FOUND_MESSAGE = "Departemen tidak ditemukan. Hubungi administrator untuk menambahkannya."
+
+function getSubmitErrorMessage(error: unknown) {
+  const message = getErrorMessage(error)
+  return message.toLowerCase().includes("departemen") && message.toLowerCase().includes("tidak ditemukan")
+    ? DEPT_NOT_FOUND_MESSAGE
+    : message
+}
 
 export function useTambahSurat(basePath: string) {
   const router       = useRouter()
@@ -21,9 +33,8 @@ export function useTambahSurat(basePath: string) {
 
   const getReturnPath = () => {
     try {
-      return sessionStorage.getItem("add_return_mode") === "pi"
-        ? `${basePath}?mode=pi`
-        : basePath
+      sessionStorage.removeItem("add_return_mode")
+      return basePath
     } catch {
       return basePath
     }
@@ -38,15 +49,15 @@ export function useTambahSurat(basePath: string) {
   const [saving,        setSaving]        = useState(false)
   const [previewNomor,  setPreviewNomor]  = useState<string | null>(null)
   const [loadingNomor,  setLoadingNomor]  = useState(false)
-  const [piList,        setPiList]        = useState<PIItem[]>([emptyPIItem()])
   const [suratList,     setSuratList]     = useState<SuratItem[]>([emptySuratItem()])
 
   // ── Derived ───────────────────────────────────────────────────────────────
-  const isPI         = isPIDept(deptList.find(d => d.id === deptId)?.shortName ?? "")
   const selectedDept = deptList.find(d => d.id === deptId)
   const selectedTujuan = selectedDept?.shortName ?? ""
-  const itemCount    = isPI ? piList.length : suratList.length
-  const itemLabel    = isPI ? "Invoice" : "Surat"
+  const selectedCustomColumns = (selectedDept?.columns ?? []).filter((column) => !column.isDefault)
+  const hasFillableColumns = selectedCustomColumns.length > 0
+  const itemCount    = suratList.length
+  const itemLabel    = "Surat"
 
   // ── Effects ───────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -60,15 +71,13 @@ export function useTambahSurat(basePath: string) {
   }, [])
 
   useEffect(() => {
-    setPiList([emptyPIItem()])
     setSuratList([emptySuratItem()])
-  }, [isPI])
+  }, [])
 
   useEffect(() => {
     if (!selectedDept) return
-    if (isPI) setPiList(prev => applyTujuanToPIList(prev, selectedTujuan))
-    else setSuratList(prev => applyTujuanToSuratList(prev, selectedTujuan))
-  }, [deptId, selectedDept, selectedTujuan, isPI])
+    setSuratList(prev => applyTujuanToSuratList(prev, selectedTujuan))
+  }, [deptId, selectedDept, selectedTujuan])
 
   useEffect(() => {
     if (!deptId) { setPreviewNomor(null); return }
@@ -84,17 +93,16 @@ export function useTambahSurat(basePath: string) {
     setTanggalTerima,
     setAsalSurat,
 
-    // PI Actions
-    addPI:      () => setPiList(prev => [...prev, emptyPIItem(selectedTujuan)]),
-    removePI:   (id: string) => setPiList(prev => prev.filter(p => p.id !== id)),
-    updatePI:   (id: string, field: keyof Omit<PIItem, "id">, value: string) =>
-      setPiList(prev => prev.map(p => p.id === id ? { ...p, [field]: value } : p)),
-
     // Surat Actions
     addSurat:    () => setSuratList(prev => [...prev, emptySuratItem(selectedTujuan)]),
     removeSurat: (id: string) => setSuratList(prev => prev.filter(s => s.id !== id)),
     updateSurat: (id: string, field: keyof Omit<SuratItem, "id">, value: string) =>
       setSuratList(prev => prev.map(s => s.id === id ? { ...s, [field]: value } : s)),
+    updateSuratCustomField: (id: string, columnId: string, value: string) =>
+      setSuratList(prev => prev.map(s => s.id === id
+        ? { ...s, customFields: { ...(s.customFields ?? {}), [columnId]: value } }
+        : s
+      )),
     updateLampiranNum: (id: string, raw: string) =>
       actions.updateSurat(id, "lampiran", formatLampiran(raw)),
 
@@ -108,14 +116,22 @@ export function useTambahSurat(basePath: string) {
     handleSubmit: async (e: React.FormEvent) => {
       e.preventDefault()
       if (isNavigating.current) return
+      if (deptId && !hasFillableColumns) return
 
       const missing = validateSuratForm({
-        deptId, asalSurat, tanggalTerima, isPIDept: isPI, piList, suratList,
+        deptId, asalSurat, tanggalTerima, suratList,
+      })
+      selectedCustomColumns.forEach((column) => {
+        suratList.forEach((item, index) => {
+          const value = getCustomFieldInputValue(column, item)
+          const error = validateCustomFieldValue(column, value)
+          if (error) missing.push(`Surat ${index + 1}: ${error}`)
+        })
       })
 
       if (missing.length > 0) {
         toast.error("Tidak dapat menyimpan", {
-          description: `${missing.join(", ")} wajib diisi.`,
+          description: missing.join(", "),
         })
         return
       }
@@ -127,16 +143,13 @@ export function useTambahSurat(basePath: string) {
         const payload = buildCreatePayload({
           deptId, asalSurat,
           tujuan:        selectedTujuan,
-          tanggalTerima, isPIDept: isPI,
-          piList, suratList,
+          tanggalTerima, suratList,
         })
 
         await saveSurat(payload)
 
         toast.success("Berhasil Ditambahkan", {
-          description: isPI
-            ? `${piList.length} invoice berhasil disimpan.`
-            : `${suratList.length} surat berhasil disimpan.`,
+          description: `${suratList.length} surat berhasil disimpan.`,
         })
 
         try { sessionStorage.removeItem("add_return_mode") } catch {}
@@ -144,7 +157,7 @@ export function useTambahSurat(basePath: string) {
       } catch (err) {
         isNavigating.current = false
         setSaving(false)
-        toast.error("Gagal Menyimpan", { description: getErrorMessage(err) })
+        toast.error("Gagal Menyimpan", { description: getSubmitErrorMessage(err) })
       }
     },
   }
@@ -152,8 +165,9 @@ export function useTambahSurat(basePath: string) {
   return {
     state: {
       deptId, tanggalTerima, asalSurat, deptList, loading, saving,
-      previewNomor, loadingNomor, piList, suratList, isPI, selectedDept,
+      previewNomor, loadingNomor, suratList, selectedDept,
       itemCount, itemLabel,
+      selectedCustomColumns, hasFillableColumns,
     },
     actions,
   }

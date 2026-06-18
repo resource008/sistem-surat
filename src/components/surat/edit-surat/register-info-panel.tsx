@@ -27,22 +27,20 @@ export function RegisterInfoPanel({ state, actions }: any) {
         </div>
 
         <div className="px-6 py-5 flex flex-col gap-4 lg:overflow-y-auto [&::-webkit-scrollbar]:hidden">
-          {!state.isPI && (
-            <FormField label="Departemen" error={state.formErrors.deptId}>
-              <Select value={deptSelectValue} onValueChange={val => actions.setField("deptId", val)}>
-                <SelectTrigger className={cn("w-full text-[14px] rounded-xl h-10", state.formErrors.deptId && "border-red-500")}>
-                  <SelectValue placeholder="Pilih departemen" />
-                </SelectTrigger>
-                <SelectContent className="rounded-xl">
-                  {state.deptList.map((d: any) => (
-                    <SelectItem key={d.id} value={d.id} className="text-[14px] cursor-pointer">
-                      {d.shortName}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </FormField>
-          )}
+          <FormField label="Departemen" error={state.formErrors.deptId}>
+            <Select value={deptSelectValue} onValueChange={val => actions.setField("deptId", val)}>
+              <SelectTrigger className={cn("w-full text-[14px] rounded-xl h-10", state.formErrors.deptId && "border-red-500")}>
+                <SelectValue placeholder="Pilih departemen" />
+              </SelectTrigger>
+              <SelectContent className="rounded-xl">
+                {state.deptList.map((d: any) => (
+                  <SelectItem key={d.id} value={d.id} className="text-[14px] cursor-pointer">
+                    {d.shortName}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FormField>
 
           <div className="flex flex-col gap-4">
             <FormField label="Asal Surat" error={state.formErrors.asalSurat}>
@@ -53,13 +51,11 @@ export function RegisterInfoPanel({ state, actions }: any) {
                 className={cn("text-[14px] rounded-xl h-10", state.formErrors.asalSurat && "border-red-500 focus-visible:ring-red-500")}
               />
             </FormField>
-            {!state.isPI && (
-              <FormField label="Tujuan">
-                <div className={cn("w-full px-3.5 h-10 flex items-center rounded-xl border text-[14px] font-medium border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 cursor-not-allowed select-none", state.form.tujuan ? "text-slate-600 dark:text-slate-400" : "text-slate-400 dark:text-slate-500")}>
-                  {state.form.tujuan || "Otomatis dari departemen"}
-                </div>
-              </FormField>
-            )}
+            <FormField label="Tujuan">
+              <div className={cn("w-full px-3.5 h-10 flex items-center rounded-xl border text-[14px] font-medium border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 cursor-not-allowed select-none", state.form.tujuan ? "text-slate-600 dark:text-slate-400" : "text-slate-400 dark:text-slate-500")}>
+                {state.form.tujuan || "Otomatis dari departemen"}
+              </div>
+            </FormField>
           </div>
 
           <FormField label="Tanggal Terima">
