@@ -3,11 +3,12 @@ name: Validasi Code
 on:
   push:
     branches:
-      -staging
+      - staging
       - main
   
   pull_request:
     branches:
+      - staging
       - main
 
 jobs:

@@ -1,9 +1,9 @@
 import type { CreateSuratPayload, UpdateSuratPayload, DeptOption } from "./types"
-import type { RegisterSurat, RegisterPI }                          from "@/types"
+import type { RegisterSurat }                                      from "@/types"
 
 // ─── Return type helper ───────────────────────────────────────────────────────
 
-export type SuratResult = RegisterSurat | RegisterPI
+export type SuratResult = RegisterSurat
 export type PaginatedResult<T> = { data: T[]; hasMore: boolean }
 type SaveSuratResponse = { message: string; id: number }
 

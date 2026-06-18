@@ -12,7 +12,7 @@ import type { UserPermissions } from "@/domain/user/types"
 import {
   ChevronRight, Menu, Plus, Printer, X,
 } from "lucide-react"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { Suspense, useEffect, useState } from "react"
 import useSWR from "swr"
 
@@ -58,7 +58,6 @@ function getRequiredPermission(
 function RoleLayoutInner({ role, children }: Props) {
   const pathname = usePathname()
   const router = useRouter()
-  const searchParams = useSearchParams()
   usePresenceHeartbeat()
 
   const roleLower = role.toLowerCase()
@@ -95,7 +94,6 @@ function RoleLayoutInner({ role, children }: Props) {
   const [hasCetakData, setHasCetakData] = useState(false)
   const [selectedDataSuratCount, setSelectedDataSuratCount] = useState(0)
 
-  const showPI = searchParams.get("mode") === "pi"
   const isDataSuratPage = pathname === `${base}/data-surat`
   const isCetakPage = pathname.startsWith(`${base}/cetak`)
   const hasActiveFilters = filters.date !== null || filters.departments.length > 0
@@ -189,7 +187,7 @@ function RoleLayoutInner({ role, children }: Props) {
     const next: Filters = { date: null, departments: [] }
     setFilters(next)
     localStorage.removeItem("topbar_filters")
-    router.push(showPI ? `${base}/data-surat?mode=pi` : `${base}/data-surat`)
+    router.push(`${base}/data-surat`)
   }
 
   function handleClearCetak() {
@@ -294,8 +292,7 @@ function RoleLayoutInner({ role, children }: Props) {
             <div className="flex items-center gap-1.5">
               <TopbarFilter
                 initialFilters={filters}
-                mode={showPI ? "pi" : "surat"}
-                hideDepartments={showPI}
+                mode="surat"
                 onFilterChange={(nextFilters) => {
                   setFilters(nextFilters)
                   localStorage.setItem("topbar_filters", JSON.stringify(nextFilters))
@@ -372,7 +369,7 @@ function RoleLayoutInner({ role, children }: Props) {
         {isDataSuratPage && (permissions?.canCreate ?? false) && !(isMobile && selectedDataSuratCount > 0) && (
           <button
             onClick={() => {
-              sessionStorage.setItem("add_return_mode", showPI ? "pi" : "surat")
+              sessionStorage.setItem("add_return_mode", "surat")
               router.push(`${base}/add`)
             }}
             title="Tambah Surat"

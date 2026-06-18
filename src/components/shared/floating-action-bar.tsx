@@ -13,7 +13,7 @@ interface FloatingActionBarShellProps {
 }
 
 const wrapperClass = {
-  default: "fixed bottom-6 left-1/2 z-50 -translate-x-1/2",
+  default: "fixed bottom-6 z-50 -translate-x-1/2 transition-[left] duration-300 ease-in-out",
   selection:
     "fixed bottom-5 left-3 right-3 z-50 flex justify-center sm:bottom-6 sm:left-1/2 sm:right-auto sm:-translate-x-1/2",
 }
@@ -34,8 +34,13 @@ export function FloatingActionBarShell({
 }: FloatingActionBarShellProps) {
   if (hidden) return null
 
+  const sidebarOffset = "var(--topbar-left, 0px)"
+  const wrapperStyle = variant === "default"
+    ? { left: `calc(${sidebarOffset} + ((100vw - ${sidebarOffset}) / 2))` }
+    : undefined
+
   return (
-    <div className={cn(wrapperClass[variant], className)}>
+    <div className={cn(wrapperClass[variant], className)} style={wrapperStyle}>
       <div className={cn(contentClass[variant], contentClassName)}>
         {children}
       </div>

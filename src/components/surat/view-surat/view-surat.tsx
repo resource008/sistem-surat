@@ -16,7 +16,6 @@ import { LoadingSkeleton }     from "@/components/shared/loading-skeleton"
 
 import { RegisterInfoPanel } from "./register-info-panel"
 import { SuratListPanel }    from "./surat-list-panel"
-import { PIListPanel }       from "./pi-list-panel"
 import { ViewActionBar }     from "./action-bar"
 
 import { toast } from "sonner"
@@ -52,7 +51,6 @@ export default function ViewSuratPage({ role, basePath }: Props) {
   const [error,          setError]          = useState<string | null>(null)
   const [deleting,       setDeleting]       = useState(false)
   const [showDeleteConf, setShowDeleteConf] = useState(false)
-  const isPI = register?.dept?.shortName === "PI"
 
   /* Fetch --------------------------------------------------------- */
   useEffect(() => {
@@ -140,7 +138,7 @@ export default function ViewSuratPage({ role, basePath }: Props) {
           <AlertDialogHeader>
             <AlertDialogTitle className="text-slate-900 dark:text-slate-100
                                          text-[15px] font-semibold">
-              {isPI ? "Hapus Register PI?" : "Hapus Register Surat?"}
+              Hapus Register Surat?
             </AlertDialogTitle>
             <AlertDialogDescription className="text-slate-500 dark:text-slate-400
                                                 text-[13px] leading-relaxed">
@@ -187,16 +185,14 @@ export default function ViewSuratPage({ role, basePath }: Props) {
                       lg:h-[calc(100vh-120px)] lg:overflow-hidden
                       pb-28 lg:pb-0 pt-2">
 
-        <RegisterInfoPanel register={register} isPI={isPI} />
+        <RegisterInfoPanel register={register} />
 
         <div className="w-full lg:w-8/12 xl:w-8/12 flex flex-col gap-4
                         lg:overflow-y-auto pb-10 lg:pb-32 lg:pr-2
                         [&::-webkit-scrollbar]:hidden
                         [-ms-overflow-style:none]
                         [scrollbar-width:none]">
-          {isPI
-            ? <PIListPanel    detailPI={(register as any).detailPI ?? []} />
-            : <SuratListPanel register={register} />}
+          <SuratListPanel register={register} />
         </div>
 
       </div>
