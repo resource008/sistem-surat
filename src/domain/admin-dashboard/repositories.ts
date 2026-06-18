@@ -4,7 +4,6 @@ export interface AdminDashboardRepository {
   countUsers(): Promise<number>
   countActiveDepartments(): Promise<number>
   countSurat(range?: DateRange): Promise<number>
-  countPI(range?: DateRange): Promise<number>
 
   findDepartments(): Promise<
     {

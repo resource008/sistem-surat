@@ -3,21 +3,32 @@
 import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { toast } from "sonner"
-import type { RegisterSurat, RegisterPI, PIItem, SuratItem } from "@/types"
+import type { RegisterSurat, SuratItem } from "@/types"
 import type { DeptOption } from "@/domain/surat/types"
+import {
+  getCustomFieldInputValue,
+  validateCustomFieldValue,
+} from "@/domain/surat/custom-fields"
 import {
   buildUpdatePayload,
   formatLampiran,
   validateSuratForm,
 } from "@/domain/surat/use-cases"
 import {
-  applyTujuanToPIList,
   applyTujuanToSuratList,
-  emptyPIItem,
   emptySuratItem,
 } from "@/domain/surat/entities"
 import { fetchDeptList } from "@/domain/surat/repositories"
 import { getErrorMessage } from "@/lib/utils"
+
+const DEPT_NOT_FOUND_MESSAGE = "Departemen tidak ditemukan. Hubungi administrator untuk menambahkannya."
+
+function getSubmitErrorMessage(error: unknown) {
+  const message = getErrorMessage(error)
+  return message.toLowerCase().includes("departemen") && message.toLowerCase().includes("tidak ditemukan")
+    ? DEPT_NOT_FOUND_MESSAGE
+    : message
+}
 
 interface FormState {
   deptId: string
@@ -30,14 +41,13 @@ export function useEditSurat(basePath: string) {
   const { dept, id } = useParams<{ dept: string; id: string }>()
   const router = useRouter()
 
-  const [original, setOriginal] = useState<RegisterSurat | RegisterPI | null>(null)
+  const [original, setOriginal] = useState<RegisterSurat | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [formErrors, setFormErrors] = useState<Record<string, string>>({})
   const [previewNomor, setPreviewNomor] = useState<string | null>(null)
   const [deptList, setDeptList] = useState<DeptOption[]>([])
-  const [isPI, setIsPI] = useState(false)
 
   const [form, setForm] = useState<FormState>({
     deptId: "",
@@ -47,8 +57,8 @@ export function useEditSurat(basePath: string) {
   })
 
   const [suratList, setSuratList] = useState<SuratItem[]>([])
-  const [piList, setPiList] = useState<PIItem[]>([])
   const selectedDept = deptList.find((item) => item.id === form.deptId)
+  const selectedCustomColumns = (selectedDept?.columns ?? []).filter((column) => !column.isDefault)
 
   useEffect(() => {
     fetchDeptList()
@@ -68,9 +78,7 @@ export function useEditSurat(basePath: string) {
           return
         }
 
-        const d = data as RegisterSurat | RegisterPI
-        const nextIsPI = d.dept?.shortName === "PI" || "detailPI" in d
-        setIsPI(nextIsPI)
+        const d = data as RegisterSurat
         setOriginal(d)
         setForm({
           deptId: d.dept?.id ?? "",
@@ -79,28 +87,15 @@ export function useEditSurat(basePath: string) {
           tanggalTerima: d.tanggalTerima?.slice(0, 10) ?? new Date().toISOString().slice(0, 10),
         })
 
-        if (nextIsPI) {
-          const pi = d as RegisterPI
-          setPiList(pi.detailPI.map((p) => ({
-            id: String(p.id),
-            namaSupplier: p.namaSupplier,
-            noInvoice: p.noInvoice ?? "",
-            nomorSurat: p.nomorSurat ?? "",
-            tujuan: d.dept?.shortName ?? p.tujuan ?? "",
-            cc: p.cc ?? "",
-            tanggalSurat: p.tanggalSurat.slice(0, 10),
-          })))
-        } else {
-          const surat = d as RegisterSurat
-          setSuratList(surat.detailSurat.map((s) => ({
-            id: String(s.id),
-            perihal: s.perihal,
-            noSurat: s.noSurat ?? "",
-            lampiran: s.lampiran ?? "",
-            tujuan: d.dept?.shortName ?? s.tujuan ?? "",
-            tanggalSurat: s.tanggalSurat.slice(0, 10),
-          })))
-        }
+        setSuratList(d.detailSurat.map((s) => ({
+          id: String(s.id),
+          perihal: s.perihal,
+          noSurat: s.noSurat ?? "",
+          lampiran: s.lampiran ?? "",
+          tujuan: d.dept?.shortName ?? s.tujuan ?? "",
+          tanggalSurat: s.tanggalSurat.slice(0, 10),
+          customFields: s.customFields ?? {},
+        })))
 
         window.dispatchEvent(new CustomEvent("breadcrumb:sub", {
           detail: `Edit - ${d.dept?.shortName} / ${d.nomor}`,
@@ -113,20 +108,28 @@ export function useEditSurat(basePath: string) {
   function validate(): boolean {
     const missing = validateSuratForm({
       asalSurat: form.asalSurat,
-      isPIDept: isPI,
-      piList,
       suratList,
     })
 
+    const errs: Record<string, string> = {}
+    missing.forEach((msg: string) => { errs[msg] = msg })
+    selectedCustomColumns.forEach((column) => {
+      suratList.forEach((item, index) => {
+        const value = getCustomFieldInputValue(column, item)
+        const error = validateCustomFieldValue(column, value)
+        if (error) {
+          const key = `surat_${index}_custom_${column.id}`
+          errs[key] = error
+          missing.push(`Surat ${index + 1}: ${error}`)
+        }
+      })
+    })
+    setFormErrors(errs)
     if (missing.length > 0) {
       toast.error("Gagal menyimpan", {
         description: `Mohon diisi di bagian: ${missing.join(", ")}`,
       })
     }
-
-    const errs: Record<string, string> = {}
-    missing.forEach((msg: string) => { errs[msg] = msg })
-    setFormErrors(errs)
     return missing.length === 0
   }
 
@@ -143,8 +146,7 @@ export function useEditSurat(basePath: string) {
       })
 
       if (key === "deptId" && value) {
-        if (isPI) setPiList((prev) => applyTujuanToPIList(prev, nextTujuan))
-        else setSuratList((prev) => applyTujuanToSuratList(prev, nextTujuan))
+        setSuratList((prev) => applyTujuanToSuratList(prev, nextTujuan))
       }
 
       setFormErrors((prev) => {
@@ -173,22 +175,22 @@ export function useEditSurat(basePath: string) {
         return next
       })
     },
+    setSuratCustomField: (idx: number, columnId: string, value: string) => {
+      setSuratList((prev) => prev.map((s, i) => i === idx
+        ? { ...s, customFields: { ...(s.customFields ?? {}), [columnId]: value } }
+        : s
+      ))
+      setFormErrors((prev) => {
+        const next = { ...prev }
+        delete next[`surat_${idx}_custom_${columnId}`]
+        return next
+      })
+    },
     setLampiranNum: (idx: number, raw: string) => {
       setSuratList((prev) => prev.map((s, i) => i === idx ? { ...s, lampiran: formatLampiran(raw) } : s))
     },
     addSurat: () => setSuratList((prev) => [...prev, emptySuratItem(form.tujuan)]),
     removeSurat: (idx: number) => setSuratList((prev) => prev.filter((_, i) => i !== idx)),
-
-    setPiField: (idx: number, key: keyof PIItem, value: string) => {
-      setPiList((prev) => prev.map((p, i) => i === idx ? { ...p, [key]: value } : p))
-      setFormErrors((prev) => {
-        const next = { ...prev }
-        delete next[`pi_${idx}_${key}`]
-        return next
-      })
-    },
-    addPI: () => setPiList((prev) => [...prev, emptyPIItem(form.tujuan)]),
-    removePI: (idx: number) => setPiList((prev) => prev.filter((_, i) => i !== idx)),
 
     handleBack: () => router.push(`${basePath}/view/${dept}/${id}`),
 
@@ -201,8 +203,6 @@ export function useEditSurat(basePath: string) {
           asalSurat: form.asalSurat,
           tujuan: form.tujuan,
           tanggalTerima: form.tanggalTerima,
-          isPIDept: isPI,
-          piList,
           suratList,
         })
 
@@ -218,7 +218,7 @@ export function useEditSurat(basePath: string) {
         toast.success(result?.message ?? "Data surat berhasil diubah")
         router.push(`${basePath}/view/${payload.deptId}/${id}`)
       } catch (e: unknown) {
-        toast.error("Gagal Menyimpan", { description: getErrorMessage(e) })
+        toast.error("Gagal Menyimpan", { description: getSubmitErrorMessage(e) })
       } finally {
         setSaving(false)
       }
@@ -227,18 +227,17 @@ export function useEditSurat(basePath: string) {
 
   return {
     state: {
-      isPI,
       loading,
       saving,
       error,
       original,
       form,
       suratList,
-      piList,
       formErrors,
       previewNomor,
       deptList,
       selectedDept,
+      selectedCustomColumns,
     },
     actions,
   }

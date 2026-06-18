@@ -28,19 +28,6 @@ export class PrismaAdminDashboardRepository
     })
   }
 
-  countPI(range?: DateRange) {
-    return prisma.registerPI.count({
-      where: range
-        ? {
-            tanggalTerima: {
-              gte: range.start,
-              lte: range.end,
-            },
-          }
-        : undefined,
-    })
-  }
-
   findDepartments() {
     return prisma.department.findMany({
       where: { isActive: true },

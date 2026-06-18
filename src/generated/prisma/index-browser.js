@@ -204,31 +204,6 @@ exports.Prisma.RegisterSuratScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
-exports.Prisma.RegisterPIScalarFieldEnum = {
-  id: 'id',
-  nomor: 'nomor',
-  deptId: 'deptId',
-  tanggalTerima: 'tanggalTerima',
-  asalSurat: 'asalSurat',
-  customDetails: 'customDetails',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-};
-
-exports.Prisma.DetailPIScalarFieldEnum = {
-  id: 'id',
-  registerId: 'registerId',
-  namaSupplier: 'namaSupplier',
-  noInvoice: 'noInvoice',
-  nomorSurat: 'nomorSurat',
-  tanggalSurat: 'tanggalSurat',
-  tujuan: 'tujuan',
-  cc: 'cc',
-  customFields: 'customFields',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-};
-
 exports.Prisma.DetailSuratScalarFieldEnum = {
   id: 'id',
   registerId: 'registerId',
@@ -285,8 +260,6 @@ exports.Prisma.ModelName = {
   Department: 'Department',
   DepartmentColumn: 'DepartmentColumn',
   RegisterSurat: 'RegisterSurat',
-  RegisterPI: 'RegisterPI',
-  DetailPI: 'DetailPI',
   DetailSurat: 'DetailSurat',
   NomorCounter: 'NomorCounter'
 };

@@ -6,7 +6,6 @@ import { Role } from "../shared"
 
 import { useEditSurat } from "@/hooks/use-edit-surat"
 import { FloatingActionBar } from "./action-bar"
-import { PIListPanel } from "./pi-list-panel"
 import { RegisterInfoPanel } from "./register-info-panel"
 import { SuratListPanel } from "./surat-list-panel"
 
@@ -40,7 +39,7 @@ export default function EditSuratPage({ role, basePath }: Props) {
         
         <div className="w-full lg:w-8/12 xl:w-8/12 flex flex-col gap-4 lg:overflow-y-auto pb-10 lg:pb-32 lg:pr-2 [&::-webkit-scrollbar]:hidden">
           <div className="flex flex-col gap-3">
-            {state.isPI ? <PIListPanel state={state} actions={actions} /> : <SuratListPanel state={state} actions={actions} />}
+            <SuratListPanel state={state} actions={actions} />
           </div>
         </div>
       </div>

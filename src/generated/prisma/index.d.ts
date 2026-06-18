@@ -49,16 +49,6 @@ export type DepartmentColumn = $Result.DefaultSelection<Prisma.$DepartmentColumn
  */
 export type RegisterSurat = $Result.DefaultSelection<Prisma.$RegisterSuratPayload>
 /**
- * Model RegisterPI
- * 
- */
-export type RegisterPI = $Result.DefaultSelection<Prisma.$RegisterPIPayload>
-/**
- * Model DetailPI
- * 
- */
-export type DetailPI = $Result.DefaultSelection<Prisma.$DetailPIPayload>
-/**
  * Model DetailSurat
  * 
  */
@@ -277,26 +267,6 @@ export class PrismaClient<
     * ```
     */
   get registerSurat(): Prisma.RegisterSuratDelegate<ExtArgs, ClientOptions>;
-
-  /**
-   * `prisma.registerPI`: Exposes CRUD operations for the **RegisterPI** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more RegisterPIS
-    * const registerPIS = await prisma.registerPI.findMany()
-    * ```
-    */
-  get registerPI(): Prisma.RegisterPIDelegate<ExtArgs, ClientOptions>;
-
-  /**
-   * `prisma.detailPI`: Exposes CRUD operations for the **DetailPI** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more DetailPIS
-    * const detailPIS = await prisma.detailPI.findMany()
-    * ```
-    */
-  get detailPI(): Prisma.DetailPIDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.detailSurat`: Exposes CRUD operations for the **DetailSurat** model.
@@ -758,8 +728,6 @@ export namespace Prisma {
     Department: 'Department',
     DepartmentColumn: 'DepartmentColumn',
     RegisterSurat: 'RegisterSurat',
-    RegisterPI: 'RegisterPI',
-    DetailPI: 'DetailPI',
     DetailSurat: 'DetailSurat',
     NomorCounter: 'NomorCounter'
   };
@@ -777,7 +745,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "session" | "account" | "userPermission" | "department" | "departmentColumn" | "registerSurat" | "registerPI" | "detailPI" | "detailSurat" | "nomorCounter"
+      modelProps: "user" | "session" | "account" | "userPermission" | "department" | "departmentColumn" | "registerSurat" | "detailSurat" | "nomorCounter"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1299,154 +1267,6 @@ export namespace Prisma {
           }
         }
       }
-      RegisterPI: {
-        payload: Prisma.$RegisterPIPayload<ExtArgs>
-        fields: Prisma.RegisterPIFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.RegisterPIFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$RegisterPIPayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.RegisterPIFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$RegisterPIPayload>
-          }
-          findFirst: {
-            args: Prisma.RegisterPIFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$RegisterPIPayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.RegisterPIFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$RegisterPIPayload>
-          }
-          findMany: {
-            args: Prisma.RegisterPIFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$RegisterPIPayload>[]
-          }
-          create: {
-            args: Prisma.RegisterPICreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$RegisterPIPayload>
-          }
-          createMany: {
-            args: Prisma.RegisterPICreateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          createManyAndReturn: {
-            args: Prisma.RegisterPICreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$RegisterPIPayload>[]
-          }
-          delete: {
-            args: Prisma.RegisterPIDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$RegisterPIPayload>
-          }
-          update: {
-            args: Prisma.RegisterPIUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$RegisterPIPayload>
-          }
-          deleteMany: {
-            args: Prisma.RegisterPIDeleteManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateMany: {
-            args: Prisma.RegisterPIUpdateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateManyAndReturn: {
-            args: Prisma.RegisterPIUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$RegisterPIPayload>[]
-          }
-          upsert: {
-            args: Prisma.RegisterPIUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$RegisterPIPayload>
-          }
-          aggregate: {
-            args: Prisma.RegisterPIAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateRegisterPI>
-          }
-          groupBy: {
-            args: Prisma.RegisterPIGroupByArgs<ExtArgs>
-            result: $Utils.Optional<RegisterPIGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.RegisterPICountArgs<ExtArgs>
-            result: $Utils.Optional<RegisterPICountAggregateOutputType> | number
-          }
-        }
-      }
-      DetailPI: {
-        payload: Prisma.$DetailPIPayload<ExtArgs>
-        fields: Prisma.DetailPIFieldRefs
-        operations: {
-          findUnique: {
-            args: Prisma.DetailPIFindUniqueArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DetailPIPayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.DetailPIFindUniqueOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DetailPIPayload>
-          }
-          findFirst: {
-            args: Prisma.DetailPIFindFirstArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DetailPIPayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.DetailPIFindFirstOrThrowArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DetailPIPayload>
-          }
-          findMany: {
-            args: Prisma.DetailPIFindManyArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DetailPIPayload>[]
-          }
-          create: {
-            args: Prisma.DetailPICreateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DetailPIPayload>
-          }
-          createMany: {
-            args: Prisma.DetailPICreateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          createManyAndReturn: {
-            args: Prisma.DetailPICreateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DetailPIPayload>[]
-          }
-          delete: {
-            args: Prisma.DetailPIDeleteArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DetailPIPayload>
-          }
-          update: {
-            args: Prisma.DetailPIUpdateArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DetailPIPayload>
-          }
-          deleteMany: {
-            args: Prisma.DetailPIDeleteManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateMany: {
-            args: Prisma.DetailPIUpdateManyArgs<ExtArgs>
-            result: BatchPayload
-          }
-          updateManyAndReturn: {
-            args: Prisma.DetailPIUpdateManyAndReturnArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DetailPIPayload>[]
-          }
-          upsert: {
-            args: Prisma.DetailPIUpsertArgs<ExtArgs>
-            result: $Utils.PayloadToResult<Prisma.$DetailPIPayload>
-          }
-          aggregate: {
-            args: Prisma.DetailPIAggregateArgs<ExtArgs>
-            result: $Utils.Optional<AggregateDetailPI>
-          }
-          groupBy: {
-            args: Prisma.DetailPIGroupByArgs<ExtArgs>
-            result: $Utils.Optional<DetailPIGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.DetailPICountArgs<ExtArgs>
-            result: $Utils.Optional<DetailPICountAggregateOutputType> | number
-          }
-        }
-      }
       DetailSurat: {
         payload: Prisma.$DetailSuratPayload<ExtArgs>
         fields: Prisma.DetailSuratFieldRefs
@@ -1710,8 +1530,6 @@ export namespace Prisma {
     department?: DepartmentOmit
     departmentColumn?: DepartmentColumnOmit
     registerSurat?: RegisterSuratOmit
-    registerPI?: RegisterPIOmit
-    detailPI?: DetailPIOmit
     detailSurat?: DetailSuratOmit
     nomorCounter?: NomorCounterOmit
   }
@@ -1835,13 +1653,11 @@ export namespace Prisma {
 
   export type DepartmentCountOutputType = {
     registerSurat: number
-    registerPI: number
     columns: number
   }
 
   export type DepartmentCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     registerSurat?: boolean | DepartmentCountOutputTypeCountRegisterSuratArgs
-    registerPI?: boolean | DepartmentCountOutputTypeCountRegisterPIArgs
     columns?: boolean | DepartmentCountOutputTypeCountColumnsArgs
   }
 
@@ -1861,13 +1677,6 @@ export namespace Prisma {
    */
   export type DepartmentCountOutputTypeCountRegisterSuratArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: RegisterSuratWhereInput
-  }
-
-  /**
-   * DepartmentCountOutputType without action
-   */
-  export type DepartmentCountOutputTypeCountRegisterPIArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: RegisterPIWhereInput
   }
 
   /**
@@ -1906,37 +1715,6 @@ export namespace Prisma {
    */
   export type RegisterSuratCountOutputTypeCountDetailSuratArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: DetailSuratWhereInput
-  }
-
-
-  /**
-   * Count Type RegisterPICountOutputType
-   */
-
-  export type RegisterPICountOutputType = {
-    detailPI: number
-  }
-
-  export type RegisterPICountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    detailPI?: boolean | RegisterPICountOutputTypeCountDetailPIArgs
-  }
-
-  // Custom InputTypes
-  /**
-   * RegisterPICountOutputType without action
-   */
-  export type RegisterPICountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the RegisterPICountOutputType
-     */
-    select?: RegisterPICountOutputTypeSelect<ExtArgs> | null
-  }
-
-  /**
-   * RegisterPICountOutputType without action
-   */
-  export type RegisterPICountOutputTypeCountDetailPIArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: DetailPIWhereInput
   }
 
 
@@ -6658,7 +6436,6 @@ export namespace Prisma {
     printColumnName?: boolean
     isActive?: boolean
     registerSurat?: boolean | Department$registerSuratArgs<ExtArgs>
-    registerPI?: boolean | Department$registerPIArgs<ExtArgs>
     nomorCounter?: boolean | Department$nomorCounterArgs<ExtArgs>
     columns?: boolean | Department$columnsArgs<ExtArgs>
     _count?: boolean | DepartmentCountOutputTypeDefaultArgs<ExtArgs>
@@ -6691,7 +6468,6 @@ export namespace Prisma {
   export type DepartmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "shortName" | "tujuan" | "printColumnName" | "isActive", ExtArgs["result"]["department"]>
   export type DepartmentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     registerSurat?: boolean | Department$registerSuratArgs<ExtArgs>
-    registerPI?: boolean | Department$registerPIArgs<ExtArgs>
     nomorCounter?: boolean | Department$nomorCounterArgs<ExtArgs>
     columns?: boolean | Department$columnsArgs<ExtArgs>
     _count?: boolean | DepartmentCountOutputTypeDefaultArgs<ExtArgs>
@@ -6703,7 +6479,6 @@ export namespace Prisma {
     name: "Department"
     objects: {
       registerSurat: Prisma.$RegisterSuratPayload<ExtArgs>[]
-      registerPI: Prisma.$RegisterPIPayload<ExtArgs>[]
       nomorCounter: Prisma.$NomorCounterPayload<ExtArgs> | null
       columns: Prisma.$DepartmentColumnPayload<ExtArgs>[]
     }
@@ -7108,7 +6883,6 @@ export namespace Prisma {
   export interface Prisma__DepartmentClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     registerSurat<T extends Department$registerSuratArgs<ExtArgs> = {}>(args?: Subset<T, Department$registerSuratArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RegisterSuratPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    registerPI<T extends Department$registerPIArgs<ExtArgs> = {}>(args?: Subset<T, Department$registerPIArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RegisterPIPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     nomorCounter<T extends Department$nomorCounterArgs<ExtArgs> = {}>(args?: Subset<T, Department$nomorCounterArgs<ExtArgs>>): Prisma__NomorCounterClient<$Result.GetResult<Prisma.$NomorCounterPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     columns<T extends Department$columnsArgs<ExtArgs> = {}>(args?: Subset<T, Department$columnsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DepartmentColumnPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
@@ -7559,30 +7333,6 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: RegisterSuratScalarFieldEnum | RegisterSuratScalarFieldEnum[]
-  }
-
-  /**
-   * Department.registerPI
-   */
-  export type Department$registerPIArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the RegisterPI
-     */
-    select?: RegisterPISelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the RegisterPI
-     */
-    omit?: RegisterPIOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: RegisterPIInclude<ExtArgs> | null
-    where?: RegisterPIWhereInput
-    orderBy?: RegisterPIOrderByWithRelationInput | RegisterPIOrderByWithRelationInput[]
-    cursor?: RegisterPIWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: RegisterPIScalarFieldEnum | RegisterPIScalarFieldEnum[]
   }
 
   /**
@@ -10002,2343 +9752,6 @@ export namespace Prisma {
 
 
   /**
-   * Model RegisterPI
-   */
-
-  export type AggregateRegisterPI = {
-    _count: RegisterPICountAggregateOutputType | null
-    _avg: RegisterPIAvgAggregateOutputType | null
-    _sum: RegisterPISumAggregateOutputType | null
-    _min: RegisterPIMinAggregateOutputType | null
-    _max: RegisterPIMaxAggregateOutputType | null
-  }
-
-  export type RegisterPIAvgAggregateOutputType = {
-    id: number | null
-  }
-
-  export type RegisterPISumAggregateOutputType = {
-    id: number | null
-  }
-
-  export type RegisterPIMinAggregateOutputType = {
-    id: number | null
-    nomor: string | null
-    deptId: string | null
-    tanggalTerima: Date | null
-    asalSurat: string | null
-    createdAt: Date | null
-    updatedAt: Date | null
-  }
-
-  export type RegisterPIMaxAggregateOutputType = {
-    id: number | null
-    nomor: string | null
-    deptId: string | null
-    tanggalTerima: Date | null
-    asalSurat: string | null
-    createdAt: Date | null
-    updatedAt: Date | null
-  }
-
-  export type RegisterPICountAggregateOutputType = {
-    id: number
-    nomor: number
-    deptId: number
-    tanggalTerima: number
-    asalSurat: number
-    customDetails: number
-    createdAt: number
-    updatedAt: number
-    _all: number
-  }
-
-
-  export type RegisterPIAvgAggregateInputType = {
-    id?: true
-  }
-
-  export type RegisterPISumAggregateInputType = {
-    id?: true
-  }
-
-  export type RegisterPIMinAggregateInputType = {
-    id?: true
-    nomor?: true
-    deptId?: true
-    tanggalTerima?: true
-    asalSurat?: true
-    createdAt?: true
-    updatedAt?: true
-  }
-
-  export type RegisterPIMaxAggregateInputType = {
-    id?: true
-    nomor?: true
-    deptId?: true
-    tanggalTerima?: true
-    asalSurat?: true
-    createdAt?: true
-    updatedAt?: true
-  }
-
-  export type RegisterPICountAggregateInputType = {
-    id?: true
-    nomor?: true
-    deptId?: true
-    tanggalTerima?: true
-    asalSurat?: true
-    customDetails?: true
-    createdAt?: true
-    updatedAt?: true
-    _all?: true
-  }
-
-  export type RegisterPIAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which RegisterPI to aggregate.
-     */
-    where?: RegisterPIWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of RegisterPIS to fetch.
-     */
-    orderBy?: RegisterPIOrderByWithRelationInput | RegisterPIOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: RegisterPIWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` RegisterPIS from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` RegisterPIS.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned RegisterPIS
-    **/
-    _count?: true | RegisterPICountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to average
-    **/
-    _avg?: RegisterPIAvgAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to sum
-    **/
-    _sum?: RegisterPISumAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: RegisterPIMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: RegisterPIMaxAggregateInputType
-  }
-
-  export type GetRegisterPIAggregateType<T extends RegisterPIAggregateArgs> = {
-        [P in keyof T & keyof AggregateRegisterPI]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateRegisterPI[P]>
-      : GetScalarType<T[P], AggregateRegisterPI[P]>
-  }
-
-
-
-
-  export type RegisterPIGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: RegisterPIWhereInput
-    orderBy?: RegisterPIOrderByWithAggregationInput | RegisterPIOrderByWithAggregationInput[]
-    by: RegisterPIScalarFieldEnum[] | RegisterPIScalarFieldEnum
-    having?: RegisterPIScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: RegisterPICountAggregateInputType | true
-    _avg?: RegisterPIAvgAggregateInputType
-    _sum?: RegisterPISumAggregateInputType
-    _min?: RegisterPIMinAggregateInputType
-    _max?: RegisterPIMaxAggregateInputType
-  }
-
-  export type RegisterPIGroupByOutputType = {
-    id: number
-    nomor: string
-    deptId: string
-    tanggalTerima: Date
-    asalSurat: string
-    customDetails: JsonValue
-    createdAt: Date
-    updatedAt: Date
-    _count: RegisterPICountAggregateOutputType | null
-    _avg: RegisterPIAvgAggregateOutputType | null
-    _sum: RegisterPISumAggregateOutputType | null
-    _min: RegisterPIMinAggregateOutputType | null
-    _max: RegisterPIMaxAggregateOutputType | null
-  }
-
-  type GetRegisterPIGroupByPayload<T extends RegisterPIGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<RegisterPIGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof RegisterPIGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], RegisterPIGroupByOutputType[P]>
-            : GetScalarType<T[P], RegisterPIGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type RegisterPISelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    nomor?: boolean
-    deptId?: boolean
-    tanggalTerima?: boolean
-    asalSurat?: boolean
-    customDetails?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    dept?: boolean | DepartmentDefaultArgs<ExtArgs>
-    detailPI?: boolean | RegisterPI$detailPIArgs<ExtArgs>
-    _count?: boolean | RegisterPICountOutputTypeDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["registerPI"]>
-
-  export type RegisterPISelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    nomor?: boolean
-    deptId?: boolean
-    tanggalTerima?: boolean
-    asalSurat?: boolean
-    customDetails?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    dept?: boolean | DepartmentDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["registerPI"]>
-
-  export type RegisterPISelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    nomor?: boolean
-    deptId?: boolean
-    tanggalTerima?: boolean
-    asalSurat?: boolean
-    customDetails?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    dept?: boolean | DepartmentDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["registerPI"]>
-
-  export type RegisterPISelectScalar = {
-    id?: boolean
-    nomor?: boolean
-    deptId?: boolean
-    tanggalTerima?: boolean
-    asalSurat?: boolean
-    customDetails?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-  }
-
-  export type RegisterPIOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "nomor" | "deptId" | "tanggalTerima" | "asalSurat" | "customDetails" | "createdAt" | "updatedAt", ExtArgs["result"]["registerPI"]>
-  export type RegisterPIInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    dept?: boolean | DepartmentDefaultArgs<ExtArgs>
-    detailPI?: boolean | RegisterPI$detailPIArgs<ExtArgs>
-    _count?: boolean | RegisterPICountOutputTypeDefaultArgs<ExtArgs>
-  }
-  export type RegisterPIIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    dept?: boolean | DepartmentDefaultArgs<ExtArgs>
-  }
-  export type RegisterPIIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    dept?: boolean | DepartmentDefaultArgs<ExtArgs>
-  }
-
-  export type $RegisterPIPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "RegisterPI"
-    objects: {
-      dept: Prisma.$DepartmentPayload<ExtArgs>
-      detailPI: Prisma.$DetailPIPayload<ExtArgs>[]
-    }
-    scalars: $Extensions.GetPayloadResult<{
-      id: number
-      nomor: string
-      deptId: string
-      tanggalTerima: Date
-      asalSurat: string
-      customDetails: Prisma.JsonValue
-      createdAt: Date
-      updatedAt: Date
-    }, ExtArgs["result"]["registerPI"]>
-    composites: {}
-  }
-
-  type RegisterPIGetPayload<S extends boolean | null | undefined | RegisterPIDefaultArgs> = $Result.GetResult<Prisma.$RegisterPIPayload, S>
-
-  type RegisterPICountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<RegisterPIFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: RegisterPICountAggregateInputType | true
-    }
-
-  export interface RegisterPIDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['RegisterPI'], meta: { name: 'RegisterPI' } }
-    /**
-     * Find zero or one RegisterPI that matches the filter.
-     * @param {RegisterPIFindUniqueArgs} args - Arguments to find a RegisterPI
-     * @example
-     * // Get one RegisterPI
-     * const registerPI = await prisma.registerPI.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends RegisterPIFindUniqueArgs>(args: SelectSubset<T, RegisterPIFindUniqueArgs<ExtArgs>>): Prisma__RegisterPIClient<$Result.GetResult<Prisma.$RegisterPIPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find one RegisterPI that matches the filter or throw an error with `error.code='P2025'`
-     * if no matches were found.
-     * @param {RegisterPIFindUniqueOrThrowArgs} args - Arguments to find a RegisterPI
-     * @example
-     * // Get one RegisterPI
-     * const registerPI = await prisma.registerPI.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends RegisterPIFindUniqueOrThrowArgs>(args: SelectSubset<T, RegisterPIFindUniqueOrThrowArgs<ExtArgs>>): Prisma__RegisterPIClient<$Result.GetResult<Prisma.$RegisterPIPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first RegisterPI that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {RegisterPIFindFirstArgs} args - Arguments to find a RegisterPI
-     * @example
-     * // Get one RegisterPI
-     * const registerPI = await prisma.registerPI.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends RegisterPIFindFirstArgs>(args?: SelectSubset<T, RegisterPIFindFirstArgs<ExtArgs>>): Prisma__RegisterPIClient<$Result.GetResult<Prisma.$RegisterPIPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first RegisterPI that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {RegisterPIFindFirstOrThrowArgs} args - Arguments to find a RegisterPI
-     * @example
-     * // Get one RegisterPI
-     * const registerPI = await prisma.registerPI.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends RegisterPIFindFirstOrThrowArgs>(args?: SelectSubset<T, RegisterPIFindFirstOrThrowArgs<ExtArgs>>): Prisma__RegisterPIClient<$Result.GetResult<Prisma.$RegisterPIPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find zero or more RegisterPIS that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {RegisterPIFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all RegisterPIS
-     * const registerPIS = await prisma.registerPI.findMany()
-     * 
-     * // Get first 10 RegisterPIS
-     * const registerPIS = await prisma.registerPI.findMany({ take: 10 })
-     * 
-     * // Only select the `id`
-     * const registerPIWithIdOnly = await prisma.registerPI.findMany({ select: { id: true } })
-     * 
-     */
-    findMany<T extends RegisterPIFindManyArgs>(args?: SelectSubset<T, RegisterPIFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RegisterPIPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
-
-    /**
-     * Create a RegisterPI.
-     * @param {RegisterPICreateArgs} args - Arguments to create a RegisterPI.
-     * @example
-     * // Create one RegisterPI
-     * const RegisterPI = await prisma.registerPI.create({
-     *   data: {
-     *     // ... data to create a RegisterPI
-     *   }
-     * })
-     * 
-     */
-    create<T extends RegisterPICreateArgs>(args: SelectSubset<T, RegisterPICreateArgs<ExtArgs>>): Prisma__RegisterPIClient<$Result.GetResult<Prisma.$RegisterPIPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Create many RegisterPIS.
-     * @param {RegisterPICreateManyArgs} args - Arguments to create many RegisterPIS.
-     * @example
-     * // Create many RegisterPIS
-     * const registerPI = await prisma.registerPI.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends RegisterPICreateManyArgs>(args?: SelectSubset<T, RegisterPICreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create many RegisterPIS and returns the data saved in the database.
-     * @param {RegisterPICreateManyAndReturnArgs} args - Arguments to create many RegisterPIS.
-     * @example
-     * // Create many RegisterPIS
-     * const registerPI = await prisma.registerPI.createManyAndReturn({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Create many RegisterPIS and only return the `id`
-     * const registerPIWithIdOnly = await prisma.registerPI.createManyAndReturn({
-     *   select: { id: true },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    createManyAndReturn<T extends RegisterPICreateManyAndReturnArgs>(args?: SelectSubset<T, RegisterPICreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RegisterPIPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Delete a RegisterPI.
-     * @param {RegisterPIDeleteArgs} args - Arguments to delete one RegisterPI.
-     * @example
-     * // Delete one RegisterPI
-     * const RegisterPI = await prisma.registerPI.delete({
-     *   where: {
-     *     // ... filter to delete one RegisterPI
-     *   }
-     * })
-     * 
-     */
-    delete<T extends RegisterPIDeleteArgs>(args: SelectSubset<T, RegisterPIDeleteArgs<ExtArgs>>): Prisma__RegisterPIClient<$Result.GetResult<Prisma.$RegisterPIPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Update one RegisterPI.
-     * @param {RegisterPIUpdateArgs} args - Arguments to update one RegisterPI.
-     * @example
-     * // Update one RegisterPI
-     * const registerPI = await prisma.registerPI.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends RegisterPIUpdateArgs>(args: SelectSubset<T, RegisterPIUpdateArgs<ExtArgs>>): Prisma__RegisterPIClient<$Result.GetResult<Prisma.$RegisterPIPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Delete zero or more RegisterPIS.
-     * @param {RegisterPIDeleteManyArgs} args - Arguments to filter RegisterPIS to delete.
-     * @example
-     * // Delete a few RegisterPIS
-     * const { count } = await prisma.registerPI.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends RegisterPIDeleteManyArgs>(args?: SelectSubset<T, RegisterPIDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more RegisterPIS.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {RegisterPIUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many RegisterPIS
-     * const registerPI = await prisma.registerPI.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends RegisterPIUpdateManyArgs>(args: SelectSubset<T, RegisterPIUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more RegisterPIS and returns the data updated in the database.
-     * @param {RegisterPIUpdateManyAndReturnArgs} args - Arguments to update many RegisterPIS.
-     * @example
-     * // Update many RegisterPIS
-     * const registerPI = await prisma.registerPI.updateManyAndReturn({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Update zero or more RegisterPIS and only return the `id`
-     * const registerPIWithIdOnly = await prisma.registerPI.updateManyAndReturn({
-     *   select: { id: true },
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    updateManyAndReturn<T extends RegisterPIUpdateManyAndReturnArgs>(args: SelectSubset<T, RegisterPIUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RegisterPIPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Create or update one RegisterPI.
-     * @param {RegisterPIUpsertArgs} args - Arguments to update or create a RegisterPI.
-     * @example
-     * // Update or create a RegisterPI
-     * const registerPI = await prisma.registerPI.upsert({
-     *   create: {
-     *     // ... data to create a RegisterPI
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the RegisterPI we want to update
-     *   }
-     * })
-     */
-    upsert<T extends RegisterPIUpsertArgs>(args: SelectSubset<T, RegisterPIUpsertArgs<ExtArgs>>): Prisma__RegisterPIClient<$Result.GetResult<Prisma.$RegisterPIPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-
-    /**
-     * Count the number of RegisterPIS.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {RegisterPICountArgs} args - Arguments to filter RegisterPIS to count.
-     * @example
-     * // Count the number of RegisterPIS
-     * const count = await prisma.registerPI.count({
-     *   where: {
-     *     // ... the filter for the RegisterPIS we want to count
-     *   }
-     * })
-    **/
-    count<T extends RegisterPICountArgs>(
-      args?: Subset<T, RegisterPICountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], RegisterPICountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a RegisterPI.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {RegisterPIAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends RegisterPIAggregateArgs>(args: Subset<T, RegisterPIAggregateArgs>): Prisma.PrismaPromise<GetRegisterPIAggregateType<T>>
-
-    /**
-     * Group by RegisterPI.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {RegisterPIGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends RegisterPIGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: RegisterPIGroupByArgs['orderBy'] }
-        : { orderBy?: RegisterPIGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, RegisterPIGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetRegisterPIGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the RegisterPI model
-   */
-  readonly fields: RegisterPIFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for RegisterPI.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__RegisterPIClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    dept<T extends DepartmentDefaultArgs<ExtArgs> = {}>(args?: Subset<T, DepartmentDefaultArgs<ExtArgs>>): Prisma__DepartmentClient<$Result.GetResult<Prisma.$DepartmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    detailPI<T extends RegisterPI$detailPIArgs<ExtArgs> = {}>(args?: Subset<T, RegisterPI$detailPIArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DetailPIPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the RegisterPI model
-   */
-  interface RegisterPIFieldRefs {
-    readonly id: FieldRef<"RegisterPI", 'Int'>
-    readonly nomor: FieldRef<"RegisterPI", 'String'>
-    readonly deptId: FieldRef<"RegisterPI", 'String'>
-    readonly tanggalTerima: FieldRef<"RegisterPI", 'DateTime'>
-    readonly asalSurat: FieldRef<"RegisterPI", 'String'>
-    readonly customDetails: FieldRef<"RegisterPI", 'Json'>
-    readonly createdAt: FieldRef<"RegisterPI", 'DateTime'>
-    readonly updatedAt: FieldRef<"RegisterPI", 'DateTime'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * RegisterPI findUnique
-   */
-  export type RegisterPIFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the RegisterPI
-     */
-    select?: RegisterPISelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the RegisterPI
-     */
-    omit?: RegisterPIOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: RegisterPIInclude<ExtArgs> | null
-    /**
-     * Filter, which RegisterPI to fetch.
-     */
-    where: RegisterPIWhereUniqueInput
-  }
-
-  /**
-   * RegisterPI findUniqueOrThrow
-   */
-  export type RegisterPIFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the RegisterPI
-     */
-    select?: RegisterPISelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the RegisterPI
-     */
-    omit?: RegisterPIOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: RegisterPIInclude<ExtArgs> | null
-    /**
-     * Filter, which RegisterPI to fetch.
-     */
-    where: RegisterPIWhereUniqueInput
-  }
-
-  /**
-   * RegisterPI findFirst
-   */
-  export type RegisterPIFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the RegisterPI
-     */
-    select?: RegisterPISelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the RegisterPI
-     */
-    omit?: RegisterPIOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: RegisterPIInclude<ExtArgs> | null
-    /**
-     * Filter, which RegisterPI to fetch.
-     */
-    where?: RegisterPIWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of RegisterPIS to fetch.
-     */
-    orderBy?: RegisterPIOrderByWithRelationInput | RegisterPIOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for RegisterPIS.
-     */
-    cursor?: RegisterPIWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` RegisterPIS from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` RegisterPIS.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of RegisterPIS.
-     */
-    distinct?: RegisterPIScalarFieldEnum | RegisterPIScalarFieldEnum[]
-  }
-
-  /**
-   * RegisterPI findFirstOrThrow
-   */
-  export type RegisterPIFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the RegisterPI
-     */
-    select?: RegisterPISelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the RegisterPI
-     */
-    omit?: RegisterPIOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: RegisterPIInclude<ExtArgs> | null
-    /**
-     * Filter, which RegisterPI to fetch.
-     */
-    where?: RegisterPIWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of RegisterPIS to fetch.
-     */
-    orderBy?: RegisterPIOrderByWithRelationInput | RegisterPIOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for RegisterPIS.
-     */
-    cursor?: RegisterPIWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` RegisterPIS from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` RegisterPIS.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of RegisterPIS.
-     */
-    distinct?: RegisterPIScalarFieldEnum | RegisterPIScalarFieldEnum[]
-  }
-
-  /**
-   * RegisterPI findMany
-   */
-  export type RegisterPIFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the RegisterPI
-     */
-    select?: RegisterPISelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the RegisterPI
-     */
-    omit?: RegisterPIOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: RegisterPIInclude<ExtArgs> | null
-    /**
-     * Filter, which RegisterPIS to fetch.
-     */
-    where?: RegisterPIWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of RegisterPIS to fetch.
-     */
-    orderBy?: RegisterPIOrderByWithRelationInput | RegisterPIOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing RegisterPIS.
-     */
-    cursor?: RegisterPIWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` RegisterPIS from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` RegisterPIS.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of RegisterPIS.
-     */
-    distinct?: RegisterPIScalarFieldEnum | RegisterPIScalarFieldEnum[]
-  }
-
-  /**
-   * RegisterPI create
-   */
-  export type RegisterPICreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the RegisterPI
-     */
-    select?: RegisterPISelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the RegisterPI
-     */
-    omit?: RegisterPIOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: RegisterPIInclude<ExtArgs> | null
-    /**
-     * The data needed to create a RegisterPI.
-     */
-    data: XOR<RegisterPICreateInput, RegisterPIUncheckedCreateInput>
-  }
-
-  /**
-   * RegisterPI createMany
-   */
-  export type RegisterPICreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many RegisterPIS.
-     */
-    data: RegisterPICreateManyInput | RegisterPICreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * RegisterPI createManyAndReturn
-   */
-  export type RegisterPICreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the RegisterPI
-     */
-    select?: RegisterPISelectCreateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the RegisterPI
-     */
-    omit?: RegisterPIOmit<ExtArgs> | null
-    /**
-     * The data used to create many RegisterPIS.
-     */
-    data: RegisterPICreateManyInput | RegisterPICreateManyInput[]
-    skipDuplicates?: boolean
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: RegisterPIIncludeCreateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * RegisterPI update
-   */
-  export type RegisterPIUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the RegisterPI
-     */
-    select?: RegisterPISelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the RegisterPI
-     */
-    omit?: RegisterPIOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: RegisterPIInclude<ExtArgs> | null
-    /**
-     * The data needed to update a RegisterPI.
-     */
-    data: XOR<RegisterPIUpdateInput, RegisterPIUncheckedUpdateInput>
-    /**
-     * Choose, which RegisterPI to update.
-     */
-    where: RegisterPIWhereUniqueInput
-  }
-
-  /**
-   * RegisterPI updateMany
-   */
-  export type RegisterPIUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update RegisterPIS.
-     */
-    data: XOR<RegisterPIUpdateManyMutationInput, RegisterPIUncheckedUpdateManyInput>
-    /**
-     * Filter which RegisterPIS to update
-     */
-    where?: RegisterPIWhereInput
-    /**
-     * Limit how many RegisterPIS to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * RegisterPI updateManyAndReturn
-   */
-  export type RegisterPIUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the RegisterPI
-     */
-    select?: RegisterPISelectUpdateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the RegisterPI
-     */
-    omit?: RegisterPIOmit<ExtArgs> | null
-    /**
-     * The data used to update RegisterPIS.
-     */
-    data: XOR<RegisterPIUpdateManyMutationInput, RegisterPIUncheckedUpdateManyInput>
-    /**
-     * Filter which RegisterPIS to update
-     */
-    where?: RegisterPIWhereInput
-    /**
-     * Limit how many RegisterPIS to update.
-     */
-    limit?: number
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: RegisterPIIncludeUpdateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * RegisterPI upsert
-   */
-  export type RegisterPIUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the RegisterPI
-     */
-    select?: RegisterPISelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the RegisterPI
-     */
-    omit?: RegisterPIOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: RegisterPIInclude<ExtArgs> | null
-    /**
-     * The filter to search for the RegisterPI to update in case it exists.
-     */
-    where: RegisterPIWhereUniqueInput
-    /**
-     * In case the RegisterPI found by the `where` argument doesn't exist, create a new RegisterPI with this data.
-     */
-    create: XOR<RegisterPICreateInput, RegisterPIUncheckedCreateInput>
-    /**
-     * In case the RegisterPI was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<RegisterPIUpdateInput, RegisterPIUncheckedUpdateInput>
-  }
-
-  /**
-   * RegisterPI delete
-   */
-  export type RegisterPIDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the RegisterPI
-     */
-    select?: RegisterPISelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the RegisterPI
-     */
-    omit?: RegisterPIOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: RegisterPIInclude<ExtArgs> | null
-    /**
-     * Filter which RegisterPI to delete.
-     */
-    where: RegisterPIWhereUniqueInput
-  }
-
-  /**
-   * RegisterPI deleteMany
-   */
-  export type RegisterPIDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which RegisterPIS to delete
-     */
-    where?: RegisterPIWhereInput
-    /**
-     * Limit how many RegisterPIS to delete.
-     */
-    limit?: number
-  }
-
-  /**
-   * RegisterPI.detailPI
-   */
-  export type RegisterPI$detailPIArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the DetailPI
-     */
-    select?: DetailPISelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the DetailPI
-     */
-    omit?: DetailPIOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: DetailPIInclude<ExtArgs> | null
-    where?: DetailPIWhereInput
-    orderBy?: DetailPIOrderByWithRelationInput | DetailPIOrderByWithRelationInput[]
-    cursor?: DetailPIWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: DetailPIScalarFieldEnum | DetailPIScalarFieldEnum[]
-  }
-
-  /**
-   * RegisterPI without action
-   */
-  export type RegisterPIDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the RegisterPI
-     */
-    select?: RegisterPISelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the RegisterPI
-     */
-    omit?: RegisterPIOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: RegisterPIInclude<ExtArgs> | null
-  }
-
-
-  /**
-   * Model DetailPI
-   */
-
-  export type AggregateDetailPI = {
-    _count: DetailPICountAggregateOutputType | null
-    _avg: DetailPIAvgAggregateOutputType | null
-    _sum: DetailPISumAggregateOutputType | null
-    _min: DetailPIMinAggregateOutputType | null
-    _max: DetailPIMaxAggregateOutputType | null
-  }
-
-  export type DetailPIAvgAggregateOutputType = {
-    id: number | null
-    registerId: number | null
-  }
-
-  export type DetailPISumAggregateOutputType = {
-    id: number | null
-    registerId: number | null
-  }
-
-  export type DetailPIMinAggregateOutputType = {
-    id: number | null
-    registerId: number | null
-    namaSupplier: string | null
-    noInvoice: string | null
-    nomorSurat: string | null
-    tanggalSurat: Date | null
-    tujuan: string | null
-    cc: string | null
-    createdAt: Date | null
-    updatedAt: Date | null
-  }
-
-  export type DetailPIMaxAggregateOutputType = {
-    id: number | null
-    registerId: number | null
-    namaSupplier: string | null
-    noInvoice: string | null
-    nomorSurat: string | null
-    tanggalSurat: Date | null
-    tujuan: string | null
-    cc: string | null
-    createdAt: Date | null
-    updatedAt: Date | null
-  }
-
-  export type DetailPICountAggregateOutputType = {
-    id: number
-    registerId: number
-    namaSupplier: number
-    noInvoice: number
-    nomorSurat: number
-    tanggalSurat: number
-    tujuan: number
-    cc: number
-    customFields: number
-    createdAt: number
-    updatedAt: number
-    _all: number
-  }
-
-
-  export type DetailPIAvgAggregateInputType = {
-    id?: true
-    registerId?: true
-  }
-
-  export type DetailPISumAggregateInputType = {
-    id?: true
-    registerId?: true
-  }
-
-  export type DetailPIMinAggregateInputType = {
-    id?: true
-    registerId?: true
-    namaSupplier?: true
-    noInvoice?: true
-    nomorSurat?: true
-    tanggalSurat?: true
-    tujuan?: true
-    cc?: true
-    createdAt?: true
-    updatedAt?: true
-  }
-
-  export type DetailPIMaxAggregateInputType = {
-    id?: true
-    registerId?: true
-    namaSupplier?: true
-    noInvoice?: true
-    nomorSurat?: true
-    tanggalSurat?: true
-    tujuan?: true
-    cc?: true
-    createdAt?: true
-    updatedAt?: true
-  }
-
-  export type DetailPICountAggregateInputType = {
-    id?: true
-    registerId?: true
-    namaSupplier?: true
-    noInvoice?: true
-    nomorSurat?: true
-    tanggalSurat?: true
-    tujuan?: true
-    cc?: true
-    customFields?: true
-    createdAt?: true
-    updatedAt?: true
-    _all?: true
-  }
-
-  export type DetailPIAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which DetailPI to aggregate.
-     */
-    where?: DetailPIWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of DetailPIS to fetch.
-     */
-    orderBy?: DetailPIOrderByWithRelationInput | DetailPIOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: DetailPIWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` DetailPIS from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` DetailPIS.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned DetailPIS
-    **/
-    _count?: true | DetailPICountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to average
-    **/
-    _avg?: DetailPIAvgAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to sum
-    **/
-    _sum?: DetailPISumAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: DetailPIMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: DetailPIMaxAggregateInputType
-  }
-
-  export type GetDetailPIAggregateType<T extends DetailPIAggregateArgs> = {
-        [P in keyof T & keyof AggregateDetailPI]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateDetailPI[P]>
-      : GetScalarType<T[P], AggregateDetailPI[P]>
-  }
-
-
-
-
-  export type DetailPIGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: DetailPIWhereInput
-    orderBy?: DetailPIOrderByWithAggregationInput | DetailPIOrderByWithAggregationInput[]
-    by: DetailPIScalarFieldEnum[] | DetailPIScalarFieldEnum
-    having?: DetailPIScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: DetailPICountAggregateInputType | true
-    _avg?: DetailPIAvgAggregateInputType
-    _sum?: DetailPISumAggregateInputType
-    _min?: DetailPIMinAggregateInputType
-    _max?: DetailPIMaxAggregateInputType
-  }
-
-  export type DetailPIGroupByOutputType = {
-    id: number
-    registerId: number
-    namaSupplier: string
-    noInvoice: string | null
-    nomorSurat: string | null
-    tanggalSurat: Date
-    tujuan: string | null
-    cc: string | null
-    customFields: JsonValue
-    createdAt: Date
-    updatedAt: Date
-    _count: DetailPICountAggregateOutputType | null
-    _avg: DetailPIAvgAggregateOutputType | null
-    _sum: DetailPISumAggregateOutputType | null
-    _min: DetailPIMinAggregateOutputType | null
-    _max: DetailPIMaxAggregateOutputType | null
-  }
-
-  type GetDetailPIGroupByPayload<T extends DetailPIGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickEnumerable<DetailPIGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof DetailPIGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], DetailPIGroupByOutputType[P]>
-            : GetScalarType<T[P], DetailPIGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type DetailPISelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    registerId?: boolean
-    namaSupplier?: boolean
-    noInvoice?: boolean
-    nomorSurat?: boolean
-    tanggalSurat?: boolean
-    tujuan?: boolean
-    cc?: boolean
-    customFields?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    register?: boolean | RegisterPIDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["detailPI"]>
-
-  export type DetailPISelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    registerId?: boolean
-    namaSupplier?: boolean
-    noInvoice?: boolean
-    nomorSurat?: boolean
-    tanggalSurat?: boolean
-    tujuan?: boolean
-    cc?: boolean
-    customFields?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    register?: boolean | RegisterPIDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["detailPI"]>
-
-  export type DetailPISelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    registerId?: boolean
-    namaSupplier?: boolean
-    noInvoice?: boolean
-    nomorSurat?: boolean
-    tanggalSurat?: boolean
-    tujuan?: boolean
-    cc?: boolean
-    customFields?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-    register?: boolean | RegisterPIDefaultArgs<ExtArgs>
-  }, ExtArgs["result"]["detailPI"]>
-
-  export type DetailPISelectScalar = {
-    id?: boolean
-    registerId?: boolean
-    namaSupplier?: boolean
-    noInvoice?: boolean
-    nomorSurat?: boolean
-    tanggalSurat?: boolean
-    tujuan?: boolean
-    cc?: boolean
-    customFields?: boolean
-    createdAt?: boolean
-    updatedAt?: boolean
-  }
-
-  export type DetailPIOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "registerId" | "namaSupplier" | "noInvoice" | "nomorSurat" | "tanggalSurat" | "tujuan" | "cc" | "customFields" | "createdAt" | "updatedAt", ExtArgs["result"]["detailPI"]>
-  export type DetailPIInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    register?: boolean | RegisterPIDefaultArgs<ExtArgs>
-  }
-  export type DetailPIIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    register?: boolean | RegisterPIDefaultArgs<ExtArgs>
-  }
-  export type DetailPIIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    register?: boolean | RegisterPIDefaultArgs<ExtArgs>
-  }
-
-  export type $DetailPIPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    name: "DetailPI"
-    objects: {
-      register: Prisma.$RegisterPIPayload<ExtArgs>
-    }
-    scalars: $Extensions.GetPayloadResult<{
-      id: number
-      registerId: number
-      namaSupplier: string
-      noInvoice: string | null
-      nomorSurat: string | null
-      tanggalSurat: Date
-      tujuan: string | null
-      cc: string | null
-      customFields: Prisma.JsonValue
-      createdAt: Date
-      updatedAt: Date
-    }, ExtArgs["result"]["detailPI"]>
-    composites: {}
-  }
-
-  type DetailPIGetPayload<S extends boolean | null | undefined | DetailPIDefaultArgs> = $Result.GetResult<Prisma.$DetailPIPayload, S>
-
-  type DetailPICountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
-    Omit<DetailPIFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
-      select?: DetailPICountAggregateInputType | true
-    }
-
-  export interface DetailPIDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['DetailPI'], meta: { name: 'DetailPI' } }
-    /**
-     * Find zero or one DetailPI that matches the filter.
-     * @param {DetailPIFindUniqueArgs} args - Arguments to find a DetailPI
-     * @example
-     * // Get one DetailPI
-     * const detailPI = await prisma.detailPI.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUnique<T extends DetailPIFindUniqueArgs>(args: SelectSubset<T, DetailPIFindUniqueArgs<ExtArgs>>): Prisma__DetailPIClient<$Result.GetResult<Prisma.$DetailPIPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find one DetailPI that matches the filter or throw an error with `error.code='P2025'`
-     * if no matches were found.
-     * @param {DetailPIFindUniqueOrThrowArgs} args - Arguments to find a DetailPI
-     * @example
-     * // Get one DetailPI
-     * const detailPI = await prisma.detailPI.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findUniqueOrThrow<T extends DetailPIFindUniqueOrThrowArgs>(args: SelectSubset<T, DetailPIFindUniqueOrThrowArgs<ExtArgs>>): Prisma__DetailPIClient<$Result.GetResult<Prisma.$DetailPIPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first DetailPI that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {DetailPIFindFirstArgs} args - Arguments to find a DetailPI
-     * @example
-     * // Get one DetailPI
-     * const detailPI = await prisma.detailPI.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirst<T extends DetailPIFindFirstArgs>(args?: SelectSubset<T, DetailPIFindFirstArgs<ExtArgs>>): Prisma__DetailPIClient<$Result.GetResult<Prisma.$DetailPIPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find the first DetailPI that matches the filter or
-     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {DetailPIFindFirstOrThrowArgs} args - Arguments to find a DetailPI
-     * @example
-     * // Get one DetailPI
-     * const detailPI = await prisma.detailPI.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     */
-    findFirstOrThrow<T extends DetailPIFindFirstOrThrowArgs>(args?: SelectSubset<T, DetailPIFindFirstOrThrowArgs<ExtArgs>>): Prisma__DetailPIClient<$Result.GetResult<Prisma.$DetailPIPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Find zero or more DetailPIS that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {DetailPIFindManyArgs} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all DetailPIS
-     * const detailPIS = await prisma.detailPI.findMany()
-     * 
-     * // Get first 10 DetailPIS
-     * const detailPIS = await prisma.detailPI.findMany({ take: 10 })
-     * 
-     * // Only select the `id`
-     * const detailPIWithIdOnly = await prisma.detailPI.findMany({ select: { id: true } })
-     * 
-     */
-    findMany<T extends DetailPIFindManyArgs>(args?: SelectSubset<T, DetailPIFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DetailPIPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
-
-    /**
-     * Create a DetailPI.
-     * @param {DetailPICreateArgs} args - Arguments to create a DetailPI.
-     * @example
-     * // Create one DetailPI
-     * const DetailPI = await prisma.detailPI.create({
-     *   data: {
-     *     // ... data to create a DetailPI
-     *   }
-     * })
-     * 
-     */
-    create<T extends DetailPICreateArgs>(args: SelectSubset<T, DetailPICreateArgs<ExtArgs>>): Prisma__DetailPIClient<$Result.GetResult<Prisma.$DetailPIPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Create many DetailPIS.
-     * @param {DetailPICreateManyArgs} args - Arguments to create many DetailPIS.
-     * @example
-     * // Create many DetailPIS
-     * const detailPI = await prisma.detailPI.createMany({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     *     
-     */
-    createMany<T extends DetailPICreateManyArgs>(args?: SelectSubset<T, DetailPICreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create many DetailPIS and returns the data saved in the database.
-     * @param {DetailPICreateManyAndReturnArgs} args - Arguments to create many DetailPIS.
-     * @example
-     * // Create many DetailPIS
-     * const detailPI = await prisma.detailPI.createManyAndReturn({
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Create many DetailPIS and only return the `id`
-     * const detailPIWithIdOnly = await prisma.detailPI.createManyAndReturn({
-     *   select: { id: true },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    createManyAndReturn<T extends DetailPICreateManyAndReturnArgs>(args?: SelectSubset<T, DetailPICreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DetailPIPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Delete a DetailPI.
-     * @param {DetailPIDeleteArgs} args - Arguments to delete one DetailPI.
-     * @example
-     * // Delete one DetailPI
-     * const DetailPI = await prisma.detailPI.delete({
-     *   where: {
-     *     // ... filter to delete one DetailPI
-     *   }
-     * })
-     * 
-     */
-    delete<T extends DetailPIDeleteArgs>(args: SelectSubset<T, DetailPIDeleteArgs<ExtArgs>>): Prisma__DetailPIClient<$Result.GetResult<Prisma.$DetailPIPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Update one DetailPI.
-     * @param {DetailPIUpdateArgs} args - Arguments to update one DetailPI.
-     * @example
-     * // Update one DetailPI
-     * const detailPI = await prisma.detailPI.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    update<T extends DetailPIUpdateArgs>(args: SelectSubset<T, DetailPIUpdateArgs<ExtArgs>>): Prisma__DetailPIClient<$Result.GetResult<Prisma.$DetailPIPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-    /**
-     * Delete zero or more DetailPIS.
-     * @param {DetailPIDeleteManyArgs} args - Arguments to filter DetailPIS to delete.
-     * @example
-     * // Delete a few DetailPIS
-     * const { count } = await prisma.detailPI.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-     */
-    deleteMany<T extends DetailPIDeleteManyArgs>(args?: SelectSubset<T, DetailPIDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more DetailPIS.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {DetailPIUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many DetailPIS
-     * const detailPI = await prisma.detailPI.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-     */
-    updateMany<T extends DetailPIUpdateManyArgs>(args: SelectSubset<T, DetailPIUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more DetailPIS and returns the data updated in the database.
-     * @param {DetailPIUpdateManyAndReturnArgs} args - Arguments to update many DetailPIS.
-     * @example
-     * // Update many DetailPIS
-     * const detailPI = await prisma.detailPI.updateManyAndReturn({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * 
-     * // Update zero or more DetailPIS and only return the `id`
-     * const detailPIWithIdOnly = await prisma.detailPI.updateManyAndReturn({
-     *   select: { id: true },
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: [
-     *     // ... provide data here
-     *   ]
-     * })
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * 
-     */
-    updateManyAndReturn<T extends DetailPIUpdateManyAndReturnArgs>(args: SelectSubset<T, DetailPIUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DetailPIPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
-
-    /**
-     * Create or update one DetailPI.
-     * @param {DetailPIUpsertArgs} args - Arguments to update or create a DetailPI.
-     * @example
-     * // Update or create a DetailPI
-     * const detailPI = await prisma.detailPI.upsert({
-     *   create: {
-     *     // ... data to create a DetailPI
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the DetailPI we want to update
-     *   }
-     * })
-     */
-    upsert<T extends DetailPIUpsertArgs>(args: SelectSubset<T, DetailPIUpsertArgs<ExtArgs>>): Prisma__DetailPIClient<$Result.GetResult<Prisma.$DetailPIPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
-
-
-    /**
-     * Count the number of DetailPIS.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {DetailPICountArgs} args - Arguments to filter DetailPIS to count.
-     * @example
-     * // Count the number of DetailPIS
-     * const count = await prisma.detailPI.count({
-     *   where: {
-     *     // ... the filter for the DetailPIS we want to count
-     *   }
-     * })
-    **/
-    count<T extends DetailPICountArgs>(
-      args?: Subset<T, DetailPICountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], DetailPICountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a DetailPI.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {DetailPIAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends DetailPIAggregateArgs>(args: Subset<T, DetailPIAggregateArgs>): Prisma.PrismaPromise<GetDetailPIAggregateType<T>>
-
-    /**
-     * Group by DetailPI.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {DetailPIGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends DetailPIGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: DetailPIGroupByArgs['orderBy'] }
-        : { orderBy?: DetailPIGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends MaybeTupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, DetailPIGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDetailPIGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-  /**
-   * Fields of the DetailPI model
-   */
-  readonly fields: DetailPIFieldRefs;
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for DetailPI.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export interface Prisma__DetailPIClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
-    readonly [Symbol.toStringTag]: "PrismaPromise"
-    register<T extends RegisterPIDefaultArgs<ExtArgs> = {}>(args?: Subset<T, RegisterPIDefaultArgs<ExtArgs>>): Prisma__RegisterPIClient<$Result.GetResult<Prisma.$RegisterPIPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
-  }
-
-
-
-
-  /**
-   * Fields of the DetailPI model
-   */
-  interface DetailPIFieldRefs {
-    readonly id: FieldRef<"DetailPI", 'Int'>
-    readonly registerId: FieldRef<"DetailPI", 'Int'>
-    readonly namaSupplier: FieldRef<"DetailPI", 'String'>
-    readonly noInvoice: FieldRef<"DetailPI", 'String'>
-    readonly nomorSurat: FieldRef<"DetailPI", 'String'>
-    readonly tanggalSurat: FieldRef<"DetailPI", 'DateTime'>
-    readonly tujuan: FieldRef<"DetailPI", 'String'>
-    readonly cc: FieldRef<"DetailPI", 'String'>
-    readonly customFields: FieldRef<"DetailPI", 'Json'>
-    readonly createdAt: FieldRef<"DetailPI", 'DateTime'>
-    readonly updatedAt: FieldRef<"DetailPI", 'DateTime'>
-  }
-    
-
-  // Custom InputTypes
-  /**
-   * DetailPI findUnique
-   */
-  export type DetailPIFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the DetailPI
-     */
-    select?: DetailPISelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the DetailPI
-     */
-    omit?: DetailPIOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: DetailPIInclude<ExtArgs> | null
-    /**
-     * Filter, which DetailPI to fetch.
-     */
-    where: DetailPIWhereUniqueInput
-  }
-
-  /**
-   * DetailPI findUniqueOrThrow
-   */
-  export type DetailPIFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the DetailPI
-     */
-    select?: DetailPISelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the DetailPI
-     */
-    omit?: DetailPIOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: DetailPIInclude<ExtArgs> | null
-    /**
-     * Filter, which DetailPI to fetch.
-     */
-    where: DetailPIWhereUniqueInput
-  }
-
-  /**
-   * DetailPI findFirst
-   */
-  export type DetailPIFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the DetailPI
-     */
-    select?: DetailPISelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the DetailPI
-     */
-    omit?: DetailPIOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: DetailPIInclude<ExtArgs> | null
-    /**
-     * Filter, which DetailPI to fetch.
-     */
-    where?: DetailPIWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of DetailPIS to fetch.
-     */
-    orderBy?: DetailPIOrderByWithRelationInput | DetailPIOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for DetailPIS.
-     */
-    cursor?: DetailPIWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` DetailPIS from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` DetailPIS.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of DetailPIS.
-     */
-    distinct?: DetailPIScalarFieldEnum | DetailPIScalarFieldEnum[]
-  }
-
-  /**
-   * DetailPI findFirstOrThrow
-   */
-  export type DetailPIFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the DetailPI
-     */
-    select?: DetailPISelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the DetailPI
-     */
-    omit?: DetailPIOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: DetailPIInclude<ExtArgs> | null
-    /**
-     * Filter, which DetailPI to fetch.
-     */
-    where?: DetailPIWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of DetailPIS to fetch.
-     */
-    orderBy?: DetailPIOrderByWithRelationInput | DetailPIOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for DetailPIS.
-     */
-    cursor?: DetailPIWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` DetailPIS from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` DetailPIS.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of DetailPIS.
-     */
-    distinct?: DetailPIScalarFieldEnum | DetailPIScalarFieldEnum[]
-  }
-
-  /**
-   * DetailPI findMany
-   */
-  export type DetailPIFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the DetailPI
-     */
-    select?: DetailPISelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the DetailPI
-     */
-    omit?: DetailPIOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: DetailPIInclude<ExtArgs> | null
-    /**
-     * Filter, which DetailPIS to fetch.
-     */
-    where?: DetailPIWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of DetailPIS to fetch.
-     */
-    orderBy?: DetailPIOrderByWithRelationInput | DetailPIOrderByWithRelationInput[]
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing DetailPIS.
-     */
-    cursor?: DetailPIWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` DetailPIS from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` DetailPIS.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of DetailPIS.
-     */
-    distinct?: DetailPIScalarFieldEnum | DetailPIScalarFieldEnum[]
-  }
-
-  /**
-   * DetailPI create
-   */
-  export type DetailPICreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the DetailPI
-     */
-    select?: DetailPISelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the DetailPI
-     */
-    omit?: DetailPIOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: DetailPIInclude<ExtArgs> | null
-    /**
-     * The data needed to create a DetailPI.
-     */
-    data: XOR<DetailPICreateInput, DetailPIUncheckedCreateInput>
-  }
-
-  /**
-   * DetailPI createMany
-   */
-  export type DetailPICreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many DetailPIS.
-     */
-    data: DetailPICreateManyInput | DetailPICreateManyInput[]
-    skipDuplicates?: boolean
-  }
-
-  /**
-   * DetailPI createManyAndReturn
-   */
-  export type DetailPICreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the DetailPI
-     */
-    select?: DetailPISelectCreateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the DetailPI
-     */
-    omit?: DetailPIOmit<ExtArgs> | null
-    /**
-     * The data used to create many DetailPIS.
-     */
-    data: DetailPICreateManyInput | DetailPICreateManyInput[]
-    skipDuplicates?: boolean
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: DetailPIIncludeCreateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * DetailPI update
-   */
-  export type DetailPIUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the DetailPI
-     */
-    select?: DetailPISelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the DetailPI
-     */
-    omit?: DetailPIOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: DetailPIInclude<ExtArgs> | null
-    /**
-     * The data needed to update a DetailPI.
-     */
-    data: XOR<DetailPIUpdateInput, DetailPIUncheckedUpdateInput>
-    /**
-     * Choose, which DetailPI to update.
-     */
-    where: DetailPIWhereUniqueInput
-  }
-
-  /**
-   * DetailPI updateMany
-   */
-  export type DetailPIUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update DetailPIS.
-     */
-    data: XOR<DetailPIUpdateManyMutationInput, DetailPIUncheckedUpdateManyInput>
-    /**
-     * Filter which DetailPIS to update
-     */
-    where?: DetailPIWhereInput
-    /**
-     * Limit how many DetailPIS to update.
-     */
-    limit?: number
-  }
-
-  /**
-   * DetailPI updateManyAndReturn
-   */
-  export type DetailPIUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the DetailPI
-     */
-    select?: DetailPISelectUpdateManyAndReturn<ExtArgs> | null
-    /**
-     * Omit specific fields from the DetailPI
-     */
-    omit?: DetailPIOmit<ExtArgs> | null
-    /**
-     * The data used to update DetailPIS.
-     */
-    data: XOR<DetailPIUpdateManyMutationInput, DetailPIUncheckedUpdateManyInput>
-    /**
-     * Filter which DetailPIS to update
-     */
-    where?: DetailPIWhereInput
-    /**
-     * Limit how many DetailPIS to update.
-     */
-    limit?: number
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: DetailPIIncludeUpdateManyAndReturn<ExtArgs> | null
-  }
-
-  /**
-   * DetailPI upsert
-   */
-  export type DetailPIUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the DetailPI
-     */
-    select?: DetailPISelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the DetailPI
-     */
-    omit?: DetailPIOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: DetailPIInclude<ExtArgs> | null
-    /**
-     * The filter to search for the DetailPI to update in case it exists.
-     */
-    where: DetailPIWhereUniqueInput
-    /**
-     * In case the DetailPI found by the `where` argument doesn't exist, create a new DetailPI with this data.
-     */
-    create: XOR<DetailPICreateInput, DetailPIUncheckedCreateInput>
-    /**
-     * In case the DetailPI was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<DetailPIUpdateInput, DetailPIUncheckedUpdateInput>
-  }
-
-  /**
-   * DetailPI delete
-   */
-  export type DetailPIDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the DetailPI
-     */
-    select?: DetailPISelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the DetailPI
-     */
-    omit?: DetailPIOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: DetailPIInclude<ExtArgs> | null
-    /**
-     * Filter which DetailPI to delete.
-     */
-    where: DetailPIWhereUniqueInput
-  }
-
-  /**
-   * DetailPI deleteMany
-   */
-  export type DetailPIDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which DetailPIS to delete
-     */
-    where?: DetailPIWhereInput
-    /**
-     * Limit how many DetailPIS to delete.
-     */
-    limit?: number
-  }
-
-  /**
-   * DetailPI without action
-   */
-  export type DetailPIDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the DetailPI
-     */
-    select?: DetailPISelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the DetailPI
-     */
-    omit?: DetailPIOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: DetailPIInclude<ExtArgs> | null
-  }
-
-
-  /**
    * Model DetailSurat
    */
 
@@ -14677,37 +12090,6 @@ export namespace Prisma {
   export type RegisterSuratScalarFieldEnum = (typeof RegisterSuratScalarFieldEnum)[keyof typeof RegisterSuratScalarFieldEnum]
 
 
-  export const RegisterPIScalarFieldEnum: {
-    id: 'id',
-    nomor: 'nomor',
-    deptId: 'deptId',
-    tanggalTerima: 'tanggalTerima',
-    asalSurat: 'asalSurat',
-    customDetails: 'customDetails',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
-  };
-
-  export type RegisterPIScalarFieldEnum = (typeof RegisterPIScalarFieldEnum)[keyof typeof RegisterPIScalarFieldEnum]
-
-
-  export const DetailPIScalarFieldEnum: {
-    id: 'id',
-    registerId: 'registerId',
-    namaSupplier: 'namaSupplier',
-    noInvoice: 'noInvoice',
-    nomorSurat: 'nomorSurat',
-    tanggalSurat: 'tanggalSurat',
-    tujuan: 'tujuan',
-    cc: 'cc',
-    customFields: 'customFields',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
-  };
-
-  export type DetailPIScalarFieldEnum = (typeof DetailPIScalarFieldEnum)[keyof typeof DetailPIScalarFieldEnum]
-
-
   export const DetailSuratScalarFieldEnum: {
     id: 'id',
     registerId: 'registerId',
@@ -15197,7 +12579,6 @@ export namespace Prisma {
     printColumnName?: StringFilter<"Department"> | string
     isActive?: BoolFilter<"Department"> | boolean
     registerSurat?: RegisterSuratListRelationFilter
-    registerPI?: RegisterPIListRelationFilter
     nomorCounter?: XOR<NomorCounterNullableScalarRelationFilter, NomorCounterWhereInput> | null
     columns?: DepartmentColumnListRelationFilter
   }
@@ -15209,7 +12590,6 @@ export namespace Prisma {
     printColumnName?: SortOrder
     isActive?: SortOrder
     registerSurat?: RegisterSuratOrderByRelationAggregateInput
-    registerPI?: RegisterPIOrderByRelationAggregateInput
     nomorCounter?: NomorCounterOrderByWithRelationInput
     columns?: DepartmentColumnOrderByRelationAggregateInput
   }
@@ -15224,7 +12604,6 @@ export namespace Prisma {
     printColumnName?: StringFilter<"Department"> | string
     isActive?: BoolFilter<"Department"> | boolean
     registerSurat?: RegisterSuratListRelationFilter
-    registerPI?: RegisterPIListRelationFilter
     nomorCounter?: XOR<NomorCounterNullableScalarRelationFilter, NomorCounterWhereInput> | null
     columns?: DepartmentColumnListRelationFilter
   }, "id">
@@ -15416,168 +12795,6 @@ export namespace Prisma {
     tujuan?: StringWithAggregatesFilter<"RegisterSurat"> | string
     createdAt?: DateTimeWithAggregatesFilter<"RegisterSurat"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"RegisterSurat"> | Date | string
-  }
-
-  export type RegisterPIWhereInput = {
-    AND?: RegisterPIWhereInput | RegisterPIWhereInput[]
-    OR?: RegisterPIWhereInput[]
-    NOT?: RegisterPIWhereInput | RegisterPIWhereInput[]
-    id?: IntFilter<"RegisterPI"> | number
-    nomor?: StringFilter<"RegisterPI"> | string
-    deptId?: StringFilter<"RegisterPI"> | string
-    tanggalTerima?: DateTimeFilter<"RegisterPI"> | Date | string
-    asalSurat?: StringFilter<"RegisterPI"> | string
-    customDetails?: JsonFilter<"RegisterPI">
-    createdAt?: DateTimeFilter<"RegisterPI"> | Date | string
-    updatedAt?: DateTimeFilter<"RegisterPI"> | Date | string
-    dept?: XOR<DepartmentScalarRelationFilter, DepartmentWhereInput>
-    detailPI?: DetailPIListRelationFilter
-  }
-
-  export type RegisterPIOrderByWithRelationInput = {
-    id?: SortOrder
-    nomor?: SortOrder
-    deptId?: SortOrder
-    tanggalTerima?: SortOrder
-    asalSurat?: SortOrder
-    customDetails?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-    dept?: DepartmentOrderByWithRelationInput
-    detailPI?: DetailPIOrderByRelationAggregateInput
-  }
-
-  export type RegisterPIWhereUniqueInput = Prisma.AtLeast<{
-    id?: number
-    AND?: RegisterPIWhereInput | RegisterPIWhereInput[]
-    OR?: RegisterPIWhereInput[]
-    NOT?: RegisterPIWhereInput | RegisterPIWhereInput[]
-    nomor?: StringFilter<"RegisterPI"> | string
-    deptId?: StringFilter<"RegisterPI"> | string
-    tanggalTerima?: DateTimeFilter<"RegisterPI"> | Date | string
-    asalSurat?: StringFilter<"RegisterPI"> | string
-    customDetails?: JsonFilter<"RegisterPI">
-    createdAt?: DateTimeFilter<"RegisterPI"> | Date | string
-    updatedAt?: DateTimeFilter<"RegisterPI"> | Date | string
-    dept?: XOR<DepartmentScalarRelationFilter, DepartmentWhereInput>
-    detailPI?: DetailPIListRelationFilter
-  }, "id">
-
-  export type RegisterPIOrderByWithAggregationInput = {
-    id?: SortOrder
-    nomor?: SortOrder
-    deptId?: SortOrder
-    tanggalTerima?: SortOrder
-    asalSurat?: SortOrder
-    customDetails?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-    _count?: RegisterPICountOrderByAggregateInput
-    _avg?: RegisterPIAvgOrderByAggregateInput
-    _max?: RegisterPIMaxOrderByAggregateInput
-    _min?: RegisterPIMinOrderByAggregateInput
-    _sum?: RegisterPISumOrderByAggregateInput
-  }
-
-  export type RegisterPIScalarWhereWithAggregatesInput = {
-    AND?: RegisterPIScalarWhereWithAggregatesInput | RegisterPIScalarWhereWithAggregatesInput[]
-    OR?: RegisterPIScalarWhereWithAggregatesInput[]
-    NOT?: RegisterPIScalarWhereWithAggregatesInput | RegisterPIScalarWhereWithAggregatesInput[]
-    id?: IntWithAggregatesFilter<"RegisterPI"> | number
-    nomor?: StringWithAggregatesFilter<"RegisterPI"> | string
-    deptId?: StringWithAggregatesFilter<"RegisterPI"> | string
-    tanggalTerima?: DateTimeWithAggregatesFilter<"RegisterPI"> | Date | string
-    asalSurat?: StringWithAggregatesFilter<"RegisterPI"> | string
-    customDetails?: JsonWithAggregatesFilter<"RegisterPI">
-    createdAt?: DateTimeWithAggregatesFilter<"RegisterPI"> | Date | string
-    updatedAt?: DateTimeWithAggregatesFilter<"RegisterPI"> | Date | string
-  }
-
-  export type DetailPIWhereInput = {
-    AND?: DetailPIWhereInput | DetailPIWhereInput[]
-    OR?: DetailPIWhereInput[]
-    NOT?: DetailPIWhereInput | DetailPIWhereInput[]
-    id?: IntFilter<"DetailPI"> | number
-    registerId?: IntFilter<"DetailPI"> | number
-    namaSupplier?: StringFilter<"DetailPI"> | string
-    noInvoice?: StringNullableFilter<"DetailPI"> | string | null
-    nomorSurat?: StringNullableFilter<"DetailPI"> | string | null
-    tanggalSurat?: DateTimeFilter<"DetailPI"> | Date | string
-    tujuan?: StringNullableFilter<"DetailPI"> | string | null
-    cc?: StringNullableFilter<"DetailPI"> | string | null
-    customFields?: JsonFilter<"DetailPI">
-    createdAt?: DateTimeFilter<"DetailPI"> | Date | string
-    updatedAt?: DateTimeFilter<"DetailPI"> | Date | string
-    register?: XOR<RegisterPIScalarRelationFilter, RegisterPIWhereInput>
-  }
-
-  export type DetailPIOrderByWithRelationInput = {
-    id?: SortOrder
-    registerId?: SortOrder
-    namaSupplier?: SortOrder
-    noInvoice?: SortOrderInput | SortOrder
-    nomorSurat?: SortOrderInput | SortOrder
-    tanggalSurat?: SortOrder
-    tujuan?: SortOrderInput | SortOrder
-    cc?: SortOrderInput | SortOrder
-    customFields?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-    register?: RegisterPIOrderByWithRelationInput
-  }
-
-  export type DetailPIWhereUniqueInput = Prisma.AtLeast<{
-    id?: number
-    AND?: DetailPIWhereInput | DetailPIWhereInput[]
-    OR?: DetailPIWhereInput[]
-    NOT?: DetailPIWhereInput | DetailPIWhereInput[]
-    registerId?: IntFilter<"DetailPI"> | number
-    namaSupplier?: StringFilter<"DetailPI"> | string
-    noInvoice?: StringNullableFilter<"DetailPI"> | string | null
-    nomorSurat?: StringNullableFilter<"DetailPI"> | string | null
-    tanggalSurat?: DateTimeFilter<"DetailPI"> | Date | string
-    tujuan?: StringNullableFilter<"DetailPI"> | string | null
-    cc?: StringNullableFilter<"DetailPI"> | string | null
-    customFields?: JsonFilter<"DetailPI">
-    createdAt?: DateTimeFilter<"DetailPI"> | Date | string
-    updatedAt?: DateTimeFilter<"DetailPI"> | Date | string
-    register?: XOR<RegisterPIScalarRelationFilter, RegisterPIWhereInput>
-  }, "id">
-
-  export type DetailPIOrderByWithAggregationInput = {
-    id?: SortOrder
-    registerId?: SortOrder
-    namaSupplier?: SortOrder
-    noInvoice?: SortOrderInput | SortOrder
-    nomorSurat?: SortOrderInput | SortOrder
-    tanggalSurat?: SortOrder
-    tujuan?: SortOrderInput | SortOrder
-    cc?: SortOrderInput | SortOrder
-    customFields?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-    _count?: DetailPICountOrderByAggregateInput
-    _avg?: DetailPIAvgOrderByAggregateInput
-    _max?: DetailPIMaxOrderByAggregateInput
-    _min?: DetailPIMinOrderByAggregateInput
-    _sum?: DetailPISumOrderByAggregateInput
-  }
-
-  export type DetailPIScalarWhereWithAggregatesInput = {
-    AND?: DetailPIScalarWhereWithAggregatesInput | DetailPIScalarWhereWithAggregatesInput[]
-    OR?: DetailPIScalarWhereWithAggregatesInput[]
-    NOT?: DetailPIScalarWhereWithAggregatesInput | DetailPIScalarWhereWithAggregatesInput[]
-    id?: IntWithAggregatesFilter<"DetailPI"> | number
-    registerId?: IntWithAggregatesFilter<"DetailPI"> | number
-    namaSupplier?: StringWithAggregatesFilter<"DetailPI"> | string
-    noInvoice?: StringNullableWithAggregatesFilter<"DetailPI"> | string | null
-    nomorSurat?: StringNullableWithAggregatesFilter<"DetailPI"> | string | null
-    tanggalSurat?: DateTimeWithAggregatesFilter<"DetailPI"> | Date | string
-    tujuan?: StringNullableWithAggregatesFilter<"DetailPI"> | string | null
-    cc?: StringNullableWithAggregatesFilter<"DetailPI"> | string | null
-    customFields?: JsonWithAggregatesFilter<"DetailPI">
-    createdAt?: DateTimeWithAggregatesFilter<"DetailPI"> | Date | string
-    updatedAt?: DateTimeWithAggregatesFilter<"DetailPI"> | Date | string
   }
 
   export type DetailSuratWhereInput = {
@@ -16070,7 +13287,6 @@ export namespace Prisma {
     printColumnName?: string
     isActive?: boolean
     registerSurat?: RegisterSuratCreateNestedManyWithoutDeptInput
-    registerPI?: RegisterPICreateNestedManyWithoutDeptInput
     nomorCounter?: NomorCounterCreateNestedOneWithoutDeptInput
     columns?: DepartmentColumnCreateNestedManyWithoutDepartmentInput
   }
@@ -16082,7 +13298,6 @@ export namespace Prisma {
     printColumnName?: string
     isActive?: boolean
     registerSurat?: RegisterSuratUncheckedCreateNestedManyWithoutDeptInput
-    registerPI?: RegisterPIUncheckedCreateNestedManyWithoutDeptInput
     nomorCounter?: NomorCounterUncheckedCreateNestedOneWithoutDeptInput
     columns?: DepartmentColumnUncheckedCreateNestedManyWithoutDepartmentInput
   }
@@ -16094,7 +13309,6 @@ export namespace Prisma {
     printColumnName?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     registerSurat?: RegisterSuratUpdateManyWithoutDeptNestedInput
-    registerPI?: RegisterPIUpdateManyWithoutDeptNestedInput
     nomorCounter?: NomorCounterUpdateOneWithoutDeptNestedInput
     columns?: DepartmentColumnUpdateManyWithoutDepartmentNestedInput
   }
@@ -16106,7 +13320,6 @@ export namespace Prisma {
     printColumnName?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     registerSurat?: RegisterSuratUncheckedUpdateManyWithoutDeptNestedInput
-    registerPI?: RegisterPIUncheckedUpdateManyWithoutDeptNestedInput
     nomorCounter?: NomorCounterUncheckedUpdateOneWithoutDeptNestedInput
     columns?: DepartmentColumnUncheckedUpdateManyWithoutDepartmentNestedInput
   }
@@ -16312,177 +13525,6 @@ export namespace Prisma {
     tanggalTerima?: DateTimeFieldUpdateOperationsInput | Date | string
     asalSurat?: StringFieldUpdateOperationsInput | string
     tujuan?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type RegisterPICreateInput = {
-    nomor: string
-    tanggalTerima: Date | string
-    asalSurat: string
-    customDetails?: JsonNullValueInput | InputJsonValue
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    dept: DepartmentCreateNestedOneWithoutRegisterPIInput
-    detailPI?: DetailPICreateNestedManyWithoutRegisterInput
-  }
-
-  export type RegisterPIUncheckedCreateInput = {
-    id?: number
-    nomor: string
-    deptId: string
-    tanggalTerima: Date | string
-    asalSurat: string
-    customDetails?: JsonNullValueInput | InputJsonValue
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    detailPI?: DetailPIUncheckedCreateNestedManyWithoutRegisterInput
-  }
-
-  export type RegisterPIUpdateInput = {
-    nomor?: StringFieldUpdateOperationsInput | string
-    tanggalTerima?: DateTimeFieldUpdateOperationsInput | Date | string
-    asalSurat?: StringFieldUpdateOperationsInput | string
-    customDetails?: JsonNullValueInput | InputJsonValue
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    dept?: DepartmentUpdateOneRequiredWithoutRegisterPINestedInput
-    detailPI?: DetailPIUpdateManyWithoutRegisterNestedInput
-  }
-
-  export type RegisterPIUncheckedUpdateInput = {
-    id?: IntFieldUpdateOperationsInput | number
-    nomor?: StringFieldUpdateOperationsInput | string
-    deptId?: StringFieldUpdateOperationsInput | string
-    tanggalTerima?: DateTimeFieldUpdateOperationsInput | Date | string
-    asalSurat?: StringFieldUpdateOperationsInput | string
-    customDetails?: JsonNullValueInput | InputJsonValue
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    detailPI?: DetailPIUncheckedUpdateManyWithoutRegisterNestedInput
-  }
-
-  export type RegisterPICreateManyInput = {
-    id?: number
-    nomor: string
-    deptId: string
-    tanggalTerima: Date | string
-    asalSurat: string
-    customDetails?: JsonNullValueInput | InputJsonValue
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type RegisterPIUpdateManyMutationInput = {
-    nomor?: StringFieldUpdateOperationsInput | string
-    tanggalTerima?: DateTimeFieldUpdateOperationsInput | Date | string
-    asalSurat?: StringFieldUpdateOperationsInput | string
-    customDetails?: JsonNullValueInput | InputJsonValue
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type RegisterPIUncheckedUpdateManyInput = {
-    id?: IntFieldUpdateOperationsInput | number
-    nomor?: StringFieldUpdateOperationsInput | string
-    deptId?: StringFieldUpdateOperationsInput | string
-    tanggalTerima?: DateTimeFieldUpdateOperationsInput | Date | string
-    asalSurat?: StringFieldUpdateOperationsInput | string
-    customDetails?: JsonNullValueInput | InputJsonValue
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type DetailPICreateInput = {
-    namaSupplier: string
-    noInvoice?: string | null
-    nomorSurat?: string | null
-    tanggalSurat: Date | string
-    tujuan?: string | null
-    cc?: string | null
-    customFields?: JsonNullValueInput | InputJsonValue
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    register: RegisterPICreateNestedOneWithoutDetailPIInput
-  }
-
-  export type DetailPIUncheckedCreateInput = {
-    id?: number
-    registerId: number
-    namaSupplier: string
-    noInvoice?: string | null
-    nomorSurat?: string | null
-    tanggalSurat: Date | string
-    tujuan?: string | null
-    cc?: string | null
-    customFields?: JsonNullValueInput | InputJsonValue
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type DetailPIUpdateInput = {
-    namaSupplier?: StringFieldUpdateOperationsInput | string
-    noInvoice?: NullableStringFieldUpdateOperationsInput | string | null
-    nomorSurat?: NullableStringFieldUpdateOperationsInput | string | null
-    tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
-    tujuan?: NullableStringFieldUpdateOperationsInput | string | null
-    cc?: NullableStringFieldUpdateOperationsInput | string | null
-    customFields?: JsonNullValueInput | InputJsonValue
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    register?: RegisterPIUpdateOneRequiredWithoutDetailPINestedInput
-  }
-
-  export type DetailPIUncheckedUpdateInput = {
-    id?: IntFieldUpdateOperationsInput | number
-    registerId?: IntFieldUpdateOperationsInput | number
-    namaSupplier?: StringFieldUpdateOperationsInput | string
-    noInvoice?: NullableStringFieldUpdateOperationsInput | string | null
-    nomorSurat?: NullableStringFieldUpdateOperationsInput | string | null
-    tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
-    tujuan?: NullableStringFieldUpdateOperationsInput | string | null
-    cc?: NullableStringFieldUpdateOperationsInput | string | null
-    customFields?: JsonNullValueInput | InputJsonValue
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type DetailPICreateManyInput = {
-    id?: number
-    registerId: number
-    namaSupplier: string
-    noInvoice?: string | null
-    nomorSurat?: string | null
-    tanggalSurat: Date | string
-    tujuan?: string | null
-    cc?: string | null
-    customFields?: JsonNullValueInput | InputJsonValue
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type DetailPIUpdateManyMutationInput = {
-    namaSupplier?: StringFieldUpdateOperationsInput | string
-    noInvoice?: NullableStringFieldUpdateOperationsInput | string | null
-    nomorSurat?: NullableStringFieldUpdateOperationsInput | string | null
-    tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
-    tujuan?: NullableStringFieldUpdateOperationsInput | string | null
-    cc?: NullableStringFieldUpdateOperationsInput | string | null
-    customFields?: JsonNullValueInput | InputJsonValue
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type DetailPIUncheckedUpdateManyInput = {
-    id?: IntFieldUpdateOperationsInput | number
-    registerId?: IntFieldUpdateOperationsInput | number
-    namaSupplier?: StringFieldUpdateOperationsInput | string
-    noInvoice?: NullableStringFieldUpdateOperationsInput | string | null
-    nomorSurat?: NullableStringFieldUpdateOperationsInput | string | null
-    tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
-    tujuan?: NullableStringFieldUpdateOperationsInput | string | null
-    cc?: NullableStringFieldUpdateOperationsInput | string | null
-    customFields?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -16945,12 +13987,6 @@ export namespace Prisma {
     none?: RegisterSuratWhereInput
   }
 
-  export type RegisterPIListRelationFilter = {
-    every?: RegisterPIWhereInput
-    some?: RegisterPIWhereInput
-    none?: RegisterPIWhereInput
-  }
-
   export type NomorCounterNullableScalarRelationFilter = {
     is?: NomorCounterWhereInput | null
     isNot?: NomorCounterWhereInput | null
@@ -16963,10 +13999,6 @@ export namespace Prisma {
   }
 
   export type RegisterSuratOrderByRelationAggregateInput = {
-    _count?: SortOrder
-  }
-
-  export type RegisterPIOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -17157,136 +14189,6 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
-  export type DetailPIListRelationFilter = {
-    every?: DetailPIWhereInput
-    some?: DetailPIWhereInput
-    none?: DetailPIWhereInput
-  }
-
-  export type DetailPIOrderByRelationAggregateInput = {
-    _count?: SortOrder
-  }
-
-  export type RegisterPICountOrderByAggregateInput = {
-    id?: SortOrder
-    nomor?: SortOrder
-    deptId?: SortOrder
-    tanggalTerima?: SortOrder
-    asalSurat?: SortOrder
-    customDetails?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type RegisterPIAvgOrderByAggregateInput = {
-    id?: SortOrder
-  }
-
-  export type RegisterPIMaxOrderByAggregateInput = {
-    id?: SortOrder
-    nomor?: SortOrder
-    deptId?: SortOrder
-    tanggalTerima?: SortOrder
-    asalSurat?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type RegisterPIMinOrderByAggregateInput = {
-    id?: SortOrder
-    nomor?: SortOrder
-    deptId?: SortOrder
-    tanggalTerima?: SortOrder
-    asalSurat?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type RegisterPISumOrderByAggregateInput = {
-    id?: SortOrder
-  }
-  export type JsonWithAggregatesFilter<$PrismaModel = never> =
-    | PatchUndefined<
-        Either<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
-        Required<JsonWithAggregatesFilterBase<$PrismaModel>>
-      >
-    | OptionalFlat<Omit<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
-
-  export type JsonWithAggregatesFilterBase<$PrismaModel = never> = {
-    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    path?: string[]
-    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
-    string_contains?: string | StringFieldRefInput<$PrismaModel>
-    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
-    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
-    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
-    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
-    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedJsonFilter<$PrismaModel>
-    _max?: NestedJsonFilter<$PrismaModel>
-  }
-
-  export type RegisterPIScalarRelationFilter = {
-    is?: RegisterPIWhereInput
-    isNot?: RegisterPIWhereInput
-  }
-
-  export type DetailPICountOrderByAggregateInput = {
-    id?: SortOrder
-    registerId?: SortOrder
-    namaSupplier?: SortOrder
-    noInvoice?: SortOrder
-    nomorSurat?: SortOrder
-    tanggalSurat?: SortOrder
-    tujuan?: SortOrder
-    cc?: SortOrder
-    customFields?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type DetailPIAvgOrderByAggregateInput = {
-    id?: SortOrder
-    registerId?: SortOrder
-  }
-
-  export type DetailPIMaxOrderByAggregateInput = {
-    id?: SortOrder
-    registerId?: SortOrder
-    namaSupplier?: SortOrder
-    noInvoice?: SortOrder
-    nomorSurat?: SortOrder
-    tanggalSurat?: SortOrder
-    tujuan?: SortOrder
-    cc?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type DetailPIMinOrderByAggregateInput = {
-    id?: SortOrder
-    registerId?: SortOrder
-    namaSupplier?: SortOrder
-    noInvoice?: SortOrder
-    nomorSurat?: SortOrder
-    tanggalSurat?: SortOrder
-    tujuan?: SortOrder
-    cc?: SortOrder
-    createdAt?: SortOrder
-    updatedAt?: SortOrder
-  }
-
-  export type DetailPISumOrderByAggregateInput = {
-    id?: SortOrder
-    registerId?: SortOrder
-  }
-
   export type RegisterSuratScalarRelationFilter = {
     is?: RegisterSuratWhereInput
     isNot?: RegisterSuratWhereInput
@@ -17337,6 +14239,32 @@ export namespace Prisma {
   export type DetailSuratSumOrderByAggregateInput = {
     id?: SortOrder
     registerId?: SortOrder
+  }
+  export type JsonWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedJsonFilter<$PrismaModel>
+    _max?: NestedJsonFilter<$PrismaModel>
   }
 
   export type NomorCounterCountOrderByAggregateInput = {
@@ -17551,13 +14479,6 @@ export namespace Prisma {
     connect?: RegisterSuratWhereUniqueInput | RegisterSuratWhereUniqueInput[]
   }
 
-  export type RegisterPICreateNestedManyWithoutDeptInput = {
-    create?: XOR<RegisterPICreateWithoutDeptInput, RegisterPIUncheckedCreateWithoutDeptInput> | RegisterPICreateWithoutDeptInput[] | RegisterPIUncheckedCreateWithoutDeptInput[]
-    connectOrCreate?: RegisterPICreateOrConnectWithoutDeptInput | RegisterPICreateOrConnectWithoutDeptInput[]
-    createMany?: RegisterPICreateManyDeptInputEnvelope
-    connect?: RegisterPIWhereUniqueInput | RegisterPIWhereUniqueInput[]
-  }
-
   export type NomorCounterCreateNestedOneWithoutDeptInput = {
     create?: XOR<NomorCounterCreateWithoutDeptInput, NomorCounterUncheckedCreateWithoutDeptInput>
     connectOrCreate?: NomorCounterCreateOrConnectWithoutDeptInput
@@ -17576,13 +14497,6 @@ export namespace Prisma {
     connectOrCreate?: RegisterSuratCreateOrConnectWithoutDeptInput | RegisterSuratCreateOrConnectWithoutDeptInput[]
     createMany?: RegisterSuratCreateManyDeptInputEnvelope
     connect?: RegisterSuratWhereUniqueInput | RegisterSuratWhereUniqueInput[]
-  }
-
-  export type RegisterPIUncheckedCreateNestedManyWithoutDeptInput = {
-    create?: XOR<RegisterPICreateWithoutDeptInput, RegisterPIUncheckedCreateWithoutDeptInput> | RegisterPICreateWithoutDeptInput[] | RegisterPIUncheckedCreateWithoutDeptInput[]
-    connectOrCreate?: RegisterPICreateOrConnectWithoutDeptInput | RegisterPICreateOrConnectWithoutDeptInput[]
-    createMany?: RegisterPICreateManyDeptInputEnvelope
-    connect?: RegisterPIWhereUniqueInput | RegisterPIWhereUniqueInput[]
   }
 
   export type NomorCounterUncheckedCreateNestedOneWithoutDeptInput = {
@@ -17610,20 +14524,6 @@ export namespace Prisma {
     update?: RegisterSuratUpdateWithWhereUniqueWithoutDeptInput | RegisterSuratUpdateWithWhereUniqueWithoutDeptInput[]
     updateMany?: RegisterSuratUpdateManyWithWhereWithoutDeptInput | RegisterSuratUpdateManyWithWhereWithoutDeptInput[]
     deleteMany?: RegisterSuratScalarWhereInput | RegisterSuratScalarWhereInput[]
-  }
-
-  export type RegisterPIUpdateManyWithoutDeptNestedInput = {
-    create?: XOR<RegisterPICreateWithoutDeptInput, RegisterPIUncheckedCreateWithoutDeptInput> | RegisterPICreateWithoutDeptInput[] | RegisterPIUncheckedCreateWithoutDeptInput[]
-    connectOrCreate?: RegisterPICreateOrConnectWithoutDeptInput | RegisterPICreateOrConnectWithoutDeptInput[]
-    upsert?: RegisterPIUpsertWithWhereUniqueWithoutDeptInput | RegisterPIUpsertWithWhereUniqueWithoutDeptInput[]
-    createMany?: RegisterPICreateManyDeptInputEnvelope
-    set?: RegisterPIWhereUniqueInput | RegisterPIWhereUniqueInput[]
-    disconnect?: RegisterPIWhereUniqueInput | RegisterPIWhereUniqueInput[]
-    delete?: RegisterPIWhereUniqueInput | RegisterPIWhereUniqueInput[]
-    connect?: RegisterPIWhereUniqueInput | RegisterPIWhereUniqueInput[]
-    update?: RegisterPIUpdateWithWhereUniqueWithoutDeptInput | RegisterPIUpdateWithWhereUniqueWithoutDeptInput[]
-    updateMany?: RegisterPIUpdateManyWithWhereWithoutDeptInput | RegisterPIUpdateManyWithWhereWithoutDeptInput[]
-    deleteMany?: RegisterPIScalarWhereInput | RegisterPIScalarWhereInput[]
   }
 
   export type NomorCounterUpdateOneWithoutDeptNestedInput = {
@@ -17662,20 +14562,6 @@ export namespace Prisma {
     update?: RegisterSuratUpdateWithWhereUniqueWithoutDeptInput | RegisterSuratUpdateWithWhereUniqueWithoutDeptInput[]
     updateMany?: RegisterSuratUpdateManyWithWhereWithoutDeptInput | RegisterSuratUpdateManyWithWhereWithoutDeptInput[]
     deleteMany?: RegisterSuratScalarWhereInput | RegisterSuratScalarWhereInput[]
-  }
-
-  export type RegisterPIUncheckedUpdateManyWithoutDeptNestedInput = {
-    create?: XOR<RegisterPICreateWithoutDeptInput, RegisterPIUncheckedCreateWithoutDeptInput> | RegisterPICreateWithoutDeptInput[] | RegisterPIUncheckedCreateWithoutDeptInput[]
-    connectOrCreate?: RegisterPICreateOrConnectWithoutDeptInput | RegisterPICreateOrConnectWithoutDeptInput[]
-    upsert?: RegisterPIUpsertWithWhereUniqueWithoutDeptInput | RegisterPIUpsertWithWhereUniqueWithoutDeptInput[]
-    createMany?: RegisterPICreateManyDeptInputEnvelope
-    set?: RegisterPIWhereUniqueInput | RegisterPIWhereUniqueInput[]
-    disconnect?: RegisterPIWhereUniqueInput | RegisterPIWhereUniqueInput[]
-    delete?: RegisterPIWhereUniqueInput | RegisterPIWhereUniqueInput[]
-    connect?: RegisterPIWhereUniqueInput | RegisterPIWhereUniqueInput[]
-    update?: RegisterPIUpdateWithWhereUniqueWithoutDeptInput | RegisterPIUpdateWithWhereUniqueWithoutDeptInput[]
-    updateMany?: RegisterPIUpdateManyWithWhereWithoutDeptInput | RegisterPIUpdateManyWithWhereWithoutDeptInput[]
-    deleteMany?: RegisterPIScalarWhereInput | RegisterPIScalarWhereInput[]
   }
 
   export type NomorCounterUncheckedUpdateOneWithoutDeptNestedInput = {
@@ -17778,76 +14664,6 @@ export namespace Prisma {
     update?: DetailSuratUpdateWithWhereUniqueWithoutRegisterInput | DetailSuratUpdateWithWhereUniqueWithoutRegisterInput[]
     updateMany?: DetailSuratUpdateManyWithWhereWithoutRegisterInput | DetailSuratUpdateManyWithWhereWithoutRegisterInput[]
     deleteMany?: DetailSuratScalarWhereInput | DetailSuratScalarWhereInput[]
-  }
-
-  export type DepartmentCreateNestedOneWithoutRegisterPIInput = {
-    create?: XOR<DepartmentCreateWithoutRegisterPIInput, DepartmentUncheckedCreateWithoutRegisterPIInput>
-    connectOrCreate?: DepartmentCreateOrConnectWithoutRegisterPIInput
-    connect?: DepartmentWhereUniqueInput
-  }
-
-  export type DetailPICreateNestedManyWithoutRegisterInput = {
-    create?: XOR<DetailPICreateWithoutRegisterInput, DetailPIUncheckedCreateWithoutRegisterInput> | DetailPICreateWithoutRegisterInput[] | DetailPIUncheckedCreateWithoutRegisterInput[]
-    connectOrCreate?: DetailPICreateOrConnectWithoutRegisterInput | DetailPICreateOrConnectWithoutRegisterInput[]
-    createMany?: DetailPICreateManyRegisterInputEnvelope
-    connect?: DetailPIWhereUniqueInput | DetailPIWhereUniqueInput[]
-  }
-
-  export type DetailPIUncheckedCreateNestedManyWithoutRegisterInput = {
-    create?: XOR<DetailPICreateWithoutRegisterInput, DetailPIUncheckedCreateWithoutRegisterInput> | DetailPICreateWithoutRegisterInput[] | DetailPIUncheckedCreateWithoutRegisterInput[]
-    connectOrCreate?: DetailPICreateOrConnectWithoutRegisterInput | DetailPICreateOrConnectWithoutRegisterInput[]
-    createMany?: DetailPICreateManyRegisterInputEnvelope
-    connect?: DetailPIWhereUniqueInput | DetailPIWhereUniqueInput[]
-  }
-
-  export type DepartmentUpdateOneRequiredWithoutRegisterPINestedInput = {
-    create?: XOR<DepartmentCreateWithoutRegisterPIInput, DepartmentUncheckedCreateWithoutRegisterPIInput>
-    connectOrCreate?: DepartmentCreateOrConnectWithoutRegisterPIInput
-    upsert?: DepartmentUpsertWithoutRegisterPIInput
-    connect?: DepartmentWhereUniqueInput
-    update?: XOR<XOR<DepartmentUpdateToOneWithWhereWithoutRegisterPIInput, DepartmentUpdateWithoutRegisterPIInput>, DepartmentUncheckedUpdateWithoutRegisterPIInput>
-  }
-
-  export type DetailPIUpdateManyWithoutRegisterNestedInput = {
-    create?: XOR<DetailPICreateWithoutRegisterInput, DetailPIUncheckedCreateWithoutRegisterInput> | DetailPICreateWithoutRegisterInput[] | DetailPIUncheckedCreateWithoutRegisterInput[]
-    connectOrCreate?: DetailPICreateOrConnectWithoutRegisterInput | DetailPICreateOrConnectWithoutRegisterInput[]
-    upsert?: DetailPIUpsertWithWhereUniqueWithoutRegisterInput | DetailPIUpsertWithWhereUniqueWithoutRegisterInput[]
-    createMany?: DetailPICreateManyRegisterInputEnvelope
-    set?: DetailPIWhereUniqueInput | DetailPIWhereUniqueInput[]
-    disconnect?: DetailPIWhereUniqueInput | DetailPIWhereUniqueInput[]
-    delete?: DetailPIWhereUniqueInput | DetailPIWhereUniqueInput[]
-    connect?: DetailPIWhereUniqueInput | DetailPIWhereUniqueInput[]
-    update?: DetailPIUpdateWithWhereUniqueWithoutRegisterInput | DetailPIUpdateWithWhereUniqueWithoutRegisterInput[]
-    updateMany?: DetailPIUpdateManyWithWhereWithoutRegisterInput | DetailPIUpdateManyWithWhereWithoutRegisterInput[]
-    deleteMany?: DetailPIScalarWhereInput | DetailPIScalarWhereInput[]
-  }
-
-  export type DetailPIUncheckedUpdateManyWithoutRegisterNestedInput = {
-    create?: XOR<DetailPICreateWithoutRegisterInput, DetailPIUncheckedCreateWithoutRegisterInput> | DetailPICreateWithoutRegisterInput[] | DetailPIUncheckedCreateWithoutRegisterInput[]
-    connectOrCreate?: DetailPICreateOrConnectWithoutRegisterInput | DetailPICreateOrConnectWithoutRegisterInput[]
-    upsert?: DetailPIUpsertWithWhereUniqueWithoutRegisterInput | DetailPIUpsertWithWhereUniqueWithoutRegisterInput[]
-    createMany?: DetailPICreateManyRegisterInputEnvelope
-    set?: DetailPIWhereUniqueInput | DetailPIWhereUniqueInput[]
-    disconnect?: DetailPIWhereUniqueInput | DetailPIWhereUniqueInput[]
-    delete?: DetailPIWhereUniqueInput | DetailPIWhereUniqueInput[]
-    connect?: DetailPIWhereUniqueInput | DetailPIWhereUniqueInput[]
-    update?: DetailPIUpdateWithWhereUniqueWithoutRegisterInput | DetailPIUpdateWithWhereUniqueWithoutRegisterInput[]
-    updateMany?: DetailPIUpdateManyWithWhereWithoutRegisterInput | DetailPIUpdateManyWithWhereWithoutRegisterInput[]
-    deleteMany?: DetailPIScalarWhereInput | DetailPIScalarWhereInput[]
-  }
-
-  export type RegisterPICreateNestedOneWithoutDetailPIInput = {
-    create?: XOR<RegisterPICreateWithoutDetailPIInput, RegisterPIUncheckedCreateWithoutDetailPIInput>
-    connectOrCreate?: RegisterPICreateOrConnectWithoutDetailPIInput
-    connect?: RegisterPIWhereUniqueInput
-  }
-
-  export type RegisterPIUpdateOneRequiredWithoutDetailPINestedInput = {
-    create?: XOR<RegisterPICreateWithoutDetailPIInput, RegisterPIUncheckedCreateWithoutDetailPIInput>
-    connectOrCreate?: RegisterPICreateOrConnectWithoutDetailPIInput
-    upsert?: RegisterPIUpsertWithoutDetailPIInput
-    connect?: RegisterPIWhereUniqueInput
-    update?: XOR<XOR<RegisterPIUpdateToOneWithWhereWithoutDetailPIInput, RegisterPIUpdateWithoutDetailPIInput>, RegisterPIUncheckedUpdateWithoutDetailPIInput>
   }
 
   export type RegisterSuratCreateNestedOneWithoutDetailSuratInput = {
@@ -18538,37 +15354,6 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type RegisterPICreateWithoutDeptInput = {
-    nomor: string
-    tanggalTerima: Date | string
-    asalSurat: string
-    customDetails?: JsonNullValueInput | InputJsonValue
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    detailPI?: DetailPICreateNestedManyWithoutRegisterInput
-  }
-
-  export type RegisterPIUncheckedCreateWithoutDeptInput = {
-    id?: number
-    nomor: string
-    tanggalTerima: Date | string
-    asalSurat: string
-    customDetails?: JsonNullValueInput | InputJsonValue
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    detailPI?: DetailPIUncheckedCreateNestedManyWithoutRegisterInput
-  }
-
-  export type RegisterPICreateOrConnectWithoutDeptInput = {
-    where: RegisterPIWhereUniqueInput
-    create: XOR<RegisterPICreateWithoutDeptInput, RegisterPIUncheckedCreateWithoutDeptInput>
-  }
-
-  export type RegisterPICreateManyDeptInputEnvelope = {
-    data: RegisterPICreateManyDeptInput | RegisterPICreateManyDeptInput[]
-    skipDuplicates?: boolean
-  }
-
   export type NomorCounterCreateWithoutDeptInput = {
     counter?: number
   }
@@ -18650,36 +15435,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"RegisterSurat"> | Date | string
   }
 
-  export type RegisterPIUpsertWithWhereUniqueWithoutDeptInput = {
-    where: RegisterPIWhereUniqueInput
-    update: XOR<RegisterPIUpdateWithoutDeptInput, RegisterPIUncheckedUpdateWithoutDeptInput>
-    create: XOR<RegisterPICreateWithoutDeptInput, RegisterPIUncheckedCreateWithoutDeptInput>
-  }
-
-  export type RegisterPIUpdateWithWhereUniqueWithoutDeptInput = {
-    where: RegisterPIWhereUniqueInput
-    data: XOR<RegisterPIUpdateWithoutDeptInput, RegisterPIUncheckedUpdateWithoutDeptInput>
-  }
-
-  export type RegisterPIUpdateManyWithWhereWithoutDeptInput = {
-    where: RegisterPIScalarWhereInput
-    data: XOR<RegisterPIUpdateManyMutationInput, RegisterPIUncheckedUpdateManyWithoutDeptInput>
-  }
-
-  export type RegisterPIScalarWhereInput = {
-    AND?: RegisterPIScalarWhereInput | RegisterPIScalarWhereInput[]
-    OR?: RegisterPIScalarWhereInput[]
-    NOT?: RegisterPIScalarWhereInput | RegisterPIScalarWhereInput[]
-    id?: IntFilter<"RegisterPI"> | number
-    nomor?: StringFilter<"RegisterPI"> | string
-    deptId?: StringFilter<"RegisterPI"> | string
-    tanggalTerima?: DateTimeFilter<"RegisterPI"> | Date | string
-    asalSurat?: StringFilter<"RegisterPI"> | string
-    customDetails?: JsonFilter<"RegisterPI">
-    createdAt?: DateTimeFilter<"RegisterPI"> | Date | string
-    updatedAt?: DateTimeFilter<"RegisterPI"> | Date | string
-  }
-
   export type NomorCounterUpsertWithoutDeptInput = {
     update: XOR<NomorCounterUpdateWithoutDeptInput, NomorCounterUncheckedUpdateWithoutDeptInput>
     create: XOR<NomorCounterCreateWithoutDeptInput, NomorCounterUncheckedCreateWithoutDeptInput>
@@ -18740,7 +15495,6 @@ export namespace Prisma {
     printColumnName?: string
     isActive?: boolean
     registerSurat?: RegisterSuratCreateNestedManyWithoutDeptInput
-    registerPI?: RegisterPICreateNestedManyWithoutDeptInput
     nomorCounter?: NomorCounterCreateNestedOneWithoutDeptInput
   }
 
@@ -18751,7 +15505,6 @@ export namespace Prisma {
     printColumnName?: string
     isActive?: boolean
     registerSurat?: RegisterSuratUncheckedCreateNestedManyWithoutDeptInput
-    registerPI?: RegisterPIUncheckedCreateNestedManyWithoutDeptInput
     nomorCounter?: NomorCounterUncheckedCreateNestedOneWithoutDeptInput
   }
 
@@ -18778,7 +15531,6 @@ export namespace Prisma {
     printColumnName?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     registerSurat?: RegisterSuratUpdateManyWithoutDeptNestedInput
-    registerPI?: RegisterPIUpdateManyWithoutDeptNestedInput
     nomorCounter?: NomorCounterUpdateOneWithoutDeptNestedInput
   }
 
@@ -18789,7 +15541,6 @@ export namespace Prisma {
     printColumnName?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     registerSurat?: RegisterSuratUncheckedUpdateManyWithoutDeptNestedInput
-    registerPI?: RegisterPIUncheckedUpdateManyWithoutDeptNestedInput
     nomorCounter?: NomorCounterUncheckedUpdateOneWithoutDeptNestedInput
   }
 
@@ -18799,7 +15550,6 @@ export namespace Prisma {
     tujuan?: string
     printColumnName?: string
     isActive?: boolean
-    registerPI?: RegisterPICreateNestedManyWithoutDeptInput
     nomorCounter?: NomorCounterCreateNestedOneWithoutDeptInput
     columns?: DepartmentColumnCreateNestedManyWithoutDepartmentInput
   }
@@ -18810,7 +15560,6 @@ export namespace Prisma {
     tujuan?: string
     printColumnName?: string
     isActive?: boolean
-    registerPI?: RegisterPIUncheckedCreateNestedManyWithoutDeptInput
     nomorCounter?: NomorCounterUncheckedCreateNestedOneWithoutDeptInput
     columns?: DepartmentColumnUncheckedCreateNestedManyWithoutDepartmentInput
   }
@@ -18870,7 +15619,6 @@ export namespace Prisma {
     tujuan?: StringFieldUpdateOperationsInput | string
     printColumnName?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
-    registerPI?: RegisterPIUpdateManyWithoutDeptNestedInput
     nomorCounter?: NomorCounterUpdateOneWithoutDeptNestedInput
     columns?: DepartmentColumnUpdateManyWithoutDepartmentNestedInput
   }
@@ -18881,7 +15629,6 @@ export namespace Prisma {
     tujuan?: StringFieldUpdateOperationsInput | string
     printColumnName?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
-    registerPI?: RegisterPIUncheckedUpdateManyWithoutDeptNestedInput
     nomorCounter?: NomorCounterUncheckedUpdateOneWithoutDeptNestedInput
     columns?: DepartmentColumnUncheckedUpdateManyWithoutDepartmentNestedInput
   }
@@ -18916,192 +15663,6 @@ export namespace Prisma {
     customFields?: JsonFilter<"DetailSurat">
     createdAt?: DateTimeFilter<"DetailSurat"> | Date | string
     updatedAt?: DateTimeFilter<"DetailSurat"> | Date | string
-  }
-
-  export type DepartmentCreateWithoutRegisterPIInput = {
-    id: string
-    shortName: string
-    tujuan?: string
-    printColumnName?: string
-    isActive?: boolean
-    registerSurat?: RegisterSuratCreateNestedManyWithoutDeptInput
-    nomorCounter?: NomorCounterCreateNestedOneWithoutDeptInput
-    columns?: DepartmentColumnCreateNestedManyWithoutDepartmentInput
-  }
-
-  export type DepartmentUncheckedCreateWithoutRegisterPIInput = {
-    id: string
-    shortName: string
-    tujuan?: string
-    printColumnName?: string
-    isActive?: boolean
-    registerSurat?: RegisterSuratUncheckedCreateNestedManyWithoutDeptInput
-    nomorCounter?: NomorCounterUncheckedCreateNestedOneWithoutDeptInput
-    columns?: DepartmentColumnUncheckedCreateNestedManyWithoutDepartmentInput
-  }
-
-  export type DepartmentCreateOrConnectWithoutRegisterPIInput = {
-    where: DepartmentWhereUniqueInput
-    create: XOR<DepartmentCreateWithoutRegisterPIInput, DepartmentUncheckedCreateWithoutRegisterPIInput>
-  }
-
-  export type DetailPICreateWithoutRegisterInput = {
-    namaSupplier: string
-    noInvoice?: string | null
-    nomorSurat?: string | null
-    tanggalSurat: Date | string
-    tujuan?: string | null
-    cc?: string | null
-    customFields?: JsonNullValueInput | InputJsonValue
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type DetailPIUncheckedCreateWithoutRegisterInput = {
-    id?: number
-    namaSupplier: string
-    noInvoice?: string | null
-    nomorSurat?: string | null
-    tanggalSurat: Date | string
-    tujuan?: string | null
-    cc?: string | null
-    customFields?: JsonNullValueInput | InputJsonValue
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type DetailPICreateOrConnectWithoutRegisterInput = {
-    where: DetailPIWhereUniqueInput
-    create: XOR<DetailPICreateWithoutRegisterInput, DetailPIUncheckedCreateWithoutRegisterInput>
-  }
-
-  export type DetailPICreateManyRegisterInputEnvelope = {
-    data: DetailPICreateManyRegisterInput | DetailPICreateManyRegisterInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type DepartmentUpsertWithoutRegisterPIInput = {
-    update: XOR<DepartmentUpdateWithoutRegisterPIInput, DepartmentUncheckedUpdateWithoutRegisterPIInput>
-    create: XOR<DepartmentCreateWithoutRegisterPIInput, DepartmentUncheckedCreateWithoutRegisterPIInput>
-    where?: DepartmentWhereInput
-  }
-
-  export type DepartmentUpdateToOneWithWhereWithoutRegisterPIInput = {
-    where?: DepartmentWhereInput
-    data: XOR<DepartmentUpdateWithoutRegisterPIInput, DepartmentUncheckedUpdateWithoutRegisterPIInput>
-  }
-
-  export type DepartmentUpdateWithoutRegisterPIInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    shortName?: StringFieldUpdateOperationsInput | string
-    tujuan?: StringFieldUpdateOperationsInput | string
-    printColumnName?: StringFieldUpdateOperationsInput | string
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    registerSurat?: RegisterSuratUpdateManyWithoutDeptNestedInput
-    nomorCounter?: NomorCounterUpdateOneWithoutDeptNestedInput
-    columns?: DepartmentColumnUpdateManyWithoutDepartmentNestedInput
-  }
-
-  export type DepartmentUncheckedUpdateWithoutRegisterPIInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    shortName?: StringFieldUpdateOperationsInput | string
-    tujuan?: StringFieldUpdateOperationsInput | string
-    printColumnName?: StringFieldUpdateOperationsInput | string
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    registerSurat?: RegisterSuratUncheckedUpdateManyWithoutDeptNestedInput
-    nomorCounter?: NomorCounterUncheckedUpdateOneWithoutDeptNestedInput
-    columns?: DepartmentColumnUncheckedUpdateManyWithoutDepartmentNestedInput
-  }
-
-  export type DetailPIUpsertWithWhereUniqueWithoutRegisterInput = {
-    where: DetailPIWhereUniqueInput
-    update: XOR<DetailPIUpdateWithoutRegisterInput, DetailPIUncheckedUpdateWithoutRegisterInput>
-    create: XOR<DetailPICreateWithoutRegisterInput, DetailPIUncheckedCreateWithoutRegisterInput>
-  }
-
-  export type DetailPIUpdateWithWhereUniqueWithoutRegisterInput = {
-    where: DetailPIWhereUniqueInput
-    data: XOR<DetailPIUpdateWithoutRegisterInput, DetailPIUncheckedUpdateWithoutRegisterInput>
-  }
-
-  export type DetailPIUpdateManyWithWhereWithoutRegisterInput = {
-    where: DetailPIScalarWhereInput
-    data: XOR<DetailPIUpdateManyMutationInput, DetailPIUncheckedUpdateManyWithoutRegisterInput>
-  }
-
-  export type DetailPIScalarWhereInput = {
-    AND?: DetailPIScalarWhereInput | DetailPIScalarWhereInput[]
-    OR?: DetailPIScalarWhereInput[]
-    NOT?: DetailPIScalarWhereInput | DetailPIScalarWhereInput[]
-    id?: IntFilter<"DetailPI"> | number
-    registerId?: IntFilter<"DetailPI"> | number
-    namaSupplier?: StringFilter<"DetailPI"> | string
-    noInvoice?: StringNullableFilter<"DetailPI"> | string | null
-    nomorSurat?: StringNullableFilter<"DetailPI"> | string | null
-    tanggalSurat?: DateTimeFilter<"DetailPI"> | Date | string
-    tujuan?: StringNullableFilter<"DetailPI"> | string | null
-    cc?: StringNullableFilter<"DetailPI"> | string | null
-    customFields?: JsonFilter<"DetailPI">
-    createdAt?: DateTimeFilter<"DetailPI"> | Date | string
-    updatedAt?: DateTimeFilter<"DetailPI"> | Date | string
-  }
-
-  export type RegisterPICreateWithoutDetailPIInput = {
-    nomor: string
-    tanggalTerima: Date | string
-    asalSurat: string
-    customDetails?: JsonNullValueInput | InputJsonValue
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    dept: DepartmentCreateNestedOneWithoutRegisterPIInput
-  }
-
-  export type RegisterPIUncheckedCreateWithoutDetailPIInput = {
-    id?: number
-    nomor: string
-    deptId: string
-    tanggalTerima: Date | string
-    asalSurat: string
-    customDetails?: JsonNullValueInput | InputJsonValue
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type RegisterPICreateOrConnectWithoutDetailPIInput = {
-    where: RegisterPIWhereUniqueInput
-    create: XOR<RegisterPICreateWithoutDetailPIInput, RegisterPIUncheckedCreateWithoutDetailPIInput>
-  }
-
-  export type RegisterPIUpsertWithoutDetailPIInput = {
-    update: XOR<RegisterPIUpdateWithoutDetailPIInput, RegisterPIUncheckedUpdateWithoutDetailPIInput>
-    create: XOR<RegisterPICreateWithoutDetailPIInput, RegisterPIUncheckedCreateWithoutDetailPIInput>
-    where?: RegisterPIWhereInput
-  }
-
-  export type RegisterPIUpdateToOneWithWhereWithoutDetailPIInput = {
-    where?: RegisterPIWhereInput
-    data: XOR<RegisterPIUpdateWithoutDetailPIInput, RegisterPIUncheckedUpdateWithoutDetailPIInput>
-  }
-
-  export type RegisterPIUpdateWithoutDetailPIInput = {
-    nomor?: StringFieldUpdateOperationsInput | string
-    tanggalTerima?: DateTimeFieldUpdateOperationsInput | Date | string
-    asalSurat?: StringFieldUpdateOperationsInput | string
-    customDetails?: JsonNullValueInput | InputJsonValue
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    dept?: DepartmentUpdateOneRequiredWithoutRegisterPINestedInput
-  }
-
-  export type RegisterPIUncheckedUpdateWithoutDetailPIInput = {
-    id?: IntFieldUpdateOperationsInput | number
-    nomor?: StringFieldUpdateOperationsInput | string
-    deptId?: StringFieldUpdateOperationsInput | string
-    tanggalTerima?: DateTimeFieldUpdateOperationsInput | Date | string
-    asalSurat?: StringFieldUpdateOperationsInput | string
-    customDetails?: JsonNullValueInput | InputJsonValue
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type RegisterSuratCreateWithoutDetailSuratInput = {
@@ -19169,7 +15730,6 @@ export namespace Prisma {
     printColumnName?: string
     isActive?: boolean
     registerSurat?: RegisterSuratCreateNestedManyWithoutDeptInput
-    registerPI?: RegisterPICreateNestedManyWithoutDeptInput
     columns?: DepartmentColumnCreateNestedManyWithoutDepartmentInput
   }
 
@@ -19180,7 +15740,6 @@ export namespace Prisma {
     printColumnName?: string
     isActive?: boolean
     registerSurat?: RegisterSuratUncheckedCreateNestedManyWithoutDeptInput
-    registerPI?: RegisterPIUncheckedCreateNestedManyWithoutDeptInput
     columns?: DepartmentColumnUncheckedCreateNestedManyWithoutDepartmentInput
   }
 
@@ -19207,7 +15766,6 @@ export namespace Prisma {
     printColumnName?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     registerSurat?: RegisterSuratUpdateManyWithoutDeptNestedInput
-    registerPI?: RegisterPIUpdateManyWithoutDeptNestedInput
     columns?: DepartmentColumnUpdateManyWithoutDepartmentNestedInput
   }
 
@@ -19218,7 +15776,6 @@ export namespace Prisma {
     printColumnName?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     registerSurat?: RegisterSuratUncheckedUpdateManyWithoutDeptNestedInput
-    registerPI?: RegisterPIUncheckedUpdateManyWithoutDeptNestedInput
     columns?: DepartmentColumnUncheckedUpdateManyWithoutDepartmentNestedInput
   }
 
@@ -19332,16 +15889,6 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
-  export type RegisterPICreateManyDeptInput = {
-    id?: number
-    nomor: string
-    tanggalTerima: Date | string
-    asalSurat: string
-    customDetails?: JsonNullValueInput | InputJsonValue
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
   export type DepartmentColumnCreateManyDepartmentInput = {
     id: string
     label: string
@@ -19383,37 +15930,6 @@ export namespace Prisma {
     tanggalTerima?: DateTimeFieldUpdateOperationsInput | Date | string
     asalSurat?: StringFieldUpdateOperationsInput | string
     tujuan?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type RegisterPIUpdateWithoutDeptInput = {
-    nomor?: StringFieldUpdateOperationsInput | string
-    tanggalTerima?: DateTimeFieldUpdateOperationsInput | Date | string
-    asalSurat?: StringFieldUpdateOperationsInput | string
-    customDetails?: JsonNullValueInput | InputJsonValue
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    detailPI?: DetailPIUpdateManyWithoutRegisterNestedInput
-  }
-
-  export type RegisterPIUncheckedUpdateWithoutDeptInput = {
-    id?: IntFieldUpdateOperationsInput | number
-    nomor?: StringFieldUpdateOperationsInput | string
-    tanggalTerima?: DateTimeFieldUpdateOperationsInput | Date | string
-    asalSurat?: StringFieldUpdateOperationsInput | string
-    customDetails?: JsonNullValueInput | InputJsonValue
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    detailPI?: DetailPIUncheckedUpdateManyWithoutRegisterNestedInput
-  }
-
-  export type RegisterPIUncheckedUpdateManyWithoutDeptInput = {
-    id?: IntFieldUpdateOperationsInput | number
-    nomor?: StringFieldUpdateOperationsInput | string
-    tanggalTerima?: DateTimeFieldUpdateOperationsInput | Date | string
-    asalSurat?: StringFieldUpdateOperationsInput | string
-    customDetails?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -19502,57 +16018,6 @@ export namespace Prisma {
     lampiran?: NullableStringFieldUpdateOperationsInput | string | null
     tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
     tujuan?: NullableStringFieldUpdateOperationsInput | string | null
-    customFields?: JsonNullValueInput | InputJsonValue
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type DetailPICreateManyRegisterInput = {
-    id?: number
-    namaSupplier: string
-    noInvoice?: string | null
-    nomorSurat?: string | null
-    tanggalSurat: Date | string
-    tujuan?: string | null
-    cc?: string | null
-    customFields?: JsonNullValueInput | InputJsonValue
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type DetailPIUpdateWithoutRegisterInput = {
-    namaSupplier?: StringFieldUpdateOperationsInput | string
-    noInvoice?: NullableStringFieldUpdateOperationsInput | string | null
-    nomorSurat?: NullableStringFieldUpdateOperationsInput | string | null
-    tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
-    tujuan?: NullableStringFieldUpdateOperationsInput | string | null
-    cc?: NullableStringFieldUpdateOperationsInput | string | null
-    customFields?: JsonNullValueInput | InputJsonValue
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type DetailPIUncheckedUpdateWithoutRegisterInput = {
-    id?: IntFieldUpdateOperationsInput | number
-    namaSupplier?: StringFieldUpdateOperationsInput | string
-    noInvoice?: NullableStringFieldUpdateOperationsInput | string | null
-    nomorSurat?: NullableStringFieldUpdateOperationsInput | string | null
-    tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
-    tujuan?: NullableStringFieldUpdateOperationsInput | string | null
-    cc?: NullableStringFieldUpdateOperationsInput | string | null
-    customFields?: JsonNullValueInput | InputJsonValue
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type DetailPIUncheckedUpdateManyWithoutRegisterInput = {
-    id?: IntFieldUpdateOperationsInput | number
-    namaSupplier?: StringFieldUpdateOperationsInput | string
-    noInvoice?: NullableStringFieldUpdateOperationsInput | string | null
-    nomorSurat?: NullableStringFieldUpdateOperationsInput | string | null
-    tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
-    tujuan?: NullableStringFieldUpdateOperationsInput | string | null
-    cc?: NullableStringFieldUpdateOperationsInput | string | null
     customFields?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
