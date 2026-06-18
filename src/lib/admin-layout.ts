@@ -1,7 +1,7 @@
 export function getAdminPageTitle(pathname: string) {
   if (pathname.includes("/dashboard")) return "Dashboard"
   if (pathname.includes("/users")) return "Kelola Pengguna"
-  if (pathname.includes("/departemen")) return "Departemen"
+  if (pathname.includes("/departemen")) return "Kelola Departemen"
   return "Dashboard"
 }
 

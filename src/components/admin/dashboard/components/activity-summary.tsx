@@ -4,7 +4,6 @@ import {
   ArrowUpRight,
   Building2,
   CircleUserRound,
-  FileText,
   Inbox,
   Minus,
 } from "lucide-react"
@@ -76,7 +75,7 @@ function ActivityCard({
 
 export function ActivitySummary({ aktivitas }: ActivitySummaryProps) {
   return (
-    <div className="grid h-full grid-cols-1 gap-2.5 sm:grid-cols-2 sm:gap-3 xl:grid-rows-2">
+    <div className="grid h-full grid-cols-1 gap-2.5 sm:grid-cols-2 sm:gap-3 xl:grid-cols-3">
       <ActivityCard
         title="Jumlah akun"
         value={aktivitas.jumlahAkun}
@@ -101,15 +100,6 @@ export function ActivitySummary({ aktivitas }: ActivitySummaryProps) {
         iconBg={ACTIVITY_CARD_STYLES[2].iconBg}
         iconColor={ACTIVITY_CARD_STYLES[2].iconColor}
         changePercent={aktivitas.perubahanSuratMasuk}
-      />
-      <ActivityCard
-        title="Total PI"
-        value={aktivitas.totalSuratPI}
-        icon={FileText}
-        gradient={ACTIVITY_CARD_STYLES[3].gradient}
-        iconBg={ACTIVITY_CARD_STYLES[3].iconBg}
-        iconColor={ACTIVITY_CARD_STYLES[3].iconColor}
-        changePercent={aktivitas.perubahanSuratPI}
       />
     </div>
   )

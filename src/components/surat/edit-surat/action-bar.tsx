@@ -14,7 +14,7 @@ export function FloatingActionBar({ state, actions }: any) {
       </Button>
       <Button
         variant="ghost"
-        onClick={state.isPI ? actions.addPI : actions.addSurat}
+        onClick={actions.addSurat}
         className="h-10 gap-2 rounded-xl px-4 text-[13px] font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200"
       >
         <Plus size={14} strokeWidth={2.5} /> Tambah

@@ -61,7 +61,7 @@ function DataSuratInner({ basePath, printPath }: Props) {
       <EmptyState
         description={
           <span className="leading-none">
-            {state.filterDate || state.filterDepts.length > 0 || state.showPI
+            {state.filterDate || state.filterDepts.length > 0
               ? "Tidak ada data yang sesuai filter."
               : <>
                   Silakan tambahkan data baru dengan mengklik tombol
@@ -92,14 +92,12 @@ function DataSuratInner({ basePath, printPath }: Props) {
             </div>
             <MobileList
               registers={registers}
-              showPI={state.showPI}
               selectedIds={state.selectedIds}
               basePath={basePath}
               actions={actions}
             />
             <DesktopTable
               registers={registers}
-              showPI={state.showPI}
               selectedIds={state.selectedIds}
               basePath={basePath}
               actions={actions}

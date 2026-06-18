@@ -174,7 +174,23 @@ exports.Prisma.DepartmentScalarFieldEnum = {
   id: 'id',
   shortName: 'shortName',
   tujuan: 'tujuan',
+  printColumnName: 'printColumnName',
   isActive: 'isActive'
+};
+
+exports.Prisma.DepartmentColumnScalarFieldEnum = {
+  id: 'id',
+  departmentId: 'departmentId',
+  label: 'label',
+  dataType: 'dataType',
+  defaultValue: 'defaultValue',
+  isDefault: 'isDefault',
+  isRequired: 'isRequired',
+  showInDataSurat: 'showInDataSurat',
+  showInPrint: 'showInPrint',
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.RegisterSuratScalarFieldEnum = {
@@ -188,29 +204,6 @@ exports.Prisma.RegisterSuratScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
-exports.Prisma.RegisterPIScalarFieldEnum = {
-  id: 'id',
-  nomor: 'nomor',
-  deptId: 'deptId',
-  tanggalTerima: 'tanggalTerima',
-  asalSurat: 'asalSurat',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-};
-
-exports.Prisma.DetailPIScalarFieldEnum = {
-  id: 'id',
-  registerId: 'registerId',
-  namaSupplier: 'namaSupplier',
-  noInvoice: 'noInvoice',
-  nomorSurat: 'nomorSurat',
-  tanggalSurat: 'tanggalSurat',
-  tujuan: 'tujuan',
-  cc: 'cc',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-};
-
 exports.Prisma.DetailSuratScalarFieldEnum = {
   id: 'id',
   registerId: 'registerId',
@@ -219,6 +212,7 @@ exports.Prisma.DetailSuratScalarFieldEnum = {
   lampiran: 'lampiran',
   tanggalSurat: 'tanggalSurat',
   tujuan: 'tujuan',
+  customFields: 'customFields',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -233,6 +227,10 @@ exports.Prisma.SortOrder = {
   desc: 'desc'
 };
 
+exports.Prisma.JsonNullValueInput = {
+  JsonNull: Prisma.JsonNull
+};
+
 exports.Prisma.QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
@@ -241,6 +239,12 @@ exports.Prisma.QueryMode = {
 exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
+};
+
+exports.Prisma.JsonNullValueFilter = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull,
+  AnyNull: Prisma.AnyNull
 };
 exports.Role = exports.$Enums.Role = {
   ADMIN: 'ADMIN',
@@ -254,9 +258,8 @@ exports.Prisma.ModelName = {
   Account: 'Account',
   UserPermission: 'UserPermission',
   Department: 'Department',
+  DepartmentColumn: 'DepartmentColumn',
   RegisterSurat: 'RegisterSurat',
-  RegisterPI: 'RegisterPI',
-  DetailPI: 'DetailPI',
   DetailSurat: 'DetailSurat',
   NomorCounter: 'NomorCounter'
 };
