@@ -1,18 +1,14 @@
 "use client"
 
 export type {
-  DetailPI,
   DetailSurat,
   FormState,
-  PIItem,
-  RegisterPI,
   RegisterSurat,
   Role,
   SuratItem,
 } from "@/types"
 export {
   EMPTY_FORM,
-  EMPTY_PI_ITEM,
   EMPTY_SURAT_ITEM,
 } from "@/types"
 export {

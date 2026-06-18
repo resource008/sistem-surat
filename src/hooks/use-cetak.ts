@@ -4,22 +4,17 @@ import type { RegisterSurat } from "@/types/surat-types"
 import { useEffect, useState } from "react"
 
 const CETAK_IDS_KEY_ALL = "cetak:ids:all"
-const CETAK_IDS_KEY_PI  = "cetak:ids:pi"
 
 function isClient() { return typeof window !== "undefined" }
 
-function getKey(mode: "all" | "pi") {
-  return mode === "pi" ? CETAK_IDS_KEY_PI : CETAK_IDS_KEY_ALL
-}
-
-export function clearCetakSession(mode: "all" | "pi" = "all") {
+export function clearCetakSession() {
   if (!isClient()) return
-  try { sessionStorage.removeItem(getKey(mode)) } catch {}
+  try { sessionStorage.removeItem(CETAK_IDS_KEY_ALL) } catch {}
 }
 
-export function getCetakIds(mode: "all" | "pi" = "all"): string {
+export function getCetakIds(): string {
   if (!isClient()) return ""
-  try { return sessionStorage.getItem(getKey(mode)) ?? "" } catch { return "" }
+  try { return sessionStorage.getItem(CETAK_IDS_KEY_ALL) ?? "" } catch { return "" }
 }
 
 interface UseCetakDataReturn {
@@ -28,7 +23,7 @@ interface UseCetakDataReturn {
   error   : string | null
 }
 
-export function useCetakData(idsParam: string, mode: "all" | "pi" = "all"): UseCetakDataReturn {
+export function useCetakData(idsParam: string): UseCetakDataReturn {
   const [data,    setData]    = useState<RegisterSurat[]>([])
   const [loading, setLoading] = useState(true)
   const [error,   setError]   = useState<string | null>(null)
@@ -36,13 +31,12 @@ export function useCetakData(idsParam: string, mode: "all" | "pi" = "all"): UseC
   useEffect(() => {
     let cancelled = false
 
-    const key = getKey(mode)
     let ids   = idsParam
 
     if (ids) {
-      try { sessionStorage.setItem(key, ids) } catch {}
+      try { sessionStorage.setItem(CETAK_IDS_KEY_ALL, ids) } catch {}
     } else {
-      try { ids = sessionStorage.getItem(key) ?? "" } catch {}
+      try { ids = sessionStorage.getItem(CETAK_IDS_KEY_ALL) ?? "" } catch {}
     }
 
     window.dispatchEvent(new CustomEvent("cetak:ids-ready", {
@@ -58,12 +52,13 @@ export function useCetakData(idsParam: string, mode: "all" | "pi" = "all"): UseC
     setLoading(true)
     setError(null)
 
-    const endpoint = mode === "pi" ? "/api/cetak/pi" : "/api/cetak/all"
-
-    fetch(`${endpoint}?ids=${ids}`)
-      .then(r => {
+    fetch(`/api/cetak/all?ids=${encodeURIComponent(ids)}`)
+      .then(async r => {
         if (r.status === 401) throw new Error("Sesi habis, silakan login ulang")
-        if (!r.ok)            throw new Error("Gagal mengambil data cetak")
+        if (!r.ok) {
+          const json = await r.json().catch(() => null)
+          throw new Error(json?.error ?? "Gagal mengambil data cetak")
+        }
         return r.json()
       })
       .then(json => {
@@ -78,7 +73,7 @@ export function useCetakData(idsParam: string, mode: "all" | "pi" = "all"): UseC
       .finally(() => { if (!cancelled) setLoading(false) })
 
     return () => { cancelled = true }
-  }, [idsParam, mode])
+  }, [idsParam])
 
   return { data, loading, error }
 }

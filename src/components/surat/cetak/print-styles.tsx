@@ -84,6 +84,11 @@ export function CetakPrintStyles() {
           margin: 0 !important;
           padding: 0 !important;
           background: white !important;
+          text-transform: uppercase !important;
+        }
+
+        .print-view * {
+          text-transform: uppercase !important;
         }
 
         /* ══ Print table ══════════════════════════════════════ */
@@ -91,6 +96,7 @@ export function CetakPrintStyles() {
           width: 100%;
           border-collapse: collapse;
           table-layout: fixed;
+          margin-bottom: 12px;
         }
 
         .pt thead { display: table-header-group; }

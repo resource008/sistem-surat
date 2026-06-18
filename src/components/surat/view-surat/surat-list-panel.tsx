@@ -3,6 +3,7 @@ import { format } from "date-fns"
 import { id } from "date-fns/locale"
 import { FileText } from "lucide-react"
 import { Field } from "./field"
+import { CustomFieldsView, getCustomSuratColumns } from "../custom-fields"
 
 interface Props {
   register: RegisterSurat
@@ -39,12 +40,22 @@ export function SuratListPanel({ register }: Props) {
 
           <div className="px-5 py-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Field label="Perihal Surat" value={detail.perihal || undefined} fullWidth placeholder="Tidak ada" />
-              <Field label="Nomor Surat"   value={detail.noSurat  || undefined} mono placeholder="Tidak ada" />
-              <Field label="Lampiran"      value={detail.lampiran || undefined} placeholder="Tidak ada" />
-              <Field label="Tanggal Surat"
-                value={format(new Date(detail.tanggalSurat), "dd MMMM yyyy", { locale: id })}
-                fullWidth />
+              {getCustomSuratColumns(register.dept.columns, true).length > 0 ? (
+                <CustomFieldsView
+                  columns={register.dept.columns}
+                  values={detail.customFields}
+                  includeBuiltIn
+                />
+              ) : (
+                <>
+                  <Field label="Perihal Surat" value={detail.perihal || undefined} fullWidth placeholder="Tidak ada" />
+                  <Field label="Nomor Surat"   value={detail.noSurat  || undefined} mono placeholder="Tidak ada" />
+                  <Field label="Lampiran"      value={detail.lampiran || undefined} placeholder="Tidak ada" />
+                  <Field label="Tanggal Surat"
+                    value={format(new Date(detail.tanggalSurat), "dd MMMM yyyy", { locale: id })}
+                    fullWidth />
+                </>
+              )}
             </div>
           </div>
 

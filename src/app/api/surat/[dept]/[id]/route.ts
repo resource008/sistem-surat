@@ -2,10 +2,8 @@ import { NextRequest, NextResponse } from "next/server"
 import { headers } from "next/headers"
 import { auth } from "@/infrastructure/auth/better-auth"
 import { fetchSuratById, editSurat, removeSurat } from "@/services/surat-service"
-import { isPIDept } from "@/domain/surat/entities"
-import { UpdatePISchema, UpdateSuratSchema } from "@/app/validation/surat"
+import { UpdateSuratSchema } from "@/app/validation/surat"
 import { Prisma } from "@/generated/prisma"
-import { prisma } from "@/infrastructure/databases/prisma-client"
 import { requireUserPermission } from "@/lib/current-user-permissions"
 import { AppError } from "@/lib/errors"
 
@@ -20,6 +18,7 @@ async function getSession() {
 // ─── Parse & validate id ──────────────────────────────────────────────────────
 
 function parseId(raw: string): number | null {
+  if (!/^\d+$/.test(raw)) return null
   const n = parseInt(raw, 10)
   return isNaN(n) ? null : n
 }
@@ -68,12 +67,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
       return NextResponse.json({ error: "Body tidak valid" }, { status: 400 })
     }
 
-    const department = await prisma.department.findUnique({
-      where: { id: dept },
-      select: { shortName: true },
-    })
-    const schema = isPIDept(department?.shortName ?? "") ? UpdatePISchema : UpdateSuratSchema
-    const result = schema.safeParse(body)
+    const result = UpdateSuratSchema.safeParse(body)
     if (!result.success) {
       return NextResponse.json({ error: result.error.flatten() }, { status: 422 })
     }

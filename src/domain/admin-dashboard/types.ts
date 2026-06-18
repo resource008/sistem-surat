@@ -48,9 +48,7 @@ export interface DashboardStatsResult {
     jumlahAkun: number
     totalDepartemen: number
     totalSuratMasuk: number
-    totalSuratPI: number
     perubahanSuratMasuk: number | null
-    perubahanSuratPI: number | null
   }
   suratPerDepartemen: SuratPerDepartemen[]
   statistikSurat: StatistikSurat

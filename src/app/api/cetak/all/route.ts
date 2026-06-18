@@ -1,37 +1,30 @@
 import { NextResponse }  from "next/server"
-import { prisma }        from "@/infrastructure/databases/prisma-client"
 import { AppError }      from "@/lib/errors"
 import { requireUserPermission } from "@/lib/current-user-permissions"
+import { SuratRepository } from "@/infrastructure/repositories/surat-repositories"
+import type { PaginatedResult, SuratResult } from "@/domain/surat/repositories"
 
 const MAX_IDS = 100
+const repository = new SuratRepository()
 
-function toIso(value: unknown) {
-  return value instanceof Date ? value.toISOString() : String(value)
+function isPaginatedResult(value: SuratResult[] | PaginatedResult<SuratResult>): value is PaginatedResult<SuratResult> {
+  return !Array.isArray(value)
 }
 
-function serializeSurat(row: Record<string, unknown>) {
-  const dept = row.dept as Record<string, unknown> | undefined
+function parseIds(idsParam: string | null) {
+  if (!idsParam?.trim()) return []
 
-  return {
-    id:            Number(row.id),
-    nomor:         String(row.nomor),
-    deptId:        String(row.deptId),
-    tanggalTerima: toIso(row.tanggalTerima),
-    asalSurat:     String(row.asalSurat ?? ""),
-    tujuan:        String(row.tujuan ?? ""),
-    dept: {
-      id:        String(dept?.id ?? row.deptId),
-      shortName: String(dept?.shortName ?? row.deptId),
-    },
-    detailSurat: (row.detailSurat as Record<string, unknown>[]).map((detail) => ({
-      id:           Number(detail.id),
-      perihal:      String(detail.perihal ?? ""),
-      noSurat:      detail.noSurat  === null || detail.noSurat  === undefined ? null : String(detail.noSurat),
-      lampiran:     detail.lampiran === null || detail.lampiran === undefined ? null : String(detail.lampiran),
-      tanggalSurat: toIso(detail.tanggalSurat),
-      tujuan:       detail.tujuan === null || detail.tujuan === undefined ? null : String(detail.tujuan),
-    })),
+  const parts = idsParam.split(",").map((part) => part.trim()).filter(Boolean)
+  if (parts.length === 0) return []
+
+  const ids = parts.map((part) => Number(part))
+  const hasInvalidId = parts.some((part, index) => !/^\d+$/.test(part) || !Number.isInteger(ids[index]) || ids[index] <= 0)
+
+  if (hasInvalidId) {
+    throw new AppError(400, "Parameter ids tidak valid")
   }
+
+  return ids.slice(0, MAX_IDS)
 }
 
 export async function GET(req: Request) {
@@ -40,21 +33,16 @@ export async function GET(req: Request) {
 
     const { searchParams } = new URL(req.url)
     const idsParam         = searchParams.get("ids")
-    const ids              = idsParam
-      ?.split(",")
-      .map(Number)
-      .filter((id) => Number.isInteger(id) && id > 0)
-      .slice(0, MAX_IDS)
+    const ids              = parseIds(idsParam)
 
-    const data = await prisma.registerSurat.findMany({
-      where  : ids && ids.length > 0 ? { id: { in: ids } } : undefined,
-      include: { dept: true, detailSurat: true },
-      orderBy: { nomor: "asc" },
-    })
+    if (ids.length === 0) {
+      return NextResponse.json([])
+    }
 
-    return NextResponse.json(
-      data.map((row) => serializeSurat(row as unknown as Record<string, unknown>))
-    )
+    const result = await repository.findAll(null, ids)
+    const data = isPaginatedResult(result) ? result.data : result
+
+    return NextResponse.json(data)
   } catch (error) {
     if (error instanceof AppError) {
       return NextResponse.json({ error: error.message }, { status: error.status })

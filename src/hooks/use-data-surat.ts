@@ -3,6 +3,7 @@
 import type { RegisterSurat } from "@/types"
 import { format, isValid } from "date-fns"
 import { id }             from "date-fns/locale"
+import { compareRegisterNomor } from "@/lib/surat-helpers"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
@@ -33,11 +34,14 @@ function safeFormat(date: string | Date | null | undefined, fmt: string): string
   return isValid(d) ? format(d, fmt, { locale: id }) : null
 }
 
+function hasVisibleDetails(register: RegisterSurat) {
+  return (register.detailSurat ?? []).length > 0
+}
+
 export function useDataSurat(printPath: string) {
   const router       = useRouter()
   const searchParams = useSearchParams()
 
-  const showPI         = searchParams.get("mode") === "pi"
   const filterDate     = searchParams.get("date")
   const filterDeptsRaw = searchParams.get("dept") ?? ""
   const filterDepts    = useMemo(
@@ -56,18 +60,17 @@ export function useDataSurat(printPath: string) {
   useEffect(() => { writeSession(selectedIds)     }, [selectedIds])
 
   // ✅ Gunakan ref untuk track filter aktif — hindari stale closure di fetchPage
-  const filterRef = useRef({ showPI, filterDate, filterDeptsRaw })
+  const filterRef = useRef({ filterDate, filterDeptsRaw })
   useEffect(() => {
-    filterRef.current = { showPI, filterDate, filterDeptsRaw }
-  }, [showPI, filterDate, filterDeptsRaw])
+    filterRef.current = { filterDate, filterDeptsRaw }
+  }, [filterDate, filterDeptsRaw])
 
   // ✅ fetchPage sekarang kirim filter ke API — bukan filter di client
   const fetchPage = useCallback(async (pageNum: number, replace = false) => {
     try {
-      const { showPI, filterDate, filterDeptsRaw } = filterRef.current
+      const { filterDate, filterDeptsRaw } = filterRef.current
 
       const params = new URLSearchParams()
-      if (showPI)        params.set("type",  "pi")
       if (filterDate)    params.set("date",  filterDate)           // ✅ kirim ke API
       if (filterDeptsRaw) params.set("dept", filterDeptsRaw)      // ✅ kirim ke API
       params.set("page",  String(pageNum))
@@ -109,7 +112,7 @@ export function useDataSurat(printPath: string) {
 
     window.dispatchEvent(new CustomEvent("breadcrumb:sub",    { detail: null }))
     window.dispatchEvent(new CustomEvent("breadcrumb:subsub", { detail: null }))
-  }, [showPI, filterDate, filterDeptsRaw, fetchPage])
+  }, [filterDate, filterDeptsRaw, fetchPage])
 
   // Load more saat page bertambah (bukan page 1 — sudah ditangani effect atas)
   useEffect(() => {
@@ -120,16 +123,24 @@ export function useDataSurat(printPath: string) {
 
   // ✅ groupedData & sortedGroupKeys langsung dari data (tidak perlu filteredData lagi
   //    karena filter sudah dilakukan di server/API)
-  const groupedData = useMemo(() => data.reduce(
-    (acc: Record<string, RegisterSurat[]>, reg) => {
+  const visibleData = useMemo(
+    () => data.filter(hasVisibleDetails),
+    [data]
+  )
+
+  const groupedData = useMemo(() => {
+    const grouped = visibleData.reduce((acc: Record<string, RegisterSurat[]>, reg) => {
       const formatted = safeFormat(reg.tanggalTerima, "dd MMMM yyyy")
       const dateKey   = formatted ? formatted.toUpperCase() : "TANPA TANGGAL"
       const groupKey  = `${dateKey}|||${reg.deptId}|||${reg.dept.shortName}`
       if (!acc[groupKey]) acc[groupKey] = []
       acc[groupKey].push(reg)
       return acc
-    }, {}
-  ), [data])
+    }, {})
+
+    Object.values(grouped).forEach((registers) => registers.sort(compareRegisterNomor))
+    return grouped
+  }, [visibleData])
 
   const sortedGroupKeys = useMemo(() =>
     Object.keys(groupedData).sort((a, b) => {
@@ -156,12 +167,8 @@ export function useDataSurat(printPath: string) {
     handlePrint: () => {
       const idsString = Array.from(selectedIds).join(",")
       if (!isClient()) return
-      if (showPI) {
-        try { sessionStorage.setItem("cetak:ids:pi",  idsString) } catch {}
-      } else {
-        try { sessionStorage.setItem("cetak:ids:all", idsString) } catch {}
-      }
-      router.push(showPI ? `${printPath}/pi` : `${printPath}/all`)
+      try { sessionStorage.setItem("cetak:ids:all", idsString) } catch {}
+      router.push(`${printPath}/all`)
     },
     loadMore: () => {
       if (!loadingMore && hasMore) setPage(p => p + 1)
@@ -170,9 +177,9 @@ export function useDataSurat(printPath: string) {
 
   return {
     state: {
-      loading, loadingMore, hasMore, showPI,
+      loading, loadingMore, hasMore,
       filterDate, filterDepts,
-      filteredData: data,   // ✅ tidak perlu filteredData terpisah lagi
+      filteredData: visibleData,   // ✅ tidak perlu filteredData terpisah lagi
       groupedData, sortedGroupKeys, selectedIds,
     },
     actions,
