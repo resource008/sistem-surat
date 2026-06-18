@@ -100,7 +100,9 @@ export function useEditDepartemen(id: string, breadcrumbTitle = "Edit Departemen
       toast.error("Singkatan departemen wajib diisi")
       return
     }
-    if (!form.printColumnName.trim()) {
+    const fixedPrintColumnName = departemen?.printColumnName ?? form.printColumnName
+
+    if (!fixedPrintColumnName.trim()) {
       toast.error("Identifikasi cetak wajib diisi")
       return
     }
@@ -113,7 +115,7 @@ export function useEditDepartemen(id: string, breadcrumbTitle = "Edit Departemen
         body: JSON.stringify({
           tujuan: form.tujuan,
           shortName: form.shortName,
-          printColumnName: form.printColumnName,
+          printColumnName: fixedPrintColumnName,
           columnMode: form.columnMode,
           sourceDepartmentId: form.sourceDepartmentId,
           columns: form.columns,
