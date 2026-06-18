@@ -1,71 +1,55 @@
-// src/domain/surat/types.ts
-//
-// Re-export tipe shared dari @/types agar tidak duplikat.
-// Tipe khusus domain (payload, options) didefinisikan di sini.
-
 export type {
-  SuratItem,
-  PIItem,
   FormState,
   RegisterSurat,
-  RegisterPI,
+  SuratItem,
 } from "@/types"
 
-// ─── Dept ─────────────────────────────────────────────────────────────────────
-
-export interface DeptOption {
-  id:        string
-  shortName: string
-  fullName:  string
+type DeptColumnOption = {
+  id: string
+  label: string
+  type: "text" | "date" | "number"
+  defaultValue: string
+  isDefault: boolean
+  isRequired: boolean
+  showInDataSurat: boolean
+  showInPrint: boolean
+  sortOrder: number
 }
 
-// ─── Create payload ───────────────────────────────────────────────────────────
+export interface DeptOption {
+  id: string
+  shortName: string
+  fullName: string
+  columns?: DeptColumnOption[]
+  displayColumns?: DeptColumnOption[]
+}
 
 export interface CreateSuratPayload {
-  deptId:        string
-  asalSurat:     string
+  deptId: string
+  asalSurat: string
   tanggalTerima: string
-  tujuan:        string
-  isPIDept:      boolean
-
-  piList?: Array<{
-    namaSupplier: string
-    noInvoice?:   string | null
-    nomorSurat?:  string | null
+  tujuan: string
+  suratList: Array<{
+    perihal: string
+    noSurat?: string | null
+    lampiran?: string | null
+    tujuan?: string | null
     tanggalSurat: string
-    tujuan?:      string | null
-    cc?:          string | null
-  }>
-
-  suratList?: Array<{
-    perihal:      string
-    noSurat?:     string | null
-    lampiran?:    string | null
-    tujuan?:      string | null
-    tanggalSurat: string
+    customFields?: Record<string, string>
   }>
 }
 
 export interface UpdateSuratPayload {
-  deptId?:        string
-  asalSurat?:     string
-  tujuan?:        string
+  deptId?: string
+  asalSurat?: string
+  tujuan?: string
   tanggalTerima?: string
-
-  piList?: Array<{
-    namaSupplier: string
-    noInvoice?:   string | null
-    nomorSurat?:  string | null
-    tanggalSurat: string
-    tujuan?:      string | null
-    cc?:          string | null
-  }>
-
   suratList?: Array<{
-    perihal:      string
-    noSurat?:     string | null
-    lampiran?:    string | null
-    tujuan?:      string | null
+    perihal: string
+    noSurat?: string | null
+    lampiran?: string | null
+    tujuan?: string | null
     tanggalSurat: string
+    customFields?: Record<string, string>
   }>
 }

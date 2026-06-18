@@ -10,12 +10,4 @@ export class CetakRepository {
       orderBy: { nomor: "asc" },
     })
   }
-
-  findPI(ids?: number[]) {
-    return prisma.registerPI.findMany({
-      where  : ids ? { id: { in: ids } } : undefined,
-      include: { dept: true, detailPI: true },
-      orderBy: { nomor: "asc" },
-    })
-  }
 }
