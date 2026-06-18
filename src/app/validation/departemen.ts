@@ -14,9 +14,40 @@ const DepartmentNameSchema = z
   .max(100, "Nama departemen maksimal 100 karakter")
   .trim()
 
+const PrintColumnNameSchema = z
+  .string({ error: "Identifikasi cetak wajib diisi" })
+  .trim()
+  .min(1, "Identifikasi cetak wajib diisi")
+  .max(100, "Identifikasi cetak maksimal 100 karakter")
+
+const ColumnSchema = z.object({
+  id: z.string().optional(),
+  label: z.string().min(1, "Nama kolom wajib diisi").max(80, "Nama kolom maksimal 80 karakter").trim(),
+  type: z.enum(["text", "date", "number"]),
+  defaultValue: z.string().max(120, "Isian awal maksimal 120 karakter").optional().default(""),
+  isDefault: z.boolean().optional().default(false),
+  isRequired: z.boolean().optional().default(false),
+  showInDataSurat: z.boolean().optional().default(false),
+  showInPrint: z.boolean().optional().default(true),
+  sortOrder: z.number().int().nonnegative().optional().default(0),
+})
+
 export const CreateDepartemenSchema = z.object({
-  shortName: ShortNameSchema,
-  fullName:  DepartmentNameSchema,
+  shortName:          ShortNameSchema,
+  tujuan:             DepartmentNameSchema,
+  printColumnName:    PrintColumnNameSchema,
+  columnMode:         z.enum(["new", "existing"]).optional().default("new"),
+  sourceDepartmentId: z.string().optional().default(""),
+  columns:            z.array(ColumnSchema).optional().default([]),
+}).superRefine((value, ctx) => {
+  if (value.columnMode === "existing" && !value.sourceDepartmentId.trim()) {
+    ctx.addIssue({
+      code: "custom",
+      message: "Pilih departemen sumber kolom",
+      path: ["sourceDepartmentId"],
+    })
+  }
+
 })
 
 export const UpdateDepartemenSchema = CreateDepartemenSchema

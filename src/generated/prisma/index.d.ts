@@ -39,6 +39,11 @@ export type UserPermission = $Result.DefaultSelection<Prisma.$UserPermissionPayl
  */
 export type Department = $Result.DefaultSelection<Prisma.$DepartmentPayload>
 /**
+ * Model DepartmentColumn
+ * 
+ */
+export type DepartmentColumn = $Result.DefaultSelection<Prisma.$DepartmentColumnPayload>
+/**
  * Model RegisterSurat
  * 
  */
@@ -252,6 +257,16 @@ export class PrismaClient<
     * ```
     */
   get department(): Prisma.DepartmentDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.departmentColumn`: Exposes CRUD operations for the **DepartmentColumn** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more DepartmentColumns
+    * const departmentColumns = await prisma.departmentColumn.findMany()
+    * ```
+    */
+  get departmentColumn(): Prisma.DepartmentColumnDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.registerSurat`: Exposes CRUD operations for the **RegisterSurat** model.
@@ -741,6 +756,7 @@ export namespace Prisma {
     Account: 'Account',
     UserPermission: 'UserPermission',
     Department: 'Department',
+    DepartmentColumn: 'DepartmentColumn',
     RegisterSurat: 'RegisterSurat',
     RegisterPI: 'RegisterPI',
     DetailPI: 'DetailPI',
@@ -761,7 +777,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "session" | "account" | "userPermission" | "department" | "registerSurat" | "registerPI" | "detailPI" | "detailSurat" | "nomorCounter"
+      modelProps: "user" | "session" | "account" | "userPermission" | "department" | "departmentColumn" | "registerSurat" | "registerPI" | "detailPI" | "detailSurat" | "nomorCounter"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1132,6 +1148,80 @@ export namespace Prisma {
           count: {
             args: Prisma.DepartmentCountArgs<ExtArgs>
             result: $Utils.Optional<DepartmentCountAggregateOutputType> | number
+          }
+        }
+      }
+      DepartmentColumn: {
+        payload: Prisma.$DepartmentColumnPayload<ExtArgs>
+        fields: Prisma.DepartmentColumnFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.DepartmentColumnFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DepartmentColumnPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.DepartmentColumnFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DepartmentColumnPayload>
+          }
+          findFirst: {
+            args: Prisma.DepartmentColumnFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DepartmentColumnPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.DepartmentColumnFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DepartmentColumnPayload>
+          }
+          findMany: {
+            args: Prisma.DepartmentColumnFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DepartmentColumnPayload>[]
+          }
+          create: {
+            args: Prisma.DepartmentColumnCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DepartmentColumnPayload>
+          }
+          createMany: {
+            args: Prisma.DepartmentColumnCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.DepartmentColumnCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DepartmentColumnPayload>[]
+          }
+          delete: {
+            args: Prisma.DepartmentColumnDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DepartmentColumnPayload>
+          }
+          update: {
+            args: Prisma.DepartmentColumnUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DepartmentColumnPayload>
+          }
+          deleteMany: {
+            args: Prisma.DepartmentColumnDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.DepartmentColumnUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.DepartmentColumnUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DepartmentColumnPayload>[]
+          }
+          upsert: {
+            args: Prisma.DepartmentColumnUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$DepartmentColumnPayload>
+          }
+          aggregate: {
+            args: Prisma.DepartmentColumnAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateDepartmentColumn>
+          }
+          groupBy: {
+            args: Prisma.DepartmentColumnGroupByArgs<ExtArgs>
+            result: $Utils.Optional<DepartmentColumnGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.DepartmentColumnCountArgs<ExtArgs>
+            result: $Utils.Optional<DepartmentColumnCountAggregateOutputType> | number
           }
         }
       }
@@ -1618,6 +1708,7 @@ export namespace Prisma {
     account?: AccountOmit
     userPermission?: UserPermissionOmit
     department?: DepartmentOmit
+    departmentColumn?: DepartmentColumnOmit
     registerSurat?: RegisterSuratOmit
     registerPI?: RegisterPIOmit
     detailPI?: DetailPIOmit
@@ -1745,11 +1836,13 @@ export namespace Prisma {
   export type DepartmentCountOutputType = {
     registerSurat: number
     registerPI: number
+    columns: number
   }
 
   export type DepartmentCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     registerSurat?: boolean | DepartmentCountOutputTypeCountRegisterSuratArgs
     registerPI?: boolean | DepartmentCountOutputTypeCountRegisterPIArgs
+    columns?: boolean | DepartmentCountOutputTypeCountColumnsArgs
   }
 
   // Custom InputTypes
@@ -1775,6 +1868,13 @@ export namespace Prisma {
    */
   export type DepartmentCountOutputTypeCountRegisterPIArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: RegisterPIWhereInput
+  }
+
+  /**
+   * DepartmentCountOutputType without action
+   */
+  export type DepartmentCountOutputTypeCountColumnsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DepartmentColumnWhereInput
   }
 
 
@@ -6406,21 +6506,24 @@ export namespace Prisma {
   export type DepartmentMinAggregateOutputType = {
     id: string | null
     shortName: string | null
-    fullName: string | null
+    tujuan: string | null
+    printColumnName: string | null
     isActive: boolean | null
   }
 
   export type DepartmentMaxAggregateOutputType = {
     id: string | null
     shortName: string | null
-    fullName: string | null
+    tujuan: string | null
+    printColumnName: string | null
     isActive: boolean | null
   }
 
   export type DepartmentCountAggregateOutputType = {
     id: number
     shortName: number
-    fullName: number
+    tujuan: number
+    printColumnName: number
     isActive: number
     _all: number
   }
@@ -6429,21 +6532,24 @@ export namespace Prisma {
   export type DepartmentMinAggregateInputType = {
     id?: true
     shortName?: true
-    fullName?: true
+    tujuan?: true
+    printColumnName?: true
     isActive?: true
   }
 
   export type DepartmentMaxAggregateInputType = {
     id?: true
     shortName?: true
-    fullName?: true
+    tujuan?: true
+    printColumnName?: true
     isActive?: true
   }
 
   export type DepartmentCountAggregateInputType = {
     id?: true
     shortName?: true
-    fullName?: true
+    tujuan?: true
+    printColumnName?: true
     isActive?: true
     _all?: true
   }
@@ -6523,7 +6629,8 @@ export namespace Prisma {
   export type DepartmentGroupByOutputType = {
     id: string
     shortName: string
-    fullName: string
+    tujuan: string
+    printColumnName: string
     isActive: boolean
     _count: DepartmentCountAggregateOutputType | null
     _min: DepartmentMinAggregateOutputType | null
@@ -6547,40 +6654,46 @@ export namespace Prisma {
   export type DepartmentSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     shortName?: boolean
-    fullName?: boolean
+    tujuan?: boolean
+    printColumnName?: boolean
     isActive?: boolean
     registerSurat?: boolean | Department$registerSuratArgs<ExtArgs>
     registerPI?: boolean | Department$registerPIArgs<ExtArgs>
     nomorCounter?: boolean | Department$nomorCounterArgs<ExtArgs>
+    columns?: boolean | Department$columnsArgs<ExtArgs>
     _count?: boolean | DepartmentCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["department"]>
 
   export type DepartmentSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     shortName?: boolean
-    fullName?: boolean
+    tujuan?: boolean
+    printColumnName?: boolean
     isActive?: boolean
   }, ExtArgs["result"]["department"]>
 
   export type DepartmentSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     shortName?: boolean
-    fullName?: boolean
+    tujuan?: boolean
+    printColumnName?: boolean
     isActive?: boolean
   }, ExtArgs["result"]["department"]>
 
   export type DepartmentSelectScalar = {
     id?: boolean
     shortName?: boolean
-    fullName?: boolean
+    tujuan?: boolean
+    printColumnName?: boolean
     isActive?: boolean
   }
 
-  export type DepartmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "shortName" | "fullName" | "isActive", ExtArgs["result"]["department"]>
+  export type DepartmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "shortName" | "tujuan" | "printColumnName" | "isActive", ExtArgs["result"]["department"]>
   export type DepartmentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     registerSurat?: boolean | Department$registerSuratArgs<ExtArgs>
     registerPI?: boolean | Department$registerPIArgs<ExtArgs>
     nomorCounter?: boolean | Department$nomorCounterArgs<ExtArgs>
+    columns?: boolean | Department$columnsArgs<ExtArgs>
     _count?: boolean | DepartmentCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type DepartmentIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -6592,11 +6705,13 @@ export namespace Prisma {
       registerSurat: Prisma.$RegisterSuratPayload<ExtArgs>[]
       registerPI: Prisma.$RegisterPIPayload<ExtArgs>[]
       nomorCounter: Prisma.$NomorCounterPayload<ExtArgs> | null
+      columns: Prisma.$DepartmentColumnPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       shortName: string
-      fullName: string
+      tujuan: string
+      printColumnName: string
       isActive: boolean
     }, ExtArgs["result"]["department"]>
     composites: {}
@@ -6995,6 +7110,7 @@ export namespace Prisma {
     registerSurat<T extends Department$registerSuratArgs<ExtArgs> = {}>(args?: Subset<T, Department$registerSuratArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RegisterSuratPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     registerPI<T extends Department$registerPIArgs<ExtArgs> = {}>(args?: Subset<T, Department$registerPIArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RegisterPIPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     nomorCounter<T extends Department$nomorCounterArgs<ExtArgs> = {}>(args?: Subset<T, Department$nomorCounterArgs<ExtArgs>>): Prisma__NomorCounterClient<$Result.GetResult<Prisma.$NomorCounterPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    columns<T extends Department$columnsArgs<ExtArgs> = {}>(args?: Subset<T, Department$columnsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DepartmentColumnPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -7026,7 +7142,8 @@ export namespace Prisma {
   interface DepartmentFieldRefs {
     readonly id: FieldRef<"Department", 'String'>
     readonly shortName: FieldRef<"Department", 'String'>
-    readonly fullName: FieldRef<"Department", 'String'>
+    readonly tujuan: FieldRef<"Department", 'String'>
+    readonly printColumnName: FieldRef<"Department", 'String'>
     readonly isActive: FieldRef<"Department", 'Boolean'>
   }
     
@@ -7488,6 +7605,30 @@ export namespace Prisma {
   }
 
   /**
+   * Department.columns
+   */
+  export type Department$columnsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DepartmentColumn
+     */
+    select?: DepartmentColumnSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DepartmentColumn
+     */
+    omit?: DepartmentColumnOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DepartmentColumnInclude<ExtArgs> | null
+    where?: DepartmentColumnWhereInput
+    orderBy?: DepartmentColumnOrderByWithRelationInput | DepartmentColumnOrderByWithRelationInput[]
+    cursor?: DepartmentColumnWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: DepartmentColumnScalarFieldEnum | DepartmentColumnScalarFieldEnum[]
+  }
+
+  /**
    * Department without action
    */
   export type DepartmentDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -7503,6 +7644,1194 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: DepartmentInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model DepartmentColumn
+   */
+
+  export type AggregateDepartmentColumn = {
+    _count: DepartmentColumnCountAggregateOutputType | null
+    _avg: DepartmentColumnAvgAggregateOutputType | null
+    _sum: DepartmentColumnSumAggregateOutputType | null
+    _min: DepartmentColumnMinAggregateOutputType | null
+    _max: DepartmentColumnMaxAggregateOutputType | null
+  }
+
+  export type DepartmentColumnAvgAggregateOutputType = {
+    sortOrder: number | null
+  }
+
+  export type DepartmentColumnSumAggregateOutputType = {
+    sortOrder: number | null
+  }
+
+  export type DepartmentColumnMinAggregateOutputType = {
+    id: string | null
+    departmentId: string | null
+    label: string | null
+    dataType: string | null
+    defaultValue: string | null
+    isDefault: boolean | null
+    isRequired: boolean | null
+    showInDataSurat: boolean | null
+    showInPrint: boolean | null
+    sortOrder: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type DepartmentColumnMaxAggregateOutputType = {
+    id: string | null
+    departmentId: string | null
+    label: string | null
+    dataType: string | null
+    defaultValue: string | null
+    isDefault: boolean | null
+    isRequired: boolean | null
+    showInDataSurat: boolean | null
+    showInPrint: boolean | null
+    sortOrder: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type DepartmentColumnCountAggregateOutputType = {
+    id: number
+    departmentId: number
+    label: number
+    dataType: number
+    defaultValue: number
+    isDefault: number
+    isRequired: number
+    showInDataSurat: number
+    showInPrint: number
+    sortOrder: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type DepartmentColumnAvgAggregateInputType = {
+    sortOrder?: true
+  }
+
+  export type DepartmentColumnSumAggregateInputType = {
+    sortOrder?: true
+  }
+
+  export type DepartmentColumnMinAggregateInputType = {
+    id?: true
+    departmentId?: true
+    label?: true
+    dataType?: true
+    defaultValue?: true
+    isDefault?: true
+    isRequired?: true
+    showInDataSurat?: true
+    showInPrint?: true
+    sortOrder?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type DepartmentColumnMaxAggregateInputType = {
+    id?: true
+    departmentId?: true
+    label?: true
+    dataType?: true
+    defaultValue?: true
+    isDefault?: true
+    isRequired?: true
+    showInDataSurat?: true
+    showInPrint?: true
+    sortOrder?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type DepartmentColumnCountAggregateInputType = {
+    id?: true
+    departmentId?: true
+    label?: true
+    dataType?: true
+    defaultValue?: true
+    isDefault?: true
+    isRequired?: true
+    showInDataSurat?: true
+    showInPrint?: true
+    sortOrder?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type DepartmentColumnAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DepartmentColumn to aggregate.
+     */
+    where?: DepartmentColumnWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DepartmentColumns to fetch.
+     */
+    orderBy?: DepartmentColumnOrderByWithRelationInput | DepartmentColumnOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: DepartmentColumnWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DepartmentColumns from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DepartmentColumns.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned DepartmentColumns
+    **/
+    _count?: true | DepartmentColumnCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: DepartmentColumnAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: DepartmentColumnSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: DepartmentColumnMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: DepartmentColumnMaxAggregateInputType
+  }
+
+  export type GetDepartmentColumnAggregateType<T extends DepartmentColumnAggregateArgs> = {
+        [P in keyof T & keyof AggregateDepartmentColumn]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateDepartmentColumn[P]>
+      : GetScalarType<T[P], AggregateDepartmentColumn[P]>
+  }
+
+
+
+
+  export type DepartmentColumnGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DepartmentColumnWhereInput
+    orderBy?: DepartmentColumnOrderByWithAggregationInput | DepartmentColumnOrderByWithAggregationInput[]
+    by: DepartmentColumnScalarFieldEnum[] | DepartmentColumnScalarFieldEnum
+    having?: DepartmentColumnScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: DepartmentColumnCountAggregateInputType | true
+    _avg?: DepartmentColumnAvgAggregateInputType
+    _sum?: DepartmentColumnSumAggregateInputType
+    _min?: DepartmentColumnMinAggregateInputType
+    _max?: DepartmentColumnMaxAggregateInputType
+  }
+
+  export type DepartmentColumnGroupByOutputType = {
+    id: string
+    departmentId: string
+    label: string
+    dataType: string
+    defaultValue: string
+    isDefault: boolean
+    isRequired: boolean
+    showInDataSurat: boolean
+    showInPrint: boolean
+    sortOrder: number
+    createdAt: Date
+    updatedAt: Date
+    _count: DepartmentColumnCountAggregateOutputType | null
+    _avg: DepartmentColumnAvgAggregateOutputType | null
+    _sum: DepartmentColumnSumAggregateOutputType | null
+    _min: DepartmentColumnMinAggregateOutputType | null
+    _max: DepartmentColumnMaxAggregateOutputType | null
+  }
+
+  type GetDepartmentColumnGroupByPayload<T extends DepartmentColumnGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<DepartmentColumnGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof DepartmentColumnGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], DepartmentColumnGroupByOutputType[P]>
+            : GetScalarType<T[P], DepartmentColumnGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type DepartmentColumnSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    departmentId?: boolean
+    label?: boolean
+    dataType?: boolean
+    defaultValue?: boolean
+    isDefault?: boolean
+    isRequired?: boolean
+    showInDataSurat?: boolean
+    showInPrint?: boolean
+    sortOrder?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    department?: boolean | DepartmentDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["departmentColumn"]>
+
+  export type DepartmentColumnSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    departmentId?: boolean
+    label?: boolean
+    dataType?: boolean
+    defaultValue?: boolean
+    isDefault?: boolean
+    isRequired?: boolean
+    showInDataSurat?: boolean
+    showInPrint?: boolean
+    sortOrder?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    department?: boolean | DepartmentDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["departmentColumn"]>
+
+  export type DepartmentColumnSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    departmentId?: boolean
+    label?: boolean
+    dataType?: boolean
+    defaultValue?: boolean
+    isDefault?: boolean
+    isRequired?: boolean
+    showInDataSurat?: boolean
+    showInPrint?: boolean
+    sortOrder?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    department?: boolean | DepartmentDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["departmentColumn"]>
+
+  export type DepartmentColumnSelectScalar = {
+    id?: boolean
+    departmentId?: boolean
+    label?: boolean
+    dataType?: boolean
+    defaultValue?: boolean
+    isDefault?: boolean
+    isRequired?: boolean
+    showInDataSurat?: boolean
+    showInPrint?: boolean
+    sortOrder?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type DepartmentColumnOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "departmentId" | "label" | "dataType" | "defaultValue" | "isDefault" | "isRequired" | "showInDataSurat" | "showInPrint" | "sortOrder" | "createdAt" | "updatedAt", ExtArgs["result"]["departmentColumn"]>
+  export type DepartmentColumnInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    department?: boolean | DepartmentDefaultArgs<ExtArgs>
+  }
+  export type DepartmentColumnIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    department?: boolean | DepartmentDefaultArgs<ExtArgs>
+  }
+  export type DepartmentColumnIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    department?: boolean | DepartmentDefaultArgs<ExtArgs>
+  }
+
+  export type $DepartmentColumnPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "DepartmentColumn"
+    objects: {
+      department: Prisma.$DepartmentPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      departmentId: string
+      label: string
+      dataType: string
+      defaultValue: string
+      isDefault: boolean
+      isRequired: boolean
+      showInDataSurat: boolean
+      showInPrint: boolean
+      sortOrder: number
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["departmentColumn"]>
+    composites: {}
+  }
+
+  type DepartmentColumnGetPayload<S extends boolean | null | undefined | DepartmentColumnDefaultArgs> = $Result.GetResult<Prisma.$DepartmentColumnPayload, S>
+
+  type DepartmentColumnCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<DepartmentColumnFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: DepartmentColumnCountAggregateInputType | true
+    }
+
+  export interface DepartmentColumnDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['DepartmentColumn'], meta: { name: 'DepartmentColumn' } }
+    /**
+     * Find zero or one DepartmentColumn that matches the filter.
+     * @param {DepartmentColumnFindUniqueArgs} args - Arguments to find a DepartmentColumn
+     * @example
+     * // Get one DepartmentColumn
+     * const departmentColumn = await prisma.departmentColumn.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends DepartmentColumnFindUniqueArgs>(args: SelectSubset<T, DepartmentColumnFindUniqueArgs<ExtArgs>>): Prisma__DepartmentColumnClient<$Result.GetResult<Prisma.$DepartmentColumnPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one DepartmentColumn that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {DepartmentColumnFindUniqueOrThrowArgs} args - Arguments to find a DepartmentColumn
+     * @example
+     * // Get one DepartmentColumn
+     * const departmentColumn = await prisma.departmentColumn.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends DepartmentColumnFindUniqueOrThrowArgs>(args: SelectSubset<T, DepartmentColumnFindUniqueOrThrowArgs<ExtArgs>>): Prisma__DepartmentColumnClient<$Result.GetResult<Prisma.$DepartmentColumnPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DepartmentColumn that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DepartmentColumnFindFirstArgs} args - Arguments to find a DepartmentColumn
+     * @example
+     * // Get one DepartmentColumn
+     * const departmentColumn = await prisma.departmentColumn.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends DepartmentColumnFindFirstArgs>(args?: SelectSubset<T, DepartmentColumnFindFirstArgs<ExtArgs>>): Prisma__DepartmentColumnClient<$Result.GetResult<Prisma.$DepartmentColumnPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first DepartmentColumn that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DepartmentColumnFindFirstOrThrowArgs} args - Arguments to find a DepartmentColumn
+     * @example
+     * // Get one DepartmentColumn
+     * const departmentColumn = await prisma.departmentColumn.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends DepartmentColumnFindFirstOrThrowArgs>(args?: SelectSubset<T, DepartmentColumnFindFirstOrThrowArgs<ExtArgs>>): Prisma__DepartmentColumnClient<$Result.GetResult<Prisma.$DepartmentColumnPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more DepartmentColumns that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DepartmentColumnFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all DepartmentColumns
+     * const departmentColumns = await prisma.departmentColumn.findMany()
+     * 
+     * // Get first 10 DepartmentColumns
+     * const departmentColumns = await prisma.departmentColumn.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const departmentColumnWithIdOnly = await prisma.departmentColumn.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends DepartmentColumnFindManyArgs>(args?: SelectSubset<T, DepartmentColumnFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DepartmentColumnPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a DepartmentColumn.
+     * @param {DepartmentColumnCreateArgs} args - Arguments to create a DepartmentColumn.
+     * @example
+     * // Create one DepartmentColumn
+     * const DepartmentColumn = await prisma.departmentColumn.create({
+     *   data: {
+     *     // ... data to create a DepartmentColumn
+     *   }
+     * })
+     * 
+     */
+    create<T extends DepartmentColumnCreateArgs>(args: SelectSubset<T, DepartmentColumnCreateArgs<ExtArgs>>): Prisma__DepartmentColumnClient<$Result.GetResult<Prisma.$DepartmentColumnPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many DepartmentColumns.
+     * @param {DepartmentColumnCreateManyArgs} args - Arguments to create many DepartmentColumns.
+     * @example
+     * // Create many DepartmentColumns
+     * const departmentColumn = await prisma.departmentColumn.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends DepartmentColumnCreateManyArgs>(args?: SelectSubset<T, DepartmentColumnCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many DepartmentColumns and returns the data saved in the database.
+     * @param {DepartmentColumnCreateManyAndReturnArgs} args - Arguments to create many DepartmentColumns.
+     * @example
+     * // Create many DepartmentColumns
+     * const departmentColumn = await prisma.departmentColumn.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many DepartmentColumns and only return the `id`
+     * const departmentColumnWithIdOnly = await prisma.departmentColumn.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends DepartmentColumnCreateManyAndReturnArgs>(args?: SelectSubset<T, DepartmentColumnCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DepartmentColumnPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a DepartmentColumn.
+     * @param {DepartmentColumnDeleteArgs} args - Arguments to delete one DepartmentColumn.
+     * @example
+     * // Delete one DepartmentColumn
+     * const DepartmentColumn = await prisma.departmentColumn.delete({
+     *   where: {
+     *     // ... filter to delete one DepartmentColumn
+     *   }
+     * })
+     * 
+     */
+    delete<T extends DepartmentColumnDeleteArgs>(args: SelectSubset<T, DepartmentColumnDeleteArgs<ExtArgs>>): Prisma__DepartmentColumnClient<$Result.GetResult<Prisma.$DepartmentColumnPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one DepartmentColumn.
+     * @param {DepartmentColumnUpdateArgs} args - Arguments to update one DepartmentColumn.
+     * @example
+     * // Update one DepartmentColumn
+     * const departmentColumn = await prisma.departmentColumn.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends DepartmentColumnUpdateArgs>(args: SelectSubset<T, DepartmentColumnUpdateArgs<ExtArgs>>): Prisma__DepartmentColumnClient<$Result.GetResult<Prisma.$DepartmentColumnPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more DepartmentColumns.
+     * @param {DepartmentColumnDeleteManyArgs} args - Arguments to filter DepartmentColumns to delete.
+     * @example
+     * // Delete a few DepartmentColumns
+     * const { count } = await prisma.departmentColumn.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends DepartmentColumnDeleteManyArgs>(args?: SelectSubset<T, DepartmentColumnDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DepartmentColumns.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DepartmentColumnUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many DepartmentColumns
+     * const departmentColumn = await prisma.departmentColumn.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends DepartmentColumnUpdateManyArgs>(args: SelectSubset<T, DepartmentColumnUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DepartmentColumns and returns the data updated in the database.
+     * @param {DepartmentColumnUpdateManyAndReturnArgs} args - Arguments to update many DepartmentColumns.
+     * @example
+     * // Update many DepartmentColumns
+     * const departmentColumn = await prisma.departmentColumn.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more DepartmentColumns and only return the `id`
+     * const departmentColumnWithIdOnly = await prisma.departmentColumn.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends DepartmentColumnUpdateManyAndReturnArgs>(args: SelectSubset<T, DepartmentColumnUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DepartmentColumnPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one DepartmentColumn.
+     * @param {DepartmentColumnUpsertArgs} args - Arguments to update or create a DepartmentColumn.
+     * @example
+     * // Update or create a DepartmentColumn
+     * const departmentColumn = await prisma.departmentColumn.upsert({
+     *   create: {
+     *     // ... data to create a DepartmentColumn
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the DepartmentColumn we want to update
+     *   }
+     * })
+     */
+    upsert<T extends DepartmentColumnUpsertArgs>(args: SelectSubset<T, DepartmentColumnUpsertArgs<ExtArgs>>): Prisma__DepartmentColumnClient<$Result.GetResult<Prisma.$DepartmentColumnPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of DepartmentColumns.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DepartmentColumnCountArgs} args - Arguments to filter DepartmentColumns to count.
+     * @example
+     * // Count the number of DepartmentColumns
+     * const count = await prisma.departmentColumn.count({
+     *   where: {
+     *     // ... the filter for the DepartmentColumns we want to count
+     *   }
+     * })
+    **/
+    count<T extends DepartmentColumnCountArgs>(
+      args?: Subset<T, DepartmentColumnCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], DepartmentColumnCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a DepartmentColumn.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DepartmentColumnAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends DepartmentColumnAggregateArgs>(args: Subset<T, DepartmentColumnAggregateArgs>): Prisma.PrismaPromise<GetDepartmentColumnAggregateType<T>>
+
+    /**
+     * Group by DepartmentColumn.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DepartmentColumnGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends DepartmentColumnGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: DepartmentColumnGroupByArgs['orderBy'] }
+        : { orderBy?: DepartmentColumnGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, DepartmentColumnGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDepartmentColumnGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the DepartmentColumn model
+   */
+  readonly fields: DepartmentColumnFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for DepartmentColumn.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__DepartmentColumnClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    department<T extends DepartmentDefaultArgs<ExtArgs> = {}>(args?: Subset<T, DepartmentDefaultArgs<ExtArgs>>): Prisma__DepartmentClient<$Result.GetResult<Prisma.$DepartmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the DepartmentColumn model
+   */
+  interface DepartmentColumnFieldRefs {
+    readonly id: FieldRef<"DepartmentColumn", 'String'>
+    readonly departmentId: FieldRef<"DepartmentColumn", 'String'>
+    readonly label: FieldRef<"DepartmentColumn", 'String'>
+    readonly dataType: FieldRef<"DepartmentColumn", 'String'>
+    readonly defaultValue: FieldRef<"DepartmentColumn", 'String'>
+    readonly isDefault: FieldRef<"DepartmentColumn", 'Boolean'>
+    readonly isRequired: FieldRef<"DepartmentColumn", 'Boolean'>
+    readonly showInDataSurat: FieldRef<"DepartmentColumn", 'Boolean'>
+    readonly showInPrint: FieldRef<"DepartmentColumn", 'Boolean'>
+    readonly sortOrder: FieldRef<"DepartmentColumn", 'Int'>
+    readonly createdAt: FieldRef<"DepartmentColumn", 'DateTime'>
+    readonly updatedAt: FieldRef<"DepartmentColumn", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * DepartmentColumn findUnique
+   */
+  export type DepartmentColumnFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DepartmentColumn
+     */
+    select?: DepartmentColumnSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DepartmentColumn
+     */
+    omit?: DepartmentColumnOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DepartmentColumnInclude<ExtArgs> | null
+    /**
+     * Filter, which DepartmentColumn to fetch.
+     */
+    where: DepartmentColumnWhereUniqueInput
+  }
+
+  /**
+   * DepartmentColumn findUniqueOrThrow
+   */
+  export type DepartmentColumnFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DepartmentColumn
+     */
+    select?: DepartmentColumnSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DepartmentColumn
+     */
+    omit?: DepartmentColumnOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DepartmentColumnInclude<ExtArgs> | null
+    /**
+     * Filter, which DepartmentColumn to fetch.
+     */
+    where: DepartmentColumnWhereUniqueInput
+  }
+
+  /**
+   * DepartmentColumn findFirst
+   */
+  export type DepartmentColumnFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DepartmentColumn
+     */
+    select?: DepartmentColumnSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DepartmentColumn
+     */
+    omit?: DepartmentColumnOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DepartmentColumnInclude<ExtArgs> | null
+    /**
+     * Filter, which DepartmentColumn to fetch.
+     */
+    where?: DepartmentColumnWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DepartmentColumns to fetch.
+     */
+    orderBy?: DepartmentColumnOrderByWithRelationInput | DepartmentColumnOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DepartmentColumns.
+     */
+    cursor?: DepartmentColumnWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DepartmentColumns from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DepartmentColumns.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DepartmentColumns.
+     */
+    distinct?: DepartmentColumnScalarFieldEnum | DepartmentColumnScalarFieldEnum[]
+  }
+
+  /**
+   * DepartmentColumn findFirstOrThrow
+   */
+  export type DepartmentColumnFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DepartmentColumn
+     */
+    select?: DepartmentColumnSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DepartmentColumn
+     */
+    omit?: DepartmentColumnOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DepartmentColumnInclude<ExtArgs> | null
+    /**
+     * Filter, which DepartmentColumn to fetch.
+     */
+    where?: DepartmentColumnWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DepartmentColumns to fetch.
+     */
+    orderBy?: DepartmentColumnOrderByWithRelationInput | DepartmentColumnOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DepartmentColumns.
+     */
+    cursor?: DepartmentColumnWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DepartmentColumns from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DepartmentColumns.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DepartmentColumns.
+     */
+    distinct?: DepartmentColumnScalarFieldEnum | DepartmentColumnScalarFieldEnum[]
+  }
+
+  /**
+   * DepartmentColumn findMany
+   */
+  export type DepartmentColumnFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DepartmentColumn
+     */
+    select?: DepartmentColumnSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DepartmentColumn
+     */
+    omit?: DepartmentColumnOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DepartmentColumnInclude<ExtArgs> | null
+    /**
+     * Filter, which DepartmentColumns to fetch.
+     */
+    where?: DepartmentColumnWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DepartmentColumns to fetch.
+     */
+    orderBy?: DepartmentColumnOrderByWithRelationInput | DepartmentColumnOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing DepartmentColumns.
+     */
+    cursor?: DepartmentColumnWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DepartmentColumns from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DepartmentColumns.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DepartmentColumns.
+     */
+    distinct?: DepartmentColumnScalarFieldEnum | DepartmentColumnScalarFieldEnum[]
+  }
+
+  /**
+   * DepartmentColumn create
+   */
+  export type DepartmentColumnCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DepartmentColumn
+     */
+    select?: DepartmentColumnSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DepartmentColumn
+     */
+    omit?: DepartmentColumnOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DepartmentColumnInclude<ExtArgs> | null
+    /**
+     * The data needed to create a DepartmentColumn.
+     */
+    data: XOR<DepartmentColumnCreateInput, DepartmentColumnUncheckedCreateInput>
+  }
+
+  /**
+   * DepartmentColumn createMany
+   */
+  export type DepartmentColumnCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many DepartmentColumns.
+     */
+    data: DepartmentColumnCreateManyInput | DepartmentColumnCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * DepartmentColumn createManyAndReturn
+   */
+  export type DepartmentColumnCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DepartmentColumn
+     */
+    select?: DepartmentColumnSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the DepartmentColumn
+     */
+    omit?: DepartmentColumnOmit<ExtArgs> | null
+    /**
+     * The data used to create many DepartmentColumns.
+     */
+    data: DepartmentColumnCreateManyInput | DepartmentColumnCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DepartmentColumnIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * DepartmentColumn update
+   */
+  export type DepartmentColumnUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DepartmentColumn
+     */
+    select?: DepartmentColumnSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DepartmentColumn
+     */
+    omit?: DepartmentColumnOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DepartmentColumnInclude<ExtArgs> | null
+    /**
+     * The data needed to update a DepartmentColumn.
+     */
+    data: XOR<DepartmentColumnUpdateInput, DepartmentColumnUncheckedUpdateInput>
+    /**
+     * Choose, which DepartmentColumn to update.
+     */
+    where: DepartmentColumnWhereUniqueInput
+  }
+
+  /**
+   * DepartmentColumn updateMany
+   */
+  export type DepartmentColumnUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update DepartmentColumns.
+     */
+    data: XOR<DepartmentColumnUpdateManyMutationInput, DepartmentColumnUncheckedUpdateManyInput>
+    /**
+     * Filter which DepartmentColumns to update
+     */
+    where?: DepartmentColumnWhereInput
+    /**
+     * Limit how many DepartmentColumns to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * DepartmentColumn updateManyAndReturn
+   */
+  export type DepartmentColumnUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DepartmentColumn
+     */
+    select?: DepartmentColumnSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the DepartmentColumn
+     */
+    omit?: DepartmentColumnOmit<ExtArgs> | null
+    /**
+     * The data used to update DepartmentColumns.
+     */
+    data: XOR<DepartmentColumnUpdateManyMutationInput, DepartmentColumnUncheckedUpdateManyInput>
+    /**
+     * Filter which DepartmentColumns to update
+     */
+    where?: DepartmentColumnWhereInput
+    /**
+     * Limit how many DepartmentColumns to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DepartmentColumnIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * DepartmentColumn upsert
+   */
+  export type DepartmentColumnUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DepartmentColumn
+     */
+    select?: DepartmentColumnSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DepartmentColumn
+     */
+    omit?: DepartmentColumnOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DepartmentColumnInclude<ExtArgs> | null
+    /**
+     * The filter to search for the DepartmentColumn to update in case it exists.
+     */
+    where: DepartmentColumnWhereUniqueInput
+    /**
+     * In case the DepartmentColumn found by the `where` argument doesn't exist, create a new DepartmentColumn with this data.
+     */
+    create: XOR<DepartmentColumnCreateInput, DepartmentColumnUncheckedCreateInput>
+    /**
+     * In case the DepartmentColumn was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<DepartmentColumnUpdateInput, DepartmentColumnUncheckedUpdateInput>
+  }
+
+  /**
+   * DepartmentColumn delete
+   */
+  export type DepartmentColumnDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DepartmentColumn
+     */
+    select?: DepartmentColumnSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DepartmentColumn
+     */
+    omit?: DepartmentColumnOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DepartmentColumnInclude<ExtArgs> | null
+    /**
+     * Filter which DepartmentColumn to delete.
+     */
+    where: DepartmentColumnWhereUniqueInput
+  }
+
+  /**
+   * DepartmentColumn deleteMany
+   */
+  export type DepartmentColumnDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DepartmentColumns to delete
+     */
+    where?: DepartmentColumnWhereInput
+    /**
+     * Limit how many DepartmentColumns to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * DepartmentColumn without action
+   */
+  export type DepartmentColumnDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DepartmentColumn
+     */
+    select?: DepartmentColumnSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the DepartmentColumn
+     */
+    omit?: DepartmentColumnOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DepartmentColumnInclude<ExtArgs> | null
   }
 
 
@@ -8718,6 +10047,7 @@ export namespace Prisma {
     deptId: number
     tanggalTerima: number
     asalSurat: number
+    customDetails: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -8758,6 +10088,7 @@ export namespace Prisma {
     deptId?: true
     tanggalTerima?: true
     asalSurat?: true
+    customDetails?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -8855,6 +10186,7 @@ export namespace Prisma {
     deptId: string
     tanggalTerima: Date
     asalSurat: string
+    customDetails: JsonValue
     createdAt: Date
     updatedAt: Date
     _count: RegisterPICountAggregateOutputType | null
@@ -8884,6 +10216,7 @@ export namespace Prisma {
     deptId?: boolean
     tanggalTerima?: boolean
     asalSurat?: boolean
+    customDetails?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     dept?: boolean | DepartmentDefaultArgs<ExtArgs>
@@ -8897,6 +10230,7 @@ export namespace Prisma {
     deptId?: boolean
     tanggalTerima?: boolean
     asalSurat?: boolean
+    customDetails?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     dept?: boolean | DepartmentDefaultArgs<ExtArgs>
@@ -8908,6 +10242,7 @@ export namespace Prisma {
     deptId?: boolean
     tanggalTerima?: boolean
     asalSurat?: boolean
+    customDetails?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     dept?: boolean | DepartmentDefaultArgs<ExtArgs>
@@ -8919,11 +10254,12 @@ export namespace Prisma {
     deptId?: boolean
     tanggalTerima?: boolean
     asalSurat?: boolean
+    customDetails?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type RegisterPIOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "nomor" | "deptId" | "tanggalTerima" | "asalSurat" | "createdAt" | "updatedAt", ExtArgs["result"]["registerPI"]>
+  export type RegisterPIOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "nomor" | "deptId" | "tanggalTerima" | "asalSurat" | "customDetails" | "createdAt" | "updatedAt", ExtArgs["result"]["registerPI"]>
   export type RegisterPIInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     dept?: boolean | DepartmentDefaultArgs<ExtArgs>
     detailPI?: boolean | RegisterPI$detailPIArgs<ExtArgs>
@@ -8948,6 +10284,7 @@ export namespace Prisma {
       deptId: string
       tanggalTerima: Date
       asalSurat: string
+      customDetails: Prisma.JsonValue
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["registerPI"]>
@@ -9380,6 +10717,7 @@ export namespace Prisma {
     readonly deptId: FieldRef<"RegisterPI", 'String'>
     readonly tanggalTerima: FieldRef<"RegisterPI", 'DateTime'>
     readonly asalSurat: FieldRef<"RegisterPI", 'String'>
+    readonly customDetails: FieldRef<"RegisterPI", 'Json'>
     readonly createdAt: FieldRef<"RegisterPI", 'DateTime'>
     readonly updatedAt: FieldRef<"RegisterPI", 'DateTime'>
   }
@@ -9882,6 +11220,7 @@ export namespace Prisma {
     tanggalSurat: number
     tujuan: number
     cc: number
+    customFields: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -9933,6 +11272,7 @@ export namespace Prisma {
     tanggalSurat?: true
     tujuan?: true
     cc?: true
+    customFields?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -10033,6 +11373,7 @@ export namespace Prisma {
     tanggalSurat: Date
     tujuan: string | null
     cc: string | null
+    customFields: JsonValue
     createdAt: Date
     updatedAt: Date
     _count: DetailPICountAggregateOutputType | null
@@ -10065,6 +11406,7 @@ export namespace Prisma {
     tanggalSurat?: boolean
     tujuan?: boolean
     cc?: boolean
+    customFields?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     register?: boolean | RegisterPIDefaultArgs<ExtArgs>
@@ -10079,6 +11421,7 @@ export namespace Prisma {
     tanggalSurat?: boolean
     tujuan?: boolean
     cc?: boolean
+    customFields?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     register?: boolean | RegisterPIDefaultArgs<ExtArgs>
@@ -10093,6 +11436,7 @@ export namespace Prisma {
     tanggalSurat?: boolean
     tujuan?: boolean
     cc?: boolean
+    customFields?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     register?: boolean | RegisterPIDefaultArgs<ExtArgs>
@@ -10107,11 +11451,12 @@ export namespace Prisma {
     tanggalSurat?: boolean
     tujuan?: boolean
     cc?: boolean
+    customFields?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type DetailPIOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "registerId" | "namaSupplier" | "noInvoice" | "nomorSurat" | "tanggalSurat" | "tujuan" | "cc" | "createdAt" | "updatedAt", ExtArgs["result"]["detailPI"]>
+  export type DetailPIOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "registerId" | "namaSupplier" | "noInvoice" | "nomorSurat" | "tanggalSurat" | "tujuan" | "cc" | "customFields" | "createdAt" | "updatedAt", ExtArgs["result"]["detailPI"]>
   export type DetailPIInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     register?: boolean | RegisterPIDefaultArgs<ExtArgs>
   }
@@ -10136,6 +11481,7 @@ export namespace Prisma {
       tanggalSurat: Date
       tujuan: string | null
       cc: string | null
+      customFields: Prisma.JsonValue
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["detailPI"]>
@@ -10570,6 +11916,7 @@ export namespace Prisma {
     readonly tanggalSurat: FieldRef<"DetailPI", 'DateTime'>
     readonly tujuan: FieldRef<"DetailPI", 'String'>
     readonly cc: FieldRef<"DetailPI", 'String'>
+    readonly customFields: FieldRef<"DetailPI", 'Json'>
     readonly createdAt: FieldRef<"DetailPI", 'DateTime'>
     readonly updatedAt: FieldRef<"DetailPI", 'DateTime'>
   }
@@ -11045,6 +12392,7 @@ export namespace Prisma {
     lampiran: number
     tanggalSurat: number
     tujuan: number
+    customFields: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -11093,6 +12441,7 @@ export namespace Prisma {
     lampiran?: true
     tanggalSurat?: true
     tujuan?: true
+    customFields?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -11192,6 +12541,7 @@ export namespace Prisma {
     lampiran: string | null
     tanggalSurat: Date
     tujuan: string | null
+    customFields: JsonValue
     createdAt: Date
     updatedAt: Date
     _count: DetailSuratCountAggregateOutputType | null
@@ -11223,6 +12573,7 @@ export namespace Prisma {
     lampiran?: boolean
     tanggalSurat?: boolean
     tujuan?: boolean
+    customFields?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     register?: boolean | RegisterSuratDefaultArgs<ExtArgs>
@@ -11236,6 +12587,7 @@ export namespace Prisma {
     lampiran?: boolean
     tanggalSurat?: boolean
     tujuan?: boolean
+    customFields?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     register?: boolean | RegisterSuratDefaultArgs<ExtArgs>
@@ -11249,6 +12601,7 @@ export namespace Prisma {
     lampiran?: boolean
     tanggalSurat?: boolean
     tujuan?: boolean
+    customFields?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     register?: boolean | RegisterSuratDefaultArgs<ExtArgs>
@@ -11262,11 +12615,12 @@ export namespace Prisma {
     lampiran?: boolean
     tanggalSurat?: boolean
     tujuan?: boolean
+    customFields?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type DetailSuratOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "registerId" | "perihal" | "noSurat" | "lampiran" | "tanggalSurat" | "tujuan" | "createdAt" | "updatedAt", ExtArgs["result"]["detailSurat"]>
+  export type DetailSuratOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "registerId" | "perihal" | "noSurat" | "lampiran" | "tanggalSurat" | "tujuan" | "customFields" | "createdAt" | "updatedAt", ExtArgs["result"]["detailSurat"]>
   export type DetailSuratInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     register?: boolean | RegisterSuratDefaultArgs<ExtArgs>
   }
@@ -11290,6 +12644,7 @@ export namespace Prisma {
       lampiran: string | null
       tanggalSurat: Date
       tujuan: string | null
+      customFields: Prisma.JsonValue
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["detailSurat"]>
@@ -11723,6 +13078,7 @@ export namespace Prisma {
     readonly lampiran: FieldRef<"DetailSurat", 'String'>
     readonly tanggalSurat: FieldRef<"DetailSurat", 'DateTime'>
     readonly tujuan: FieldRef<"DetailSurat", 'String'>
+    readonly customFields: FieldRef<"DetailSurat", 'Json'>
     readonly createdAt: FieldRef<"DetailSurat", 'DateTime'>
     readonly updatedAt: FieldRef<"DetailSurat", 'DateTime'>
   }
@@ -13281,11 +14637,30 @@ export namespace Prisma {
   export const DepartmentScalarFieldEnum: {
     id: 'id',
     shortName: 'shortName',
-    fullName: 'fullName',
+    tujuan: 'tujuan',
+    printColumnName: 'printColumnName',
     isActive: 'isActive'
   };
 
   export type DepartmentScalarFieldEnum = (typeof DepartmentScalarFieldEnum)[keyof typeof DepartmentScalarFieldEnum]
+
+
+  export const DepartmentColumnScalarFieldEnum: {
+    id: 'id',
+    departmentId: 'departmentId',
+    label: 'label',
+    dataType: 'dataType',
+    defaultValue: 'defaultValue',
+    isDefault: 'isDefault',
+    isRequired: 'isRequired',
+    showInDataSurat: 'showInDataSurat',
+    showInPrint: 'showInPrint',
+    sortOrder: 'sortOrder',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type DepartmentColumnScalarFieldEnum = (typeof DepartmentColumnScalarFieldEnum)[keyof typeof DepartmentColumnScalarFieldEnum]
 
 
   export const RegisterSuratScalarFieldEnum: {
@@ -13308,6 +14683,7 @@ export namespace Prisma {
     deptId: 'deptId',
     tanggalTerima: 'tanggalTerima',
     asalSurat: 'asalSurat',
+    customDetails: 'customDetails',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -13324,6 +14700,7 @@ export namespace Prisma {
     tanggalSurat: 'tanggalSurat',
     tujuan: 'tujuan',
     cc: 'cc',
+    customFields: 'customFields',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -13339,6 +14716,7 @@ export namespace Prisma {
     lampiran: 'lampiran',
     tanggalSurat: 'tanggalSurat',
     tujuan: 'tujuan',
+    customFields: 'customFields',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -13362,6 +14740,13 @@ export namespace Prisma {
   export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
+  export const JsonNullValueInput: {
+    JsonNull: typeof JsonNull
+  };
+
+  export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
   export const QueryMode: {
     default: 'default',
     insensitive: 'insensitive'
@@ -13376,6 +14761,15 @@ export namespace Prisma {
   };
 
   export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+  export const JsonNullValueFilter: {
+    DbNull: typeof DbNull,
+    JsonNull: typeof JsonNull,
+    AnyNull: typeof AnyNull
+  };
+
+  export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 
 
   /**
@@ -13443,6 +14837,20 @@ export namespace Prisma {
    * Reference to a field of type 'Int[]'
    */
   export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Json'
+   */
+  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+  /**
+   * Reference to a field of type 'QueryMode'
+   */
+  export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 
@@ -13785,40 +15193,47 @@ export namespace Prisma {
     NOT?: DepartmentWhereInput | DepartmentWhereInput[]
     id?: StringFilter<"Department"> | string
     shortName?: StringFilter<"Department"> | string
-    fullName?: StringFilter<"Department"> | string
+    tujuan?: StringFilter<"Department"> | string
+    printColumnName?: StringFilter<"Department"> | string
     isActive?: BoolFilter<"Department"> | boolean
     registerSurat?: RegisterSuratListRelationFilter
     registerPI?: RegisterPIListRelationFilter
     nomorCounter?: XOR<NomorCounterNullableScalarRelationFilter, NomorCounterWhereInput> | null
+    columns?: DepartmentColumnListRelationFilter
   }
 
   export type DepartmentOrderByWithRelationInput = {
     id?: SortOrder
     shortName?: SortOrder
-    fullName?: SortOrder
+    tujuan?: SortOrder
+    printColumnName?: SortOrder
     isActive?: SortOrder
     registerSurat?: RegisterSuratOrderByRelationAggregateInput
     registerPI?: RegisterPIOrderByRelationAggregateInput
     nomorCounter?: NomorCounterOrderByWithRelationInput
+    columns?: DepartmentColumnOrderByRelationAggregateInput
   }
 
   export type DepartmentWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    shortName?: string
     AND?: DepartmentWhereInput | DepartmentWhereInput[]
     OR?: DepartmentWhereInput[]
     NOT?: DepartmentWhereInput | DepartmentWhereInput[]
-    fullName?: StringFilter<"Department"> | string
+    shortName?: StringFilter<"Department"> | string
+    tujuan?: StringFilter<"Department"> | string
+    printColumnName?: StringFilter<"Department"> | string
     isActive?: BoolFilter<"Department"> | boolean
     registerSurat?: RegisterSuratListRelationFilter
     registerPI?: RegisterPIListRelationFilter
     nomorCounter?: XOR<NomorCounterNullableScalarRelationFilter, NomorCounterWhereInput> | null
-  }, "id" | "shortName">
+    columns?: DepartmentColumnListRelationFilter
+  }, "id">
 
   export type DepartmentOrderByWithAggregationInput = {
     id?: SortOrder
     shortName?: SortOrder
-    fullName?: SortOrder
+    tujuan?: SortOrder
+    printColumnName?: SortOrder
     isActive?: SortOrder
     _count?: DepartmentCountOrderByAggregateInput
     _max?: DepartmentMaxOrderByAggregateInput
@@ -13831,8 +15246,101 @@ export namespace Prisma {
     NOT?: DepartmentScalarWhereWithAggregatesInput | DepartmentScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Department"> | string
     shortName?: StringWithAggregatesFilter<"Department"> | string
-    fullName?: StringWithAggregatesFilter<"Department"> | string
+    tujuan?: StringWithAggregatesFilter<"Department"> | string
+    printColumnName?: StringWithAggregatesFilter<"Department"> | string
     isActive?: BoolWithAggregatesFilter<"Department"> | boolean
+  }
+
+  export type DepartmentColumnWhereInput = {
+    AND?: DepartmentColumnWhereInput | DepartmentColumnWhereInput[]
+    OR?: DepartmentColumnWhereInput[]
+    NOT?: DepartmentColumnWhereInput | DepartmentColumnWhereInput[]
+    id?: StringFilter<"DepartmentColumn"> | string
+    departmentId?: StringFilter<"DepartmentColumn"> | string
+    label?: StringFilter<"DepartmentColumn"> | string
+    dataType?: StringFilter<"DepartmentColumn"> | string
+    defaultValue?: StringFilter<"DepartmentColumn"> | string
+    isDefault?: BoolFilter<"DepartmentColumn"> | boolean
+    isRequired?: BoolFilter<"DepartmentColumn"> | boolean
+    showInDataSurat?: BoolFilter<"DepartmentColumn"> | boolean
+    showInPrint?: BoolFilter<"DepartmentColumn"> | boolean
+    sortOrder?: IntFilter<"DepartmentColumn"> | number
+    createdAt?: DateTimeFilter<"DepartmentColumn"> | Date | string
+    updatedAt?: DateTimeFilter<"DepartmentColumn"> | Date | string
+    department?: XOR<DepartmentScalarRelationFilter, DepartmentWhereInput>
+  }
+
+  export type DepartmentColumnOrderByWithRelationInput = {
+    id?: SortOrder
+    departmentId?: SortOrder
+    label?: SortOrder
+    dataType?: SortOrder
+    defaultValue?: SortOrder
+    isDefault?: SortOrder
+    isRequired?: SortOrder
+    showInDataSurat?: SortOrder
+    showInPrint?: SortOrder
+    sortOrder?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    department?: DepartmentOrderByWithRelationInput
+  }
+
+  export type DepartmentColumnWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: DepartmentColumnWhereInput | DepartmentColumnWhereInput[]
+    OR?: DepartmentColumnWhereInput[]
+    NOT?: DepartmentColumnWhereInput | DepartmentColumnWhereInput[]
+    departmentId?: StringFilter<"DepartmentColumn"> | string
+    label?: StringFilter<"DepartmentColumn"> | string
+    dataType?: StringFilter<"DepartmentColumn"> | string
+    defaultValue?: StringFilter<"DepartmentColumn"> | string
+    isDefault?: BoolFilter<"DepartmentColumn"> | boolean
+    isRequired?: BoolFilter<"DepartmentColumn"> | boolean
+    showInDataSurat?: BoolFilter<"DepartmentColumn"> | boolean
+    showInPrint?: BoolFilter<"DepartmentColumn"> | boolean
+    sortOrder?: IntFilter<"DepartmentColumn"> | number
+    createdAt?: DateTimeFilter<"DepartmentColumn"> | Date | string
+    updatedAt?: DateTimeFilter<"DepartmentColumn"> | Date | string
+    department?: XOR<DepartmentScalarRelationFilter, DepartmentWhereInput>
+  }, "id">
+
+  export type DepartmentColumnOrderByWithAggregationInput = {
+    id?: SortOrder
+    departmentId?: SortOrder
+    label?: SortOrder
+    dataType?: SortOrder
+    defaultValue?: SortOrder
+    isDefault?: SortOrder
+    isRequired?: SortOrder
+    showInDataSurat?: SortOrder
+    showInPrint?: SortOrder
+    sortOrder?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: DepartmentColumnCountOrderByAggregateInput
+    _avg?: DepartmentColumnAvgOrderByAggregateInput
+    _max?: DepartmentColumnMaxOrderByAggregateInput
+    _min?: DepartmentColumnMinOrderByAggregateInput
+    _sum?: DepartmentColumnSumOrderByAggregateInput
+  }
+
+  export type DepartmentColumnScalarWhereWithAggregatesInput = {
+    AND?: DepartmentColumnScalarWhereWithAggregatesInput | DepartmentColumnScalarWhereWithAggregatesInput[]
+    OR?: DepartmentColumnScalarWhereWithAggregatesInput[]
+    NOT?: DepartmentColumnScalarWhereWithAggregatesInput | DepartmentColumnScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"DepartmentColumn"> | string
+    departmentId?: StringWithAggregatesFilter<"DepartmentColumn"> | string
+    label?: StringWithAggregatesFilter<"DepartmentColumn"> | string
+    dataType?: StringWithAggregatesFilter<"DepartmentColumn"> | string
+    defaultValue?: StringWithAggregatesFilter<"DepartmentColumn"> | string
+    isDefault?: BoolWithAggregatesFilter<"DepartmentColumn"> | boolean
+    isRequired?: BoolWithAggregatesFilter<"DepartmentColumn"> | boolean
+    showInDataSurat?: BoolWithAggregatesFilter<"DepartmentColumn"> | boolean
+    showInPrint?: BoolWithAggregatesFilter<"DepartmentColumn"> | boolean
+    sortOrder?: IntWithAggregatesFilter<"DepartmentColumn"> | number
+    createdAt?: DateTimeWithAggregatesFilter<"DepartmentColumn"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"DepartmentColumn"> | Date | string
   }
 
   export type RegisterSuratWhereInput = {
@@ -13919,6 +15427,7 @@ export namespace Prisma {
     deptId?: StringFilter<"RegisterPI"> | string
     tanggalTerima?: DateTimeFilter<"RegisterPI"> | Date | string
     asalSurat?: StringFilter<"RegisterPI"> | string
+    customDetails?: JsonFilter<"RegisterPI">
     createdAt?: DateTimeFilter<"RegisterPI"> | Date | string
     updatedAt?: DateTimeFilter<"RegisterPI"> | Date | string
     dept?: XOR<DepartmentScalarRelationFilter, DepartmentWhereInput>
@@ -13931,6 +15440,7 @@ export namespace Prisma {
     deptId?: SortOrder
     tanggalTerima?: SortOrder
     asalSurat?: SortOrder
+    customDetails?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     dept?: DepartmentOrderByWithRelationInput
@@ -13946,6 +15456,7 @@ export namespace Prisma {
     deptId?: StringFilter<"RegisterPI"> | string
     tanggalTerima?: DateTimeFilter<"RegisterPI"> | Date | string
     asalSurat?: StringFilter<"RegisterPI"> | string
+    customDetails?: JsonFilter<"RegisterPI">
     createdAt?: DateTimeFilter<"RegisterPI"> | Date | string
     updatedAt?: DateTimeFilter<"RegisterPI"> | Date | string
     dept?: XOR<DepartmentScalarRelationFilter, DepartmentWhereInput>
@@ -13958,6 +15469,7 @@ export namespace Prisma {
     deptId?: SortOrder
     tanggalTerima?: SortOrder
     asalSurat?: SortOrder
+    customDetails?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: RegisterPICountOrderByAggregateInput
@@ -13976,6 +15488,7 @@ export namespace Prisma {
     deptId?: StringWithAggregatesFilter<"RegisterPI"> | string
     tanggalTerima?: DateTimeWithAggregatesFilter<"RegisterPI"> | Date | string
     asalSurat?: StringWithAggregatesFilter<"RegisterPI"> | string
+    customDetails?: JsonWithAggregatesFilter<"RegisterPI">
     createdAt?: DateTimeWithAggregatesFilter<"RegisterPI"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"RegisterPI"> | Date | string
   }
@@ -13992,6 +15505,7 @@ export namespace Prisma {
     tanggalSurat?: DateTimeFilter<"DetailPI"> | Date | string
     tujuan?: StringNullableFilter<"DetailPI"> | string | null
     cc?: StringNullableFilter<"DetailPI"> | string | null
+    customFields?: JsonFilter<"DetailPI">
     createdAt?: DateTimeFilter<"DetailPI"> | Date | string
     updatedAt?: DateTimeFilter<"DetailPI"> | Date | string
     register?: XOR<RegisterPIScalarRelationFilter, RegisterPIWhereInput>
@@ -14006,6 +15520,7 @@ export namespace Prisma {
     tanggalSurat?: SortOrder
     tujuan?: SortOrderInput | SortOrder
     cc?: SortOrderInput | SortOrder
+    customFields?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     register?: RegisterPIOrderByWithRelationInput
@@ -14023,6 +15538,7 @@ export namespace Prisma {
     tanggalSurat?: DateTimeFilter<"DetailPI"> | Date | string
     tujuan?: StringNullableFilter<"DetailPI"> | string | null
     cc?: StringNullableFilter<"DetailPI"> | string | null
+    customFields?: JsonFilter<"DetailPI">
     createdAt?: DateTimeFilter<"DetailPI"> | Date | string
     updatedAt?: DateTimeFilter<"DetailPI"> | Date | string
     register?: XOR<RegisterPIScalarRelationFilter, RegisterPIWhereInput>
@@ -14037,6 +15553,7 @@ export namespace Prisma {
     tanggalSurat?: SortOrder
     tujuan?: SortOrderInput | SortOrder
     cc?: SortOrderInput | SortOrder
+    customFields?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: DetailPICountOrderByAggregateInput
@@ -14058,6 +15575,7 @@ export namespace Prisma {
     tanggalSurat?: DateTimeWithAggregatesFilter<"DetailPI"> | Date | string
     tujuan?: StringNullableWithAggregatesFilter<"DetailPI"> | string | null
     cc?: StringNullableWithAggregatesFilter<"DetailPI"> | string | null
+    customFields?: JsonWithAggregatesFilter<"DetailPI">
     createdAt?: DateTimeWithAggregatesFilter<"DetailPI"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"DetailPI"> | Date | string
   }
@@ -14073,6 +15591,7 @@ export namespace Prisma {
     lampiran?: StringNullableFilter<"DetailSurat"> | string | null
     tanggalSurat?: DateTimeFilter<"DetailSurat"> | Date | string
     tujuan?: StringNullableFilter<"DetailSurat"> | string | null
+    customFields?: JsonFilter<"DetailSurat">
     createdAt?: DateTimeFilter<"DetailSurat"> | Date | string
     updatedAt?: DateTimeFilter<"DetailSurat"> | Date | string
     register?: XOR<RegisterSuratScalarRelationFilter, RegisterSuratWhereInput>
@@ -14086,6 +15605,7 @@ export namespace Prisma {
     lampiran?: SortOrderInput | SortOrder
     tanggalSurat?: SortOrder
     tujuan?: SortOrderInput | SortOrder
+    customFields?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     register?: RegisterSuratOrderByWithRelationInput
@@ -14102,6 +15622,7 @@ export namespace Prisma {
     lampiran?: StringNullableFilter<"DetailSurat"> | string | null
     tanggalSurat?: DateTimeFilter<"DetailSurat"> | Date | string
     tujuan?: StringNullableFilter<"DetailSurat"> | string | null
+    customFields?: JsonFilter<"DetailSurat">
     createdAt?: DateTimeFilter<"DetailSurat"> | Date | string
     updatedAt?: DateTimeFilter<"DetailSurat"> | Date | string
     register?: XOR<RegisterSuratScalarRelationFilter, RegisterSuratWhereInput>
@@ -14115,6 +15636,7 @@ export namespace Prisma {
     lampiran?: SortOrderInput | SortOrder
     tanggalSurat?: SortOrder
     tujuan?: SortOrderInput | SortOrder
+    customFields?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: DetailSuratCountOrderByAggregateInput
@@ -14135,6 +15657,7 @@ export namespace Prisma {
     lampiran?: StringNullableWithAggregatesFilter<"DetailSurat"> | string | null
     tanggalSurat?: DateTimeWithAggregatesFilter<"DetailSurat"> | Date | string
     tujuan?: StringNullableWithAggregatesFilter<"DetailSurat"> | string | null
+    customFields?: JsonWithAggregatesFilter<"DetailSurat">
     createdAt?: DateTimeWithAggregatesFilter<"DetailSurat"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"DetailSurat"> | Date | string
   }
@@ -14541,64 +16064,179 @@ export namespace Prisma {
   }
 
   export type DepartmentCreateInput = {
-    id?: string
+    id: string
     shortName: string
-    fullName?: string
+    tujuan?: string
+    printColumnName?: string
     isActive?: boolean
     registerSurat?: RegisterSuratCreateNestedManyWithoutDeptInput
     registerPI?: RegisterPICreateNestedManyWithoutDeptInput
     nomorCounter?: NomorCounterCreateNestedOneWithoutDeptInput
+    columns?: DepartmentColumnCreateNestedManyWithoutDepartmentInput
   }
 
   export type DepartmentUncheckedCreateInput = {
-    id?: string
+    id: string
     shortName: string
-    fullName?: string
+    tujuan?: string
+    printColumnName?: string
     isActive?: boolean
     registerSurat?: RegisterSuratUncheckedCreateNestedManyWithoutDeptInput
     registerPI?: RegisterPIUncheckedCreateNestedManyWithoutDeptInput
     nomorCounter?: NomorCounterUncheckedCreateNestedOneWithoutDeptInput
+    columns?: DepartmentColumnUncheckedCreateNestedManyWithoutDepartmentInput
   }
 
   export type DepartmentUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     shortName?: StringFieldUpdateOperationsInput | string
-    fullName?: StringFieldUpdateOperationsInput | string
+    tujuan?: StringFieldUpdateOperationsInput | string
+    printColumnName?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     registerSurat?: RegisterSuratUpdateManyWithoutDeptNestedInput
     registerPI?: RegisterPIUpdateManyWithoutDeptNestedInput
     nomorCounter?: NomorCounterUpdateOneWithoutDeptNestedInput
+    columns?: DepartmentColumnUpdateManyWithoutDepartmentNestedInput
   }
 
   export type DepartmentUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     shortName?: StringFieldUpdateOperationsInput | string
-    fullName?: StringFieldUpdateOperationsInput | string
+    tujuan?: StringFieldUpdateOperationsInput | string
+    printColumnName?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     registerSurat?: RegisterSuratUncheckedUpdateManyWithoutDeptNestedInput
     registerPI?: RegisterPIUncheckedUpdateManyWithoutDeptNestedInput
     nomorCounter?: NomorCounterUncheckedUpdateOneWithoutDeptNestedInput
+    columns?: DepartmentColumnUncheckedUpdateManyWithoutDepartmentNestedInput
   }
 
   export type DepartmentCreateManyInput = {
-    id?: string
+    id: string
     shortName: string
-    fullName?: string
+    tujuan?: string
+    printColumnName?: string
     isActive?: boolean
   }
 
   export type DepartmentUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     shortName?: StringFieldUpdateOperationsInput | string
-    fullName?: StringFieldUpdateOperationsInput | string
+    tujuan?: StringFieldUpdateOperationsInput | string
+    printColumnName?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type DepartmentUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     shortName?: StringFieldUpdateOperationsInput | string
-    fullName?: StringFieldUpdateOperationsInput | string
+    tujuan?: StringFieldUpdateOperationsInput | string
+    printColumnName?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type DepartmentColumnCreateInput = {
+    id: string
+    label: string
+    dataType: string
+    defaultValue?: string
+    isDefault?: boolean
+    isRequired?: boolean
+    showInDataSurat?: boolean
+    showInPrint?: boolean
+    sortOrder?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    department: DepartmentCreateNestedOneWithoutColumnsInput
+  }
+
+  export type DepartmentColumnUncheckedCreateInput = {
+    id: string
+    departmentId: string
+    label: string
+    dataType: string
+    defaultValue?: string
+    isDefault?: boolean
+    isRequired?: boolean
+    showInDataSurat?: boolean
+    showInPrint?: boolean
+    sortOrder?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DepartmentColumnUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    dataType?: StringFieldUpdateOperationsInput | string
+    defaultValue?: StringFieldUpdateOperationsInput | string
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    isRequired?: BoolFieldUpdateOperationsInput | boolean
+    showInDataSurat?: BoolFieldUpdateOperationsInput | boolean
+    showInPrint?: BoolFieldUpdateOperationsInput | boolean
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    department?: DepartmentUpdateOneRequiredWithoutColumnsNestedInput
+  }
+
+  export type DepartmentColumnUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    departmentId?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    dataType?: StringFieldUpdateOperationsInput | string
+    defaultValue?: StringFieldUpdateOperationsInput | string
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    isRequired?: BoolFieldUpdateOperationsInput | boolean
+    showInDataSurat?: BoolFieldUpdateOperationsInput | boolean
+    showInPrint?: BoolFieldUpdateOperationsInput | boolean
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DepartmentColumnCreateManyInput = {
+    id: string
+    departmentId: string
+    label: string
+    dataType: string
+    defaultValue?: string
+    isDefault?: boolean
+    isRequired?: boolean
+    showInDataSurat?: boolean
+    showInPrint?: boolean
+    sortOrder?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DepartmentColumnUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    dataType?: StringFieldUpdateOperationsInput | string
+    defaultValue?: StringFieldUpdateOperationsInput | string
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    isRequired?: BoolFieldUpdateOperationsInput | boolean
+    showInDataSurat?: BoolFieldUpdateOperationsInput | boolean
+    showInPrint?: BoolFieldUpdateOperationsInput | boolean
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DepartmentColumnUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    departmentId?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    dataType?: StringFieldUpdateOperationsInput | string
+    defaultValue?: StringFieldUpdateOperationsInput | string
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    isRequired?: BoolFieldUpdateOperationsInput | boolean
+    showInDataSurat?: BoolFieldUpdateOperationsInput | boolean
+    showInPrint?: BoolFieldUpdateOperationsInput | boolean
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type RegisterSuratCreateInput = {
@@ -14682,6 +16320,7 @@ export namespace Prisma {
     nomor: string
     tanggalTerima: Date | string
     asalSurat: string
+    customDetails?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     dept: DepartmentCreateNestedOneWithoutRegisterPIInput
@@ -14694,6 +16333,7 @@ export namespace Prisma {
     deptId: string
     tanggalTerima: Date | string
     asalSurat: string
+    customDetails?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     detailPI?: DetailPIUncheckedCreateNestedManyWithoutRegisterInput
@@ -14703,6 +16343,7 @@ export namespace Prisma {
     nomor?: StringFieldUpdateOperationsInput | string
     tanggalTerima?: DateTimeFieldUpdateOperationsInput | Date | string
     asalSurat?: StringFieldUpdateOperationsInput | string
+    customDetails?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     dept?: DepartmentUpdateOneRequiredWithoutRegisterPINestedInput
@@ -14715,6 +16356,7 @@ export namespace Prisma {
     deptId?: StringFieldUpdateOperationsInput | string
     tanggalTerima?: DateTimeFieldUpdateOperationsInput | Date | string
     asalSurat?: StringFieldUpdateOperationsInput | string
+    customDetails?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     detailPI?: DetailPIUncheckedUpdateManyWithoutRegisterNestedInput
@@ -14726,6 +16368,7 @@ export namespace Prisma {
     deptId: string
     tanggalTerima: Date | string
     asalSurat: string
+    customDetails?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -14734,6 +16377,7 @@ export namespace Prisma {
     nomor?: StringFieldUpdateOperationsInput | string
     tanggalTerima?: DateTimeFieldUpdateOperationsInput | Date | string
     asalSurat?: StringFieldUpdateOperationsInput | string
+    customDetails?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -14744,6 +16388,7 @@ export namespace Prisma {
     deptId?: StringFieldUpdateOperationsInput | string
     tanggalTerima?: DateTimeFieldUpdateOperationsInput | Date | string
     asalSurat?: StringFieldUpdateOperationsInput | string
+    customDetails?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -14755,6 +16400,7 @@ export namespace Prisma {
     tanggalSurat: Date | string
     tujuan?: string | null
     cc?: string | null
+    customFields?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     register: RegisterPICreateNestedOneWithoutDetailPIInput
@@ -14769,6 +16415,7 @@ export namespace Prisma {
     tanggalSurat: Date | string
     tujuan?: string | null
     cc?: string | null
+    customFields?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -14780,6 +16427,7 @@ export namespace Prisma {
     tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
     tujuan?: NullableStringFieldUpdateOperationsInput | string | null
     cc?: NullableStringFieldUpdateOperationsInput | string | null
+    customFields?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     register?: RegisterPIUpdateOneRequiredWithoutDetailPINestedInput
@@ -14794,6 +16442,7 @@ export namespace Prisma {
     tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
     tujuan?: NullableStringFieldUpdateOperationsInput | string | null
     cc?: NullableStringFieldUpdateOperationsInput | string | null
+    customFields?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -14807,6 +16456,7 @@ export namespace Prisma {
     tanggalSurat: Date | string
     tujuan?: string | null
     cc?: string | null
+    customFields?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -14818,6 +16468,7 @@ export namespace Prisma {
     tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
     tujuan?: NullableStringFieldUpdateOperationsInput | string | null
     cc?: NullableStringFieldUpdateOperationsInput | string | null
+    customFields?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -14831,6 +16482,7 @@ export namespace Prisma {
     tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
     tujuan?: NullableStringFieldUpdateOperationsInput | string | null
     cc?: NullableStringFieldUpdateOperationsInput | string | null
+    customFields?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -14841,6 +16493,7 @@ export namespace Prisma {
     lampiran?: string | null
     tanggalSurat: Date | string
     tujuan?: string | null
+    customFields?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     register: RegisterSuratCreateNestedOneWithoutDetailSuratInput
@@ -14854,6 +16507,7 @@ export namespace Prisma {
     lampiran?: string | null
     tanggalSurat: Date | string
     tujuan?: string | null
+    customFields?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -14864,6 +16518,7 @@ export namespace Prisma {
     lampiran?: NullableStringFieldUpdateOperationsInput | string | null
     tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
     tujuan?: NullableStringFieldUpdateOperationsInput | string | null
+    customFields?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     register?: RegisterSuratUpdateOneRequiredWithoutDetailSuratNestedInput
@@ -14877,6 +16532,7 @@ export namespace Prisma {
     lampiran?: NullableStringFieldUpdateOperationsInput | string | null
     tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
     tujuan?: NullableStringFieldUpdateOperationsInput | string | null
+    customFields?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -14889,6 +16545,7 @@ export namespace Prisma {
     lampiran?: string | null
     tanggalSurat: Date | string
     tujuan?: string | null
+    customFields?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -14899,6 +16556,7 @@ export namespace Prisma {
     lampiran?: NullableStringFieldUpdateOperationsInput | string | null
     tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
     tujuan?: NullableStringFieldUpdateOperationsInput | string | null
+    customFields?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -14911,6 +16569,7 @@ export namespace Prisma {
     lampiran?: NullableStringFieldUpdateOperationsInput | string | null
     tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
     tujuan?: NullableStringFieldUpdateOperationsInput | string | null
+    customFields?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -15297,6 +16956,12 @@ export namespace Prisma {
     isNot?: NomorCounterWhereInput | null
   }
 
+  export type DepartmentColumnListRelationFilter = {
+    every?: DepartmentColumnWhereInput
+    some?: DepartmentColumnWhereInput
+    none?: DepartmentColumnWhereInput
+  }
+
   export type RegisterSuratOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -15305,24 +16970,31 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
+  export type DepartmentColumnOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type DepartmentCountOrderByAggregateInput = {
     id?: SortOrder
     shortName?: SortOrder
-    fullName?: SortOrder
+    tujuan?: SortOrder
+    printColumnName?: SortOrder
     isActive?: SortOrder
   }
 
   export type DepartmentMaxOrderByAggregateInput = {
     id?: SortOrder
     shortName?: SortOrder
-    fullName?: SortOrder
+    tujuan?: SortOrder
+    printColumnName?: SortOrder
     isActive?: SortOrder
   }
 
   export type DepartmentMinOrderByAggregateInput = {
     id?: SortOrder
     shortName?: SortOrder
-    fullName?: SortOrder
+    tujuan?: SortOrder
+    printColumnName?: SortOrder
     isActive?: SortOrder
   }
 
@@ -15340,6 +17012,75 @@ export namespace Prisma {
   export type DepartmentScalarRelationFilter = {
     is?: DepartmentWhereInput
     isNot?: DepartmentWhereInput
+  }
+
+  export type DepartmentColumnCountOrderByAggregateInput = {
+    id?: SortOrder
+    departmentId?: SortOrder
+    label?: SortOrder
+    dataType?: SortOrder
+    defaultValue?: SortOrder
+    isDefault?: SortOrder
+    isRequired?: SortOrder
+    showInDataSurat?: SortOrder
+    showInPrint?: SortOrder
+    sortOrder?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DepartmentColumnAvgOrderByAggregateInput = {
+    sortOrder?: SortOrder
+  }
+
+  export type DepartmentColumnMaxOrderByAggregateInput = {
+    id?: SortOrder
+    departmentId?: SortOrder
+    label?: SortOrder
+    dataType?: SortOrder
+    defaultValue?: SortOrder
+    isDefault?: SortOrder
+    isRequired?: SortOrder
+    showInDataSurat?: SortOrder
+    showInPrint?: SortOrder
+    sortOrder?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DepartmentColumnMinOrderByAggregateInput = {
+    id?: SortOrder
+    departmentId?: SortOrder
+    label?: SortOrder
+    dataType?: SortOrder
+    defaultValue?: SortOrder
+    isDefault?: SortOrder
+    isRequired?: SortOrder
+    showInDataSurat?: SortOrder
+    showInPrint?: SortOrder
+    sortOrder?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DepartmentColumnSumOrderByAggregateInput = {
+    sortOrder?: SortOrder
+  }
+
+  export type IntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
   }
 
   export type DetailSuratListRelationFilter = {
@@ -15392,21 +17133,28 @@ export namespace Prisma {
   export type RegisterSuratSumOrderByAggregateInput = {
     id?: SortOrder
   }
+  export type JsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonFilterBase<$PrismaModel>>, 'path'>>
 
-  export type IntWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
-    _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedFloatFilter<$PrismaModel>
-    _sum?: NestedIntFilter<$PrismaModel>
-    _min?: NestedIntFilter<$PrismaModel>
-    _max?: NestedIntFilter<$PrismaModel>
+  export type JsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
   export type DetailPIListRelationFilter = {
@@ -15425,6 +17173,7 @@ export namespace Prisma {
     deptId?: SortOrder
     tanggalTerima?: SortOrder
     asalSurat?: SortOrder
+    customDetails?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -15456,6 +17205,32 @@ export namespace Prisma {
   export type RegisterPISumOrderByAggregateInput = {
     id?: SortOrder
   }
+  export type JsonWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedJsonFilter<$PrismaModel>
+    _max?: NestedJsonFilter<$PrismaModel>
+  }
 
   export type RegisterPIScalarRelationFilter = {
     is?: RegisterPIWhereInput
@@ -15471,6 +17246,7 @@ export namespace Prisma {
     tanggalSurat?: SortOrder
     tujuan?: SortOrder
     cc?: SortOrder
+    customFields?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -15524,6 +17300,7 @@ export namespace Prisma {
     lampiran?: SortOrder
     tanggalSurat?: SortOrder
     tujuan?: SortOrder
+    customFields?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -15787,6 +17564,13 @@ export namespace Prisma {
     connect?: NomorCounterWhereUniqueInput
   }
 
+  export type DepartmentColumnCreateNestedManyWithoutDepartmentInput = {
+    create?: XOR<DepartmentColumnCreateWithoutDepartmentInput, DepartmentColumnUncheckedCreateWithoutDepartmentInput> | DepartmentColumnCreateWithoutDepartmentInput[] | DepartmentColumnUncheckedCreateWithoutDepartmentInput[]
+    connectOrCreate?: DepartmentColumnCreateOrConnectWithoutDepartmentInput | DepartmentColumnCreateOrConnectWithoutDepartmentInput[]
+    createMany?: DepartmentColumnCreateManyDepartmentInputEnvelope
+    connect?: DepartmentColumnWhereUniqueInput | DepartmentColumnWhereUniqueInput[]
+  }
+
   export type RegisterSuratUncheckedCreateNestedManyWithoutDeptInput = {
     create?: XOR<RegisterSuratCreateWithoutDeptInput, RegisterSuratUncheckedCreateWithoutDeptInput> | RegisterSuratCreateWithoutDeptInput[] | RegisterSuratUncheckedCreateWithoutDeptInput[]
     connectOrCreate?: RegisterSuratCreateOrConnectWithoutDeptInput | RegisterSuratCreateOrConnectWithoutDeptInput[]
@@ -15805,6 +17589,13 @@ export namespace Prisma {
     create?: XOR<NomorCounterCreateWithoutDeptInput, NomorCounterUncheckedCreateWithoutDeptInput>
     connectOrCreate?: NomorCounterCreateOrConnectWithoutDeptInput
     connect?: NomorCounterWhereUniqueInput
+  }
+
+  export type DepartmentColumnUncheckedCreateNestedManyWithoutDepartmentInput = {
+    create?: XOR<DepartmentColumnCreateWithoutDepartmentInput, DepartmentColumnUncheckedCreateWithoutDepartmentInput> | DepartmentColumnCreateWithoutDepartmentInput[] | DepartmentColumnUncheckedCreateWithoutDepartmentInput[]
+    connectOrCreate?: DepartmentColumnCreateOrConnectWithoutDepartmentInput | DepartmentColumnCreateOrConnectWithoutDepartmentInput[]
+    createMany?: DepartmentColumnCreateManyDepartmentInputEnvelope
+    connect?: DepartmentColumnWhereUniqueInput | DepartmentColumnWhereUniqueInput[]
   }
 
   export type RegisterSuratUpdateManyWithoutDeptNestedInput = {
@@ -15845,6 +17636,20 @@ export namespace Prisma {
     update?: XOR<XOR<NomorCounterUpdateToOneWithWhereWithoutDeptInput, NomorCounterUpdateWithoutDeptInput>, NomorCounterUncheckedUpdateWithoutDeptInput>
   }
 
+  export type DepartmentColumnUpdateManyWithoutDepartmentNestedInput = {
+    create?: XOR<DepartmentColumnCreateWithoutDepartmentInput, DepartmentColumnUncheckedCreateWithoutDepartmentInput> | DepartmentColumnCreateWithoutDepartmentInput[] | DepartmentColumnUncheckedCreateWithoutDepartmentInput[]
+    connectOrCreate?: DepartmentColumnCreateOrConnectWithoutDepartmentInput | DepartmentColumnCreateOrConnectWithoutDepartmentInput[]
+    upsert?: DepartmentColumnUpsertWithWhereUniqueWithoutDepartmentInput | DepartmentColumnUpsertWithWhereUniqueWithoutDepartmentInput[]
+    createMany?: DepartmentColumnCreateManyDepartmentInputEnvelope
+    set?: DepartmentColumnWhereUniqueInput | DepartmentColumnWhereUniqueInput[]
+    disconnect?: DepartmentColumnWhereUniqueInput | DepartmentColumnWhereUniqueInput[]
+    delete?: DepartmentColumnWhereUniqueInput | DepartmentColumnWhereUniqueInput[]
+    connect?: DepartmentColumnWhereUniqueInput | DepartmentColumnWhereUniqueInput[]
+    update?: DepartmentColumnUpdateWithWhereUniqueWithoutDepartmentInput | DepartmentColumnUpdateWithWhereUniqueWithoutDepartmentInput[]
+    updateMany?: DepartmentColumnUpdateManyWithWhereWithoutDepartmentInput | DepartmentColumnUpdateManyWithWhereWithoutDepartmentInput[]
+    deleteMany?: DepartmentColumnScalarWhereInput | DepartmentColumnScalarWhereInput[]
+  }
+
   export type RegisterSuratUncheckedUpdateManyWithoutDeptNestedInput = {
     create?: XOR<RegisterSuratCreateWithoutDeptInput, RegisterSuratUncheckedCreateWithoutDeptInput> | RegisterSuratCreateWithoutDeptInput[] | RegisterSuratUncheckedCreateWithoutDeptInput[]
     connectOrCreate?: RegisterSuratCreateOrConnectWithoutDeptInput | RegisterSuratCreateOrConnectWithoutDeptInput[]
@@ -15881,6 +17686,42 @@ export namespace Prisma {
     delete?: NomorCounterWhereInput | boolean
     connect?: NomorCounterWhereUniqueInput
     update?: XOR<XOR<NomorCounterUpdateToOneWithWhereWithoutDeptInput, NomorCounterUpdateWithoutDeptInput>, NomorCounterUncheckedUpdateWithoutDeptInput>
+  }
+
+  export type DepartmentColumnUncheckedUpdateManyWithoutDepartmentNestedInput = {
+    create?: XOR<DepartmentColumnCreateWithoutDepartmentInput, DepartmentColumnUncheckedCreateWithoutDepartmentInput> | DepartmentColumnCreateWithoutDepartmentInput[] | DepartmentColumnUncheckedCreateWithoutDepartmentInput[]
+    connectOrCreate?: DepartmentColumnCreateOrConnectWithoutDepartmentInput | DepartmentColumnCreateOrConnectWithoutDepartmentInput[]
+    upsert?: DepartmentColumnUpsertWithWhereUniqueWithoutDepartmentInput | DepartmentColumnUpsertWithWhereUniqueWithoutDepartmentInput[]
+    createMany?: DepartmentColumnCreateManyDepartmentInputEnvelope
+    set?: DepartmentColumnWhereUniqueInput | DepartmentColumnWhereUniqueInput[]
+    disconnect?: DepartmentColumnWhereUniqueInput | DepartmentColumnWhereUniqueInput[]
+    delete?: DepartmentColumnWhereUniqueInput | DepartmentColumnWhereUniqueInput[]
+    connect?: DepartmentColumnWhereUniqueInput | DepartmentColumnWhereUniqueInput[]
+    update?: DepartmentColumnUpdateWithWhereUniqueWithoutDepartmentInput | DepartmentColumnUpdateWithWhereUniqueWithoutDepartmentInput[]
+    updateMany?: DepartmentColumnUpdateManyWithWhereWithoutDepartmentInput | DepartmentColumnUpdateManyWithWhereWithoutDepartmentInput[]
+    deleteMany?: DepartmentColumnScalarWhereInput | DepartmentColumnScalarWhereInput[]
+  }
+
+  export type DepartmentCreateNestedOneWithoutColumnsInput = {
+    create?: XOR<DepartmentCreateWithoutColumnsInput, DepartmentUncheckedCreateWithoutColumnsInput>
+    connectOrCreate?: DepartmentCreateOrConnectWithoutColumnsInput
+    connect?: DepartmentWhereUniqueInput
+  }
+
+  export type IntFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type DepartmentUpdateOneRequiredWithoutColumnsNestedInput = {
+    create?: XOR<DepartmentCreateWithoutColumnsInput, DepartmentUncheckedCreateWithoutColumnsInput>
+    connectOrCreate?: DepartmentCreateOrConnectWithoutColumnsInput
+    upsert?: DepartmentUpsertWithoutColumnsInput
+    connect?: DepartmentWhereUniqueInput
+    update?: XOR<XOR<DepartmentUpdateToOneWithWhereWithoutColumnsInput, DepartmentUpdateWithoutColumnsInput>, DepartmentUncheckedUpdateWithoutColumnsInput>
   }
 
   export type DepartmentCreateNestedOneWithoutRegisterSuratInput = {
@@ -15923,14 +17764,6 @@ export namespace Prisma {
     update?: DetailSuratUpdateWithWhereUniqueWithoutRegisterInput | DetailSuratUpdateWithWhereUniqueWithoutRegisterInput[]
     updateMany?: DetailSuratUpdateManyWithWhereWithoutRegisterInput | DetailSuratUpdateManyWithWhereWithoutRegisterInput[]
     deleteMany?: DetailSuratScalarWhereInput | DetailSuratScalarWhereInput[]
-  }
-
-  export type IntFieldUpdateOperationsInput = {
-    set?: number
-    increment?: number
-    decrement?: number
-    multiply?: number
-    divide?: number
   }
 
   export type DetailSuratUncheckedUpdateManyWithoutRegisterNestedInput = {
@@ -16234,6 +18067,29 @@ export namespace Prisma {
     gt?: number | FloatFieldRefInput<$PrismaModel>
     gte?: number | FloatFieldRefInput<$PrismaModel>
     not?: NestedFloatFilter<$PrismaModel> | number
+  }
+  export type NestedJsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
   export type SessionCreateWithoutUserInput = {
@@ -16686,6 +18542,7 @@ export namespace Prisma {
     nomor: string
     tanggalTerima: Date | string
     asalSurat: string
+    customDetails?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     detailPI?: DetailPICreateNestedManyWithoutRegisterInput
@@ -16696,6 +18553,7 @@ export namespace Prisma {
     nomor: string
     tanggalTerima: Date | string
     asalSurat: string
+    customDetails?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     detailPI?: DetailPIUncheckedCreateNestedManyWithoutRegisterInput
@@ -16722,6 +18580,44 @@ export namespace Prisma {
   export type NomorCounterCreateOrConnectWithoutDeptInput = {
     where: NomorCounterWhereUniqueInput
     create: XOR<NomorCounterCreateWithoutDeptInput, NomorCounterUncheckedCreateWithoutDeptInput>
+  }
+
+  export type DepartmentColumnCreateWithoutDepartmentInput = {
+    id: string
+    label: string
+    dataType: string
+    defaultValue?: string
+    isDefault?: boolean
+    isRequired?: boolean
+    showInDataSurat?: boolean
+    showInPrint?: boolean
+    sortOrder?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DepartmentColumnUncheckedCreateWithoutDepartmentInput = {
+    id: string
+    label: string
+    dataType: string
+    defaultValue?: string
+    isDefault?: boolean
+    isRequired?: boolean
+    showInDataSurat?: boolean
+    showInPrint?: boolean
+    sortOrder?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DepartmentColumnCreateOrConnectWithoutDepartmentInput = {
+    where: DepartmentColumnWhereUniqueInput
+    create: XOR<DepartmentColumnCreateWithoutDepartmentInput, DepartmentColumnUncheckedCreateWithoutDepartmentInput>
+  }
+
+  export type DepartmentColumnCreateManyDepartmentInputEnvelope = {
+    data: DepartmentColumnCreateManyDepartmentInput | DepartmentColumnCreateManyDepartmentInput[]
+    skipDuplicates?: boolean
   }
 
   export type RegisterSuratUpsertWithWhereUniqueWithoutDeptInput = {
@@ -16779,6 +18675,7 @@ export namespace Prisma {
     deptId?: StringFilter<"RegisterPI"> | string
     tanggalTerima?: DateTimeFilter<"RegisterPI"> | Date | string
     asalSurat?: StringFilter<"RegisterPI"> | string
+    customDetails?: JsonFilter<"RegisterPI">
     createdAt?: DateTimeFilter<"RegisterPI"> | Date | string
     updatedAt?: DateTimeFilter<"RegisterPI"> | Date | string
   }
@@ -16802,22 +18699,120 @@ export namespace Prisma {
     counter?: IntFieldUpdateOperationsInput | number
   }
 
-  export type DepartmentCreateWithoutRegisterSuratInput = {
-    id?: string
+  export type DepartmentColumnUpsertWithWhereUniqueWithoutDepartmentInput = {
+    where: DepartmentColumnWhereUniqueInput
+    update: XOR<DepartmentColumnUpdateWithoutDepartmentInput, DepartmentColumnUncheckedUpdateWithoutDepartmentInput>
+    create: XOR<DepartmentColumnCreateWithoutDepartmentInput, DepartmentColumnUncheckedCreateWithoutDepartmentInput>
+  }
+
+  export type DepartmentColumnUpdateWithWhereUniqueWithoutDepartmentInput = {
+    where: DepartmentColumnWhereUniqueInput
+    data: XOR<DepartmentColumnUpdateWithoutDepartmentInput, DepartmentColumnUncheckedUpdateWithoutDepartmentInput>
+  }
+
+  export type DepartmentColumnUpdateManyWithWhereWithoutDepartmentInput = {
+    where: DepartmentColumnScalarWhereInput
+    data: XOR<DepartmentColumnUpdateManyMutationInput, DepartmentColumnUncheckedUpdateManyWithoutDepartmentInput>
+  }
+
+  export type DepartmentColumnScalarWhereInput = {
+    AND?: DepartmentColumnScalarWhereInput | DepartmentColumnScalarWhereInput[]
+    OR?: DepartmentColumnScalarWhereInput[]
+    NOT?: DepartmentColumnScalarWhereInput | DepartmentColumnScalarWhereInput[]
+    id?: StringFilter<"DepartmentColumn"> | string
+    departmentId?: StringFilter<"DepartmentColumn"> | string
+    label?: StringFilter<"DepartmentColumn"> | string
+    dataType?: StringFilter<"DepartmentColumn"> | string
+    defaultValue?: StringFilter<"DepartmentColumn"> | string
+    isDefault?: BoolFilter<"DepartmentColumn"> | boolean
+    isRequired?: BoolFilter<"DepartmentColumn"> | boolean
+    showInDataSurat?: BoolFilter<"DepartmentColumn"> | boolean
+    showInPrint?: BoolFilter<"DepartmentColumn"> | boolean
+    sortOrder?: IntFilter<"DepartmentColumn"> | number
+    createdAt?: DateTimeFilter<"DepartmentColumn"> | Date | string
+    updatedAt?: DateTimeFilter<"DepartmentColumn"> | Date | string
+  }
+
+  export type DepartmentCreateWithoutColumnsInput = {
+    id: string
     shortName: string
-    fullName?: string
+    tujuan?: string
+    printColumnName?: string
     isActive?: boolean
+    registerSurat?: RegisterSuratCreateNestedManyWithoutDeptInput
     registerPI?: RegisterPICreateNestedManyWithoutDeptInput
     nomorCounter?: NomorCounterCreateNestedOneWithoutDeptInput
   }
 
-  export type DepartmentUncheckedCreateWithoutRegisterSuratInput = {
-    id?: string
+  export type DepartmentUncheckedCreateWithoutColumnsInput = {
+    id: string
     shortName: string
-    fullName?: string
+    tujuan?: string
+    printColumnName?: string
+    isActive?: boolean
+    registerSurat?: RegisterSuratUncheckedCreateNestedManyWithoutDeptInput
+    registerPI?: RegisterPIUncheckedCreateNestedManyWithoutDeptInput
+    nomorCounter?: NomorCounterUncheckedCreateNestedOneWithoutDeptInput
+  }
+
+  export type DepartmentCreateOrConnectWithoutColumnsInput = {
+    where: DepartmentWhereUniqueInput
+    create: XOR<DepartmentCreateWithoutColumnsInput, DepartmentUncheckedCreateWithoutColumnsInput>
+  }
+
+  export type DepartmentUpsertWithoutColumnsInput = {
+    update: XOR<DepartmentUpdateWithoutColumnsInput, DepartmentUncheckedUpdateWithoutColumnsInput>
+    create: XOR<DepartmentCreateWithoutColumnsInput, DepartmentUncheckedCreateWithoutColumnsInput>
+    where?: DepartmentWhereInput
+  }
+
+  export type DepartmentUpdateToOneWithWhereWithoutColumnsInput = {
+    where?: DepartmentWhereInput
+    data: XOR<DepartmentUpdateWithoutColumnsInput, DepartmentUncheckedUpdateWithoutColumnsInput>
+  }
+
+  export type DepartmentUpdateWithoutColumnsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    shortName?: StringFieldUpdateOperationsInput | string
+    tujuan?: StringFieldUpdateOperationsInput | string
+    printColumnName?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    registerSurat?: RegisterSuratUpdateManyWithoutDeptNestedInput
+    registerPI?: RegisterPIUpdateManyWithoutDeptNestedInput
+    nomorCounter?: NomorCounterUpdateOneWithoutDeptNestedInput
+  }
+
+  export type DepartmentUncheckedUpdateWithoutColumnsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    shortName?: StringFieldUpdateOperationsInput | string
+    tujuan?: StringFieldUpdateOperationsInput | string
+    printColumnName?: StringFieldUpdateOperationsInput | string
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    registerSurat?: RegisterSuratUncheckedUpdateManyWithoutDeptNestedInput
+    registerPI?: RegisterPIUncheckedUpdateManyWithoutDeptNestedInput
+    nomorCounter?: NomorCounterUncheckedUpdateOneWithoutDeptNestedInput
+  }
+
+  export type DepartmentCreateWithoutRegisterSuratInput = {
+    id: string
+    shortName: string
+    tujuan?: string
+    printColumnName?: string
+    isActive?: boolean
+    registerPI?: RegisterPICreateNestedManyWithoutDeptInput
+    nomorCounter?: NomorCounterCreateNestedOneWithoutDeptInput
+    columns?: DepartmentColumnCreateNestedManyWithoutDepartmentInput
+  }
+
+  export type DepartmentUncheckedCreateWithoutRegisterSuratInput = {
+    id: string
+    shortName: string
+    tujuan?: string
+    printColumnName?: string
     isActive?: boolean
     registerPI?: RegisterPIUncheckedCreateNestedManyWithoutDeptInput
     nomorCounter?: NomorCounterUncheckedCreateNestedOneWithoutDeptInput
+    columns?: DepartmentColumnUncheckedCreateNestedManyWithoutDepartmentInput
   }
 
   export type DepartmentCreateOrConnectWithoutRegisterSuratInput = {
@@ -16831,6 +18826,7 @@ export namespace Prisma {
     lampiran?: string | null
     tanggalSurat: Date | string
     tujuan?: string | null
+    customFields?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -16842,6 +18838,7 @@ export namespace Prisma {
     lampiran?: string | null
     tanggalSurat: Date | string
     tujuan?: string | null
+    customFields?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -16870,19 +18867,23 @@ export namespace Prisma {
   export type DepartmentUpdateWithoutRegisterSuratInput = {
     id?: StringFieldUpdateOperationsInput | string
     shortName?: StringFieldUpdateOperationsInput | string
-    fullName?: StringFieldUpdateOperationsInput | string
+    tujuan?: StringFieldUpdateOperationsInput | string
+    printColumnName?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     registerPI?: RegisterPIUpdateManyWithoutDeptNestedInput
     nomorCounter?: NomorCounterUpdateOneWithoutDeptNestedInput
+    columns?: DepartmentColumnUpdateManyWithoutDepartmentNestedInput
   }
 
   export type DepartmentUncheckedUpdateWithoutRegisterSuratInput = {
     id?: StringFieldUpdateOperationsInput | string
     shortName?: StringFieldUpdateOperationsInput | string
-    fullName?: StringFieldUpdateOperationsInput | string
+    tujuan?: StringFieldUpdateOperationsInput | string
+    printColumnName?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     registerPI?: RegisterPIUncheckedUpdateManyWithoutDeptNestedInput
     nomorCounter?: NomorCounterUncheckedUpdateOneWithoutDeptNestedInput
+    columns?: DepartmentColumnUncheckedUpdateManyWithoutDepartmentNestedInput
   }
 
   export type DetailSuratUpsertWithWhereUniqueWithoutRegisterInput = {
@@ -16912,26 +18913,31 @@ export namespace Prisma {
     lampiran?: StringNullableFilter<"DetailSurat"> | string | null
     tanggalSurat?: DateTimeFilter<"DetailSurat"> | Date | string
     tujuan?: StringNullableFilter<"DetailSurat"> | string | null
+    customFields?: JsonFilter<"DetailSurat">
     createdAt?: DateTimeFilter<"DetailSurat"> | Date | string
     updatedAt?: DateTimeFilter<"DetailSurat"> | Date | string
   }
 
   export type DepartmentCreateWithoutRegisterPIInput = {
-    id?: string
+    id: string
     shortName: string
-    fullName?: string
+    tujuan?: string
+    printColumnName?: string
     isActive?: boolean
     registerSurat?: RegisterSuratCreateNestedManyWithoutDeptInput
     nomorCounter?: NomorCounterCreateNestedOneWithoutDeptInput
+    columns?: DepartmentColumnCreateNestedManyWithoutDepartmentInput
   }
 
   export type DepartmentUncheckedCreateWithoutRegisterPIInput = {
-    id?: string
+    id: string
     shortName: string
-    fullName?: string
+    tujuan?: string
+    printColumnName?: string
     isActive?: boolean
     registerSurat?: RegisterSuratUncheckedCreateNestedManyWithoutDeptInput
     nomorCounter?: NomorCounterUncheckedCreateNestedOneWithoutDeptInput
+    columns?: DepartmentColumnUncheckedCreateNestedManyWithoutDepartmentInput
   }
 
   export type DepartmentCreateOrConnectWithoutRegisterPIInput = {
@@ -16946,6 +18952,7 @@ export namespace Prisma {
     tanggalSurat: Date | string
     tujuan?: string | null
     cc?: string | null
+    customFields?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -16958,6 +18965,7 @@ export namespace Prisma {
     tanggalSurat: Date | string
     tujuan?: string | null
     cc?: string | null
+    customFields?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -16986,19 +18994,23 @@ export namespace Prisma {
   export type DepartmentUpdateWithoutRegisterPIInput = {
     id?: StringFieldUpdateOperationsInput | string
     shortName?: StringFieldUpdateOperationsInput | string
-    fullName?: StringFieldUpdateOperationsInput | string
+    tujuan?: StringFieldUpdateOperationsInput | string
+    printColumnName?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     registerSurat?: RegisterSuratUpdateManyWithoutDeptNestedInput
     nomorCounter?: NomorCounterUpdateOneWithoutDeptNestedInput
+    columns?: DepartmentColumnUpdateManyWithoutDepartmentNestedInput
   }
 
   export type DepartmentUncheckedUpdateWithoutRegisterPIInput = {
     id?: StringFieldUpdateOperationsInput | string
     shortName?: StringFieldUpdateOperationsInput | string
-    fullName?: StringFieldUpdateOperationsInput | string
+    tujuan?: StringFieldUpdateOperationsInput | string
+    printColumnName?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     registerSurat?: RegisterSuratUncheckedUpdateManyWithoutDeptNestedInput
     nomorCounter?: NomorCounterUncheckedUpdateOneWithoutDeptNestedInput
+    columns?: DepartmentColumnUncheckedUpdateManyWithoutDepartmentNestedInput
   }
 
   export type DetailPIUpsertWithWhereUniqueWithoutRegisterInput = {
@@ -17029,6 +19041,7 @@ export namespace Prisma {
     tanggalSurat?: DateTimeFilter<"DetailPI"> | Date | string
     tujuan?: StringNullableFilter<"DetailPI"> | string | null
     cc?: StringNullableFilter<"DetailPI"> | string | null
+    customFields?: JsonFilter<"DetailPI">
     createdAt?: DateTimeFilter<"DetailPI"> | Date | string
     updatedAt?: DateTimeFilter<"DetailPI"> | Date | string
   }
@@ -17037,6 +19050,7 @@ export namespace Prisma {
     nomor: string
     tanggalTerima: Date | string
     asalSurat: string
+    customDetails?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
     dept: DepartmentCreateNestedOneWithoutRegisterPIInput
@@ -17048,6 +19062,7 @@ export namespace Prisma {
     deptId: string
     tanggalTerima: Date | string
     asalSurat: string
+    customDetails?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -17072,6 +19087,7 @@ export namespace Prisma {
     nomor?: StringFieldUpdateOperationsInput | string
     tanggalTerima?: DateTimeFieldUpdateOperationsInput | Date | string
     asalSurat?: StringFieldUpdateOperationsInput | string
+    customDetails?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     dept?: DepartmentUpdateOneRequiredWithoutRegisterPINestedInput
@@ -17083,6 +19099,7 @@ export namespace Prisma {
     deptId?: StringFieldUpdateOperationsInput | string
     tanggalTerima?: DateTimeFieldUpdateOperationsInput | Date | string
     asalSurat?: StringFieldUpdateOperationsInput | string
+    customDetails?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -17146,21 +19163,25 @@ export namespace Prisma {
   }
 
   export type DepartmentCreateWithoutNomorCounterInput = {
-    id?: string
+    id: string
     shortName: string
-    fullName?: string
+    tujuan?: string
+    printColumnName?: string
     isActive?: boolean
     registerSurat?: RegisterSuratCreateNestedManyWithoutDeptInput
     registerPI?: RegisterPICreateNestedManyWithoutDeptInput
+    columns?: DepartmentColumnCreateNestedManyWithoutDepartmentInput
   }
 
   export type DepartmentUncheckedCreateWithoutNomorCounterInput = {
-    id?: string
+    id: string
     shortName: string
-    fullName?: string
+    tujuan?: string
+    printColumnName?: string
     isActive?: boolean
     registerSurat?: RegisterSuratUncheckedCreateNestedManyWithoutDeptInput
     registerPI?: RegisterPIUncheckedCreateNestedManyWithoutDeptInput
+    columns?: DepartmentColumnUncheckedCreateNestedManyWithoutDepartmentInput
   }
 
   export type DepartmentCreateOrConnectWithoutNomorCounterInput = {
@@ -17182,19 +19203,23 @@ export namespace Prisma {
   export type DepartmentUpdateWithoutNomorCounterInput = {
     id?: StringFieldUpdateOperationsInput | string
     shortName?: StringFieldUpdateOperationsInput | string
-    fullName?: StringFieldUpdateOperationsInput | string
+    tujuan?: StringFieldUpdateOperationsInput | string
+    printColumnName?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     registerSurat?: RegisterSuratUpdateManyWithoutDeptNestedInput
     registerPI?: RegisterPIUpdateManyWithoutDeptNestedInput
+    columns?: DepartmentColumnUpdateManyWithoutDepartmentNestedInput
   }
 
   export type DepartmentUncheckedUpdateWithoutNomorCounterInput = {
     id?: StringFieldUpdateOperationsInput | string
     shortName?: StringFieldUpdateOperationsInput | string
-    fullName?: StringFieldUpdateOperationsInput | string
+    tujuan?: StringFieldUpdateOperationsInput | string
+    printColumnName?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     registerSurat?: RegisterSuratUncheckedUpdateManyWithoutDeptNestedInput
     registerPI?: RegisterPIUncheckedUpdateManyWithoutDeptNestedInput
+    columns?: DepartmentColumnUncheckedUpdateManyWithoutDepartmentNestedInput
   }
 
   export type SessionCreateManyUserInput = {
@@ -17312,6 +19337,21 @@ export namespace Prisma {
     nomor: string
     tanggalTerima: Date | string
     asalSurat: string
+    customDetails?: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DepartmentColumnCreateManyDepartmentInput = {
+    id: string
+    label: string
+    dataType: string
+    defaultValue?: string
+    isDefault?: boolean
+    isRequired?: boolean
+    showInDataSurat?: boolean
+    showInPrint?: boolean
+    sortOrder?: number
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -17351,6 +19391,7 @@ export namespace Prisma {
     nomor?: StringFieldUpdateOperationsInput | string
     tanggalTerima?: DateTimeFieldUpdateOperationsInput | Date | string
     asalSurat?: StringFieldUpdateOperationsInput | string
+    customDetails?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     detailPI?: DetailPIUpdateManyWithoutRegisterNestedInput
@@ -17361,6 +19402,7 @@ export namespace Prisma {
     nomor?: StringFieldUpdateOperationsInput | string
     tanggalTerima?: DateTimeFieldUpdateOperationsInput | Date | string
     asalSurat?: StringFieldUpdateOperationsInput | string
+    customDetails?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     detailPI?: DetailPIUncheckedUpdateManyWithoutRegisterNestedInput
@@ -17371,6 +19413,49 @@ export namespace Prisma {
     nomor?: StringFieldUpdateOperationsInput | string
     tanggalTerima?: DateTimeFieldUpdateOperationsInput | Date | string
     asalSurat?: StringFieldUpdateOperationsInput | string
+    customDetails?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DepartmentColumnUpdateWithoutDepartmentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    dataType?: StringFieldUpdateOperationsInput | string
+    defaultValue?: StringFieldUpdateOperationsInput | string
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    isRequired?: BoolFieldUpdateOperationsInput | boolean
+    showInDataSurat?: BoolFieldUpdateOperationsInput | boolean
+    showInPrint?: BoolFieldUpdateOperationsInput | boolean
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DepartmentColumnUncheckedUpdateWithoutDepartmentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    dataType?: StringFieldUpdateOperationsInput | string
+    defaultValue?: StringFieldUpdateOperationsInput | string
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    isRequired?: BoolFieldUpdateOperationsInput | boolean
+    showInDataSurat?: BoolFieldUpdateOperationsInput | boolean
+    showInPrint?: BoolFieldUpdateOperationsInput | boolean
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DepartmentColumnUncheckedUpdateManyWithoutDepartmentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    dataType?: StringFieldUpdateOperationsInput | string
+    defaultValue?: StringFieldUpdateOperationsInput | string
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    isRequired?: BoolFieldUpdateOperationsInput | boolean
+    showInDataSurat?: BoolFieldUpdateOperationsInput | boolean
+    showInPrint?: BoolFieldUpdateOperationsInput | boolean
+    sortOrder?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -17382,6 +19467,7 @@ export namespace Prisma {
     lampiran?: string | null
     tanggalSurat: Date | string
     tujuan?: string | null
+    customFields?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -17392,6 +19478,7 @@ export namespace Prisma {
     lampiran?: NullableStringFieldUpdateOperationsInput | string | null
     tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
     tujuan?: NullableStringFieldUpdateOperationsInput | string | null
+    customFields?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -17403,6 +19490,7 @@ export namespace Prisma {
     lampiran?: NullableStringFieldUpdateOperationsInput | string | null
     tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
     tujuan?: NullableStringFieldUpdateOperationsInput | string | null
+    customFields?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -17414,6 +19502,7 @@ export namespace Prisma {
     lampiran?: NullableStringFieldUpdateOperationsInput | string | null
     tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
     tujuan?: NullableStringFieldUpdateOperationsInput | string | null
+    customFields?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -17426,6 +19515,7 @@ export namespace Prisma {
     tanggalSurat: Date | string
     tujuan?: string | null
     cc?: string | null
+    customFields?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -17437,6 +19527,7 @@ export namespace Prisma {
     tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
     tujuan?: NullableStringFieldUpdateOperationsInput | string | null
     cc?: NullableStringFieldUpdateOperationsInput | string | null
+    customFields?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -17449,6 +19540,7 @@ export namespace Prisma {
     tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
     tujuan?: NullableStringFieldUpdateOperationsInput | string | null
     cc?: NullableStringFieldUpdateOperationsInput | string | null
+    customFields?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -17461,6 +19553,7 @@ export namespace Prisma {
     tanggalSurat?: DateTimeFieldUpdateOperationsInput | Date | string
     tujuan?: NullableStringFieldUpdateOperationsInput | string | null
     cc?: NullableStringFieldUpdateOperationsInput | string | null
+    customFields?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

@@ -27,7 +27,7 @@ const LOGO_HEIGHT = 1246
 const navItems = [
   { label: "Dashboard",       href: "/admin/dashboard",  icon: House },
   { label: "Kelola Pengguna", href: "/admin/users",      icon: UserRoundCog },
-  { label: "Departemen",      href: "/admin/departemen", icon: Building2 },
+  { label: "Kelola Departemen", href: "/admin/departemen", icon: Building2 },
 ]
 
 interface Props {

@@ -6,16 +6,27 @@ import { toast } from "sonner"
 import { getErrorMessage } from "@/lib/utils"
 import {
   EMPTY_DEPARTEMEN_FORM,
+  DEFAULT_DEPARTEMEN_COLUMNS,
+  type Departemen,
   type DepartemenFormState,
 } from "@/types"
 
 export function useTambahDepartemen() {
   const router = useRouter()
-  const [form, setForm] = useState<DepartemenFormState>(EMPTY_DEPARTEMEN_FORM)
+  const [form, setForm] = useState<DepartemenFormState>({
+    ...EMPTY_DEPARTEMEN_FORM,
+    columns: DEFAULT_DEPARTEMEN_COLUMNS.map((column) => ({ ...column })),
+  })
+  const [departments, setDepartments] = useState<Departemen[]>([])
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
     window.dispatchEvent(new CustomEvent("breadcrumb:sub", { detail: "Tambah Departemen" }))
+    fetch("/api/dept")
+      .then((res) => res.ok ? res.json() : [])
+      .then((data) => setDepartments(Array.isArray(data) ? data : []))
+      .catch(() => setDepartments([]))
+
     return () => {
       window.dispatchEvent(new CustomEvent("breadcrumb:sub", { detail: null }))
     }
@@ -28,12 +39,20 @@ export function useTambahDepartemen() {
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
 
-    if (!form.fullName.trim()) {
+    if (!form.tujuan.trim()) {
       toast.error("Nama departemen wajib diisi")
       return
     }
     if (!form.shortName.trim()) {
       toast.error("Singkatan departemen wajib diisi")
+      return
+    }
+    if (!form.printColumnName.trim()) {
+      toast.error("Identifikasi cetak wajib diisi")
+      return
+    }
+    if (form.columnMode === "existing" && !form.sourceDepartmentId.trim()) {
+      toast.error("Pilih departemen sumber kolom")
       return
     }
 
@@ -43,8 +62,12 @@ export function useTambahDepartemen() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          fullName: form.fullName,
+          tujuan: form.tujuan,
           shortName: form.shortName,
+          printColumnName: form.printColumnName,
+          columnMode: form.columnMode,
+          sourceDepartmentId: form.sourceDepartmentId,
+          columns: form.columns,
         }),
       })
       const json = await res.json().catch(() => null)
@@ -63,7 +86,7 @@ export function useTambahDepartemen() {
   }
 
   return {
-    state: { form, saving },
+    state: { form, saving, departments },
     actions: { setForm, submit, cancel },
   }
 }

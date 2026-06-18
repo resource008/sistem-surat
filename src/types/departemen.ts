@@ -1,15 +1,92 @@
 export interface Departemen {
   id: string
   shortName: string
-  fullName: string
+  tujuan: string
+  fullName?: string
+  printColumnName?: string
+  columns?: DepartemenColumn[]
+  displayColumns?: DepartemenColumn[]
+}
+
+export type DepartemenColumnType = "text" | "date" | "number"
+export type DepartemenColumnMode = "new" | "existing"
+export type DepartemenPrintColumnMode = "new" | "existing"
+
+export interface DepartemenColumn {
+  id: string
+  label: string
+  type: DepartemenColumnType
+  defaultValue: string
+  isDefault: boolean
+  isRequired: boolean
+  showInDataSurat: boolean
+  showInPrint: boolean
+  sortOrder: number
 }
 
 export type DepartemenFormState = {
-  fullName: string
+  tujuan: string
   shortName: string
+  printColumnName: string
+  printColumnMode: DepartemenPrintColumnMode
+  columnMode: DepartemenColumnMode
+  sourceDepartmentId: string
+  columns: DepartemenColumn[]
 }
 
+export const DEFAULT_DEPARTEMEN_COLUMNS: DepartemenColumn[] = [
+  {
+    id: "default_nomor_register",
+    label: "Nomor Register",
+    type: "text",
+    defaultValue: "N/A",
+    isDefault: true,
+    isRequired: true,
+    showInDataSurat: true,
+    showInPrint: true,
+    sortOrder: 0,
+  },
+  {
+    id: "default_tanggal_terima",
+    label: "Tanggal Terima",
+    type: "date",
+    defaultValue: "N/A",
+    isDefault: true,
+    isRequired: true,
+    showInDataSurat: false,
+    showInPrint: true,
+    sortOrder: 1,
+  },
+  {
+    id: "default_asal_surat",
+    label: "Asal Surat",
+    type: "text",
+    defaultValue: "N/A",
+    isDefault: true,
+    isRequired: true,
+    showInDataSurat: true,
+    showInPrint: true,
+    sortOrder: 2,
+  },
+  {
+    id: "default_tujuan",
+    label: "Tujuan",
+    type: "text",
+    defaultValue: "N/A",
+    isDefault: true,
+    isRequired: true,
+    showInDataSurat: true,
+    showInPrint: true,
+    sortOrder: 3,
+  },
+]
+
 export const EMPTY_DEPARTEMEN_FORM: DepartemenFormState = {
-  fullName: "",
+  tujuan: "",
   shortName: "",
+  printColumnName: "",
+  printColumnMode: "new",
+  columnMode: "new",
+  sourceDepartmentId: "",
+  columns: DEFAULT_DEPARTEMEN_COLUMNS,
 }

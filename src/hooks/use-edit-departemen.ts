@@ -6,23 +6,38 @@ import { toast } from "sonner"
 import { getErrorMessage } from "@/lib/utils"
 import {
   EMPTY_DEPARTEMEN_FORM,
+  DEFAULT_DEPARTEMEN_COLUMNS,
   type Departemen,
+  type DepartemenPrintColumnMode,
   type DepartemenFormState,
 } from "@/types"
 
-export function useEditDepartemen(id: string) {
+function inferPrintColumnMode(departemen: Departemen, departments: Departemen[]): DepartemenPrintColumnMode {
+  const printColumnName = departemen.printColumnName?.trim().toLowerCase()
+  if (!printColumnName) return "new"
+
+  const isSharedIdentity = departments.some((item) =>
+    item.id !== departemen.id &&
+    item.printColumnName?.trim().toLowerCase() === printColumnName
+  )
+
+  return isSharedIdentity ? "existing" : "new"
+}
+
+export function useEditDepartemen(id: string, breadcrumbTitle = "Edit Departemen") {
   const router = useRouter()
   const [departemen, setDepartemen] = useState<Departemen | null>(null)
+  const [departments, setDepartments] = useState<Departemen[]>([])
   const [form, setForm] = useState<DepartemenFormState>(EMPTY_DEPARTEMEN_FORM)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
-    window.dispatchEvent(new CustomEvent("breadcrumb:sub", { detail: "Edit Departemen" }))
+    window.dispatchEvent(new CustomEvent("breadcrumb:sub", { detail: breadcrumbTitle }))
     return () => {
       window.dispatchEvent(new CustomEvent("breadcrumb:sub", { detail: null }))
     }
-  }, [])
+  }, [breadcrumbTitle])
 
   useEffect(() => {
     let ignore = false
@@ -30,7 +45,11 @@ export function useEditDepartemen(id: string) {
     async function loadDepartemen() {
       setLoading(true)
       try {
-        const res = await fetch(`/api/dept/${encodeURIComponent(id)}`)
+        const [deptListRes, res] = await Promise.all([
+          fetch("/api/dept"),
+          fetch(`/api/dept/${encodeURIComponent(id)}`),
+        ])
+        const deptListJson = await deptListRes.json().catch(() => null)
         const json = await res.json().catch(() => null)
 
         if (!res.ok) {
@@ -38,11 +57,20 @@ export function useEditDepartemen(id: string) {
         }
 
         if (ignore) return
+        const deptList = Array.isArray(deptListJson) ? deptListJson as Departemen[] : []
         const data = json as Departemen
+        setDepartments(deptList)
         setDepartemen(data)
         setForm({
-          fullName: data.fullName,
+          tujuan: data.tujuan ?? data.fullName ?? "",
           shortName: data.shortName,
+          printColumnName: data.printColumnName ?? "",
+          printColumnMode: inferPrintColumnMode(data, deptList),
+          columnMode: "new",
+          sourceDepartmentId: "",
+          columns: data.columns?.length
+            ? data.columns
+            : DEFAULT_DEPARTEMEN_COLUMNS.map((column) => ({ ...column })),
         })
       } catch (err) {
         if (!ignore) toast.error(getErrorMessage(err, "Gagal mengambil data departemen"))
@@ -64,12 +92,16 @@ export function useEditDepartemen(id: string) {
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
 
-    if (!form.fullName.trim()) {
+    if (!form.tujuan.trim()) {
       toast.error("Nama departemen wajib diisi")
       return
     }
     if (!form.shortName.trim()) {
       toast.error("Singkatan departemen wajib diisi")
+      return
+    }
+    if (!form.printColumnName.trim()) {
+      toast.error("Identifikasi cetak wajib diisi")
       return
     }
 
@@ -79,8 +111,12 @@ export function useEditDepartemen(id: string) {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          fullName: form.fullName,
+          tujuan: form.tujuan,
           shortName: form.shortName,
+          printColumnName: form.printColumnName,
+          columnMode: form.columnMode,
+          sourceDepartmentId: form.sourceDepartmentId,
+          columns: form.columns,
         }),
       })
       const json = await res.json().catch(() => null)
@@ -99,7 +135,7 @@ export function useEditDepartemen(id: string) {
   }
 
   return {
-    state: { departemen, form, loading, saving },
+    state: { departemen, departments, form, loading, saving },
     actions: { setForm, submit, cancel },
   }
 }
