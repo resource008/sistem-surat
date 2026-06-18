@@ -35,10 +35,10 @@ export function useDepartemenList() {
       const json = await res.json().catch(() => null)
 
       if (!res.ok) {
-        throw new Error(json?.error ?? "Gagal menghapus departemen")
+        throw new Error(json?.message ?? json?.error ?? "Gagal menghapus departemen")
       }
 
-      toast.success("Departemen berhasil dihapus")
+      toast.success(json?.message ?? "Departemen berhasil dihapus")
       setDeleting(null)
       await mutate()
     } catch (err) {

@@ -73,10 +73,10 @@ export function useTambahDepartemen() {
       const json = await res.json().catch(() => null)
 
       if (!res.ok) {
-        throw new Error(json?.error ?? "Gagal menyimpan departemen")
+        throw new Error(getApiMessage(json, "Gagal menyimpan departemen"))
       }
 
-      toast.success("Departemen berhasil ditambahkan")
+      toast.success(json?.message ?? "Departemen berhasil ditambahkan")
       router.push("/admin/departemen")
     } catch (err) {
       toast.error(getErrorMessage(err, "Gagal menyimpan departemen"))
@@ -89,4 +89,25 @@ export function useTambahDepartemen() {
     state: { form, saving, departments },
     actions: { setForm, submit, cancel },
   }
+}
+
+function getApiMessage(json: unknown, fallback: string): string {
+  if (typeof json !== "object" || json === null) return fallback
+  const body = json as { message?: unknown; error?: unknown; errors?: unknown }
+  const baseMessage = typeof body.message === "string"
+    ? body.message
+    : typeof body.error === "string"
+      ? body.error
+      : fallback
+
+  if (typeof body.errors === "object" && body.errors !== null) {
+    const details = Object.values(body.errors as Record<string, string[]>)
+      .flat()
+      .filter(Boolean)
+      .join(". ")
+
+    if (details) return `${baseMessage}: ${details}`
+  }
+
+  return baseMessage
 }

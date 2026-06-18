@@ -62,7 +62,7 @@ export function useEditDepartemen(id: string, breadcrumbTitle = "Edit Departemen
         setDepartments(deptList)
         setDepartemen(data)
         setForm({
-          tujuan: data.tujuan,
+          tujuan: data.tujuan ?? data.fullName ?? "",
           shortName: data.shortName,
           printColumnName: data.printColumnName ?? "",
           printColumnMode: inferPrintColumnMode(data, deptList),
@@ -122,10 +122,10 @@ export function useEditDepartemen(id: string, breadcrumbTitle = "Edit Departemen
       const json = await res.json().catch(() => null)
 
       if (!res.ok) {
-        throw new Error(json?.error ?? "Gagal menyimpan departemen")
+        throw new Error(getApiMessage(json, "Gagal menyimpan departemen"))
       }
 
-      toast.success("Departemen berhasil diupdate")
+      toast.success(json?.message ?? "Data departemen berhasil diubah")
       router.push("/admin/departemen")
     } catch (err) {
       toast.error(getErrorMessage(err, "Gagal menyimpan departemen"))
@@ -138,4 +138,25 @@ export function useEditDepartemen(id: string, breadcrumbTitle = "Edit Departemen
     state: { departemen, departments, form, loading, saving },
     actions: { setForm, submit, cancel },
   }
+}
+
+function getApiMessage(json: unknown, fallback: string): string {
+  if (typeof json !== "object" || json === null) return fallback
+  const body = json as { message?: unknown; error?: unknown; errors?: unknown }
+  const baseMessage = typeof body.message === "string"
+    ? body.message
+    : typeof body.error === "string"
+      ? body.error
+      : fallback
+
+  if (typeof body.errors === "object" && body.errors !== null) {
+    const details = Object.values(body.errors as Record<string, string[]>)
+      .flat()
+      .filter(Boolean)
+      .join(". ")
+
+    if (details) return `${baseMessage}: ${details}`
+  }
+
+  return baseMessage
 }
