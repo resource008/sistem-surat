@@ -11,6 +11,7 @@ function toIso(value: unknown) {
 
 function serializeSurat(row: Record<string, unknown>) {
   const dept = row.dept as Record<string, unknown> | undefined
+  const deptShortName = String(dept?.shortName ?? row.deptId)
 
   return {
     id:            Number(row.id),
@@ -18,10 +19,10 @@ function serializeSurat(row: Record<string, unknown>) {
     deptId:        String(row.deptId),
     tanggalTerima: toIso(row.tanggalTerima),
     asalSurat:     String(row.asalSurat ?? ""),
-    tujuan:        String(row.tujuan ?? ""),
+    tujuan:        deptShortName,
     dept: {
       id:        String(dept?.id ?? row.deptId),
-      shortName: String(dept?.shortName ?? row.deptId),
+      shortName: deptShortName,
     },
     detailSurat: (row.detailSurat as Record<string, unknown>[]).map((detail) => ({
       id:           Number(detail.id),
@@ -29,7 +30,7 @@ function serializeSurat(row: Record<string, unknown>) {
       noSurat:      detail.noSurat  === null || detail.noSurat  === undefined ? null : String(detail.noSurat),
       lampiran:     detail.lampiran === null || detail.lampiran === undefined ? null : String(detail.lampiran),
       tanggalSurat: toIso(detail.tanggalSurat),
-      tujuan:       detail.tujuan === null || detail.tujuan === undefined ? null : String(detail.tujuan),
+      tujuan:       deptShortName,
     })),
   }
 }

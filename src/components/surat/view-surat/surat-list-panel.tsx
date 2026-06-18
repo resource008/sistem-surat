@@ -27,13 +27,12 @@ export function SuratListPanel({ register }: Props) {
       {register.detailSurat.map((detail, idx) => (
         <div key={detail.id}
           className="rounded-2xl border border-slate-200 dark:border-slate-800
-                     bg-white dark:bg-slate-950 overflow-hidden shadow-sm shrink-0">
+                     bg-white dark:bg-slate-950 overflow-hidden shrink-0">
 
           <div className="flex items-center gap-2.5 px-5 py-3
-                          bg-slate-50/80 dark:bg-slate-900/80
+                          bg-slate-50 dark:bg-slate-900
                           border-b border-slate-200 dark:border-slate-800">
-            <span className="text-[12px] font-bold text-slate-700 dark:text-slate-300
-                             uppercase tracking-wider">
+            <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">
               Surat {idx + 1}
             </span>
           </div>

@@ -123,8 +123,8 @@ export function useUserActions(onSuccess?: () => void) {
           body:    JSON.stringify(body),
         })
         const json = await res.json()
-        if (!res.ok) throw new Error(flattenError(json.error))
-        toast.success("User berhasil dibuat")
+        if (!res.ok) throw new Error(getApiMessage(json, "Gagal membuat user"))
+        toast.success(json.message ?? "Akun berhasil ditambahkan")
         onSuccess?.()
         return { success: true, data: json as User }
       } catch (err) {
@@ -152,8 +152,8 @@ export function useUserActions(onSuccess?: () => void) {
           body:    JSON.stringify(body),
         })
         const json = await res.json()
-        if (!res.ok) throw new Error(flattenError(json.error))
-        toast.success("User berhasil diupdate")
+        if (!res.ok) throw new Error(getApiMessage(json, "Gagal mengupdate user"))
+        toast.success(json.message ?? "Data akun berhasil diubah")
         onSuccess?.()
         return { success: true, data: json as User }
       } catch (err) {
@@ -173,8 +173,8 @@ export function useUserActions(onSuccess?: () => void) {
       try {
         const res  = await fetch(`/api/users/${id}`, { method: "DELETE" })
         const json = await res.json()
-        if (!res.ok) throw new Error(json.error ?? "Gagal menghapus user")
-        toast.success("User berhasil dihapus")
+        if (!res.ok) throw new Error(getApiMessage(json, "Gagal menghapus user"))
+        toast.success(json.message ?? "Akun berhasil dihapus")
         onSuccess?.()
         return { success: true }
       } catch (err) {
@@ -193,10 +193,23 @@ export function useUserActions(onSuccess?: () => void) {
 
 // ── Util ──────────────────────────────────────────────────────
 
+function getApiMessage(json: unknown, fallback: string): string {
+  if (typeof json !== "object" || json === null) return fallback
+
+  const body = json as { message?: unknown; error?: unknown; errors?: unknown }
+  const fieldMessage = flattenError(body.errors)
+  const baseMessage = typeof body.message === "string"
+    ? body.message
+    : flattenError(body.error)
+
+  if (fieldMessage) return `${baseMessage || fallback}: ${fieldMessage}`
+  return baseMessage || fallback
+}
+
 function flattenError(error: unknown): string {
   if (typeof error === "string") return error
   if (typeof error === "object" && error !== null) {
-    return Object.values(error as Record<string, string[]>).flat().join(". ")
+    return Object.values(error as Record<string, string[]>).flat().filter(Boolean).join(". ")
   }
-  return "Terjadi kesalahan validasi"
+  return ""
 }

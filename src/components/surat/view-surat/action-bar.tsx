@@ -16,10 +16,8 @@ export function ViewActionBar({
   return (
     <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-30">
       <div className="inline-flex items-center gap-1 p-1.5 rounded-2xl
-                      border border-slate-200/80 dark:border-slate-700/60
-                      bg-white/90 dark:bg-slate-950/90
-                      backdrop-blur-xl shadow-2xl
-                      shadow-slate-900/10 dark:shadow-black/50">
+                      border border-slate-200 dark:border-slate-700
+                      bg-white dark:bg-slate-950">
 
         <Button variant="ghost" onClick={onBack}
           className="gap-2 h-10 px-4 rounded-xl text-[13px] font-medium

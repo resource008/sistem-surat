@@ -24,10 +24,10 @@ export default function EditSuratPage({ role, basePath }: Props) {
   if (state.error || !state.original) {
     return (
       <div className="flex h-full w-full flex-col items-center justify-center gap-3">
-        <div className="w-10 h-10 rounded-2xl bg-red-50 dark:bg-red-900/20 flex items-center justify-center">
-          <AlertTriangle className="h-5 w-5 text-red-400" />
+        <div className="w-10 h-10 rounded-2xl bg-slate-100 dark:bg-slate-900 flex items-center justify-center">
+          <AlertTriangle className="h-5 w-5 text-slate-500 dark:text-slate-400" />
         </div>
-        <p className="text-[13px] text-red-400 font-medium">{state.error ?? "Data tidak ditemukan"}</p>
+        <p className="text-[13px] text-slate-500 dark:text-slate-400 font-medium">{state.error ?? "Data tidak ditemukan"}</p>
       </div>
     )
   }
