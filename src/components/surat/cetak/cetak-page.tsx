@@ -52,12 +52,11 @@ function CetakContent({
     const groupLabels = groups
       .map((group) => group.label)
       .filter((label): label is string => Boolean(label))
-      .filter((label) => label.trim().toUpperCase() !== ALL_TAB)
 
-    return [ALL_TAB, ...Array.from(new Set(groupLabels))]
+    return Array.from(new Set(groupLabels))
   }, [groups])
   const effectiveActiveTab = tabLabels.includes(activeTab) ? activeTab : tabLabels[0] ?? ""
-  const visibleGroups = effectiveActiveTab && effectiveActiveTab !== ALL_TAB
+  const visibleGroups = effectiveActiveTab
     ? groups.filter((group) => group.label === effectiveActiveTab)
     : groups
   const totalSurat = cleared

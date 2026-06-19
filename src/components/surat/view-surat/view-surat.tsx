@@ -54,7 +54,7 @@ export default function ViewSuratPage({ role, basePath }: Props) {
 
   /* Fetch --------------------------------------------------------- */
   useEffect(() => {
-    fetch(`/api/surat/${dept}/${id}`)
+    fetch(`/api/surat/${dept}/${id}?includeColumns=true`)
       .then(r => { if (!r.ok) throw new Error("Data tidak ditemukan"); return r.json() })
       .then(data => {
         setRegister(data)

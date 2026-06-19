@@ -52,7 +52,7 @@ export function useCetakData(idsParam: string): UseCetakDataReturn {
     setLoading(true)
     setError(null)
 
-    fetch(`/api/cetak/all?ids=${encodeURIComponent(ids)}`)
+    fetch(`/api/cetak/all?ids=${encodeURIComponent(ids)}&includeColumns=true`)
       .then(async r => {
         if (r.status === 401) throw new Error("Sesi habis, silakan login ulang")
         if (!r.ok) {

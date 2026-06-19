@@ -174,6 +174,24 @@ function serializeSurat(
 // ─── Repository ───────────────────────────────────────────────────────────────
 
 export class SuratRepository implements ISuratRepository {
+  private async findActiveDepartmentByRef(reference: string) {
+    if (!reference?.trim()) return null
+
+    return prisma.department.findFirst({
+      where: {
+        isActive: true,
+        OR: [
+          { id: reference },
+          { shortName: reference },
+        ],
+      },
+      select: {
+        id: true,
+        shortName: true,
+      },
+    })
+  }
+
   private async ensureCustomFieldColumns(tx: Prisma.TransactionClient | typeof prisma = prisma) {
     await tx.$executeRawUnsafe(`
       ALTER TABLE detail_surat
@@ -338,14 +356,11 @@ export class SuratRepository implements ISuratRepository {
 
   async findByIdAndDept(id: number, dept: string): Promise<SuratResult | null> {
     await this.ensureCustomFieldColumns()
-    const department = await prisma.department.findUnique({
-      where: { id: dept },
-      select: { shortName: true, isActive: true },
-    })
-    if (!department?.isActive) return null
+    const department = await this.findActiveDepartmentByRef(dept)
+    if (!department) return null
 
     const row = await prisma.registerSurat.findFirst({
-      where:   { id, deptId: dept, dept: { is: { isActive: true } } },
+      where:   { id, deptId: department.id, dept: { is: { isActive: true } } },
       include: { dept: { select: deptSelect }, detailSurat: true },
     })
     if (!row) return null
@@ -356,13 +371,11 @@ export class SuratRepository implements ISuratRepository {
 
   async create(payload: CreateSuratPayload): Promise<SuratResult> {
     await this.ensureCustomFieldColumns()
-    const { deptId, asalSurat, tanggalTerima, suratList } = payload
+    const { deptId: deptRef, asalSurat, tanggalTerima, suratList } = payload
 
-    const dept = await prisma.department.findUnique({
-      where:  { id: deptId },
-      select: { shortName: true, isActive: true },
-    })
-    if (!dept?.isActive) throw new AppError(404, "Departemen tidak ditemukan. Hubungi administrator untuk menambahkannya.")
+    const dept = await this.findActiveDepartmentByRef(deptRef)
+    if (!dept) throw new AppError(404, "Departemen tidak ditemukan. Hubungi administrator untuk menambahkannya.")
+    const deptId = dept.id
     const tujuan = dept.shortName
     const departmentColumns = await this.loadDepartmentColumns([deptId])
     const currentDepartmentColumns = departmentColumns[deptId] ?? []
@@ -402,25 +415,21 @@ export class SuratRepository implements ISuratRepository {
 
   async update(id: number, dept: string, payload: UpdateSuratPayload): Promise<SuratResult> {
   await this.ensureCustomFieldColumns()
-  const { deptId, asalSurat, tanggalTerima, suratList } = payload
-  const nextDeptId = deptId ?? dept
-  const currentDepartment = await prisma.department.findUnique({
-    where: { id: dept },
-    select: { shortName: true, isActive: true },
-  })
-  const department = await prisma.department.findUnique({
-    where:  { id: nextDeptId },
-    select: { shortName: true, isActive: true },
-  })
-  if (!currentDepartment?.isActive) throw new AppError(404, "Departemen tidak ditemukan. Hubungi administrator untuk menambahkannya.")
-  if (!department?.isActive) throw new AppError(404, "Departemen tidak ditemukan. Hubungi administrator untuk menambahkannya.")
+  const { deptId: nextDeptRef, asalSurat, tanggalTerima, suratList } = payload
+  const currentDepartment = await this.findActiveDepartmentByRef(dept)
+  if (!currentDepartment) throw new AppError(404, "Departemen tidak ditemukan. Hubungi administrator untuk menambahkannya.")
+  const department = await this.findActiveDepartmentByRef(nextDeptRef ?? currentDepartment.id)
+  if (!department) throw new AppError(404, "Departemen tidak ditemukan. Hubungi administrator untuk menambahkannya.")
+  const currentDeptId = currentDepartment.id
+  const nextDeptId = department.id
+  const isDeptChanged = nextDeptId !== currentDeptId
   const tujuan = department.shortName
   const departmentColumns = await this.loadDepartmentColumns([nextDeptId])
   const currentDepartmentColumns = departmentColumns[nextDeptId] ?? []
 
   return prisma.$transaction(async (tx) => {
     const currentRegister = await tx.registerSurat.findFirst({
-      where: { id, deptId: dept, dept: { is: { isActive: true } } },
+      where: { id, deptId: currentDeptId, dept: { is: { isActive: true } } },
       select: { id: true },
     })
 
@@ -429,14 +438,14 @@ export class SuratRepository implements ISuratRepository {
     }
 
     // Generate nomor baru jika dept berubah
-    const nomor = deptId && deptId !== dept
-      ? await this._generateNomor(tx, deptId)
+    const nomor = isDeptChanged
+      ? await this._generateNomor(tx, nextDeptId)
       : undefined
 
     const row = await tx.registerSurat.update({
       where: { id },
       data: {
-        ...(deptId && { dept: { connect: { id: deptId } } }),
+        ...(isDeptChanged && { dept: { connect: { id: nextDeptId } } }),
         ...(nomor  && { nomor }),
         asalSurat,
         tujuan,
@@ -470,8 +479,11 @@ export class SuratRepository implements ISuratRepository {
 }
 
   async delete(id: number, dept: string): Promise<void> {
+    const department = await this.findActiveDepartmentByRef(dept)
+    if (!department) throw new AppError(404, "Data tidak ditemukan")
+
     const result = await prisma.registerSurat.deleteMany({
-      where: { id, deptId: dept, dept: { is: { isActive: true } } },
+      where: { id, deptId: department.id, dept: { is: { isActive: true } } },
     })
 
     if (result.count === 0) {
@@ -480,20 +492,17 @@ export class SuratRepository implements ISuratRepository {
   }
 
   async getPreviewNomor(deptId: string): Promise<string> {
-    const dept = await prisma.department.findUnique({
-      where:  { id: deptId },
-      select: { shortName: true, isActive: true },
-    })
-    if (!dept?.isActive) throw new Error(`NOT_FOUND: Departemen '${deptId}' tidak ditemukan`)
+    const dept = await this.findActiveDepartmentByRef(deptId)
+    if (!dept) throw new Error(`NOT_FOUND: Departemen '${deptId}' tidak ditemukan`)
 
     const [last, counter] = await Promise.all([
       prisma.registerSurat.findFirst({
-        where:   { deptId },
+        where:   { deptId: dept.id },
         orderBy: { nomor: "desc" },
         select:  { nomor: true },
       }),
       prisma.nomorCounter.findUnique({
-        where: { deptId },
+        where: { deptId: dept.id },
         select: { counter: true },
       }),
     ])

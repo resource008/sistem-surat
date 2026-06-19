@@ -67,7 +67,7 @@ export function useEditSurat(basePath: string) {
   }, [])
 
   useEffect(() => {
-    fetch(`/api/surat/${dept}/${id}`)
+    fetch(`/api/surat/${dept}/${id}?includeColumns=true`)
       .then(async (res) => {
         if (!res.ok) throw new Error("Gagal mengambil data")
         return res.json()
