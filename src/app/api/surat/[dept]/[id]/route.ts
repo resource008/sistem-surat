@@ -23,9 +23,22 @@ function parseId(raw: string): number | null {
   return isNaN(n) ? null : n
 }
 
+function compactSuratResponse(data: Awaited<ReturnType<typeof fetchSuratById>>) {
+  if (!data) return data
+
+  return {
+    ...data,
+    dept: {
+      id:              data.dept.id,
+      shortName:       data.dept.shortName,
+      printColumnName: data.dept.printColumnName,
+    },
+  }
+}
+
 // ─── GET /api/surat/[dept]/[id] ───────────────────────────────────────────────
 
-export async function GET(_req: NextRequest, { params }: Params) {
+export async function GET(req: NextRequest, { params }: Params) {
   try {
     const session = await getSession()
     if (!session) {
@@ -43,7 +56,8 @@ export async function GET(_req: NextRequest, { params }: Params) {
       return NextResponse.json({ message: "Data tidak ditemukan" }, { status: 404 })
     }
 
-    return NextResponse.json(data)
+    const includeColumns = req.nextUrl.searchParams.get("includeColumns") === "true"
+    return NextResponse.json(includeColumns ? data : compactSuratResponse(data))
   } catch (error) {
     if (error instanceof Error) console.error("GET /api/surat/[dept]/[id]:", error.message)
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })

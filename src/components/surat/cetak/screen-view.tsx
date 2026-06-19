@@ -20,12 +20,9 @@ function useSidebarSafe() {
   catch { return { state: "collapsed" as const, isMobile: false } }
 }
 
-function getGroupTitle(group: CetakGroup, activeFilter: string) {
-  if (activeFilter.toUpperCase() === "ALL") {
-    return `${format(new Date(group.date), "dd MMMM yyyy", { locale: id })} (${group.dept})`
-  }
-
-  return group.label
+function getGroupTitle(group: CetakGroup) {
+  const date = format(new Date(group.date), "dd MMMM yyyy", { locale: id }).toUpperCase()
+  return `${date} (${group.label || group.dept})`
 }
 
 export function CetakScreenView({ groups, activeFilter, tabs, onTabChange, onBersihkan }: Props) {
@@ -38,7 +35,7 @@ export function CetakScreenView({ groups, activeFilter, tabs, onTabChange, onBer
           <div key={group.key} className="overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
             <div className="flex items-center gap-2 border-b border-slate-100 px-4 py-3 dark:border-slate-800/60">
               <span className="text-[13px] font-extrabold uppercase tracking-wide text-slate-800 dark:text-white md:text-[14px]">
-                {getGroupTitle(group, activeFilter)}
+                {getGroupTitle(group)}
               </span>
             </div>
             <MobileList group={group} />

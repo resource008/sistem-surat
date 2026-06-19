@@ -497,19 +497,25 @@ export class DepartemenRepository {
         SELECT id, is_active AS "isActive"
         FROM departments
         WHERE short_name = $1
-        LIMIT 1
+        ORDER BY is_active DESC, id ASC
       `,
       input.shortName
     )
-    const existing = existingRows[0]
+    const activeExisting = existingRows.find((row) => row.isActive)
+    const reusableExisting = existingRows.find((row) =>
+      !row.isActive && this.getSimpleDepartmentNumber(row.id) !== null
+    )
+    const staleRandomExisting = existingRows.filter((row) =>
+      !row.isActive && this.getSimpleDepartmentNumber(row.id) === null
+    )
 
-    if (existing?.isActive) {
+    if (activeExisting) {
       throw new AppError(409, "Singkatan departemen sudah digunakan")
     }
 
-    await this.ensureUniquePrintStructure(printColumnName, columns, existing?.id)
+    await this.ensureUniquePrintStructure(printColumnName, columns, reusableExisting?.id)
 
-    if (existing) {
+    if (reusableExisting) {
       await prisma.$transaction(async (tx) => {
         await tx.$executeRawUnsafe(
           `
@@ -521,20 +527,33 @@ export class DepartemenRepository {
               is_active = true
             WHERE id = $1
           `,
-          existing.id,
+          reusableExisting.id,
           input.shortName,
           input.tujuan,
           printColumnName
         )
-        await this.saveColumns(tx, existing.id, input, columns)
+        await this.saveColumns(tx, reusableExisting.id, input, columns)
       })
-      return this.findById(existing.id)
+      return this.findById(reusableExisting.id)
     }
 
     let departmentId = ""
     for (let attempt = 0; attempt < 5; attempt += 1) {
       try {
         departmentId = await prisma.$transaction(async (tx) => {
+          for (const stale of staleRandomExisting) {
+            await tx.$executeRawUnsafe(
+              `
+                UPDATE departments
+                SET short_name = $2
+                WHERE id = $1
+                  AND is_active = false
+              `,
+              stale.id,
+              `${input.shortName}_INACTIVE_${createRandomId().replace(/-/g, "").slice(0, 8)}`
+            )
+          }
+
           const nextDepartmentId = await this.createDepartmentId(tx)
           await this.insertDepartment(tx, nextDepartmentId, nameColumn, input, printColumnName)
           await this.saveColumns(tx, nextDepartmentId, input, columns)
