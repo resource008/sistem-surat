@@ -1,6 +1,6 @@
 import type { TipeWaktuStatistik } from "@/domain/admin-dashboard/types"
 
-export const DEFAULT_STATS_DEPT_ID = "ENG"
+export const DEFAULT_STATS_DEPT_ID = ""
 
 export const STATISTIC_TIME_OPTIONS: { value: TipeWaktuStatistik; label: string }[] = [
   { value: "mingguan", label: "Mingguan" },

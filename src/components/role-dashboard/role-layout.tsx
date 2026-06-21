@@ -195,7 +195,7 @@ function RoleLayoutInner({ role, children }: Props) {
   }
 
   function handleBreadcrumbParentClick() {
-    router.push(isCetakPage ? `${base}/cetak/all` : `${base}/data-surat`)
+    router.push(isCetakPage ? `${base}/cetak` : `${base}/data-surat`)
   }
 
   if (!isMounted) return <div className="min-h-screen bg-background" />

@@ -52,7 +52,7 @@ export function RoleSidebar({
 
   const navItems = [
     { label: "Data Surat", icon: FileText, href: `${base}/data-surat`, permission: null },
-    { label: "Cetak", icon: Printer, href: `${base}/cetak/all`, permission: "canPrint" },
+    { label: "Cetak", icon: Printer, href: `${base}/cetak`, permission: "canPrint" },
     { label: "Track Surat", icon: RefreshCcw, href: `${base}/track`, permission: "canTrack" },
   ]
 

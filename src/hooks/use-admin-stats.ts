@@ -14,14 +14,14 @@ const fetcher = async (url: string) => {
 
 function buildAdminStatsUrl(params: AdminStatsParams) {
   const searchParams = new URLSearchParams({
-    deptId:    params.deptId,
     tipeWaktu: params.tipeWaktu,
   })
 
+  if (params.deptId) searchParams.set("deptId", params.deptId)
   if (params.bulan !== undefined) searchParams.set("bulan", String(params.bulan))
   if (params.tahun !== undefined) searchParams.set("tahun", String(params.tahun))
 
-  return `/api/admin/stats?${searchParams.toString()}`
+  return `/api/admin/dashboard?${searchParams.toString()}`
 }
 
 export function useAdminStats(params: AdminStatsParams) {
