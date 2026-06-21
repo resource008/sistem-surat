@@ -3,18 +3,22 @@
 import type { RegisterSurat } from "@/types/surat-types"
 import { useEffect, useState } from "react"
 
-const CETAK_IDS_KEY_ALL = "cetak:ids:all"
+const CETAK_IDS_KEY = "cetak:ids"
 
 function isClient() { return typeof window !== "undefined" }
 
 export function clearCetakSession() {
   if (!isClient()) return
-  try { sessionStorage.removeItem(CETAK_IDS_KEY_ALL) } catch {}
+  try {
+    sessionStorage.removeItem(CETAK_IDS_KEY)
+  } catch {}
 }
 
 export function getCetakIds(): string {
   if (!isClient()) return ""
-  try { return sessionStorage.getItem(CETAK_IDS_KEY_ALL) ?? "" } catch { return "" }
+  try {
+    return sessionStorage.getItem(CETAK_IDS_KEY) ?? ""
+  } catch { return "" }
 }
 
 interface UseCetakDataReturn {
@@ -23,7 +27,7 @@ interface UseCetakDataReturn {
   error   : string | null
 }
 
-export function useCetakData(idsParam: string): UseCetakDataReturn {
+export function useCetakData(idsParam: string, printSheetName: string): UseCetakDataReturn {
   const [data,    setData]    = useState<RegisterSurat[]>([])
   const [loading, setLoading] = useState(true)
   const [error,   setError]   = useState<string | null>(null)
@@ -34,9 +38,11 @@ export function useCetakData(idsParam: string): UseCetakDataReturn {
     let ids   = idsParam
 
     if (ids) {
-      try { sessionStorage.setItem(CETAK_IDS_KEY_ALL, ids) } catch {}
+      try { sessionStorage.setItem(CETAK_IDS_KEY, ids) } catch {}
     } else {
-      try { ids = sessionStorage.getItem(CETAK_IDS_KEY_ALL) ?? "" } catch {}
+      try {
+        ids = sessionStorage.getItem(CETAK_IDS_KEY) ?? ""
+      } catch {}
     }
 
     window.dispatchEvent(new CustomEvent("cetak:ids-ready", {
@@ -52,7 +58,11 @@ export function useCetakData(idsParam: string): UseCetakDataReturn {
     setLoading(true)
     setError(null)
 
-    fetch(`/api/cetak/all?ids=${encodeURIComponent(ids)}&includeColumns=true`)
+    const sheetPath = printSheetName.trim()
+      ? `/${encodeURIComponent(printSheetName)}`
+      : ""
+
+    fetch(`/api/cetak${sheetPath}?ids=${encodeURIComponent(ids)}&includeColumns=true`)
       .then(async r => {
         if (r.status === 401) throw new Error("Sesi habis, silakan login ulang")
         if (!r.ok) {
@@ -73,7 +83,7 @@ export function useCetakData(idsParam: string): UseCetakDataReturn {
       .finally(() => { if (!cancelled) setLoading(false) })
 
     return () => { cancelled = true }
-  }, [idsParam])
+  }, [idsParam, printSheetName])
 
   return { data, loading, error }
 }

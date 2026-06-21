@@ -2,7 +2,7 @@ import type { CetakGroup, DetailSurat, RegisterSurat } from "@/types/surat-types
 import type { DepartemenColumn } from "@/types/departemen"
 import { format } from "date-fns"
 import { id } from "date-fns/locale"
-import { formatCustomFieldValue, getSuratBuiltInFieldValue } from "@/domain/surat/custom-fields"
+import { formatCustomFieldValue, getCustomFieldValue, getSuratBuiltInFieldValue } from "@/domain/surat/custom-fields"
 
 const DEFAULT_ORDER = [
   "default_nomor_register",
@@ -26,7 +26,7 @@ function normalizePrintColumns(columns?: DepartemenColumn[]) {
 }
 
 function getPrintGroupLabel(reg: RegisterSurat) {
-  const label = reg.dept?.printColumnName?.trim()
+  const label = reg.dept?.printSheetName?.trim()
   return label || reg.dept?.shortName || ""
 }
 
@@ -88,7 +88,7 @@ export function getCetakColumnValue(
   const builtInValue = getSuratBuiltInFieldValue(column, detail as unknown as Record<string, unknown>)
   if (builtInValue !== null) return builtInValue
 
-  return formatCustomFieldValue(column, detail.customFields?.[column.id])
+  return formatCustomFieldValue(column, getCustomFieldValue(column, detail.customFields))
 }
 
 export function groupCetakData(data: RegisterSurat[]): CetakGroup[] {

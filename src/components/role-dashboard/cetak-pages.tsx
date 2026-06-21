@@ -3,10 +3,14 @@
 import { CetakPageContent } from "@/components/surat/cetak/cetak-page"
 import { CetakPrintView } from "@/components/surat/cetak/print-view"
 
-export function RoleCetakAllPage() {
+interface RoleCetakPageProps {
+  printSheetName: string
+}
+
+export function RoleCetakPage({ printSheetName }: RoleCetakPageProps) {
   return (
     <CetakPageContent
-      activeFilter="ALL"
+      printSheetName={printSheetName}
       PrintView={CetakPrintView}
     />
   )

@@ -22,7 +22,7 @@ function useSidebarSafe() {
 
 function getGroupTitle(group: CetakGroup) {
   const date = format(new Date(group.date), "dd MMMM yyyy", { locale: id }).toUpperCase()
-  return `${date} (${group.label || group.dept})`
+  return `${date} (${group.dept || group.label})`
 }
 
 export function CetakScreenView({ groups, activeFilter, tabs, onTabChange, onBersihkan }: Props) {
@@ -149,6 +149,8 @@ function DesktopTable({ group }: { group: CetakGroup }) {
 }
 
 function FloatingFilterTab({ activeFilter, tabs, onTabChange, sidebarState, isMobile }: any) {
+  if (!tabs.length) return null
+
   const sidebarOffset = isMobile
     ? "0px"
     : sidebarState === "expanded"

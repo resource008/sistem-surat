@@ -1,5 +1,1 @@
-import { redirect } from "next/navigation"
-
-export default function CetakPage() {
-  redirect("/staff/cetak/all")
-}
+export { DefaultCetakPage as default } from "@/app/(dashboard)/cetak-print-sheet-page"

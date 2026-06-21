@@ -27,57 +27,18 @@ function parseIds(idsParam: string | null) {
   return ids.slice(0, MAX_IDS)
 }
 
-function filterByPrintColumnName(data: SuratResult[], printColumnName: string) {
-  const normalized = printColumnName.trim().toLowerCase()
-
-  return data.filter((item) =>
-    (item.dept.printColumnName ?? "").trim().toLowerCase() === normalized
-  )
-}
-
 function compactCetakResponse(data: SuratResult[]) {
   return data.map((item) => ({
     ...item,
     dept: {
       id:              item.dept.id,
       shortName:       item.dept.shortName,
-      printColumnName: item.dept.printColumnName,
+      printSheetName: item.dept.printSheetName,
     },
   }))
 }
 
-export async function getCetakByPrintColumnName(req: Request, printColumnName: string) {
-  try {
-    await requireUserPermission("canPrint")
-
-    const { searchParams } = new URL(req.url)
-    const ids = parseIds(searchParams.get("ids"))
-    const includeColumns = searchParams.get("includeColumns") === "true"
-
-    if (ids.length === 0) {
-      return NextResponse.json([])
-    }
-
-    const result = await repository.findAll(null, ids)
-    const data = isPaginatedResult(result) ? result.data : result
-    const filteredData = filterByPrintColumnName(data, printColumnName)
-
-    return NextResponse.json(includeColumns ? filteredData : compactCetakResponse(filteredData))
-  } catch (error) {
-    if (error instanceof AppError) {
-      return NextResponse.json({ error: error.message }, { status: error.status })
-    }
-
-    const message = error instanceof Error ? error.message : "Unknown error"
-
-    return NextResponse.json({
-      error : `Gagal mengambil data cetak ${printColumnName}`,
-      detail: process.env.NODE_ENV === "development" ? message : undefined,
-    }, { status: 500 })
-  }
-}
-
-export async function getAllCetak(req: Request) {
+async function getCetakData(req: Request, printSheetName = "") {
   try {
     await requireUserPermission("canPrint")
 
@@ -99,10 +60,15 @@ export async function getAllCetak(req: Request) {
     }
 
     const message = error instanceof Error ? error.message : "Unknown error"
+    const sheetLabel = printSheetName.trim() || "default"
 
     return NextResponse.json({
-      error : "Gagal mengambil semua data cetak",
+      error : `Gagal mengambil data cetak ${sheetLabel}`,
       detail: process.env.NODE_ENV === "development" ? message : undefined,
     }, { status: 500 })
   }
+}
+
+export async function GET(req: Request) {
+  return getCetakData(req)
 }

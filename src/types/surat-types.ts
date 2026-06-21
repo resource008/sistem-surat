@@ -21,7 +21,7 @@ export interface RegisterSurat {
   dept: {
     id: string
     shortName: string
-    printColumnName?: string
+    printSheetName?: string
     columns?: DepartemenColumn[]
     displayColumns?: DepartemenColumn[]
   }

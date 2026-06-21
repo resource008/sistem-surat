@@ -101,11 +101,26 @@ export function getCustomFieldInputValue(
   column: DepartemenColumn,
   item: { customFields?: Record<string, string> } & Partial<Record<SuratBuiltInColumnKey, unknown>>
 ) {
-  const customValue = item.customFields?.[column.id]
+  const customValue = getCustomFieldValue(column, item.customFields)
   if (customValue !== undefined) return customValue
 
   const builtInKey = getSuratBuiltInColumnKey(column)
   return builtInKey ? String(item[builtInKey] ?? "") : ""
+}
+
+export function getCustomFieldValue(column: DepartemenColumn, values?: Record<string, string>) {
+  if (!values) return undefined
+
+  const directValue = values[column.id] ?? values[column.label]
+
+  const columnLabel = normalizeColumnLabel(column.label)
+  const matchingEntry = Object.entries(values).find(([key]) => {
+    const normalizedKey = normalizeColumnLabel(key)
+    return normalizedKey === columnLabel || normalizedKey.endsWith(` ${columnLabel}`)
+  })
+
+  if (directValue?.trim()) return directValue
+  return matchingEntry?.[1] ?? directValue
 }
 
 export function formatCustomFieldValue(column: DepartemenColumn, value?: string) {

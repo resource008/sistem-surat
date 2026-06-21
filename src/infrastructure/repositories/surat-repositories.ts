@@ -5,12 +5,13 @@ import type { ISuratRepository, SuratResult, PaginatedResult } from "@/domain/su
 import type { CreateSuratPayload, UpdateSuratPayload }         from "@/domain/surat/types"
 import type { DepartemenColumn, DepartemenColumnType, RegisterSurat } from "@/types"
 import { DEFAULT_DEPARTEMEN_COLUMNS } from "@/types"
-import { getCustomFieldInputValue, getSuratBuiltInColumnKey } from "@/domain/surat/custom-fields"
+import { getCustomFieldInputValue, getCustomFieldValue, getSuratBuiltInColumnKey } from "@/domain/surat/custom-fields"
+import { formatRegisterNumber } from "@/lib/format-register-number"
 
 const deptSelect = {
   id:              true,
   shortName:       true,
-  printColumnName: true,
+  printSheetName: true,
 } as const
 
 type CustomFieldsMap = Record<number, Record<string, string>>
@@ -30,7 +31,7 @@ function normalizeCustomFields(value: unknown): Record<string, string> {
 function getDynamicDetailValue(columns: DepartemenColumn[], customFields: Record<string, string>, key: ReturnType<typeof getSuratBuiltInColumnKey>) {
   if (!key) return ""
   const column = columns.find((item) => getSuratBuiltInColumnKey(item) === key)
-  return column ? customFields[column.id] ?? "" : ""
+  return column ? getCustomFieldValue(column, customFields) ?? "" : ""
 }
 
 function getFirstCustomFieldValue(customFields: Record<string, string>) {
@@ -142,12 +143,12 @@ function serializeSurat(
 
   return {
     id:            Number(row.id),
-    nomor:         String(row.nomor),
+    nomor:         formatRegisterNumber(String(row.nomor)),
     deptId:        String(row.deptId),
     dept: {
       id:              String(dept?.id ?? row.deptId),
       shortName:       deptShortName,
-      printColumnName: String(dept?.printColumnName ?? ""),
+      printSheetName: String(dept?.printSheetName ?? ""),
       columns: departmentColumns[String(dept?.id ?? row.deptId)] ?? [],
       displayColumns: (departmentColumns[String(dept?.id ?? row.deptId)] ?? [])
         .filter((column) => column.showInDataSurat),
@@ -159,6 +160,7 @@ function serializeSurat(
       : String(row.tanggalTerima),
     detailSurat: (row.detailSurat as Record<string, unknown>[])?.map((d) => ({
       id:       Number(d.id),
+      registerId: Number(d.registerId ?? row.id),
       perihal:  String(d.perihal ?? ""),
       noSurat:  d.noSurat  === null || d.noSurat  === undefined ? null : String(d.noSurat),
       lampiran: d.lampiran === null || d.lampiran === undefined ? null : String(d.lampiran),
@@ -495,11 +497,10 @@ export class SuratRepository implements ISuratRepository {
     const dept = await this.findActiveDepartmentByRef(deptId)
     if (!dept) throw new Error(`NOT_FOUND: Departemen '${deptId}' tidak ditemukan`)
 
-    const [last, counter] = await Promise.all([
-      prisma.registerSurat.findFirst({
-        where:   { deptId: dept.id },
-        orderBy: { nomor: "desc" },
-        select:  { nomor: true },
+    const [registers, counter] = await Promise.all([
+      prisma.registerSurat.findMany({
+        where:  { deptId: dept.id },
+        select: { nomor: true },
       }),
       prisma.nomorCounter.findUnique({
         where: { deptId: dept.id },
@@ -508,10 +509,10 @@ export class SuratRepository implements ISuratRepository {
     ])
 
     const lastNumber = Math.max(
-      last ? parseInt(last.nomor, 10) : 0,
+      ...registers.map((register) => Number.parseInt(register.nomor, 10)).filter(Number.isFinite),
       counter?.counter ?? 0
     )
-    return String(lastNumber + 1).padStart(4, "0")
+    return formatRegisterNumber(lastNumber + 1)
   }
 
   private async _generateNomor(
@@ -538,6 +539,6 @@ export class SuratRepository implements ISuratRepository {
     )
 
     const next = rows[0]?.counter ?? last + 1
-    return String(next).padStart(4, "0")
+    return formatRegisterNumber(next)
   }
 }
