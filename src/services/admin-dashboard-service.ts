@@ -22,15 +22,15 @@ function toNumber(value: string | null) {
   return Number.isNaN(numberValue) ? undefined : numberValue
 }
 
-function buildStatistikFilter(searchParams: URLSearchParams): StatistikFilter {
+function buildStatistikFilter(searchParams: URLSearchParams, options?: { requireDeptId?: boolean }): StatistikFilter {
   const deptId = searchParams.get("deptId")
 
-  if (!deptId) {
+  if (!deptId && options?.requireDeptId) {
     throw new AppError(400, "deptId wajib diisi")
   }
 
   return {
-    deptId,
+    deptId: deptId ?? "",
     tipeWaktu: normalizeTipeWaktu(searchParams.get("tipeWaktu")),
     bulan: toNumber(searchParams.get("bulan")),
     tahun: toNumber(searchParams.get("tahun")),
@@ -38,6 +38,12 @@ function buildStatistikFilter(searchParams: URLSearchParams): StatistikFilter {
 }
 
 export function fetchAdminDashboardStats(searchParams: URLSearchParams) {
+  const filter = buildStatistikFilter(searchParams, { requireDeptId: true })
+
+  return getAdminDashboardStats(repository, filter)
+}
+
+export function fetchAdminDashboardOverview(searchParams: URLSearchParams) {
   const filter = buildStatistikFilter(searchParams)
 
   return getAdminDashboardStats(repository, filter)
