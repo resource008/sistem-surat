@@ -17,21 +17,21 @@ type ActiveFilter = string
 const ALL_TAB = "ALL"
 
 interface CetakPageContentProps {
-  activeFilter : ActiveFilter
+  printSheetName : ActiveFilter
   PrintView    : React.ComponentType<{ groups: CetakGroup[]; totalSurat: number; printedAt: string }>
   /** Hanya diperlukan jika berbeda dari default (auto-detect dari pathname) */
   basePath?    : string
 }
 
 function CetakContent({
-  activeFilter,
+  printSheetName,
   PrintView,
 }: CetakPageContentProps) {
   const searchParams          = useSearchParams()
   const idsParam              = searchParams.get("ids") ?? ""
-  const { data, loading, error } = useCetakData(idsParam)
+  const { data, loading, error } = useCetakData(idsParam, printSheetName)
   const [cleared, setCleared] = useState(false)
-  const [activeTab, setActiveTab] = useState(activeFilter)
+  const [activeTab, setActiveTab] = useState(printSheetName || ALL_TAB)
 
   useEffect(() => {
     const handler = () => {
