@@ -10,6 +10,6 @@ export type {
   DepartemenColumnMode,
   DepartemenColumnType,
   DepartemenFormState,
-  DepartemenPrintColumnMode,
+  DepartemenPrintSheetMode,
 } from "./departemen"
 export { DEFAULT_DEPARTEMEN_COLUMNS, EMPTY_DEPARTEMEN_FORM } from "./departemen"
