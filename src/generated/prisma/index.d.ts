@@ -6285,7 +6285,7 @@ export namespace Prisma {
     id: string | null
     shortName: string | null
     tujuan: string | null
-    printColumnName: string | null
+    printSheetName: string | null
     isActive: boolean | null
   }
 
@@ -6293,7 +6293,7 @@ export namespace Prisma {
     id: string | null
     shortName: string | null
     tujuan: string | null
-    printColumnName: string | null
+    printSheetName: string | null
     isActive: boolean | null
   }
 
@@ -6301,7 +6301,7 @@ export namespace Prisma {
     id: number
     shortName: number
     tujuan: number
-    printColumnName: number
+    printSheetName: number
     isActive: number
     _all: number
   }
@@ -6311,7 +6311,7 @@ export namespace Prisma {
     id?: true
     shortName?: true
     tujuan?: true
-    printColumnName?: true
+    printSheetName?: true
     isActive?: true
   }
 
@@ -6319,7 +6319,7 @@ export namespace Prisma {
     id?: true
     shortName?: true
     tujuan?: true
-    printColumnName?: true
+    printSheetName?: true
     isActive?: true
   }
 
@@ -6327,7 +6327,7 @@ export namespace Prisma {
     id?: true
     shortName?: true
     tujuan?: true
-    printColumnName?: true
+    printSheetName?: true
     isActive?: true
     _all?: true
   }
@@ -6408,7 +6408,7 @@ export namespace Prisma {
     id: string
     shortName: string
     tujuan: string
-    printColumnName: string
+    printSheetName: string
     isActive: boolean
     _count: DepartmentCountAggregateOutputType | null
     _min: DepartmentMinAggregateOutputType | null
@@ -6433,7 +6433,7 @@ export namespace Prisma {
     id?: boolean
     shortName?: boolean
     tujuan?: boolean
-    printColumnName?: boolean
+    printSheetName?: boolean
     isActive?: boolean
     registerSurat?: boolean | Department$registerSuratArgs<ExtArgs>
     nomorCounter?: boolean | Department$nomorCounterArgs<ExtArgs>
@@ -6445,7 +6445,7 @@ export namespace Prisma {
     id?: boolean
     shortName?: boolean
     tujuan?: boolean
-    printColumnName?: boolean
+    printSheetName?: boolean
     isActive?: boolean
   }, ExtArgs["result"]["department"]>
 
@@ -6453,7 +6453,7 @@ export namespace Prisma {
     id?: boolean
     shortName?: boolean
     tujuan?: boolean
-    printColumnName?: boolean
+    printSheetName?: boolean
     isActive?: boolean
   }, ExtArgs["result"]["department"]>
 
@@ -6461,11 +6461,11 @@ export namespace Prisma {
     id?: boolean
     shortName?: boolean
     tujuan?: boolean
-    printColumnName?: boolean
+    printSheetName?: boolean
     isActive?: boolean
   }
 
-  export type DepartmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "shortName" | "tujuan" | "printColumnName" | "isActive", ExtArgs["result"]["department"]>
+  export type DepartmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "shortName" | "tujuan" | "printSheetName" | "isActive", ExtArgs["result"]["department"]>
   export type DepartmentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     registerSurat?: boolean | Department$registerSuratArgs<ExtArgs>
     nomorCounter?: boolean | Department$nomorCounterArgs<ExtArgs>
@@ -6486,7 +6486,7 @@ export namespace Prisma {
       id: string
       shortName: string
       tujuan: string
-      printColumnName: string
+      printSheetName: string
       isActive: boolean
     }, ExtArgs["result"]["department"]>
     composites: {}
@@ -6917,7 +6917,7 @@ export namespace Prisma {
     readonly id: FieldRef<"Department", 'String'>
     readonly shortName: FieldRef<"Department", 'String'>
     readonly tujuan: FieldRef<"Department", 'String'>
-    readonly printColumnName: FieldRef<"Department", 'String'>
+    readonly printSheetName: FieldRef<"Department", 'String'>
     readonly isActive: FieldRef<"Department", 'Boolean'>
   }
     
@@ -12051,7 +12051,7 @@ export namespace Prisma {
     id: 'id',
     shortName: 'shortName',
     tujuan: 'tujuan',
-    printColumnName: 'printColumnName',
+    printSheetName: 'printSheetName',
     isActive: 'isActive'
   };
 
@@ -12576,7 +12576,7 @@ export namespace Prisma {
     id?: StringFilter<"Department"> | string
     shortName?: StringFilter<"Department"> | string
     tujuan?: StringFilter<"Department"> | string
-    printColumnName?: StringFilter<"Department"> | string
+    printSheetName?: StringFilter<"Department"> | string
     isActive?: BoolFilter<"Department"> | boolean
     registerSurat?: RegisterSuratListRelationFilter
     nomorCounter?: XOR<NomorCounterNullableScalarRelationFilter, NomorCounterWhereInput> | null
@@ -12587,7 +12587,7 @@ export namespace Prisma {
     id?: SortOrder
     shortName?: SortOrder
     tujuan?: SortOrder
-    printColumnName?: SortOrder
+    printSheetName?: SortOrder
     isActive?: SortOrder
     registerSurat?: RegisterSuratOrderByRelationAggregateInput
     nomorCounter?: NomorCounterOrderByWithRelationInput
@@ -12601,7 +12601,7 @@ export namespace Prisma {
     NOT?: DepartmentWhereInput | DepartmentWhereInput[]
     shortName?: StringFilter<"Department"> | string
     tujuan?: StringFilter<"Department"> | string
-    printColumnName?: StringFilter<"Department"> | string
+    printSheetName?: StringFilter<"Department"> | string
     isActive?: BoolFilter<"Department"> | boolean
     registerSurat?: RegisterSuratListRelationFilter
     nomorCounter?: XOR<NomorCounterNullableScalarRelationFilter, NomorCounterWhereInput> | null
@@ -12612,7 +12612,7 @@ export namespace Prisma {
     id?: SortOrder
     shortName?: SortOrder
     tujuan?: SortOrder
-    printColumnName?: SortOrder
+    printSheetName?: SortOrder
     isActive?: SortOrder
     _count?: DepartmentCountOrderByAggregateInput
     _max?: DepartmentMaxOrderByAggregateInput
@@ -12626,7 +12626,7 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"Department"> | string
     shortName?: StringWithAggregatesFilter<"Department"> | string
     tujuan?: StringWithAggregatesFilter<"Department"> | string
-    printColumnName?: StringWithAggregatesFilter<"Department"> | string
+    printSheetName?: StringWithAggregatesFilter<"Department"> | string
     isActive?: BoolWithAggregatesFilter<"Department"> | boolean
   }
 
@@ -13284,7 +13284,7 @@ export namespace Prisma {
     id: string
     shortName: string
     tujuan?: string
-    printColumnName?: string
+    printSheetName?: string
     isActive?: boolean
     registerSurat?: RegisterSuratCreateNestedManyWithoutDeptInput
     nomorCounter?: NomorCounterCreateNestedOneWithoutDeptInput
@@ -13295,7 +13295,7 @@ export namespace Prisma {
     id: string
     shortName: string
     tujuan?: string
-    printColumnName?: string
+    printSheetName?: string
     isActive?: boolean
     registerSurat?: RegisterSuratUncheckedCreateNestedManyWithoutDeptInput
     nomorCounter?: NomorCounterUncheckedCreateNestedOneWithoutDeptInput
@@ -13306,7 +13306,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     shortName?: StringFieldUpdateOperationsInput | string
     tujuan?: StringFieldUpdateOperationsInput | string
-    printColumnName?: StringFieldUpdateOperationsInput | string
+    printSheetName?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     registerSurat?: RegisterSuratUpdateManyWithoutDeptNestedInput
     nomorCounter?: NomorCounterUpdateOneWithoutDeptNestedInput
@@ -13317,7 +13317,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     shortName?: StringFieldUpdateOperationsInput | string
     tujuan?: StringFieldUpdateOperationsInput | string
-    printColumnName?: StringFieldUpdateOperationsInput | string
+    printSheetName?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     registerSurat?: RegisterSuratUncheckedUpdateManyWithoutDeptNestedInput
     nomorCounter?: NomorCounterUncheckedUpdateOneWithoutDeptNestedInput
@@ -13328,7 +13328,7 @@ export namespace Prisma {
     id: string
     shortName: string
     tujuan?: string
-    printColumnName?: string
+    printSheetName?: string
     isActive?: boolean
   }
 
@@ -13336,7 +13336,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     shortName?: StringFieldUpdateOperationsInput | string
     tujuan?: StringFieldUpdateOperationsInput | string
-    printColumnName?: StringFieldUpdateOperationsInput | string
+    printSheetName?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
   }
 
@@ -13344,7 +13344,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     shortName?: StringFieldUpdateOperationsInput | string
     tujuan?: StringFieldUpdateOperationsInput | string
-    printColumnName?: StringFieldUpdateOperationsInput | string
+    printSheetName?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
   }
 
@@ -14010,7 +14010,7 @@ export namespace Prisma {
     id?: SortOrder
     shortName?: SortOrder
     tujuan?: SortOrder
-    printColumnName?: SortOrder
+    printSheetName?: SortOrder
     isActive?: SortOrder
   }
 
@@ -14018,7 +14018,7 @@ export namespace Prisma {
     id?: SortOrder
     shortName?: SortOrder
     tujuan?: SortOrder
-    printColumnName?: SortOrder
+    printSheetName?: SortOrder
     isActive?: SortOrder
   }
 
@@ -14026,7 +14026,7 @@ export namespace Prisma {
     id?: SortOrder
     shortName?: SortOrder
     tujuan?: SortOrder
-    printColumnName?: SortOrder
+    printSheetName?: SortOrder
     isActive?: SortOrder
   }
 
@@ -15492,7 +15492,7 @@ export namespace Prisma {
     id: string
     shortName: string
     tujuan?: string
-    printColumnName?: string
+    printSheetName?: string
     isActive?: boolean
     registerSurat?: RegisterSuratCreateNestedManyWithoutDeptInput
     nomorCounter?: NomorCounterCreateNestedOneWithoutDeptInput
@@ -15502,7 +15502,7 @@ export namespace Prisma {
     id: string
     shortName: string
     tujuan?: string
-    printColumnName?: string
+    printSheetName?: string
     isActive?: boolean
     registerSurat?: RegisterSuratUncheckedCreateNestedManyWithoutDeptInput
     nomorCounter?: NomorCounterUncheckedCreateNestedOneWithoutDeptInput
@@ -15528,7 +15528,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     shortName?: StringFieldUpdateOperationsInput | string
     tujuan?: StringFieldUpdateOperationsInput | string
-    printColumnName?: StringFieldUpdateOperationsInput | string
+    printSheetName?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     registerSurat?: RegisterSuratUpdateManyWithoutDeptNestedInput
     nomorCounter?: NomorCounterUpdateOneWithoutDeptNestedInput
@@ -15538,7 +15538,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     shortName?: StringFieldUpdateOperationsInput | string
     tujuan?: StringFieldUpdateOperationsInput | string
-    printColumnName?: StringFieldUpdateOperationsInput | string
+    printSheetName?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     registerSurat?: RegisterSuratUncheckedUpdateManyWithoutDeptNestedInput
     nomorCounter?: NomorCounterUncheckedUpdateOneWithoutDeptNestedInput
@@ -15548,7 +15548,7 @@ export namespace Prisma {
     id: string
     shortName: string
     tujuan?: string
-    printColumnName?: string
+    printSheetName?: string
     isActive?: boolean
     nomorCounter?: NomorCounterCreateNestedOneWithoutDeptInput
     columns?: DepartmentColumnCreateNestedManyWithoutDepartmentInput
@@ -15558,7 +15558,7 @@ export namespace Prisma {
     id: string
     shortName: string
     tujuan?: string
-    printColumnName?: string
+    printSheetName?: string
     isActive?: boolean
     nomorCounter?: NomorCounterUncheckedCreateNestedOneWithoutDeptInput
     columns?: DepartmentColumnUncheckedCreateNestedManyWithoutDepartmentInput
@@ -15617,7 +15617,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     shortName?: StringFieldUpdateOperationsInput | string
     tujuan?: StringFieldUpdateOperationsInput | string
-    printColumnName?: StringFieldUpdateOperationsInput | string
+    printSheetName?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     nomorCounter?: NomorCounterUpdateOneWithoutDeptNestedInput
     columns?: DepartmentColumnUpdateManyWithoutDepartmentNestedInput
@@ -15627,7 +15627,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     shortName?: StringFieldUpdateOperationsInput | string
     tujuan?: StringFieldUpdateOperationsInput | string
-    printColumnName?: StringFieldUpdateOperationsInput | string
+    printSheetName?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     nomorCounter?: NomorCounterUncheckedUpdateOneWithoutDeptNestedInput
     columns?: DepartmentColumnUncheckedUpdateManyWithoutDepartmentNestedInput
@@ -15727,7 +15727,7 @@ export namespace Prisma {
     id: string
     shortName: string
     tujuan?: string
-    printColumnName?: string
+    printSheetName?: string
     isActive?: boolean
     registerSurat?: RegisterSuratCreateNestedManyWithoutDeptInput
     columns?: DepartmentColumnCreateNestedManyWithoutDepartmentInput
@@ -15737,7 +15737,7 @@ export namespace Prisma {
     id: string
     shortName: string
     tujuan?: string
-    printColumnName?: string
+    printSheetName?: string
     isActive?: boolean
     registerSurat?: RegisterSuratUncheckedCreateNestedManyWithoutDeptInput
     columns?: DepartmentColumnUncheckedCreateNestedManyWithoutDepartmentInput
@@ -15763,7 +15763,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     shortName?: StringFieldUpdateOperationsInput | string
     tujuan?: StringFieldUpdateOperationsInput | string
-    printColumnName?: StringFieldUpdateOperationsInput | string
+    printSheetName?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     registerSurat?: RegisterSuratUpdateManyWithoutDeptNestedInput
     columns?: DepartmentColumnUpdateManyWithoutDepartmentNestedInput
@@ -15773,7 +15773,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     shortName?: StringFieldUpdateOperationsInput | string
     tujuan?: StringFieldUpdateOperationsInput | string
-    printColumnName?: StringFieldUpdateOperationsInput | string
+    printSheetName?: StringFieldUpdateOperationsInput | string
     isActive?: BoolFieldUpdateOperationsInput | boolean
     registerSurat?: RegisterSuratUncheckedUpdateManyWithoutDeptNestedInput
     columns?: DepartmentColumnUncheckedUpdateManyWithoutDepartmentNestedInput
