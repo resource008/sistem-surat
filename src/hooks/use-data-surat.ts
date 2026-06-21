@@ -8,6 +8,7 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 const SESSION_KEY = "datasurat:selectedIds"
+const CETAK_IDS_KEY = "cetak:ids"
 const LIMIT = 20
 
 function isClient() { return typeof window !== "undefined" }
@@ -167,8 +168,8 @@ export function useDataSurat(printPath: string) {
     handlePrint: () => {
       const idsString = Array.from(selectedIds).join(",")
       if (!isClient()) return
-      try { sessionStorage.setItem("cetak:ids:all", idsString) } catch {}
-      router.push(`${printPath}/all`)
+      try { sessionStorage.setItem(CETAK_IDS_KEY, idsString) } catch {}
+      router.push(printPath)
     },
     loadMore: () => {
       if (!loadingMore && hasMore) setPage(p => p + 1)
