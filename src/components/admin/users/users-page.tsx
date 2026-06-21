@@ -187,7 +187,7 @@ export default function UsersPage() {
         {renderDesktopContent()}
       </div>
 
-      {meta && meta.totalPages > 1 && (
+      {meta && users.length > 0 && (
         <div className="fixed bottom-6 left-1/2 z-40 -translate-x-1/2">
           <div className="flex items-center gap-2 rounded-2xl border border-border/70 bg-background/95 p-1.5 text-sm shadow-2xl shadow-black/10 backdrop-blur-xl dark:shadow-black/40">
             <Button
