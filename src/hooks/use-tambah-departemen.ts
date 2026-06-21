@@ -4,12 +4,30 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { getErrorMessage } from "@/lib/utils"
+import { hydrateDepartemenForClient } from "@/lib/departemen-columns"
 import {
   EMPTY_DEPARTEMEN_FORM,
   DEFAULT_DEPARTEMEN_COLUMNS,
   type Departemen,
+  type DepartemenColumn,
   type DepartemenFormState,
 } from "@/types"
+
+function stripColumnId(column: DepartemenColumn) {
+  const nextColumn = { ...column } as Partial<DepartemenColumn>
+  delete nextColumn.id
+  return nextColumn
+}
+
+async function fetchDepartemenDetails(departments: Departemen[]) {
+  return Promise.all(
+    departments.map(async (department) => {
+      const res = await fetch(`/api/dept/${encodeURIComponent(department.id)}`)
+      const json = await res.json().catch(() => null)
+      return res.ok ? hydrateDepartemenForClient(json as Departemen) : department
+    })
+  )
+}
 
 export function useTambahDepartemen() {
   const router = useRouter()
@@ -24,7 +42,10 @@ export function useTambahDepartemen() {
     window.dispatchEvent(new CustomEvent("breadcrumb:sub", { detail: "Tambah Departemen" }))
     fetch("/api/dept")
       .then((res) => res.ok ? res.json() : [])
-      .then((data) => setDepartments(Array.isArray(data) ? data : []))
+      .then(async (data) => {
+        const departments = Array.isArray(data) ? data as Departemen[] : []
+        setDepartments(await fetchDepartemenDetails(departments))
+      })
       .catch(() => setDepartments([]))
 
     return () => {
@@ -47,8 +68,8 @@ export function useTambahDepartemen() {
       toast.error("Singkatan departemen wajib diisi")
       return
     }
-    if (!form.printColumnName.trim()) {
-      toast.error("Identifikasi cetak wajib diisi")
+    if (!form.printSheetName.trim()) {
+      toast.error("Identifikasi nama lembar wajib diisi")
       return
     }
     if (form.columnMode === "existing" && !form.sourceDepartmentId.trim()) {
@@ -64,10 +85,10 @@ export function useTambahDepartemen() {
         body: JSON.stringify({
           tujuan: form.tujuan,
           shortName: form.shortName,
-          printColumnName: form.printColumnName,
+          printSheetName: form.printSheetName,
           columnMode: form.columnMode,
           sourceDepartmentId: form.sourceDepartmentId,
-          columns: form.columns,
+          columns: form.columns.map(stripColumnId),
         }),
       })
       const json = await res.json().catch(() => null)

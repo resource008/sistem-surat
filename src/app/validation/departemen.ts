@@ -14,11 +14,11 @@ const DepartmentNameSchema = z
   .max(100, "Nama departemen maksimal 100 karakter")
   .trim()
 
-const PrintColumnNameSchema = z
-  .string({ error: "Identifikasi cetak wajib diisi" })
+const PrintSheetNameSchema = z
+  .string({ error: "Identifikasi nama lembar wajib diisi" })
   .trim()
-  .min(1, "Identifikasi cetak wajib diisi")
-  .max(100, "Identifikasi cetak maksimal 100 karakter")
+  .min(1, "Identifikasi nama lembar wajib diisi")
+  .max(100, "Identifikasi nama lembar maksimal 100 karakter")
 
 const ColumnSchema = z.object({
   id: z.string().optional(),
@@ -35,7 +35,7 @@ const ColumnSchema = z.object({
 export const CreateDepartemenSchema = z.object({
   shortName:          ShortNameSchema,
   tujuan:             DepartmentNameSchema,
-  printColumnName:    PrintColumnNameSchema,
+  printSheetName:    PrintSheetNameSchema,
   columnMode:         z.enum(["new", "existing"]).optional().default("new"),
   sourceDepartmentId: z.string().optional().default(""),
   columns:            z.array(ColumnSchema).optional().default([]),

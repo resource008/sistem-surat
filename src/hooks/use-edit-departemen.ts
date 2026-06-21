@@ -4,21 +4,39 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { getErrorMessage } from "@/lib/utils"
+import { hydrateDepartemenForClient } from "@/lib/departemen-columns"
 import {
   EMPTY_DEPARTEMEN_FORM,
   DEFAULT_DEPARTEMEN_COLUMNS,
   type Departemen,
-  type DepartemenPrintColumnMode,
+  type DepartemenColumn,
+  type DepartemenPrintSheetMode,
   type DepartemenFormState,
 } from "@/types"
 
-function inferPrintColumnMode(departemen: Departemen, departments: Departemen[]): DepartemenPrintColumnMode {
-  const printColumnName = departemen.printColumnName?.trim().toLowerCase()
-  if (!printColumnName) return "new"
+function stripColumnId(column: DepartemenColumn) {
+  const nextColumn = { ...column } as Partial<DepartemenColumn>
+  delete nextColumn.id
+  return nextColumn
+}
+
+async function fetchDepartemenDetails(departments: Departemen[]) {
+  return Promise.all(
+    departments.map(async (department) => {
+      const res = await fetch(`/api/dept/${encodeURIComponent(department.id)}`)
+      const json = await res.json().catch(() => null)
+      return res.ok ? hydrateDepartemenForClient(json as Departemen) : department
+    })
+  )
+}
+
+function inferPrintSheetMode(departemen: Departemen, departments: Departemen[]): DepartemenPrintSheetMode {
+  const printSheetName = departemen.printSheetName?.trim().toLowerCase()
+  if (!printSheetName) return "new"
 
   const isSharedIdentity = departments.some((item) =>
     item.id !== departemen.id &&
-    item.printColumnName?.trim().toLowerCase() === printColumnName
+    item.printSheetName?.trim().toLowerCase() === printSheetName
   )
 
   return isSharedIdentity ? "existing" : "new"
@@ -57,15 +75,17 @@ export function useEditDepartemen(id: string, breadcrumbTitle = "Edit Departemen
         }
 
         if (ignore) return
-        const deptList = Array.isArray(deptListJson) ? deptListJson as Departemen[] : []
-        const data = json as Departemen
+        const rawDeptList = Array.isArray(deptListJson) ? deptListJson as Departemen[] : []
+        const deptList = await fetchDepartemenDetails(rawDeptList)
+        const data = hydrateDepartemenForClient(json as Departemen)
+        if (ignore) return
         setDepartments(deptList)
         setDepartemen(data)
         setForm({
           tujuan: data.tujuan ?? data.fullName ?? "",
           shortName: data.shortName,
-          printColumnName: data.printColumnName ?? "",
-          printColumnMode: inferPrintColumnMode(data, deptList),
+          printSheetName: data.printSheetName ?? "",
+          printSheetMode: inferPrintSheetMode(data, deptList),
           columnMode: "new",
           sourceDepartmentId: "",
           columns: data.columns?.length
@@ -100,10 +120,10 @@ export function useEditDepartemen(id: string, breadcrumbTitle = "Edit Departemen
       toast.error("Singkatan departemen wajib diisi")
       return
     }
-    const fixedPrintColumnName = departemen?.printColumnName ?? form.printColumnName
+    const printSheetName = form.printSheetName.trim()
 
-    if (!fixedPrintColumnName.trim()) {
-      toast.error("Identifikasi cetak wajib diisi")
+    if (!printSheetName) {
+      toast.error("Identifikasi nama lembar wajib diisi")
       return
     }
 
@@ -115,10 +135,10 @@ export function useEditDepartemen(id: string, breadcrumbTitle = "Edit Departemen
         body: JSON.stringify({
           tujuan: form.tujuan,
           shortName: form.shortName,
-          printColumnName: fixedPrintColumnName,
+          printSheetName,
           columnMode: form.columnMode,
           sourceDepartmentId: form.sourceDepartmentId,
-          columns: form.columns,
+          columns: form.columns.map(stripColumnId),
         }),
       })
       const json = await res.json().catch(() => null)

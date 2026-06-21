@@ -2,52 +2,71 @@
 
 import { Loader2 } from "lucide-react"
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
 import type { Departemen } from "@/types"
 
 interface Props {
   departemen: Departemen | null
-  deletingId: string | null
+  deletingAction: "soft" | "permanent" | null
   onOpenChange: (open: boolean) => void
-  onDelete: () => void
+  onSoftDelete: () => void
+  onPermanentDelete: () => void
 }
 
 export function DepartemenDeleteDialog({
   departemen,
-  deletingId,
+  deletingAction,
   onOpenChange,
-  onDelete,
+  onSoftDelete,
+  onPermanentDelete,
 }: Props) {
+  const isDeleting = deletingAction !== null
+
   return (
-    <AlertDialog open={!!departemen} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Hapus departemen?</AlertDialogTitle>
-          <AlertDialogDescription>
-            Departemen {departemen?.shortName} akan disembunyikan dari daftar pilihan.
-            Data surat lama tetap aman.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel disabled={!!deletingId}>Batal</AlertDialogCancel>
-          <AlertDialogAction
-            onClick={onDelete}
-            disabled={!!deletingId}
+    <Dialog
+      open={!!departemen}
+      onOpenChange={(open) => {
+        if (!open && isDeleting) return
+        onOpenChange(open)
+      }}
+    >
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>Hapus departemen?</DialogTitle>
+          <DialogDescription>
+            Pilih hapus dari daftar jika data departemen tetap ingin disimpan.
+            Pilih hapus permanen jika data departemen ingin dihapus dari database.
+          </DialogDescription>
+        </DialogHeader>
+
+        <DialogFooter className="sm:justify-center">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onSoftDelete}
+            disabled={isDeleting}
+          >
+            {deletingAction === "soft" && <Loader2 className="size-4 animate-spin" />}
+            Hapus dari daftar
+          </Button>
+          <Button
+            type="button"
+            onClick={onPermanentDelete}
+            disabled={isDeleting}
             className="bg-red-500 text-white hover:bg-red-600"
           >
-            {deletingId && <Loader2 className="size-4 animate-spin" />}
-            Hapus
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+            {deletingAction === "permanent" && <Loader2 className="size-4 animate-spin" />}
+            Hapus permanen
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }

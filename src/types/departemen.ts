@@ -3,14 +3,14 @@ export interface Departemen {
   shortName: string
   tujuan: string
   fullName?: string
-  printColumnName?: string
+  printSheetName?: string
   columns?: DepartemenColumn[]
   displayColumns?: DepartemenColumn[]
 }
 
 export type DepartemenColumnType = "text" | "date" | "number"
 export type DepartemenColumnMode = "new" | "existing"
-export type DepartemenPrintColumnMode = "new" | "existing"
+export type DepartemenPrintSheetMode = "new" | "existing"
 
 export interface DepartemenColumn {
   id: string
@@ -27,8 +27,8 @@ export interface DepartemenColumn {
 export type DepartemenFormState = {
   tujuan: string
   shortName: string
-  printColumnName: string
-  printColumnMode: DepartemenPrintColumnMode
+  printSheetName: string
+  printSheetMode: DepartemenPrintSheetMode
   columnMode: DepartemenColumnMode
   sourceDepartmentId: string
   columns: DepartemenColumn[]
@@ -38,7 +38,7 @@ export const DEFAULT_DEPARTEMEN_COLUMNS: DepartemenColumn[] = [
   {
     id: "default_nomor_register",
     label: "Nomor Register",
-    type: "text",
+    type: "number",
     defaultValue: "N/A",
     isDefault: true,
     isRequired: true,
@@ -84,8 +84,8 @@ export const DEFAULT_DEPARTEMEN_COLUMNS: DepartemenColumn[] = [
 export const EMPTY_DEPARTEMEN_FORM: DepartemenFormState = {
   tujuan: "",
   shortName: "",
-  printColumnName: "",
-  printColumnMode: "new",
+  printSheetName: "",
+  printSheetMode: "new",
   columnMode: "new",
   sourceDepartmentId: "",
   columns: DEFAULT_DEPARTEMEN_COLUMNS,
