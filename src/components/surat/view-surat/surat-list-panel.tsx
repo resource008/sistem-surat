@@ -9,6 +9,18 @@ interface Props {
   register: RegisterSurat
 }
 
+function getDetailFieldValues(detail: RegisterSurat["detailSurat"][number]) {
+  return {
+    ...detail.customFields,
+    Perihal: detail.perihal ?? "",
+    "Perihal Surat": detail.perihal ?? "",
+    Lampiran: detail.lampiran ?? "",
+    "Nomor Surat": detail.noSurat ?? "",
+    "No Surat": detail.noSurat ?? "",
+    "Tanggal Surat": detail.tanggalSurat ?? "",
+  }
+}
+
 export function SuratListPanel({ register }: Props) {
   if (!register.detailSurat?.length) {
     return (
@@ -43,7 +55,7 @@ export function SuratListPanel({ register }: Props) {
               {getCustomSuratColumns(register.dept.columns, true).length > 0 ? (
                 <CustomFieldsView
                   columns={register.dept.columns}
-                  values={detail.customFields}
+                  values={getDetailFieldValues(detail)}
                   includeBuiltIn
                 />
               ) : (

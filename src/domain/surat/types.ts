@@ -20,6 +20,8 @@ export interface DeptOption {
   id: string
   shortName: string
   fullName: string
+  tujuan: string
+  printSheetName?: string
   columns?: DeptColumnOption[]
   displayColumns?: DeptColumnOption[]
 }
