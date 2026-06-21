@@ -1,6 +1,6 @@
 import { RegisterSurat } from "@/components/surat/shared"
 import { Checkbox } from "@/components/ui/checkbox"
-import { formatCustomFieldValue, getSuratBuiltInFieldValue } from "@/domain/surat/custom-fields"
+import { formatCustomFieldValue, getCustomFieldValue, getSuratBuiltInFieldValue } from "@/domain/surat/custom-fields"
 import { useRouter } from "next/navigation"
 
 export function MobileList({ registers, selectedIds, basePath, actions }: any) {
@@ -16,7 +16,7 @@ export function MobileList({ registers, selectedIds, basePath, actions }: any) {
     const builtInValue = getSuratBuiltInFieldValue(column, detail)
     if (builtInValue !== null) return builtInValue
 
-    return formatCustomFieldValue(column, detail.customFields?.[column.id])
+    return formatCustomFieldValue(column, getCustomFieldValue(column, detail.customFields))
   }
 
   return (

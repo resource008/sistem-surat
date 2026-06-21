@@ -1,5 +1,6 @@
 import type { CreateSuratPayload, UpdateSuratPayload, DeptOption } from "./types"
 import type { RegisterSurat }                                      from "@/types"
+import { hydrateDepartemenForClient } from "@/lib/departemen-columns"
 
 // ─── Return type helper ───────────────────────────────────────────────────────
 
@@ -83,7 +84,14 @@ export async function updateSurat(
 }
 
 export async function fetchDeptList(): Promise<DeptOption[]> {
-  return apiFetch<DeptOption[]>("/api/dept")
+  const departments = await apiFetch<DeptOption[]>("/api/dept")
+
+  return Promise.all(
+    departments.map(async (department) => {
+      const detail = await apiFetch<DeptOption>(`/api/dept/${encodeURIComponent(department.id)}`)
+      return hydrateDepartemenForClient(detail)
+    })
+  ) as Promise<DeptOption[]>
 }
 
 export async function fetchPreviewNomor(deptId: string): Promise<string> {

@@ -162,7 +162,6 @@ export class PrismaUserRepository implements UserRepository {
         name:          input.name,
         email:         input.email,
         username:      input.username,
-        emailVerified: false,
         role:          input.role,
         permissions: {
           create: permissions,
