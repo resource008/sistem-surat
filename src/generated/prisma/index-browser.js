@@ -174,7 +174,7 @@ exports.Prisma.DepartmentScalarFieldEnum = {
   id: 'id',
   shortName: 'shortName',
   tujuan: 'tujuan',
-  printColumnName: 'printColumnName',
+  printSheetName: 'printSheetName',
   isActive: 'isActive'
 };
 

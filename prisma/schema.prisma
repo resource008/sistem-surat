@@ -82,7 +82,7 @@ model Department {
   id             String          @id
   shortName      String          @map("short_name")
   tujuan         String          @default("")
-  printColumnName String         @default("") @map("print_column_name")
+  printSheetName String         @default("") @map("print_column_name")
   isActive       Boolean         @default(true) @map("is_active")
 
   registerSurat  RegisterSurat[]
