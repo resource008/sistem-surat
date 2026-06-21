@@ -1,9 +1,11 @@
 "use client"
 
 import Image from "next/image"
+import Link from "next/link"
 import { Suspense } from "react"
 import { LoginForm } from "@/components/auth/login-form"
 import { LogoutNotifier } from "@/components/auth/logout-notifier"
+import { routes } from "@/constants/routes"
 import styles from "./login.module.css"
 
 const LOGO_WIDTH = 1523
@@ -37,6 +39,10 @@ export function LoginPage() {
           <div className={styles.divider} />
 
           <LoginForm />
+
+          <Link href={routes.guest.lacakSurat} className={styles.trackBtn}>
+            Lacak Surat
+          </Link>
 
           <div className={styles.cardFooter}>
             <span>PT Tolan Tiga Indonesia</span>
