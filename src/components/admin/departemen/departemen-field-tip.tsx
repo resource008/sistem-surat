@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Info } from "lucide-react"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 
-const DEFAULT_TIP = "Masukkan nilai baru dari kolom ini, contohnya set, lembar"
+const DEFAULT_TIP = "Masukkan value dari kolom ini. Contohnya set, lembar"
 
 export function DepartemenFieldTip({ text = DEFAULT_TIP }: { text?: string }) {
   const [open, setOpen] = useState(false)

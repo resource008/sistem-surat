@@ -27,3 +27,7 @@ export function updateDepartemen(id: string, input: UpdateDepartemenInput) {
 export function deleteDepartemen(id: string) {
   return repository.delete(id)
 }
+
+export function hardDeleteDepartemen(id: string) {
+  return repository.hardDelete(id)
+}

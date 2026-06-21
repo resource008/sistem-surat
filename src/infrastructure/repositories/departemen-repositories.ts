@@ -15,7 +15,7 @@ type DepartmentRow = {
   shortName: string
   fullName: string
   tujuan: string
-  printColumnName: string
+  printSheetName: string
 }
 
 type DepartmentColumnRow = {
@@ -34,7 +34,7 @@ type DepartmentColumnRow = {
 type DbClient = Prisma.TransactionClient | typeof prisma
 
 const DEFAULT_COLUMNS: DepartemenColumn[] = [
-  { id: "default_nomor_register", label: "Nomor Register", type: "text", defaultValue: "N/A", isDefault: true, isRequired: true, showInDataSurat: true, showInPrint: true, sortOrder: 0 },
+  { id: "default_nomor_register", label: "Nomor Register", type: "number", defaultValue: "N/A", isDefault: true, isRequired: true, showInDataSurat: true, showInPrint: true, sortOrder: 0 },
   { id: "default_tanggal_terima", label: "Tanggal Terima", type: "date", defaultValue: "N/A", isDefault: true, isRequired: true, showInDataSurat: false, showInPrint: true, sortOrder: 1 },
   { id: "default_asal_surat", label: "Asal Surat", type: "text", defaultValue: "N/A", isDefault: true, isRequired: true, showInDataSurat: true, showInPrint: true, sortOrder: 2 },
   { id: "default_tujuan", label: "Tujuan", type: "text", defaultValue: "N/A", isDefault: true, isRequired: true, showInDataSurat: true, showInPrint: true, sortOrder: 3 },
@@ -44,6 +44,50 @@ const DATA_TYPES = new Set<DepartemenColumnType>(["text", "date", "number"])
 const TUJUAN_DEFAULT_ID = "default_tujuan"
 
 export class DepartemenRepository {
+  private async findActiveDepartmentRef(ref: string) {
+    const rows = await prisma.$queryRawUnsafe<Array<{ id: string }>>(
+      `
+        SELECT id
+        FROM departments
+        WHERE is_active = true
+          AND (id = $1 OR short_name = $1)
+        LIMIT 1
+      `,
+      ref
+    )
+
+    return rows[0]?.id ?? null
+  }
+
+  private async findAnyDepartmentRef(ref: string) {
+    const byIdRows = await prisma.$queryRawUnsafe<Array<{ id: string }>>(
+      `
+        SELECT id
+        FROM departments
+        WHERE id = $1
+        LIMIT 1
+      `,
+      ref
+    )
+
+    if (byIdRows[0]?.id) return byIdRows[0].id
+
+    const byShortNameRows = await prisma.$queryRawUnsafe<Array<{ id: string }>>(
+      `
+        SELECT id
+        FROM departments
+        WHERE short_name = $1
+      `,
+      ref
+    )
+
+    if (byShortNameRows.length > 1) {
+      throw new AppError(409, "Ada lebih dari satu departemen dengan singkatan ini. Gunakan ID departemen.")
+    }
+
+    return byShortNameRows[0]?.id ?? null
+  }
+
   private getSimpleDepartmentNumber(id: string) {
     const match = id.match(/^(?:dept_)?(\d+)$/)
     if (!match) return null
@@ -91,7 +135,7 @@ export class DepartemenRepository {
     departmentId: string,
     nameColumn: string,
     input: CreateDepartemenInput,
-    printColumnName: string
+    printSheetName: string
   ) {
     await db.$executeRawUnsafe(
       `
@@ -101,7 +145,7 @@ export class DepartemenRepository {
       departmentId,
       input.shortName,
       input.tujuan,
-      printColumnName
+      printSheetName
     )
 
     return departmentId
@@ -356,11 +400,11 @@ export class DepartemenRepository {
   }
 
   private async ensureUniquePrintStructure(
-    printColumnName: string,
+    printSheetName: string,
     columns: DepartemenColumn[],
     currentDepartmentId?: string
   ) {
-    const normalizedPrintName = printColumnName.trim().toLowerCase()
+    const normalizedPrintName = printSheetName.trim().toLowerCase()
     if (!normalizedPrintName) return
 
     await this.ensureDepartmentMetaColumns()
@@ -387,7 +431,7 @@ export class DepartemenRepository {
     if (conflict) {
       throw new AppError(
         409,
-        "Identifikasi cetak sudah digunakan oleh struktur kolom yang berbeda. Buat identifikasi cetak baru untuk struktur kolom ini."
+        "Identifikasi nama lembar sudah digunakan oleh struktur kolom yang berbeda. Buat identifikasi nama lembar baru untuk struktur kolom ini."
       )
     }
   }
@@ -437,10 +481,10 @@ export class DepartemenRepository {
     }
   }
 
-  private resolvePrintColumnName(input: CreateDepartemenInput | UpdateDepartemenInput) {
-    const printColumnName = input.printColumnName.trim()
-    if (!printColumnName) throw new AppError(400, "Identifikasi cetak wajib diisi")
-    return printColumnName
+  private resolvePrintSheetName(input: CreateDepartemenInput | UpdateDepartemenInput) {
+    const printSheetName = input.printSheetName.trim()
+    if (!printSheetName) throw new AppError(400, "Identifikasi nama lembar wajib diisi")
+    return printSheetName
   }
 
   async findAllActive() {
@@ -453,7 +497,7 @@ export class DepartemenRepository {
         short_name AS "shortName",
         ${nameColumn} AS "fullName",
         ${nameColumn} AS tujuan,
-        print_column_name AS "printColumnName"
+        print_column_name AS "printSheetName"
       FROM departments
       WHERE is_active = true
       ORDER BY short_name ASC
@@ -465,6 +509,9 @@ export class DepartemenRepository {
   async findById(id: string) {
     await this.ensureDepartmentMetaColumns()
     const nameColumn = await this.getNameColumn()
+    const resolvedId = await this.findActiveDepartmentRef(id)
+    if (!resolvedId) throw new AppError(404, "Departemen tidak ditemukan")
+
     const rows = await prisma.$queryRawUnsafe<DepartmentRow[]>(
       `
         SELECT
@@ -472,13 +519,13 @@ export class DepartemenRepository {
           short_name AS "shortName",
           ${nameColumn} AS "fullName",
           ${nameColumn} AS tujuan,
-          print_column_name AS "printColumnName"
+          print_column_name AS "printSheetName"
         FROM departments
         WHERE id = $1
           AND is_active = true
         LIMIT 1
       `,
-      id
+      resolvedId
     )
 
     const departemen = rows[0]
@@ -490,7 +537,7 @@ export class DepartemenRepository {
     await this.ensureDepartmentMetaColumns()
     await this.ensureColumnTable()
     const nameColumn = await this.getNameColumn()
-    const printColumnName = this.resolvePrintColumnName(input)
+    const printSheetName = this.resolvePrintSheetName(input)
     const columns = await this.resolveInputColumns(input)
     const existingRows = await prisma.$queryRawUnsafe<Array<{ id: string; isActive: boolean }>>(
       `
@@ -513,7 +560,7 @@ export class DepartemenRepository {
       throw new AppError(409, "Singkatan departemen sudah digunakan")
     }
 
-    await this.ensureUniquePrintStructure(printColumnName, columns, reusableExisting?.id)
+    await this.ensureUniquePrintStructure(printSheetName, columns, reusableExisting?.id)
 
     if (reusableExisting) {
       await prisma.$transaction(async (tx) => {
@@ -530,7 +577,7 @@ export class DepartemenRepository {
           reusableExisting.id,
           input.shortName,
           input.tujuan,
-          printColumnName
+          printSheetName
         )
         await this.saveColumns(tx, reusableExisting.id, input, columns)
       })
@@ -555,7 +602,7 @@ export class DepartemenRepository {
           }
 
           const nextDepartmentId = await this.createDepartmentId(tx)
-          await this.insertDepartment(tx, nextDepartmentId, nameColumn, input, printColumnName)
+          await this.insertDepartment(tx, nextDepartmentId, nameColumn, input, printSheetName)
           await this.saveColumns(tx, nextDepartmentId, input, columns)
           return nextDepartmentId
         })
@@ -574,8 +621,11 @@ export class DepartemenRepository {
     await this.ensureDepartmentMetaColumns()
     await this.ensureColumnTable()
     const nameColumn = await this.getNameColumn()
-    const printColumnName = this.resolvePrintColumnName(input)
+    const printSheetName = this.resolvePrintSheetName(input)
     const columns = await this.resolveInputColumns(input)
+    const resolvedId = await this.findActiveDepartmentRef(id)
+    if (!resolvedId) throw new AppError(404, "Departemen tidak ditemukan")
+
     const currentRows = await prisma.$queryRawUnsafe<Array<{ id: string; shortName: string }>>(
       `
         SELECT id, short_name AS "shortName"
@@ -584,7 +634,7 @@ export class DepartemenRepository {
           AND is_active = true
         LIMIT 1
       `,
-      id
+      resolvedId
     )
     const current = currentRows[0]
 
@@ -600,7 +650,7 @@ export class DepartemenRepository {
           LIMIT 1
         `,
         input.shortName,
-        id
+        resolvedId
       )
       const duplicate = duplicateRows[0]
       if (duplicate?.isActive) {
@@ -611,7 +661,7 @@ export class DepartemenRepository {
       }
     }
 
-    await this.ensureUniquePrintStructure(printColumnName, columns, id)
+    await this.ensureUniquePrintStructure(printSheetName, columns, resolvedId)
 
     await prisma.$transaction(async (tx) => {
       await tx.$executeRawUnsafe(
@@ -623,17 +673,20 @@ export class DepartemenRepository {
             print_column_name = $4
           WHERE id = $1
         `,
-        id,
+        resolvedId,
         input.shortName,
         input.tujuan,
-        printColumnName
+        printSheetName
       )
-      await this.saveColumns(tx, id, input, columns)
+      await this.saveColumns(tx, resolvedId, input, columns)
     })
-    return this.findById(id)
+    return this.findById(resolvedId)
   }
 
   async delete(id: string) {
+    const resolvedId = await this.findActiveDepartmentRef(id)
+    if (!resolvedId) throw new AppError(404, "Departemen tidak ditemukan")
+
     const currentRows = await prisma.$queryRawUnsafe<Array<{ id: string }>>(
       `
         SELECT id
@@ -642,7 +695,7 @@ export class DepartemenRepository {
           AND is_active = true
         LIMIT 1
       `,
-      id
+      resolvedId
     )
     const current = currentRows[0]
 
@@ -651,7 +704,46 @@ export class DepartemenRepository {
     await prisma.$executeRaw`
       UPDATE departments
       SET is_active = false
-      WHERE id = ${id}
+      WHERE id = ${resolvedId}
     `
   }
+
+  async hardDelete(id: string) {
+    await this.ensureColumnTable()
+    const resolvedId = await this.findAnyDepartmentRef(id)
+    if (!resolvedId) throw new AppError(404, "Departemen tidak ditemukan")
+
+    const usageRows = await prisma.$queryRawUnsafe<Array<{ count: bigint }>>(
+      `
+        SELECT COUNT(*)::bigint AS count
+        FROM register_surat
+        WHERE dept_id = $1
+      `,
+      resolvedId
+    )
+    const usageCount = Number(usageRows[0]?.count ?? 0)
+
+    if (usageCount > 0) {
+      throw new AppError(
+        409,
+        "Departemen tidak bisa dihapus permanen karena masih memiliki data surat. Hapus atau pindahkan data suratnya terlebih dahulu."
+      )
+    }
+
+    await prisma.$transaction(async (tx) => {
+      await tx.$executeRaw`
+        DELETE FROM nomor_counter
+        WHERE dept_id = ${resolvedId}
+      `
+      await tx.$executeRaw`
+        DELETE FROM department_columns
+        WHERE department_id = ${resolvedId}
+      `
+      await tx.$executeRaw`
+        DELETE FROM departments
+        WHERE id = ${resolvedId}
+      `
+    })
+  }
+
 }

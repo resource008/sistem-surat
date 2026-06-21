@@ -16,28 +16,29 @@ export default function DepartemenDetailPage() {
   const router = useRouter()
   const { state, actions } = useEditDepartemen(id, "Detail Departemen")
   const [deleteOpen, setDeleteOpen] = useState(false)
-  const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [deletingAction, setDeletingAction] = useState<"soft" | "permanent" | null>(null)
 
-  async function deleteDepartemen() {
+  async function deleteDepartemen(permanent = false) {
     if (!state.departemen) return
-    setDeletingId(state.departemen.id)
+    setDeletingAction(permanent ? "permanent" : "soft")
 
     try {
-      const res = await fetch(`/api/dept/${encodeURIComponent(state.departemen.id)}`, {
-        method: "DELETE",
-      })
+      const endpoint = permanent
+        ? `/api/dept/${encodeURIComponent(state.departemen.id)}/permanent`
+        : `/api/dept/${encodeURIComponent(state.departemen.id)}`
+      const res = await fetch(endpoint, { method: "DELETE" })
       const json = await res.json().catch(() => null)
 
       if (!res.ok) {
         throw new Error(json?.error ?? "Gagal menghapus departemen")
       }
 
-      toast.success("Departemen berhasil dihapus")
+      toast.success(json?.message ?? "Departemen berhasil dihapus")
       router.push("/admin/departemen")
     } catch (error) {
       toast.error(getErrorMessage(error, "Gagal menghapus departemen"))
     } finally {
-      setDeletingId(null)
+      setDeletingAction(null)
     }
   }
 
@@ -87,9 +88,10 @@ export default function DepartemenDetailPage() {
       />
       <DepartemenDeleteDialog
         departemen={deleteOpen ? state.departemen : null}
-        deletingId={deletingId}
+        deletingAction={deletingAction}
         onOpenChange={setDeleteOpen}
-        onDelete={deleteDepartemen}
+        onSoftDelete={() => deleteDepartemen(false)}
+        onPermanentDelete={() => deleteDepartemen(true)}
       />
     </div>
   )

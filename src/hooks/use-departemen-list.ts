@@ -4,7 +4,13 @@ import { useMemo, useState } from "react"
 import useSWR from "swr"
 import { toast } from "sonner"
 import { getErrorMessage } from "@/lib/utils"
-import type { Departemen, DepartemenFormState } from "@/types"
+import type { Departemen, DepartemenColumn, DepartemenFormState } from "@/types"
+
+function stripColumnId(column: DepartemenColumn) {
+  const nextColumn = { ...column } as Partial<DepartemenColumn>
+  delete nextColumn.id
+  return nextColumn
+}
 
 const fetcher = async (url: string): Promise<Departemen[]> => {
   const res = await fetch(url)
@@ -49,8 +55,8 @@ export function useDepartemenList() {
   }
 
   async function updateDepartemen(departemen: Departemen, form: DepartemenFormState) {
-    if (!form.printColumnName.trim()) {
-      toast.error("Identifikasi cetak wajib diisi")
+    if (!form.printSheetName.trim()) {
+      toast.error("Identifikasi nama lembar wajib diisi")
       return
     }
 
@@ -63,10 +69,10 @@ export function useDepartemenList() {
         body: JSON.stringify({
           tujuan: form.tujuan,
           shortName: form.shortName,
-          printColumnName: form.printColumnName,
+          printSheetName: form.printSheetName,
           columnMode: form.columnMode,
           sourceDepartmentId: form.sourceDepartmentId,
-          columns: form.columns,
+          columns: form.columns.map(stripColumnId),
         }),
       })
       const json = await res.json().catch(() => null)
