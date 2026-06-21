@@ -31,7 +31,7 @@ function compactSuratResponse(data: Awaited<ReturnType<typeof fetchSuratById>>) 
     dept: {
       id:              data.dept.id,
       shortName:       data.dept.shortName,
-      printColumnName: data.dept.printColumnName,
+      printSheetName: data.dept.printSheetName,
     },
   }
 }
