@@ -1,4 +1,5 @@
 import { prisma } from "@/infrastructure/databases/prisma-client"
+import { formatRegisterNumber } from "@/lib/format-register-number"
 
 // Increment counter dan kembalikan nomor baru
 // Dipanggil saat CREATE surat — counter langsung naik
@@ -9,7 +10,7 @@ export async function generateNomor(deptId: string): Promise<string> {
     create: { deptId, counter: 1 },
   })
 
-  return String(counter.counter).padStart(4, "0")
+  return formatRegisterNumber(counter.counter)
 }
 
 // Preview nomor berikutnya TANPA increment
@@ -20,5 +21,5 @@ export async function getNextNomor(deptId: string): Promise<string> {
   })
 
   const next = (counter?.counter ?? 0) + 1
-  return String(next).padStart(4, "0")
+  return formatRegisterNumber(next)
 }
