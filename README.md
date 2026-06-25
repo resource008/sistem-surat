@@ -77,7 +77,7 @@ Response data tidak ditemukan pada detail surat:
 | `/api/dept` | `GET` | Login | Ambil daftar departemen |
 | `/api/dept` | `POST` | Admin | Tambah departemen |
 | `/api/dept/[id]` | `GET` | Admin | Detail departemen |
-| `/api/dept/[id]` | `PATCH` | Admin | Edit departemen |
+| `/api/dept/[id]` | `PATCH`/`PUT` | Admin | Edit departemen |
 | `/api/dept/[id]` | `DELETE` | Admin | Hapus/nonaktifkan departemen |
 | `/api/surat` | `GET` | Login | Ambil data surat/PI |
 | `/api/surat` | `POST` | Admin atau `canCreate` | Tambah data surat/PI |
@@ -369,7 +369,10 @@ Request:
 ```json
 {
   "shortName": "LEGAL",
-  "tujuan": "Legal"
+  "tujuan": "Legal",
+  "printColumnName": "LEGAL",
+  "columnMode": "new",
+  "columns": []
 }
 ```
 
@@ -403,14 +406,29 @@ Response validasi:
 
 | Endpoint | Method | Request | Response |
 | --- | --- | --- | --- |
-| `/api/dept/[id]` | `PATCH` | Body JSON departemen | Message sukses |
+| `/api/dept/[id]` | `PATCH` atau `PUT` | Body JSON departemen | Message sukses dan data terbaru |
 
 Request:
 
 ```json
 {
   "shortName": "LEGAL",
-  "tujuan": "Legal Corporate"
+  "tujuan": "Legal Corporate",
+  "printColumnName": "LEGAL",
+  "columnMode": "new",
+  "sourceDepartmentId": "",
+  "columns": [
+    {
+      "label": "Keterangan",
+      "type": "text",
+      "defaultValue": "",
+      "isDefault": false,
+      "isRequired": false,
+      "showInDataSurat": true,
+      "showInPrint": true,
+      "sortOrder": 0
+    }
+  ]
 }
 ```
 
@@ -418,7 +436,15 @@ Response:
 
 ```json
 {
-  "message": "Data departemen berhasil diubah"
+  "message": "Data departemen berhasil diubah",
+  "data": {
+    "id": "1",
+    "shortName": "LEGAL",
+    "fullName": "Legal Corporate",
+    "tujuan": "Legal Corporate",
+    "printColumnName": "LEGAL",
+    "columns": []
+  }
 }
 ```
 
