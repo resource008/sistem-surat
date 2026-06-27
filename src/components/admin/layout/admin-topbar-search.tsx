@@ -19,6 +19,21 @@ export function AdminTopbarSearch({ isMobile, onExpand }: AdminTopbarSearchProps
     if (expanded) setTimeout(() => inputRef.current?.focus(), 50)
   }, [expanded])
 
+  useEffect(() => {
+    if (!isMobile) {
+      onExpand?.(false)
+      return
+    }
+
+    if (search.trim().length > 0 && !expanded) {
+      setExpanded(true)
+      onExpand?.(true)
+      return
+    }
+
+    onExpand?.(expanded)
+  }, [expanded, isMobile, onExpand, search])
+
   function handleExpand() {
     setExpanded(true)
     onExpand?.(true)

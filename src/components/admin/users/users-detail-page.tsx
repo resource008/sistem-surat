@@ -1,11 +1,12 @@
 "use client"
 
 import UsersDelete from "@/components/admin/users/users-delete"
+import { LoadingSkeleton } from "@/components/shared/loading-skeleton"
 import { UserAvatar } from "@/components/shared/user-avatar"
 import { Button } from "@/components/ui/button"
 import type { User } from "@/domain/user/types"
 import {
-  ArrowLeft, FileText, KeyRound, Loader2, Pencil, Trash2,
+  AlertTriangle, ArrowLeft, FileText, KeyRound, Pencil, Trash2,
 } from "lucide-react"
 import { useParams, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
@@ -134,9 +135,7 @@ export default function UserDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="animate-spin text-muted-foreground" size={24} />
-      </div>
+      <LoadingSkeleton type="profile" />
     )
   }
 
@@ -156,9 +155,12 @@ export default function UserDetailPage() {
   return (
     <div className="flex flex-col gap-4 pb-32">
       {isLastAdmin && (
-        <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-100">
-          Akun ini adalah satu-satunya admin, jadi tidak bisa diubah atau dihapus.
-          Tambahkan admin lain terlebih dahulu untuk membuka aksi edit dan hapus.
+        <div className="flex items-start gap-2.5 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-100">
+          <AlertTriangle className="mt-0.5 size-4 shrink-0" />
+          <p>
+            Akun ini adalah satu-satunya admin, jadi tidak bisa dihapus.
+            Informasi akun tetap bisa diubah.
+          </p>
         </div>
       )}
 
@@ -224,8 +226,8 @@ export default function UserDetailPage() {
         <AccountDateInfo user={user} />
       </div>
 
-      {!isLastAdmin && (
-        <div className="fixed bottom-8 right-8 z-50 flex items-center gap-3">
+      <div className="fixed bottom-8 left-[var(--topbar-left,0px)] right-8 z-40 flex items-center justify-end gap-3 transition-[left] duration-300 ease-in-out max-sm:bottom-5 max-sm:right-5">
+        {!isLastAdmin && (
           <Button
             size="icon"
             variant="secondary"
@@ -236,17 +238,17 @@ export default function UserDetailPage() {
             <Trash2 size={20} />
             <span className="sr-only">Hapus Pengguna</span>
           </Button>
-          <Button
-            size="icon"
-            onClick={() => router.push(`/admin/users/${id}/edit`)}
-            className="size-14 rounded-full shadow-lg bg-blue-600 hover:bg-blue-700"
-            title="Edit Pengguna"
-          >
-            <Pencil size={20} className="text-white" />
-            <span className="sr-only">Edit Pengguna</span>
-          </Button>
-        </div>
-      )}
+        )}
+        <Button
+          size="icon"
+          onClick={() => router.push(`/admin/users/${id}/edit`)}
+          className="size-14 rounded-full shadow-lg bg-blue-600 hover:bg-blue-700"
+          title="Edit Pengguna"
+        >
+          <Pencil size={20} className="text-white" />
+          <span className="sr-only">Edit Pengguna</span>
+        </Button>
+      </div>
 
       <UsersDelete
         open={deleteOpen}

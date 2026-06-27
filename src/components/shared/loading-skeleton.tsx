@@ -15,7 +15,7 @@ export interface DataSuratSkeletonProps {
 }
 
 export interface LoadingSkeletonProps {
-  type?: "table" | "form"
+  type?: "table" | "form" | "profile" | "departemen-form"
   className?: string
 }
 
@@ -205,6 +205,123 @@ function FormSkeleton({ className }: { className?: string }) {
   )
 }
 
+function FieldGridSkeleton({ rows = 2 }: { rows?: number }) {
+  return (
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      {Array.from({ length: rows * 2 }).map((_, i) => (
+        <div key={i} className="space-y-2">
+          <Skeleton className="h-3 w-24 rounded" style={sk.subtle} />
+          <Skeleton className="h-10 w-full rounded-xl" style={sk.base} />
+        </div>
+      ))}
+    </div>
+  )
+}
+
+export function ProfileSkeleton({ className }: { className?: string }) {
+  return (
+    <div className={`flex flex-col gap-4 pb-24 ${className ?? ""}`}>
+      <div className="overflow-hidden rounded-2xl border animate-pulse" style={{ ...sk.card, ...sk.border }}>
+        <div className="flex items-center gap-2.5 border-b px-6 py-4" style={sk.border}>
+          <Skeleton className="size-4 rounded" style={sk.subtle} />
+          <Skeleton className="h-4 w-24 rounded" style={sk.base} />
+        </div>
+
+        <div className="flex flex-col gap-6 px-6 py-6">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <Skeleton className="size-10 rounded-xl" style={sk.base} />
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-32 rounded" style={sk.base} />
+                <Skeleton className="h-3 w-16 rounded" style={sk.subtle} />
+              </div>
+            </div>
+            <div className="hidden grid-cols-2 gap-6 sm:grid">
+              {[1, 2].map((item) => (
+                <div key={item} className="space-y-2">
+                  <Skeleton className="ml-auto h-3 w-16 rounded" style={sk.subtle} />
+                  <Skeleton className="ml-auto h-4 w-24 rounded" style={sk.base} />
+                  <Skeleton className="ml-auto h-3 w-12 rounded" style={sk.subtle} />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <FieldGridSkeleton />
+        </div>
+      </div>
+
+      <div className="overflow-hidden rounded-2xl border animate-pulse" style={{ ...sk.card, ...sk.border }}>
+        <div className="flex items-center gap-2.5 border-b px-6 py-4" style={sk.border}>
+          <Skeleton className="size-4 rounded" style={sk.subtle} />
+          <Skeleton className="h-4 w-20 rounded" style={sk.base} />
+        </div>
+        <div className="px-6 py-4">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="flex items-center justify-between border-b py-3 last:border-0" style={sk.divider}>
+              <Skeleton className="h-4 w-36 rounded" style={sk.subtle} />
+              <Skeleton className="h-6 w-16 rounded-full" style={sk.badge} />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function DepartemenPanelSkeleton({
+  rows = 3,
+  compact = false,
+}: {
+  rows?: number
+  compact?: boolean
+}) {
+  return (
+    <div className="overflow-hidden rounded-xl border animate-pulse" style={{ ...sk.card, ...sk.border }}>
+      <div className="flex items-center gap-3 border-b px-5 py-4" style={sk.border}>
+        <Skeleton className="size-9 rounded-xl" style={sk.subtle} />
+        <div className="flex-1 space-y-2">
+          <Skeleton className="h-4 w-40 rounded" style={sk.base} />
+          <Skeleton className="h-3 w-56 max-w-full rounded" style={sk.subtle} />
+        </div>
+        <Skeleton className="size-4 rounded" style={sk.subtle} />
+      </div>
+      <div className="space-y-4 p-5">
+        {Array.from({ length: rows }).map((_, i) => (
+          <div
+            key={i}
+            className={compact ? "grid grid-cols-[130px_minmax(0,1fr)] items-center gap-4" : "space-y-2"}
+          >
+            <Skeleton className="h-3 w-28 rounded" style={sk.subtle} />
+            <Skeleton className="h-10 w-full rounded-xl" style={sk.base} />
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+export function DepartemenFormSkeleton({ className }: { className?: string }) {
+  return (
+    <div className={`flex flex-col gap-4 pb-28 ${className ?? ""}`}>
+      <div className="rounded-xl border p-5 animate-pulse" style={{ ...sk.card, ...sk.border }}>
+        <FieldGridSkeleton rows={1} />
+      </div>
+      <DepartemenPanelSkeleton rows={4} compact />
+      <DepartemenPanelSkeleton rows={5} compact />
+      <DepartemenPanelSkeleton rows={1} />
+    </div>
+  )
+}
+
+export function DataSuratMoreSkeleton({ rows = 2, className }: { rows?: number; className?: string }) {
+  return (
+    <div className={`w-full ${className ?? ""}`}>
+      <GroupCardSkeleton rowsPerGroup={rows} />
+    </div>
+  )
+}
+
 // ---------------------------------------------------------------------------
 // DataSuratSkeleton
 // ---------------------------------------------------------------------------
@@ -251,6 +368,12 @@ export function DataSuratSkeleton({
 export function LoadingSkeleton({ type = "table", className }: LoadingSkeletonProps) {
   if (type === "form") {
     return <FormSkeleton className={className} />
+  }
+  if (type === "profile") {
+    return <ProfileSkeleton className={className} />
+  }
+  if (type === "departemen-form") {
+    return <DepartemenFormSkeleton className={className} />
   }
   return <DataSuratSkeleton className={className} />
 }

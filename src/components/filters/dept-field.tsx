@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { Check } from "lucide-react"
+import { Skeleton } from "@/components/ui/skeleton"
 
 type DepartmentOption = {
   id: string
@@ -58,8 +59,13 @@ export function DeptField({ selected, onToggle, maxHeight = 200 }: DeptFieldProp
   function renderContent() {
     if (loading) {
       return (
-        <div className="px-3 py-2 text-[12px] text-muted-foreground">
-          Memuat departemen...
+        <div className="space-y-2 px-3 py-2">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="flex items-center justify-between gap-3">
+              <Skeleton className="h-4 w-20" />
+              <Skeleton className="size-3 rounded" />
+            </div>
+          ))}
         </div>
       )
     }

@@ -1,21 +1,23 @@
 "use client"
 
-import { Loader2 } from "lucide-react"
+import { useState } from "react"
+import { Info } from "lucide-react"
 import { useParams } from "next/navigation"
+import { LoadingSkeleton } from "@/components/shared/loading-skeleton"
 import { Button } from "@/components/ui/button"
 import { useEditDepartemen } from "@/hooks/use-edit-departemen"
 import { DepartemenEditFormFields } from "./departemen-edit-form-fields"
 import { DepartemenFormActionBar } from "./departemen-form-action-bar"
+import { DepartemenFormInfo } from "./departemen-form-info"
 
 export default function DepartemenEditPage() {
   const { id } = useParams<{ id: string }>()
   const { state, actions } = useEditDepartemen(id)
+  const [helpOpen, setHelpOpen] = useState(false)
 
   if (state.loading) {
     return (
-      <div className="flex min-h-[360px] items-center justify-center">
-        <Loader2 className="size-6 animate-spin text-muted-foreground" />
-      </div>
+      <LoadingSkeleton type="departemen-form" />
     )
   }
 
@@ -31,7 +33,8 @@ export default function DepartemenEditPage() {
   }
 
   return (
-    <form onSubmit={actions.submit} className="flex flex-col gap-4 pb-32 [overflow-anchor:none]">
+    <form onSubmit={actions.submit} className="flex flex-col gap-4 pb-28 [overflow-anchor:none]">
+      <DepartemenFormInfo open={helpOpen} onOpenChange={setHelpOpen} />
       <DepartemenEditFormFields
         form={state.form}
         departments={state.departments}
@@ -42,6 +45,11 @@ export default function DepartemenEditPage() {
       <DepartemenFormActionBar
         saving={state.saving}
         onCancel={actions.cancel}
+        secondaryAction={{
+          icon: <Info size={14} />,
+          label: "Bantuan",
+          onClick: () => setHelpOpen(true),
+        }}
       />
     </form>
   )

@@ -16,29 +16,31 @@ import type {
 
 // ── Field aman yang dikembalikan ke domain layer ──────────────
 
-const USER_SELECT = {
-  id:          true,
-  name:        true,
-  email:       true,
-  username:    true,
-  role:        true,
-  createdAt:   true,
-  updatedAt:   true,
-  lastLoginAt: true,
-  sessions: {
-    select: { expiresAt: true },
-    where:  { expiresAt: { gt: new Date() } },
-  },
-  permissions: {
-    select: {
-      canCreate: true,
-      canEdit:   true,
-      canDelete: true,
-      canPrint:  true,
-      canTrack:  true,
+function userSelect() {
+  return {
+    id:          true,
+    name:        true,
+    email:       true,
+    username:    true,
+    role:        true,
+    createdAt:   true,
+    updatedAt:   true,
+    lastLoginAt: true,
+    sessions: {
+      select: { expiresAt: true },
+      where:  { expiresAt: { gt: new Date() } },
     },
-  },
-} as const
+    permissions: {
+      select: {
+        canCreate: true,
+        canEdit:   true,
+        canDelete: true,
+        canPrint:  true,
+        canTrack:  true,
+      },
+    },
+  } as const
+}
 
 function mapUser(user: any): User {
   const now       = new Date()
@@ -99,7 +101,7 @@ export class PrismaUserRepository implements UserRepository {
     const [users, total] = await Promise.all([
       prisma.user.findMany({
         where,
-        select:  USER_SELECT,
+        select:  userSelect(),
         skip,
         take:    limit,
         orderBy: { createdAt: "desc" },
@@ -121,7 +123,7 @@ export class PrismaUserRepository implements UserRepository {
   async findById(id: string): Promise<User | null> {
     const user = await prisma.user.findUnique({
       where:  { id },
-      select: USER_SELECT,
+      select: userSelect(),
     })
     if (!user) return null
     return mapUser(user)
@@ -130,7 +132,7 @@ export class PrismaUserRepository implements UserRepository {
   async findByEmail(email: string): Promise<User | null> {
     const user = await prisma.user.findUnique({
       where:  { email },
-      select: USER_SELECT,
+      select: userSelect(),
     })
     if (!user) return null
     return mapUser(user)
@@ -139,7 +141,7 @@ export class PrismaUserRepository implements UserRepository {
   async findByUsername(username: string): Promise<User | null> {
     const user = await prisma.user.findUnique({
       where:  { username },
-      select: USER_SELECT,
+      select: userSelect(),
     })
     if (!user) return null
     return mapUser(user)
@@ -175,7 +177,7 @@ export class PrismaUserRepository implements UserRepository {
           },
         },
       },
-      select: USER_SELECT,
+      select: userSelect(),
     })
 
     return mapUser(user)
@@ -220,7 +222,7 @@ export class PrismaUserRepository implements UserRepository {
           },
         }),
       },
-      select: USER_SELECT,
+      select: userSelect(),
     })
 
     if (password) {
