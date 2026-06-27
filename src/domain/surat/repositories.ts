@@ -84,11 +84,11 @@ export async function updateSurat(
 }
 
 export async function fetchDeptList(): Promise<DeptOption[]> {
-  const departments = await apiFetch<DeptOption[]>("/api/dept")
+  const departments = await apiFetch<DeptOption[]>("/api/admin/dept")
 
   return Promise.all(
     departments.map(async (department) => {
-      const detail = await apiFetch<DeptOption>(`/api/dept/${encodeURIComponent(department.id)}`)
+      const detail = await apiFetch<DeptOption>(`/api/admin/dept/${encodeURIComponent(department.id)}`)
       return hydrateDepartemenForClient(detail)
     })
   ) as Promise<DeptOption[]>

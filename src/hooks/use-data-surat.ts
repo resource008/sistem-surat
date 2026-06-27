@@ -3,6 +3,11 @@
 import type { DetailSurat, RegisterSurat } from "@/types"
 import { format, isValid } from "date-fns"
 import { id }             from "date-fns/locale"
+import {
+  ASAL_DEFAULT_ID,
+  NOMOR_DEFAULT_ID,
+  TANGGAL_DEFAULT_ID,
+} from "@/constants/departemen-columns"
 import { compareRegisterNomor } from "@/lib/surat-helpers"
 import {
   formatCustomFieldValue,
@@ -12,6 +17,7 @@ import {
 } from "@/domain/surat/custom-fields"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { toast } from "sonner"
 
 const SESSION_KEY = "datasurat:selectedIds"
 const CETAK_IDS_KEY = "cetak:ids"
@@ -105,9 +111,9 @@ function getCustomFieldSearchValues(detail: DetailSurat, selectedColumn?: string
 
 function getColumnSearchId(column: { id: string; label: string }) {
   const columnId = String(column.id)
-  if (columnId.includes("default_nomor_register")) return "nomor_register"
-  if (columnId.includes("default_tanggal_terima")) return "tanggal_terima"
-  if (columnId.includes("default_asal_surat")) return "asal_surat"
+  if (columnId.includes(NOMOR_DEFAULT_ID)) return "nomor_register"
+  if (columnId.includes(TANGGAL_DEFAULT_ID)) return "tanggal_terima"
+  if (columnId.includes(ASAL_DEFAULT_ID)) return "asal_surat"
   if (isTujuanColumn(column)) return "tujuan"
   return `column:${normalizeColumnLabel(column.label)}`
 }
@@ -124,10 +130,10 @@ function canShowSearchColumnOption(columnId: string) {
 }
 
 function getColumnValue(column: any, reg: RegisterSurat, detail: DetailSurat) {
-  if (String(column.id).includes("default_tanggal_terima")) {
+  if (String(column.id).includes(TANGGAL_DEFAULT_ID)) {
     return formatCustomFieldValue({ ...column, type: "date" }, reg.tanggalTerima)
   }
-  if (String(column.id).includes("default_asal_surat")) return reg.asalSurat || "-"
+  if (String(column.id).includes(ASAL_DEFAULT_ID)) return reg.asalSurat || "-"
   if (isTujuanColumn(column)) return detail.tujuan || reg.dept.shortName || "-"
 
   const builtInValue = getSuratBuiltInFieldValue(column, detail as unknown as Record<string, unknown>)
@@ -147,6 +153,19 @@ function getStaticColumnValue(columnId: string, reg: RegisterSurat, detail: any)
   if (columnId === "asal_surat") return reg.asalSurat
   if (columnId === "tujuan") return detail.tujuan || reg.dept.shortName
   return ""
+}
+
+function getSingleSelectedPrintSheetName(data: RegisterSurat[], selectedIds: Set<number>) {
+  const selectedRows = data.filter((reg) => selectedIds.has(reg.id))
+  if (selectedRows.length !== selectedIds.size) return ""
+
+  const sheetNames = new Set(
+    selectedRows
+      .map((reg) => reg.dept.printSheetName?.trim() ?? "")
+      .filter(Boolean)
+  )
+
+  return sheetNames.size === 1 ? Array.from(sheetNames)[0] : ""
 }
 
 function getDetailColumnTexts(reg: RegisterSurat, detail: DetailSurat, selectedColumn: string) {
@@ -379,7 +398,13 @@ export function useDataSurat(printPath: string) {
       const idsString = Array.from(selectedIds).join(",")
       if (!isClient()) return
       try { sessionStorage.setItem(CETAK_IDS_KEY, idsString) } catch {}
-      router.push(printPath)
+      const printSheetName = getSingleSelectedPrintSheetName(data, selectedIds)
+      if (!printSheetName) {
+        toast.error("Pilih data dari satu nama lembar cetak yang sama")
+        return
+      }
+
+      router.push(`${printPath}/${encodeURIComponent(printSheetName)}`)
     },
     loadMore: () => {
       if (!loadingMore && hasMore) setPage(p => p + 1)

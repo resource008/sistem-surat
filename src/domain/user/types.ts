@@ -3,6 +3,7 @@
 // ============================================================
 
 export type UserRole = "ADMIN" | "STAFF" | "PKL"
+export type DashboardRole = Extract<UserRole, "STAFF" | "PKL">
 
 export interface UserPermissions {
   canCreate: boolean

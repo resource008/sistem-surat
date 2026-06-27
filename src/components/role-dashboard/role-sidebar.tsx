@@ -9,8 +9,8 @@ import {
 import { UserAvatar } from "@/components/shared/user-avatar"
 import { ThemeToggle } from "@/components/ui/theme-toogle"
 import { routes } from "@/constants/routes"
+import type { DashboardRole, UserPermissions } from "@/domain/user/types"
 import { authClient } from "@/infrastructure/auth/auth-client"
-import type { DashboardRole } from "@/components/role-dashboard/types"
 import { getRoleBasePath } from "@/lib/role-dashboard"
 import {
   ArrowLeftCircle, ArrowRightCircle,
@@ -20,7 +20,6 @@ import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
-import type { UserPermissions } from "@/domain/user/types"
 
 const ICON_SIZE = 18
 const LOGO_WIDTH = 1523
@@ -115,7 +114,7 @@ export function RoleSidebar({
 
     try {
       const { data: session } = await authClient.getSession()
-      await fetch("/api/logout-activity", { method: "POST", keepalive: true }).catch(() => {})
+      await fetch("/api/admin/logout-activity", { method: "POST", keepalive: true }).catch(() => {})
 
       if (session?.session?.token) {
         await authClient.revokeSession({ token: session.session.token }).catch(() => {})

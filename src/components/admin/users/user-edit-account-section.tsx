@@ -12,8 +12,8 @@ import {
 import type { User } from "@/domain/user/types"
 import { Eye, EyeOff, FileText, Shuffle } from "lucide-react"
 import { useState } from "react"
-import { generatePassword } from "./user-form-utils"
-import type { UserEditFormState } from "./user-edit-types"
+import type { UserEditFormState } from "./types/user-edit"
+import { generatePassword } from "./utils/password"
 
 type UserEditAccountSectionProps = {
   user: User

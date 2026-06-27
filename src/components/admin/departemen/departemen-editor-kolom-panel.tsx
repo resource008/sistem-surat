@@ -10,12 +10,12 @@ import {
   innerPanelClass,
   panelClass,
   readonlyFieldClass,
-} from "./departemen-form-config"
+} from "./styles/form"
 import {
   getColumnLabel,
   getDefaultValueLabel,
   getTypeLabel,
-} from "./departemen-kolom-utils"
+} from "./utils/kolom"
 import { DepartemenFormFieldRow } from "./departemen-form-field-row"
 import { DepartemenSectionToggle } from "./departemen-section-toggle"
 

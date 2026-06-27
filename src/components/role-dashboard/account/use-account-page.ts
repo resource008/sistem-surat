@@ -2,8 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react"
 import { toast } from "sonner"
+import { USER_ROLE_LABEL } from "@/constants/user"
 import type { User } from "@/domain/user/types"
-import { ROLE_LABEL } from "./constants"
 import { formatDateTime, isSameTimestamp } from "./date-utils"
 import type { AccountForm } from "./types"
 
@@ -28,7 +28,7 @@ export function useAccountPage() {
   const [saving, setSaving] = useState(false)
   const [editing, setEditing] = useState(false)
 
-  const roleLabel = user ? ROLE_LABEL[user.role] ?? user.role : "-"
+  const roleLabel = user ? USER_ROLE_LABEL[user.role] ?? user.role : "-"
   const created = formatDateTime(user?.createdAt)
   const updated = useMemo(() => {
     if (!user || isSameTimestamp(user.updatedAt, user.createdAt)) {

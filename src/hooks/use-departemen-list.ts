@@ -20,7 +20,7 @@ const fetcher = async (url: string): Promise<Departemen[]> => {
 }
 
 export function useDepartemenList() {
-  const { data, error, isLoading, mutate } = useSWR<Departemen[]>("/api/dept", fetcher, {
+  const { data, error, isLoading, mutate } = useSWR<Departemen[]>("/api/admin/dept", fetcher, {
     revalidateOnFocus: true,
   })
 
@@ -35,7 +35,7 @@ export function useDepartemenList() {
     setDeletingId(deleting.id)
 
     try {
-      const res = await fetch(`/api/dept/${encodeURIComponent(deleting.id)}`, {
+      const res = await fetch(`/api/admin/dept/${encodeURIComponent(deleting.id)}`, {
         method: "DELETE",
       })
       const json = await res.json().catch(() => null)
@@ -63,7 +63,7 @@ export function useDepartemenList() {
     setSavingId(departemen.id)
 
     try {
-      const res = await fetch(`/api/dept/${encodeURIComponent(departemen.id)}`, {
+      const res = await fetch(`/api/admin/dept/${encodeURIComponent(departemen.id)}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

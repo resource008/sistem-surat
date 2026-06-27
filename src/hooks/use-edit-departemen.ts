@@ -23,7 +23,7 @@ function stripColumnId(column: DepartemenColumn) {
 async function fetchDepartemenDetails(departments: Departemen[]) {
   return Promise.all(
     departments.map(async (department) => {
-      const res = await fetch(`/api/dept/${encodeURIComponent(department.id)}`)
+      const res = await fetch(`/api/admin/dept/${encodeURIComponent(department.id)}`)
       const json = await res.json().catch(() => null)
       return res.ok ? hydrateDepartemenForClient(json as Departemen) : department
     })
@@ -64,8 +64,8 @@ export function useEditDepartemen(id: string, breadcrumbTitle = "Edit Departemen
       setLoading(true)
       try {
         const [deptListRes, res] = await Promise.all([
-          fetch("/api/dept"),
-          fetch(`/api/dept/${encodeURIComponent(id)}`),
+          fetch("/api/admin/dept"),
+          fetch(`/api/admin/dept/${encodeURIComponent(id)}`),
         ])
         const deptListJson = await deptListRes.json().catch(() => null)
         const json = await res.json().catch(() => null)
@@ -129,7 +129,7 @@ export function useEditDepartemen(id: string, breadcrumbTitle = "Edit Departemen
 
     setSaving(true)
     try {
-      const res = await fetch(`/api/dept/${encodeURIComponent(id)}`, {
+      const res = await fetch(`/api/admin/dept/${encodeURIComponent(id)}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

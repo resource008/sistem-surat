@@ -9,13 +9,13 @@ import { AppError } from "@/lib/errors"
 
 type Params = { params: Promise<{ dept: string; id: string }> }
 
-// ─── Auth helper ──────────────────────────────────────────────────────────────
+// Auth helper
 
 async function getSession() {
   return auth.api.getSession({ headers: await headers() })
 }
 
-// ─── Parse & validate id ──────────────────────────────────────────────────────
+// Parse & validate id
 
 function parseId(raw: string): number | null {
   if (!/^\d+$/.test(raw)) return null
@@ -36,7 +36,7 @@ function compactSuratResponse(data: Awaited<ReturnType<typeof fetchSuratById>>) 
   }
 }
 
-// ─── GET /api/surat/[dept]/[id] ───────────────────────────────────────────────
+// GET /api/surat/[dept]/[id]
 
 export async function GET(req: NextRequest, { params }: Params) {
   try {
@@ -64,7 +64,7 @@ export async function GET(req: NextRequest, { params }: Params) {
   }
 }
 
-// ─── PATCH /api/surat/[dept]/[id] ────────────────────────────────────────────
+// PATCH /api/surat/[dept]/[id]
 
 export async function PATCH(req: NextRequest, { params }: Params) {
   try {
@@ -105,7 +105,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
   }
 }
 
-// ─── DELETE /api/surat/[dept]/[id] ───────────────────────────────────────────
+// DELETE /api/surat/[dept]/[id]
 
 export async function DELETE(_req: NextRequest, { params }: Params) {
   try {

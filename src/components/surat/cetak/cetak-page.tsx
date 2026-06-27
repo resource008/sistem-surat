@@ -11,10 +11,9 @@ import { CetakEmpty }                      from "@/components/surat/cetak/empty-
 import { LoadingSkeleton }                 from "@/components/shared/loading-skeleton"
 import { CetakPrintStyles }               from "@/components/surat/cetak/print-styles"
 import { CetakScreenView }                from "@/components/surat/cetak/screen-view"
-import type { CetakGroup }                from "@/types/surat-types"
+import type { CetakGroup }                from "@/types/surat"
 
 type ActiveFilter = string
-const ALL_TAB = "ALL"
 
 interface CetakPageContentProps {
   printSheetName : ActiveFilter
@@ -31,7 +30,7 @@ function CetakContent({
   const idsParam              = searchParams.get("ids") ?? ""
   const { data, loading, error } = useCetakData(idsParam, printSheetName)
   const [cleared, setCleared] = useState(false)
-  const [activeTab, setActiveTab] = useState(printSheetName || ALL_TAB)
+  const [activeTab, setActiveTab] = useState(printSheetName)
 
   useEffect(() => {
     const handler = () => {

@@ -1,3 +1,9 @@
+import {
+  ASAL_DEFAULT_ID,
+  NOMOR_DEFAULT_ID,
+  TANGGAL_DEFAULT_ID,
+  TUJUAN_DEFAULT_ID,
+} from "@/constants/departemen-columns"
 import type { DepartemenColumn } from "@/types"
 
 export type SuratBuiltInColumnKey = "perihal" | "noSurat" | "lampiran" | "tanggalSurat"
@@ -30,16 +36,16 @@ export function isDetailBuiltInColumn(column: DepartemenColumn) {
 }
 
 export function isTujuanColumn(column: Pick<DepartemenColumn, "id">) {
-  return String(column.id).includes("default_tujuan")
+  return String(column.id).includes(TUJUAN_DEFAULT_ID)
 }
 
 export function isCetakRowSpanColumn(column: Pick<DepartemenColumn, "id" | "label">) {
   const columnId = String(column.id)
   const label = normalizeColumnLabel(column.label)
-  return columnId.includes("default_nomor_register")
-    || columnId.includes("default_tanggal_terima")
-    || columnId.includes("default_asal_surat")
-    || columnId.includes("default_tujuan")
+  return columnId.includes(NOMOR_DEFAULT_ID)
+    || columnId.includes(TANGGAL_DEFAULT_ID)
+    || columnId.includes(ASAL_DEFAULT_ID)
+    || columnId.includes(TUJUAN_DEFAULT_ID)
     || label === "nomor register"
     || label === "tanggal terima"
     || label === "asal surat"
