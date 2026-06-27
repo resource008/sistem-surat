@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import type { DepartemenFormState } from "@/types"
-import { fieldClass } from "./departemen-form-config"
+import { fieldClass } from "./styles/form"
 
 type DepartemenModeKolomFieldProps = {
   value: DepartemenFormState["columnMode"]

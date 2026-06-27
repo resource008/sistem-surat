@@ -56,7 +56,7 @@ export async function GET(req: NextRequest) {
           limit: Math.min(parsePositiveInt(limitRaw, DEFAULT_LIMIT), MAX_LIMIT),
         }
 
-    // ✅ Baca parameter filter date dan dept dari URL
+    // Baca parameter filter date dan dept dari URL
     const date = req.nextUrl.searchParams.get("date") ?? null
     const dept = req.nextUrl.searchParams.get("dept") ?? null
     const depts = dept ? dept.split(",").filter(Boolean) : null

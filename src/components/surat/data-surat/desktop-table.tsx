@@ -1,5 +1,10 @@
 import { Checkbox } from "@/components/ui/checkbox"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import {
+  ASAL_DEFAULT_ID,
+  NOMOR_DEFAULT_ID,
+  TANGGAL_DEFAULT_ID,
+} from "@/constants/departemen-columns"
 import { formatCustomFieldValue, getCustomFieldValue, getSuratBuiltInFieldValue, isTujuanColumn } from "@/domain/surat/custom-fields"
 import { useRouter } from "next/navigation"
 
@@ -7,13 +12,13 @@ export function DesktopTable({ registers, selectedIds, basePath, actions }: any)
   const router = useRouter()
   const displayColumns = (registers[0]?.dept?.displayColumns ?? [])
   const detailDisplayColumns = displayColumns
-    .filter((column: any) => !String(column.id).includes("default_nomor_register"))
+    .filter((column: any) => !String(column.id).includes(NOMOR_DEFAULT_ID))
 
   const getColumnValue = (column: any, reg: any, detail: any) => {
-    if (String(column.id).includes("default_tanggal_terima")) {
+    if (String(column.id).includes(TANGGAL_DEFAULT_ID)) {
       return formatCustomFieldValue({ ...column, type: "date" }, reg.tanggalTerima)
     }
-    if (String(column.id).includes("default_asal_surat")) return reg.asalSurat || "-"
+    if (String(column.id).includes(ASAL_DEFAULT_ID)) return reg.asalSurat || "-"
     if (isTujuanColumn(column)) return detail.tujuan || reg.dept.shortName || "-"
 
     const builtInValue = getSuratBuiltInFieldValue(column, detail)

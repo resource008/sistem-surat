@@ -12,7 +12,7 @@ import { DepartemenIdentitasFields } from "./departemen-identitas-fields"
 import { DepartemenModeKolomField } from "./departemen-mode-kolom-field"
 import { DepartemenTampilanKolomPanel } from "./departemen-tampilan-kolom-panel"
 import { DepartemenTemplateKolomPanel } from "./departemen-template-kolom-panel"
-import { useDepartemenKolomForm } from "./use-departemen-kolom-form"
+import { useDepartemenKolomForm } from "./hooks/use-departemen-kolom-form"
 
 interface Props {
   form: DepartemenFormState

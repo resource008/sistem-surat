@@ -1,14 +1,20 @@
-import type { CetakGroup, DetailSurat, RegisterSurat } from "@/types/surat-types"
+import type { CetakGroup, DetailSurat, RegisterSurat } from "@/types/surat"
 import type { DepartemenColumn } from "@/types/departemen"
 import { format } from "date-fns"
 import { id } from "date-fns/locale"
+import {
+  ASAL_DEFAULT_ID,
+  NOMOR_DEFAULT_ID,
+  TANGGAL_DEFAULT_ID,
+  TUJUAN_DEFAULT_ID,
+} from "@/constants/departemen-columns"
 import { formatCustomFieldValue, getCustomFieldValue, getSuratBuiltInFieldValue } from "@/domain/surat/custom-fields"
 
 const DEFAULT_ORDER = [
-  "default_nomor_register",
-  "default_tanggal_terima",
-  "default_asal_surat",
-  "default_tujuan",
+  NOMOR_DEFAULT_ID,
+  TANGGAL_DEFAULT_ID,
+  ASAL_DEFAULT_ID,
+  TUJUAN_DEFAULT_ID,
 ]
 
 function getDefaultColumnKey(column: DepartemenColumn) {
@@ -78,12 +84,12 @@ export function getCetakColumnValue(
   const column = resolveColumnForRegister(groupColumn, reg)
   const defaultKey = getDefaultColumnKey(column)
 
-  if (defaultKey === "default_nomor_register") return reg.nomor
-  if (defaultKey === "default_tanggal_terima") {
+  if (defaultKey === NOMOR_DEFAULT_ID) return reg.nomor
+  if (defaultKey === TANGGAL_DEFAULT_ID) {
     return formatCustomFieldValue({ ...column, type: "date" }, reg.tanggalTerima)
   }
-  if (defaultKey === "default_asal_surat") return reg.asalSurat || "-"
-  if (defaultKey === "default_tujuan") return detail.tujuan || reg.tujuan || reg.dept?.shortName || "-"
+  if (defaultKey === ASAL_DEFAULT_ID) return reg.asalSurat || "-"
+  if (defaultKey === TUJUAN_DEFAULT_ID) return detail.tujuan || reg.tujuan || reg.dept?.shortName || "-"
 
   const builtInValue = getSuratBuiltInFieldValue(column, detail as unknown as Record<string, unknown>)
   if (builtInValue !== null) return builtInValue

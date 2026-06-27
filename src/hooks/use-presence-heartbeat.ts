@@ -19,7 +19,7 @@ function sendPresenceHeartbeat() {
   lastHeartbeatAt = now
   heartbeatInFlight = true
 
-  void fetch("/api/login-activity", {
+  void fetch("/api/admin/login-activity", {
     method: "POST",
     keepalive: true,
   }).catch(() => {

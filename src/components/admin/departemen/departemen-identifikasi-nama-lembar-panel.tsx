@@ -8,7 +8,7 @@ import {
   innerPanelClass,
   panelClass,
   readonlyFieldClass,
-} from "./departemen-form-config"
+} from "./styles/form"
 import { DepartemenFormFieldRow } from "./departemen-form-field-row"
 import { DepartemenSectionToggle } from "./departemen-section-toggle"
 

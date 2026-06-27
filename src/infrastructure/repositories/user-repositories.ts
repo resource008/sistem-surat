@@ -1,246 +1,55 @@
-import { prisma }              from "@/infrastructure/databases/prisma-client"
-import { scryptAsync }         from "@noble/hashes/scrypt.js"
-import { randomBytes, bytesToHex } from "@noble/hashes/utils.js"
-import { randomUUID }          from "node:crypto"
 import type { UserRepository } from "@/domain/user/repositories"
-import { getDefaultPermission } from "@/lib/permission"
-import type { Role } from "@/types"
 import type {
-  User,
-  UserRole,
   CreateUserInput,
-  UpdateUserInput,
   GetUsersQuery,
   PaginatedUsers,
+  UpdateUserInput,
+  User,
+  UserRole,
 } from "@/domain/user/types"
-
-// ── Field aman yang dikembalikan ke domain layer ──────────────
-
-function userSelect() {
-  return {
-    id:          true,
-    name:        true,
-    email:       true,
-    username:    true,
-    role:        true,
-    createdAt:   true,
-    updatedAt:   true,
-    lastLoginAt: true,
-    sessions: {
-      select: { expiresAt: true },
-      where:  { expiresAt: { gt: new Date() } },
-    },
-    permissions: {
-      select: {
-        canCreate: true,
-        canEdit:   true,
-        canDelete: true,
-        canPrint:  true,
-        canTrack:  true,
-      },
-    },
-  } as const
-}
-
-function mapUser(user: any): User {
-  const now       = new Date()
-  const lastLogin = user.lastLoginAt ?? null
-  const isActive  = user.sessions?.some(
-    (s: { expiresAt: Date }) => new Date(s.expiresAt) > now
-  ) ?? false
-
-  return {
-    id:          user.id,
-    name:        user.name,
-    email:       user.email,
-    username:    user.username,
-    role:        user.role,
-    createdAt:   user.createdAt,
-    updatedAt:   user.updatedAt,
-    lastLogin,
-    status:      isActive ? "Sedang Aktif" : "Tidak Aktif",
-    permissions: user.permissions ?? null,
-  }
-}
-
-// ── Hash password dengan scrypt ───────────────────────────────
-
-async function hashPassword(password: string): Promise<string> {
-  const salt = bytesToHex(randomBytes(16))
-  const key  = await scryptAsync(password.normalize("NFKC"), salt, {
-    N:      16384,
-    r:      16,
-    p:      1,
-    dkLen:  64,
-    maxmem: 128 * 16384 * 16 * 2,
-  })
-  return `${salt}:${bytesToHex(key)}`
-}
-
-// ── Implementasi ──────────────────────────────────────────────
+import {
+  createUser,
+  deleteUser,
+  updateUser,
+} from "@/infrastructure/repositories/user/mutations"
+import {
+  countUsersByRole,
+  findAllUsers,
+  findUserByEmail,
+  findUserById,
+  findUserByUsername,
+} from "@/infrastructure/repositories/user/reads"
 
 export class PrismaUserRepository implements UserRepository {
-
   async findAll(query: GetUsersQuery): Promise<PaginatedUsers> {
-    const { page, limit, search, role } = query
-    const skip = (page - 1) * limit
-
-    const where = {
-      ...(role ? { role } : {}),
-      ...(search
-        ? {
-            OR: [
-              { name:     { contains: search, mode: "insensitive" as const } },
-              { email:    { contains: search, mode: "insensitive" as const } },
-              { username: { contains: search, mode: "insensitive" as const } },
-            ],
-          }
-        : {}),
-    }
-
-    const [users, total] = await Promise.all([
-      prisma.user.findMany({
-        where,
-        select:  userSelect(),
-        skip,
-        take:    limit,
-        orderBy: { createdAt: "desc" },
-      }),
-      prisma.user.count({ where }),
-    ])
-
-    return {
-      data: users.map(mapUser),
-      meta: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      },
-    }
+    return findAllUsers(query)
   }
 
   async findById(id: string): Promise<User | null> {
-    const user = await prisma.user.findUnique({
-      where:  { id },
-      select: userSelect(),
-    })
-    if (!user) return null
-    return mapUser(user)
+    return findUserById(id)
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    const user = await prisma.user.findUnique({
-      where:  { email },
-      select: userSelect(),
-    })
-    if (!user) return null
-    return mapUser(user)
+    return findUserByEmail(email)
   }
 
   async findByUsername(username: string): Promise<User | null> {
-    const user = await prisma.user.findUnique({
-      where:  { username },
-      select: userSelect(),
-    })
-    if (!user) return null
-    return mapUser(user)
+    return findUserByUsername(username)
   }
 
   async countByRole(role: UserRole): Promise<number> {
-    return prisma.user.count({ where: { role } })
+    return countUsersByRole(role)
   }
 
   async create(input: CreateUserInput): Promise<User> {
-    const hashedPassword = await hashPassword(input.password)
-    const permissions = {
-      ...getDefaultPermission(input.role),
-      ...input.permissions,
-    }
-
-    const user = await prisma.user.create({
-      data: {
-        id:            randomUUID(),
-        name:          input.name,
-        email:         input.email,
-        username:      input.username,
-        role:          input.role,
-        permissions: {
-          create: permissions,
-        },
-        accounts: {
-          create: {
-            id:         randomUUID(),
-            accountId:  randomUUID(),
-            providerId: "credential",
-            password:   hashedPassword,
-          },
-        },
-      },
-      select: userSelect(),
-    })
-
-    return mapUser(user)
+    return createUser(input)
   }
 
   async update(id: string, input: UpdateUserInput): Promise<User> {
-    const { password, permissions, ...fields } = input
-
-    const updateData = Object.fromEntries(
-      Object.entries(fields).filter(([, v]) => v !== undefined)
-    )
-    const currentUser = permissions
-      ? await prisma.user.findUnique({ where: { id }, select: { role: true } })
-      : null
-    const permissionBaseRole = (fields.role ?? currentUser?.role ?? "STAFF") as Role
-    const permissionCreateData = permissions
-      ? { ...getDefaultPermission(permissionBaseRole), ...permissions }
-      : null
-
-    const user = await prisma.user.update({
-      where:  { id },
-      data:   {
-        ...updateData,
-        ...(permissions && {
-          permissions: {
-            upsert: {
-              create: {
-                canCreate: permissionCreateData!.canCreate,
-                canEdit:   permissionCreateData!.canEdit,
-                canDelete: permissionCreateData!.canDelete,
-                canPrint:  permissionCreateData!.canPrint,
-                canTrack:  permissionCreateData!.canTrack,
-              },
-              update: {
-                canCreate: permissions.canCreate,
-                canEdit:   permissions.canEdit,
-                canDelete: permissions.canDelete,
-                canPrint:  permissions.canPrint,
-                canTrack:  permissions.canTrack,
-              },
-            },
-          },
-        }),
-      },
-      select: userSelect(),
-    })
-
-    if (password) {
-      const hashedPassword = await hashPassword(password)
-      await prisma.account.updateMany({
-        where: { userId: id, providerId: "credential" },
-        data:  { password: hashedPassword },
-      })
-    }
-
-    return mapUser(user)
+    return updateUser(id, input)
   }
 
   async delete(id: string): Promise<void> {
-    await prisma.$transaction([
-      prisma.account.deleteMany({ where: { userId: id } }),
-      prisma.session.deleteMany({ where: { userId: id } }),
-      prisma.user.delete({ where: { id } }),
-    ])
+    await deleteUser(id)
   }
 }

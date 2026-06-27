@@ -9,18 +9,16 @@ import {
   TopbarDataSuratSearch,
   type DataSuratSearchColumn,
 } from "@/components/surat/data-surat/topbar-search"
+import type { DashboardRole, UserPermissions } from "@/domain/user/types"
 import { usePresenceHeartbeat } from "@/hooks/use-presence-heartbeat"
 import { useSession } from "@/infrastructure/auth/auth-client"
 import type { Role } from "@/types"
-import type { UserPermissions } from "@/domain/user/types"
 import {
   ChevronRight, Menu, Plus, Printer, X,
 } from "lucide-react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { Suspense, useEffect, useState } from "react"
 import useSWR from "swr"
-
-type DashboardRole = Extract<Role, "STAFF" | "PKL">
 
 interface Props {
   role: DashboardRole
@@ -130,7 +128,7 @@ function RoleLayoutInner({ role, children }: Props) {
     isLoading: departmentsLoading,
     error: departmentsError,
   } = useSWR<DepartmentOption[]>(
-    isDataSuratPage ? "/api/dept" : null,
+    isDataSuratPage ? "/api/admin/dept" : null,
     fetchDepartments,
     {
       revalidateOnFocus: true,

@@ -12,7 +12,7 @@ import {
   DISABLED_PERMISSIONS,
   EMPTY_USER_FORM,
   type UserAddFormState,
-} from "./user-add-types"
+} from "./types/user-add"
 
 export default function UserAddPage() {
   const router = useRouter()

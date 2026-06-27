@@ -25,8 +25,8 @@ export default function DepartemenDetailPage() {
 
     try {
       const endpoint = permanent
-        ? `/api/dept/${encodeURIComponent(state.departemen.id)}/permanent`
-        : `/api/dept/${encodeURIComponent(state.departemen.id)}`
+        ? `/api/admin/dept/${encodeURIComponent(state.departemen.id)}/permanent`
+        : `/api/admin/dept/${encodeURIComponent(state.departemen.id)}`
       const res = await fetch(endpoint, { method: "DELETE" })
       const json = await res.json().catch(() => null)
 
