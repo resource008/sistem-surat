@@ -54,10 +54,10 @@ export class UserUseCases {
     const existing = await this.repo.findById(id)
     if (!existing) throw new AppError(404, "User tidak ditemukan")
 
-    if (existing.role === "ADMIN") {
+    if (existing.role === "ADMIN" && input.role && input.role !== "ADMIN") {
       const adminCount = await this.repo.countByRole("ADMIN")
       if (adminCount <= 1) {
-        throw new AppError(400, "Akun admin terakhir tidak bisa diubah")
+        throw new AppError(400, "Role admin terakhir tidak bisa diubah")
       }
     }
 

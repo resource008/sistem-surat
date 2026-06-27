@@ -347,6 +347,72 @@
   gap: 12px;
   flex: 1;
   min-width: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.topbarLeftDataSurat {
+  flex: 0 1 auto;
+}
+
+.topbarLeftAdmin {
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
+.topbarLeftAdmin .breadcrumb {
+  overflow: hidden;
+}
+
+.topbarLeftAdmin .topbarTitle {
+  display: block;
+  min-width: 0;
+}
+
+.topbarLeftSearchPage {
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
+.topbarLeftSearchPage .breadcrumb {
+  overflow: hidden;
+}
+
+.topbarLeftSearchPage .topbarTitle {
+  display: block;
+  min-width: 0;
+}
+
+.topbarCenter {
+  position: absolute;
+  left: 50%;
+  z-index: 2;
+  display: flex;
+  width: min(480px, calc(100% - 320px));
+  min-width: 180px;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.topbarCenter > * {
+  width: 100%;
+  pointer-events: auto;
+}
+
+.topbarRight {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: auto;
+  min-width: 0;
+  margin-left: auto;
+  position: relative;
+  z-index: 3;
+}
+
+.topbarRightSearchExpanded {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .topbarTitle {
@@ -410,10 +476,69 @@
 
 @media (max-width: 768px) {
   .topbar { padding: 0 16px; height: 56px; left: 0; }
+  .topbarLeft { flex: 0 0 auto; max-width: 120px; }
+  .topbarLeftAdmin {
+    flex: 1 1 auto;
+    max-width: none;
+  }
+  .topbarLeftDataSurat { max-width: 160px; }
+  .topbarLeftSearchPage {
+    flex: 1 1 auto;
+    max-width: none;
+  }
+  .topbarCenter {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    z-index: 3;
+    justify-content: center;
+    width: 36px;
+    min-width: 36px;
+    max-width: 36px;
+    margin-left: auto;
+    transform: none;
+  }
+  .topbarCenter > * {
+    flex: 0 0 auto;
+    width: 36px;
+  }
+  .topbarCenterExpanded {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    flex: 1 1 auto;
+    width: auto;
+    min-width: 0;
+    max-width: none;
+    margin-left: 0;
+    transform: none;
+  }
+  .topbarCenterExpanded > * {
+    flex: 1 1 auto;
+    width: 100%;
+  }
+  .topbarRight {
+    flex: 0 0 auto;
+    width: auto;
+    margin-left: 0;
+    justify-content: flex-end;
+    z-index: 43;
+  }
+  .topbarRightSearchExpanded {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
   .content { padding: 16px; padding-top: calc(56px + 16px); }
 }
 
 @media (max-width: 480px) {
+  .topbar { gap: 8px; }
+  .topbarLeft { max-width: 44px; }
+  .topbarLeftAdmin { max-width: none; }
+  .topbarLeftDataSurat { max-width: 132px; }
+  .topbarLeftSearchPage { max-width: none; }
   .content { padding: 12px; padding-top: calc(56px + 12px); }
 }
 

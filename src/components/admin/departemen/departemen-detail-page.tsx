@@ -1,9 +1,10 @@
 "use client"
 
 import { useState } from "react"
-import { Loader2, Pencil, Trash2 } from "lucide-react"
+import { Pencil, Trash2 } from "lucide-react"
 import { useParams, useRouter } from "next/navigation"
 import { toast } from "sonner"
+import { LoadingSkeleton } from "@/components/shared/loading-skeleton"
 import { Button } from "@/components/ui/button"
 import { useEditDepartemen } from "@/hooks/use-edit-departemen"
 import { getErrorMessage } from "@/lib/utils"
@@ -44,9 +45,7 @@ export default function DepartemenDetailPage() {
 
   if (state.loading) {
     return (
-      <div className="flex min-h-[360px] items-center justify-center">
-        <Loader2 className="size-6 animate-spin text-muted-foreground" />
-      </div>
+      <LoadingSkeleton type="departemen-form" />
     )
   }
 

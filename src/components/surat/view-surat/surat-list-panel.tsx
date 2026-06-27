@@ -24,7 +24,7 @@ function getDetailFieldValues(detail: RegisterSurat["detailSurat"][number]) {
 export function SuratListPanel({ register }: Props) {
   if (!register.detailSurat?.length) {
     return (
-      <div className="rounded-2xl border border-dashed border-slate-200 dark:border-slate-800
+      <div className="rounded-2xl border border-dashed border-slate-200 dark:border-neutral-800
                       px-6 py-12 text-center lg:h-full
                       flex flex-col items-center justify-center min-h-50">
         <FileText className="mb-3 h-8 w-8 text-slate-300 dark:text-slate-700" />
@@ -39,12 +39,12 @@ export function SuratListPanel({ register }: Props) {
     <>
       {register.detailSurat.map((detail, idx) => (
         <div key={detail.id}
-          className="rounded-2xl border border-slate-200 dark:border-slate-800
-                     bg-white dark:bg-slate-950 overflow-hidden shrink-0">
+          className="rounded-2xl border border-slate-200 dark:border-neutral-800
+                     bg-white dark:bg-neutral-950 overflow-hidden shrink-0">
 
           <div className="flex items-center gap-2.5 px-5 py-3
-                          bg-slate-50 dark:bg-slate-900
-                          border-b border-slate-200 dark:border-slate-800">
+                          bg-slate-50 dark:bg-neutral-900
+                          border-b border-slate-200 dark:border-neutral-800">
             <span className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">
               Surat {idx + 1}
             </span>

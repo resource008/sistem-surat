@@ -2,7 +2,7 @@
 
 import { useEffect, useState }    from "react"
 import { useRouter, useParams }   from "next/navigation"
-import { ArrowLeft, AlertTriangle, Loader2, Trash2 } from "lucide-react"
+import { ArrowLeft, AlertTriangle, Loader2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -113,15 +113,19 @@ export default function ViewSuratPage({ role, basePath }: Props) {
 
   if (error || !register) return (
     <div className="flex h-full w-full flex-col items-center justify-center gap-3 mt-20">
-      <div className="w-10 h-10 rounded-2xl bg-slate-100 dark:bg-slate-900
+      <div className="w-10 h-10 rounded-2xl bg-slate-100 dark:bg-neutral-900
                       flex items-center justify-center">
         <AlertTriangle className="h-5 w-5 text-slate-500 dark:text-slate-400" />
       </div>
       <p className="text-[13px] text-slate-500 dark:text-slate-400 font-medium">
         {error ?? "Data tidak ditemukan"}
       </p>
-      <Button variant="outline" size="sm" onClick={() => router.push(basePath)}
-        className="text-[13px] gap-1.5 rounded-xl mt-1">
+      <Button
+        variant="action-secondary"
+        size="action-sm"
+        onClick={() => router.push(basePath)}
+        className="mt-1"
+      >
         <ArrowLeft size={12} /> Kembali
       </Button>
     </div>
@@ -132,8 +136,8 @@ export default function ViewSuratPage({ role, basePath }: Props) {
     <>
       {/* Modal Konfirmasi Hapus */}
       <AlertDialog open={showDeleteConf} onOpenChange={setShowDeleteConf}>
-        <AlertDialogContent className="bg-white dark:bg-slate-950
-                                       border border-slate-200 dark:border-slate-800
+        <AlertDialogContent className="bg-white dark:bg-neutral-950
+                                       border border-slate-200 dark:border-neutral-800
                                        shadow-none">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-slate-900 dark:text-slate-100
@@ -150,21 +154,19 @@ export default function ViewSuratPage({ role, basePath }: Props) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleting}
-              className="bg-transparent border border-slate-200 dark:border-slate-700
-                         text-slate-700 dark:text-slate-300
-                         hover:bg-slate-100 dark:hover:bg-slate-800
-                         hover:text-slate-900 dark:hover:text-slate-100">
+            <AlertDialogCancel
+              disabled={deleting}
+            >
               Batal
             </AlertDialogCancel>
-            <AlertDialogAction disabled={deleting}
+            <AlertDialogAction
+              disabled={deleting}
+              variant="destructive"
               onClick={e => { e.preventDefault(); handleDelete() }}
-              className="bg-red-600 hover:bg-red-700 active:bg-red-800
-                         dark:bg-red-600 dark:hover:bg-red-700
-                         text-white border-0 focus-visible:ring-red-500 gap-1.5">
+            >
               {deleting
                 ? <><Loader2 size={13} className="animate-spin" /> Menghapus…</>
-                : <><Trash2  size={13} /> Hapus Permanen</>}
+                : "Hapus Permanen"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

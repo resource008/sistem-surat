@@ -1,6 +1,6 @@
 "use client"
 
-import { Loader2 } from "lucide-react"
+import { LoadingSkeleton } from "@/components/shared/loading-skeleton"
 import { AccountActions } from "@/components/role-dashboard/account/account-actions"
 import { AccountDataCard } from "@/components/role-dashboard/account/account-data-card"
 import { PermissionsPanel } from "@/components/role-dashboard/account/permissions-panel"
@@ -45,9 +45,7 @@ export function AccountPage({ readOnly = false }: AccountPageProps) {
 
   if (loading) {
     return (
-      <div className="flex min-h-[420px] items-center justify-center">
-        <Loader2 className="animate-spin text-muted-foreground" size={24} />
-      </div>
+      <LoadingSkeleton type="profile" />
     )
   }
 
