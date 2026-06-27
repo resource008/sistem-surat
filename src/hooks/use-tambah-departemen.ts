@@ -22,7 +22,7 @@ function stripColumnId(column: DepartemenColumn) {
 async function fetchDepartemenDetails(departments: Departemen[]) {
   return Promise.all(
     departments.map(async (department) => {
-      const res = await fetch(`/api/dept/${encodeURIComponent(department.id)}`)
+      const res = await fetch(`/api/admin/dept/${encodeURIComponent(department.id)}`)
       const json = await res.json().catch(() => null)
       return res.ok ? hydrateDepartemenForClient(json as Departemen) : department
     })
@@ -40,7 +40,7 @@ export function useTambahDepartemen() {
 
   useEffect(() => {
     window.dispatchEvent(new CustomEvent("breadcrumb:sub", { detail: "Tambah Departemen" }))
-    fetch("/api/dept")
+    fetch("/api/admin/dept")
       .then((res) => res.ok ? res.json() : [])
       .then(async (data) => {
         const departments = Array.isArray(data) ? data as Departemen[] : []
@@ -79,7 +79,7 @@ export function useTambahDepartemen() {
 
     setSaving(true)
     try {
-      const res = await fetch("/api/dept", {
+      const res = await fetch("/api/admin/dept", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

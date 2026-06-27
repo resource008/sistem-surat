@@ -37,7 +37,7 @@ function DataSuratInner({ basePath, printPath }: Props) {
     isLoading: departmentsLoading,
     error: departmentsError,
   } = useSWR<DepartmentOption[]>(
-    "/api/dept",
+    "/api/admin/dept",
     fetchDepartments,
     {
       revalidateOnFocus: true,

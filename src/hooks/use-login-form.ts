@@ -46,7 +46,7 @@ export function useLoginForm() {
       })
 
       try {
-        await fetch("/api/login-activity", { method: "POST" })
+        await fetch("/api/admin/login-activity", { method: "POST" })
       } catch {
         // Login tetap dilanjutkan walau pencatatan aktivitas gagal.
       }

@@ -4,6 +4,7 @@ import UsersDelete from "@/components/admin/users/users-delete"
 import { LoadingSkeleton } from "@/components/shared/loading-skeleton"
 import { UserAvatar } from "@/components/shared/user-avatar"
 import { Button } from "@/components/ui/button"
+import { USER_PERMISSION_LABELS, USER_ROLE_LABEL } from "@/constants/user"
 import type { User } from "@/domain/user/types"
 import {
   AlertTriangle, ArrowLeft, FileText, KeyRound, Pencil, Trash2,
@@ -28,20 +29,6 @@ function formatTime(dateStr: Date | string | null | undefined) {
     minute: "2-digit",
   })
 }
-
-const ROLE_LABEL: Record<string, string> = {
-  ADMIN: "Admin",
-  STAFF: "Staff",
-  PKL: "PKL",
-}
-
-const PERMISSIONS = [
-  { key: "canCreate", label: "Tambah Data Surat" },
-  { key: "canPrint", label: "Cetak Surat" },
-  { key: "canEdit", label: "Edit Data Surat" },
-  { key: "canTrack", label: "Lacak Surat" },
-  { key: "canDelete", label: "Hapus Data Surat" },
-] as const
 
 function Field({ label, value }: { label: string; value?: string | null }) {
   return (
@@ -100,7 +87,7 @@ export default function UserDetailPage() {
 
     async function loadUser() {
       try {
-        const response = await fetch(`/api/users/${id}`)
+        const response = await fetch(`/api/admin/users/${id}`)
         const data = await response.json().catch(() => null)
         if (!response.ok) throw new Error(data?.error ?? "Gagal memuat data user")
 
@@ -108,7 +95,7 @@ export default function UserDetailPage() {
         setUser(data)
 
         if (data.role === "ADMIN") {
-          const adminResponse = await fetch("/api/users?role=ADMIN&page=1&limit=1")
+          const adminResponse = await fetch("/api/admin/users?role=ADMIN&page=1&limit=1")
           const adminData = await adminResponse.json().catch(() => null)
           if (adminResponse.ok && active) {
             setAdminCount(adminData?.meta?.total ?? null)
@@ -177,7 +164,7 @@ export default function UserDetailPage() {
               <div className="flex flex-col gap-0.5">
                 <span className="text-sm font-semibold">{user.name}</span>
                 <span className="text-xs text-muted-foreground">
-                  {ROLE_LABEL[user.role] ?? user.role}
+                  {USER_ROLE_LABEL[user.role] ?? user.role}
                 </span>
               </div>
             </div>
@@ -191,7 +178,7 @@ export default function UserDetailPage() {
             <Field label="Nama Lengkap" value={user.name} />
             <Field label="Nama Pengguna" value={user.username} />
             <Field label="Email" value={user.email} />
-            <Field label="Role" value={ROLE_LABEL[user.role] ?? user.role} />
+            <Field label="Role" value={USER_ROLE_LABEL[user.role] ?? user.role} />
           </div>
         </div>
       </div>
@@ -204,7 +191,7 @@ export default function UserDetailPage() {
           </div>
           <div className="px-6 py-6">
             <div className="flex flex-col">
-              {PERMISSIONS.map(({ key, label }) => {
+              {USER_PERMISSION_LABELS.map(({ key, label }) => {
                 const active = user.permissions?.[key] ?? false
 
                 return (

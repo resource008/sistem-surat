@@ -27,7 +27,7 @@ export function DeptField({ selected, onToggle, maxHeight = 200 }: DeptFieldProp
       setLoading(true)
       setError(null)
       try {
-        const res = await fetch("/api/dept")
+        const res = await fetch("/api/admin/dept")
         const json = await res.json().catch(() => null)
         if (!res.ok) throw new Error(json?.error ?? "Gagal mengambil departemen")
         if (!ignore) setDepartments(Array.isArray(json) ? json : [])

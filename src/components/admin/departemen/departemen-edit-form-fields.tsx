@@ -10,7 +10,7 @@ import { DepartemenEditorKolomPanel } from "./departemen-editor-kolom-panel"
 import { DepartemenIdentifikasiNamaLembarPanel } from "./departemen-identifikasi-nama-lembar-panel"
 import { DepartemenIdentitasFields } from "./departemen-identitas-fields"
 import { DepartemenTampilanKolomPanel } from "./departemen-tampilan-kolom-panel"
-import { useDepartemenKolomForm } from "./use-departemen-kolom-form"
+import { useDepartemenKolomForm } from "./hooks/use-departemen-kolom-form"
 
 interface Props {
   form: DepartemenFormState

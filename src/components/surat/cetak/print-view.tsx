@@ -1,6 +1,7 @@
+import { NOMOR_DEFAULT_ID } from "@/constants/departemen-columns"
 import { isCetakRowSpanColumn } from "@/domain/surat/custom-fields"
 import { formatTanggalCetak, getCetakColumnValue } from "@/lib/surat-helpers"
-import type { CetakGroup, DetailSurat, RegisterSurat } from "@/types/surat-types"
+import type { CetakGroup, DetailSurat, RegisterSurat } from "@/types/surat"
 
 interface Props {
   groups: CetakGroup[]
@@ -48,7 +49,7 @@ export function CetakPrintView({ groups = [] }: Props) {
                       }
 
                       return (
-                        <td key={column.id} className={column.id.includes("default_nomor_register") ? "td-nomor" : undefined}>
+                        <td key={column.id} className={column.id.includes(NOMOR_DEFAULT_ID) ? "td-nomor" : undefined}>
                           {getCetakColumnValue(column, reg, detail)}
                         </td>
                       )

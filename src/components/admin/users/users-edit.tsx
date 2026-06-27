@@ -14,7 +14,7 @@ import {
   EMPTY_USER_EDIT_FORM,
   EMPTY_USER_PERMISSIONS,
   type UserEditFormState,
-} from "./user-edit-types"
+} from "./types/user-edit"
 
 export default function UserEditPage() {
   const { id }  = useParams<{ id: string }>()
@@ -34,7 +34,7 @@ export default function UserEditPage() {
 
     async function loadUser() {
       try {
-        const response = await fetch(`/api/users/${id}`)
+        const response = await fetch(`/api/admin/users/${id}`)
         const data = await response.json().catch(() => null)
         if (!response.ok) throw new Error(data?.error ?? "Gagal memuat data user")
         if (!active) return
@@ -56,7 +56,7 @@ export default function UserEditPage() {
         })
 
         if (data.role === "ADMIN") {
-          const adminResponse = await fetch("/api/users?role=ADMIN&page=1&limit=1")
+          const adminResponse = await fetch("/api/admin/users?role=ADMIN&page=1&limit=1")
           const adminData = await adminResponse.json().catch(() => null)
           if (adminResponse.ok && active) {
             setAdminCount(adminData?.meta?.total ?? null)
@@ -111,7 +111,7 @@ export default function UserEditPage() {
       }
       if (form.password) body.password = form.password
 
-      const res  = await fetch(`/api/users/${id}`, {
+      const res  = await fetch(`/api/admin/users/${id}`, {
         method:  "PATCH",
         headers: { "Content-Type": "application/json" },
         body:    JSON.stringify(body),

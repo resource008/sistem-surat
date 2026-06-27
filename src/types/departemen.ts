@@ -1,3 +1,10 @@
+import {
+  ASAL_DEFAULT_ID,
+  NOMOR_DEFAULT_ID,
+  TANGGAL_DEFAULT_ID,
+  TUJUAN_DEFAULT_ID,
+} from "@/constants/departemen-columns"
+
 export interface Departemen {
   id: string
   shortName: string
@@ -36,7 +43,7 @@ export type DepartemenFormState = {
 
 export const DEFAULT_DEPARTEMEN_COLUMNS: DepartemenColumn[] = [
   {
-    id: "default_nomor_register",
+    id: NOMOR_DEFAULT_ID,
     label: "Nomor Register",
     type: "number",
     defaultValue: "N/A",
@@ -47,7 +54,7 @@ export const DEFAULT_DEPARTEMEN_COLUMNS: DepartemenColumn[] = [
     sortOrder: 0,
   },
   {
-    id: "default_tanggal_terima",
+    id: TANGGAL_DEFAULT_ID,
     label: "Tanggal Terima",
     type: "date",
     defaultValue: "N/A",
@@ -58,7 +65,7 @@ export const DEFAULT_DEPARTEMEN_COLUMNS: DepartemenColumn[] = [
     sortOrder: 1,
   },
   {
-    id: "default_asal_surat",
+    id: ASAL_DEFAULT_ID,
     label: "Asal Surat",
     type: "text",
     defaultValue: "N/A",
@@ -69,7 +76,7 @@ export const DEFAULT_DEPARTEMEN_COLUMNS: DepartemenColumn[] = [
     sortOrder: 2,
   },
   {
-    id: "default_tujuan",
+    id: TUJUAN_DEFAULT_ID,
     label: "Tujuan",
     type: "text",
     defaultValue: "N/A",

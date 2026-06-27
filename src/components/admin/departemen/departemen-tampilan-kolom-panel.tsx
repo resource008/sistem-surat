@@ -1,14 +1,14 @@
 import { Eye } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { DISPLAY_SLOT_COUNT } from "@/constants/departemen-columns"
 import type { DepartemenColumn } from "@/types"
 import {
-  DISPLAY_SLOT_COUNT,
   fieldClass,
   innerPanelClass,
   panelClass,
   readonlyFieldClass,
-} from "./departemen-form-config"
-import { getColumnLabel } from "./departemen-kolom-utils"
+} from "./styles/form"
+import { getColumnLabel } from "./utils/kolom"
 import { DepartemenSectionToggle } from "./departemen-section-toggle"
 
 type DepartemenTampilanKolomPanelProps = {

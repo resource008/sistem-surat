@@ -9,7 +9,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import type { DepartemenFormState } from "@/types"
-import { fieldClass } from "./departemen-form-config"
+import { fieldClass } from "./styles/form"
 
 type DepartemenIdentitasFieldsProps = {
   form: DepartemenFormState

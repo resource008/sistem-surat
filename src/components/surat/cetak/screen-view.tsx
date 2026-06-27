@@ -3,7 +3,7 @@
 import { useSidebar } from "@/components/ui/sidebar"
 import { isCetakRowSpanColumn } from "@/domain/surat/custom-fields"
 import { formatTanggalShort, getCetakColumnValue } from "@/lib/surat-helpers"
-import type { CetakGroup } from "@/types/surat-types"
+import type { CetakGroup } from "@/types/surat"
 import { format } from "date-fns"
 import { id } from "date-fns/locale"
 import { useEffect, useState } from "react"

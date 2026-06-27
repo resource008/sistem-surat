@@ -5,6 +5,7 @@ import { UserAvatar } from "@/components/shared/user-avatar"
 import { UserStatusBadge } from "@/components/shared/user-status-badge"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
+import { USER_ROLE_LABEL } from "@/constants/user"
 import {
   Table,
   TableBody,
@@ -33,12 +34,6 @@ function formatTimestamp(dateStr: Date | string | null | undefined) {
     minute: "2-digit",
   })
   return `${dateLabel}, ${timeLabel}`
-}
-
-const ROLE_LABEL: Record<string, string> = {
-  ADMIN: "Admin",
-  STAFF: "Staff",
-  PKL: "PKL",
 }
 
 function DesktopSkeletonRow() {
@@ -132,7 +127,7 @@ export default function UsersPage() {
                 </div>
               </TableCell>
               <TableCell className="text-sm">
-                {ROLE_LABEL[user.role] ?? user.role}
+                {USER_ROLE_LABEL[user.role] ?? user.role}
               </TableCell>
               <TableCell className="hidden text-sm text-muted-foreground lg:table-cell">
                 {user.email}
@@ -178,7 +173,7 @@ export default function UsersPage() {
             <div className="mt-1 flex items-center justify-between border-t border-border/50 pt-3">
               <UserStatusBadge status={user.status} />
               <span className="rounded-md bg-muted px-2 py-1 text-xs font-medium">
-                {ROLE_LABEL[user.role] ?? user.role}
+                {USER_ROLE_LABEL[user.role] ?? user.role}
               </span>
             </div>
           </div>

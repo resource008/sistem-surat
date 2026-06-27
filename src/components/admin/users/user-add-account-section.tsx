@@ -11,8 +11,8 @@ import {
 } from "@/components/ui/select"
 import { Eye, EyeOff, FileText, Shuffle } from "lucide-react"
 import { useState } from "react"
-import type { UserAddFormState } from "./user-add-types"
-import { generatePassword } from "./user-form-utils"
+import type { UserAddFormState } from "./types/user-add"
+import { generatePassword } from "./utils/password"
 
 type UserAddAccountSectionProps = {
   form: UserAddFormState
