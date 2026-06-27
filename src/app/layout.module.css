@@ -340,6 +340,36 @@
   overflow: visible;
 }
 
+.topbarDataSurat {
+  display: grid;
+  grid-template-columns:
+    minmax(120px, 1fr)
+    minmax(220px, 520px)
+    minmax(120px, 1fr);
+  gap: 16px;
+}
+
+.topbarDataSurat .topbarLeft {
+  grid-column: 1;
+  min-width: 0;
+  width: auto;
+}
+
+.topbarDataSurat .topbarCenter {
+  grid-column: 2;
+  position: static;
+  width: 100%;
+  min-width: 0;
+  transform: none;
+  pointer-events: auto;
+}
+
+.topbarDataSurat .topbarRight {
+  grid-column: 3;
+  margin-left: 0;
+  justify-self: end;
+}
+
 /* Kiri topbar */
 .topbarLeft {
   display: flex;
@@ -476,6 +506,10 @@
 
 @media (max-width: 768px) {
   .topbar { padding: 0 16px; height: 56px; left: 0; }
+  .topbarDataSurat {
+    display: flex;
+    gap: 10px;
+  }
   .topbarLeft { flex: 0 0 auto; max-width: 120px; }
   .topbarLeftAdmin {
     flex: 1 1 auto;
@@ -499,6 +533,13 @@
     margin-left: auto;
     transform: none;
   }
+  .topbarDataSurat .topbarCenter {
+    position: relative;
+    width: 36px;
+    min-width: 36px;
+    max-width: 36px;
+    margin-left: auto;
+  }
   .topbarCenter > * {
     flex: 0 0 auto;
     width: 36px;
@@ -514,6 +555,13 @@
     max-width: none;
     margin-left: 0;
     transform: none;
+  }
+  .topbarDataSurat .topbarCenterExpanded {
+    flex: 1 1 auto;
+    width: auto;
+    min-width: 0;
+    max-width: none;
+    margin-left: 0;
   }
   .topbarCenterExpanded > * {
     flex: 1 1 auto;

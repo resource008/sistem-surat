@@ -310,7 +310,10 @@ function RoleLayoutInner({ role, children }: Props) {
         `}
         style={{ "--topbar-left": topbarLeft } as React.CSSProperties}
       >
-        <div id="topbar" className={styles.topbar}>
+        <div
+          id="topbar"
+          className={`${styles.topbar} ${isDataSuratPage ? styles.topbarDataSurat : ""}`}
+        >
           <div className={`${styles.topbarLeft} ${isDataSuratPage ? styles.topbarLeftDataSurat : ""}`}>
             {isMobile && (!isDataSuratPage || !dataSuratSearchExpanded) && (
               <button
