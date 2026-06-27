@@ -1,14 +1,28 @@
 "use client"
 
-import type { RegisterSurat } from "@/types"
+import type { DetailSurat, RegisterSurat } from "@/types"
 import { format, isValid } from "date-fns"
 import { id }             from "date-fns/locale"
 import { compareRegisterNomor } from "@/lib/surat-helpers"
+import {
+  formatCustomFieldValue,
+  getCustomFieldValue,
+  getSuratBuiltInFieldValue,
+  isTujuanColumn,
+} from "@/domain/surat/custom-fields"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
 const SESSION_KEY = "datasurat:selectedIds"
+const CETAK_IDS_KEY = "cetak:ids"
 const LIMIT = 20
+const SEARCH_COLUMN_ALL = "all"
+
+const STATIC_SEARCH_COLUMNS = [
+  { id: "nomor_register", label: "Nomor Register" },
+  { id: "asal_surat", label: "Asal Surat" },
+]
+const HIDDEN_SEARCH_COLUMN_OPTIONS = new Set([SEARCH_COLUMN_ALL, "tanggal_terima", "tujuan"])
 
 function isClient() { return typeof window !== "undefined" }
 
@@ -38,6 +52,159 @@ function hasVisibleDetails(register: RegisterSurat) {
   return (register.detailSurat ?? []).length > 0
 }
 
+function normalizeSearchText(value: unknown) {
+  return String(value ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim()
+}
+
+function normalizeColumnLabel(label: string) {
+  return normalizeSearchText(label).replace(/[^a-z0-9]+/g, " ").trim()
+}
+
+function dedupeSearchValues(values: unknown[]) {
+  const seen = new Set<string>()
+
+  return values.filter((value) => {
+    const text = String(value ?? "").trim()
+    if (!text) return false
+    if (seen.has(text)) return false
+    seen.add(text)
+    return true
+  })
+}
+
+function getBuiltInDetailSearchValues(columnLabel: string, detail: DetailSurat) {
+  if (columnLabel === "perihal" || columnLabel === "perihal surat") return [detail.perihal]
+  if (columnLabel === "nomor surat" || columnLabel === "no surat") return [detail.noSurat]
+  if (columnLabel === "lampiran") return [detail.lampiran]
+
+  if (columnLabel === "tanggal surat" || columnLabel === "tgl surat") {
+    return [
+      detail.tanggalSurat,
+      safeFormat(detail.tanggalSurat, "dd MMMM yyyy"),
+    ]
+  }
+
+  return []
+}
+
+function getCustomFieldSearchValues(detail: DetailSurat, selectedColumn?: string) {
+  const entries = Object.entries(detail.customFields ?? {})
+  if (!selectedColumn) return entries.map(([, value]) => value)
+
+  return entries
+    .filter(([key]) => {
+      const normalizedKey = normalizeColumnLabel(key)
+      return normalizedKey === selectedColumn || normalizedKey.endsWith(` ${selectedColumn}`)
+    })
+    .map(([, value]) => value)
+}
+
+function getColumnSearchId(column: { id: string; label: string }) {
+  const columnId = String(column.id)
+  if (columnId.includes("default_nomor_register")) return "nomor_register"
+  if (columnId.includes("default_tanggal_terima")) return "tanggal_terima"
+  if (columnId.includes("default_asal_surat")) return "asal_surat"
+  if (isTujuanColumn(column)) return "tujuan"
+  return `column:${normalizeColumnLabel(column.label)}`
+}
+
+function canShowSearchColumnOption(columnId: string) {
+  if (HIDDEN_SEARCH_COLUMN_OPTIONS.has(columnId)) return false
+
+  if (columnId.startsWith("column:")) {
+    const columnLabel = columnId.replace(/^column:/, "")
+    return !["tanggal", "tanggal surat", "tgl surat"].includes(columnLabel)
+  }
+
+  return true
+}
+
+function getColumnValue(column: any, reg: RegisterSurat, detail: DetailSurat) {
+  if (String(column.id).includes("default_tanggal_terima")) {
+    return formatCustomFieldValue({ ...column, type: "date" }, reg.tanggalTerima)
+  }
+  if (String(column.id).includes("default_asal_surat")) return reg.asalSurat || "-"
+  if (isTujuanColumn(column)) return detail.tujuan || reg.dept.shortName || "-"
+
+  const builtInValue = getSuratBuiltInFieldValue(column, detail as unknown as Record<string, unknown>)
+  if (builtInValue !== null) return builtInValue
+
+  return formatCustomFieldValue(column, getCustomFieldValue(column, detail.customFields))
+}
+
+function getStaticColumnValue(columnId: string, reg: RegisterSurat, detail: any) {
+  if (columnId === "nomor_register") return reg.nomor
+  if (columnId === "tanggal_terima") {
+    return [
+      reg.tanggalTerima,
+      safeFormat(reg.tanggalTerima, "dd MMMM yyyy"),
+    ].filter(Boolean).join(" ")
+  }
+  if (columnId === "asal_surat") return reg.asalSurat
+  if (columnId === "tujuan") return detail.tujuan || reg.dept.shortName
+  return ""
+}
+
+function getDetailColumnTexts(reg: RegisterSurat, detail: DetailSurat, selectedColumn: string) {
+  if (selectedColumn !== SEARCH_COLUMN_ALL && !selectedColumn.startsWith("column:")) {
+    return [getStaticColumnValue(selectedColumn, reg, detail)]
+  }
+
+  const displayColumns = reg.dept.displayColumns ?? []
+  const values: unknown[] = displayColumns
+    .filter((column) => selectedColumn === SEARCH_COLUMN_ALL || getColumnSearchId(column) === selectedColumn)
+    .map((column) => getColumnValue(column, reg, detail))
+
+  if (selectedColumn.startsWith("column:")) {
+    const columnLabel = selectedColumn.replace(/^column:/, "")
+    values.push(
+      ...getBuiltInDetailSearchValues(columnLabel, detail),
+      ...getCustomFieldSearchValues(detail, columnLabel)
+    )
+  }
+
+  if (selectedColumn === SEARCH_COLUMN_ALL) {
+    values.push(
+      detail.perihal,
+      detail.noSurat,
+      detail.lampiran,
+      detail.tanggalSurat,
+      safeFormat(detail.tanggalSurat, "dd MMMM yyyy"),
+      detail.tujuan,
+      ...getCustomFieldSearchValues(detail)
+    )
+  }
+
+  return dedupeSearchValues(values)
+}
+
+function detailMatchesSearch(reg: RegisterSurat, detail: DetailSurat, selectedColumn: string, normalizedQuery: string) {
+  return getDetailColumnTexts(reg, detail, selectedColumn)
+    .some((value) => normalizeSearchText(value).includes(normalizedQuery))
+}
+
+function getRegisterSearchText(reg: RegisterSurat, selectedColumn: string) {
+  if (selectedColumn === SEARCH_COLUMN_ALL) {
+    return [
+      reg.nomor,
+      reg.dept.shortName,
+      reg.asalSurat,
+      reg.tanggalTerima,
+      safeFormat(reg.tanggalTerima, "dd MMMM yyyy"),
+    ].join(" ")
+  }
+
+  if (["nomor_register", "tanggal_terima", "asal_surat"].includes(selectedColumn)) {
+    return getStaticColumnValue(selectedColumn, reg, reg.detailSurat?.[0] ?? {})
+  }
+
+  return ""
+}
+
 export function useDataSurat(printPath: string) {
   const router       = useRouter()
   const searchParams = useSearchParams()
@@ -48,6 +215,8 @@ export function useDataSurat(printPath: string) {
     () => filterDeptsRaw.split(",").filter(Boolean),
     [filterDeptsRaw]
   )
+  const searchQuery = searchParams.get("search") ?? ""
+  const requestedSearchColumn = searchParams.get("column") ?? SEARCH_COLUMN_ALL
 
   const [data,        setData]        = useState<RegisterSurat[]>([])
   const [loading,     setLoading]     = useState(true)
@@ -123,10 +292,52 @@ export function useDataSurat(printPath: string) {
 
   // ✅ groupedData & sortedGroupKeys langsung dari data (tidak perlu filteredData lagi
   //    karena filter sudah dilakukan di server/API)
-  const visibleData = useMemo(
+  const searchColumns = useMemo(() => {
+    const options = new Map<string, string>()
+    STATIC_SEARCH_COLUMNS.forEach((column) => options.set(column.id, column.label))
+
+    data.forEach((reg) => {
+      ;(reg.dept.displayColumns ?? []).forEach((column) => {
+        const columnId = getColumnSearchId(column)
+        if (canShowSearchColumnOption(columnId) && !options.has(columnId)) {
+          options.set(columnId, column.label)
+        }
+      })
+    })
+
+    return Array.from(options, ([id, label]) => ({ id, label }))
+  }, [data])
+
+  const searchColumn = useMemo(
+    () => searchColumns.some((column) => column.id === requestedSearchColumn)
+      ? requestedSearchColumn
+      : SEARCH_COLUMN_ALL,
+    [requestedSearchColumn, searchColumns]
+  )
+
+  const visibleBeforeSearch = useMemo(
     () => data.filter(hasVisibleDetails),
     [data]
   )
+
+  const visibleData = useMemo(() => {
+    const normalizedQuery = normalizeSearchText(searchQuery)
+    if (!normalizedQuery) return visibleBeforeSearch
+
+    return visibleBeforeSearch
+      .map((reg) => {
+        const registerText = normalizeSearchText(getRegisterSearchText(reg, searchColumn))
+        if (registerText.includes(normalizedQuery)) return reg
+
+        const matchingDetails = (reg.detailSurat ?? [])
+          .filter((detail) => detailMatchesSearch(reg, detail, searchColumn, normalizedQuery))
+
+        return matchingDetails.length > 0
+          ? { ...reg, detailSurat: matchingDetails }
+          : null
+      })
+      .filter((reg): reg is RegisterSurat => reg !== null)
+  }, [searchColumn, searchQuery, visibleBeforeSearch])
 
   const groupedData = useMemo(() => {
     const grouped = visibleData.reduce((acc: Record<string, RegisterSurat[]>, reg) => {
@@ -167,8 +378,8 @@ export function useDataSurat(printPath: string) {
     handlePrint: () => {
       const idsString = Array.from(selectedIds).join(",")
       if (!isClient()) return
-      try { sessionStorage.setItem("cetak:ids:all", idsString) } catch {}
-      router.push(`${printPath}/all`)
+      try { sessionStorage.setItem(CETAK_IDS_KEY, idsString) } catch {}
+      router.push(printPath)
     },
     loadMore: () => {
       if (!loadingMore && hasMore) setPage(p => p + 1)
@@ -179,6 +390,8 @@ export function useDataSurat(printPath: string) {
     state: {
       loading, loadingMore, hasMore,
       filterDate, filterDepts,
+      searchColumns,
+      hasLoadedData: visibleBeforeSearch.length > 0,
       filteredData: visibleData,   // ✅ tidak perlu filteredData terpisah lagi
       groupedData, sortedGroupKeys, selectedIds,
     },

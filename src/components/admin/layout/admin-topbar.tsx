@@ -26,11 +26,20 @@ export function AdminTopbar({
   onSearchExpand,
 }: AdminTopbarProps) {
   const hideTitleOnMobileSearch = isMobile && isUsersPage && searchExpanded
+  const leftClassName = [
+    styles.topbarLeft,
+    styles.topbarLeftAdmin,
+    isUsersPage ? styles.topbarLeftSearchPage : "",
+  ].filter(Boolean).join(" ")
+  const rightClassName = [
+    styles.topbarRight,
+    searchExpanded && isMobile ? styles.topbarRightSearchExpanded : "",
+  ].filter(Boolean).join(" ")
 
   return (
     <div id="topbar" className={styles.topbar}>
       {!hideTitleOnMobileSearch && (
-        <div className={styles.topbarLeft}>
+        <div className={leftClassName}>
           {isMobile && (
             <button
               className={styles.hamburger}
@@ -58,7 +67,7 @@ export function AdminTopbar({
       )}
 
       {isUsersPage && (
-        <div className={`${searchExpanded && isMobile ? "flex-1" : ""} ${styles.topbarRight}`}>
+        <div className={rightClassName}>
           <AdminTopbarSearch
             isMobile={isMobile}
             onExpand={onSearchExpand}

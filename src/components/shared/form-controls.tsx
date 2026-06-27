@@ -17,8 +17,8 @@ import { cn } from "@/lib/utils"
 
 export const inputClass = cn(
   "w-full rounded-lg px-3 py-2 text-[14px] font-medium transition-all duration-200",
-  "border border-slate-200 dark:border-slate-800",
-  "bg-white dark:bg-slate-950",
+  "border border-slate-200 dark:border-neutral-800",
+  "bg-white dark:bg-neutral-950",
   "text-slate-800 dark:text-slate-200",
   "placeholder:text-slate-400 dark:placeholder:text-slate-500",
   "hover:border-blue-400 dark:hover:border-blue-700",
@@ -27,8 +27,8 @@ export const inputClass = cn(
 
 export const readonlyClass = cn(
   "w-full rounded-lg px-3 py-2 text-[14px] font-medium",
-  "border border-slate-100 dark:border-slate-800/60",
-  "bg-slate-50 dark:bg-slate-900/50",
+  "border border-slate-100 dark:border-neutral-800",
+  "bg-slate-50 dark:bg-neutral-900",
   "text-slate-400 dark:text-slate-500",
   "cursor-not-allowed select-none"
 )

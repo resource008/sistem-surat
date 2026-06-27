@@ -6,6 +6,7 @@ import {
   fieldClass,
   innerPanelClass,
   panelClass,
+  readonlyFieldClass,
 } from "./departemen-form-config"
 import { getColumnLabel } from "./departemen-kolom-utils"
 import { DepartemenSectionToggle } from "./departemen-section-toggle"
@@ -44,8 +45,8 @@ export function DepartemenTampilanKolomPanel({
       />
 
       {open && (
-        <div className="px-4 pb-4 pt-2">
-          <div className={`${innerPanelClass} space-y-4 px-4 py-4`}>
+        <div className="px-4 pb-4 pt-3">
+          <div className={`${innerPanelClass} space-y-3 px-4 py-3`}>
             {Array.from({ length: DISPLAY_SLOT_COUNT }).map((_, index) => {
               const fixedColumn = index === 0 ? fixedNomor : index === DISPLAY_SLOT_COUNT - 1 ? fixedTujuan : null
               const slotIndex = index - 1
@@ -57,11 +58,11 @@ export function DepartemenTampilanKolomPanel({
               return (
                 <div
                   key={index}
-                  className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-center lg:gap-4"
+                  className="grid gap-2 lg:grid-cols-[minmax(0,1fr)_minmax(260px,360px)] lg:items-center lg:gap-3"
                 >
-                  <span className="text-[15px] font-medium">Kolom {index + 1}</span>
+                  <span className="text-[13px] font-medium">Kolom {index + 1}</span>
                   {fixedColumn || readOnly ? (
-                    <div className={`flex items-center ${fieldClass}`}>
+                    <div className={`flex !h-9 items-center ${readonlyFieldClass}`}>
                       {fixedColumn
                         ? `${getColumnLabel(fixedColumn)} (default)`
                         : getColumnLabel(selectedColumn) || "Tidak ada data"}
@@ -72,7 +73,7 @@ export function DepartemenTampilanKolomPanel({
                       onValueChange={(value) => onDisplaySlotChange(slotIndex, value)}
                       disabled={disabled || selectableDisplayColumns.length === 0}
                     >
-                      <SelectTrigger className={`${fieldClass} w-full`}>
+                      <SelectTrigger className={`${fieldClass} !h-9 w-full`}>
                         <SelectValue placeholder="Pilih kolom" />
                       </SelectTrigger>
                       <SelectContent>

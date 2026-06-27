@@ -20,7 +20,7 @@ interface ActivityCardProps {
   title: string
   value: number
   icon: ElementType
-  gradient: string
+  surface: string
   iconBg: string
   iconColor: string
   changePercent?: number | null
@@ -46,27 +46,27 @@ function ActivityCard({
   title,
   value,
   icon: Icon,
-  gradient,
+  surface,
   iconBg,
   iconColor,
   changePercent,
 }: ActivityCardProps) {
   return (
-    <Card className={`border-0 bg-gradient-to-br ${gradient} shadow-sm ring-0 dark:shadow-none`}>
+    <Card className={`border-0 ${surface} shadow-sm ring-0 dark:shadow-none`}>
       <CardContent className="flex h-full min-h-[160px] flex-col p-4 sm:p-5">
-        <div className={`-mt-1 flex size-9 items-center justify-center rounded-xl sm:size-10 ${iconBg}`}>
-          <Icon className={`size-4 sm:size-5 ${iconColor}`} />
+        <div className="flex w-full items-start justify-between gap-3">
+          <div className={`-mt-1 flex size-9 items-center justify-center rounded-xl sm:size-10 ${iconBg}`}>
+            <Icon className={`size-4 sm:size-5 ${iconColor}`} />
+          </div>
+          {changePercent !== undefined && <ChangeBadge value={changePercent} />}
         </div>
-        <div className="mt-auto flex translate-y-1 flex-col gap-1 sm:translate-y-1.5">
+        <div className="mt-auto flex w-full translate-y-1 flex-col gap-1 sm:translate-y-1.5">
           <span className="text-2xl font-bold tracking-tight text-white drop-shadow-sm sm:text-3xl">
             {formatNumber(value)}
           </span>
-          <div className="flex flex-wrap items-center justify-between gap-1.5">
-            <span className="text-sm font-medium text-white/90 drop-shadow-sm sm:text-base">
-              {title}
-            </span>
-            {changePercent !== undefined && <ChangeBadge value={changePercent} />}
-          </div>
+          <span className="text-sm font-medium text-white/90 drop-shadow-sm sm:text-base">
+            {title}
+          </span>
         </div>
       </CardContent>
     </Card>
@@ -80,7 +80,7 @@ export function ActivitySummary({ aktivitas }: ActivitySummaryProps) {
         title="Jumlah akun"
         value={aktivitas.jumlahAkun}
         icon={CircleUserRound}
-        gradient={ACTIVITY_CARD_STYLES[0].gradient}
+        surface={ACTIVITY_CARD_STYLES[0].surface}
         iconBg={ACTIVITY_CARD_STYLES[0].iconBg}
         iconColor={ACTIVITY_CARD_STYLES[0].iconColor}
       />
@@ -88,7 +88,7 @@ export function ActivitySummary({ aktivitas }: ActivitySummaryProps) {
         title="Total departemen"
         value={aktivitas.totalDepartemen}
         icon={Building2}
-        gradient={ACTIVITY_CARD_STYLES[1].gradient}
+        surface={ACTIVITY_CARD_STYLES[1].surface}
         iconBg={ACTIVITY_CARD_STYLES[1].iconBg}
         iconColor={ACTIVITY_CARD_STYLES[1].iconColor}
       />
@@ -96,7 +96,7 @@ export function ActivitySummary({ aktivitas }: ActivitySummaryProps) {
         title="Total Surat Masuk"
         value={aktivitas.totalSuratMasuk}
         icon={Inbox}
-        gradient={ACTIVITY_CARD_STYLES[2].gradient}
+        surface={ACTIVITY_CARD_STYLES[2].surface}
         iconBg={ACTIVITY_CARD_STYLES[2].iconBg}
         iconColor={ACTIVITY_CARD_STYLES[2].iconColor}
         changePercent={aktivitas.perubahanSuratMasuk}
