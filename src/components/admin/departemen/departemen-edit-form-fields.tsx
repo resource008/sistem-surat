@@ -45,7 +45,7 @@ export function DepartemenEditFormFields({
   } = useDepartemenKolomForm(form.columns, onChange)
 
   return (
-    <div className="flex flex-col gap-7">
+    <div className="flex flex-col gap-4">
       <DepartemenIdentitasFields
         form={form}
         disabled={disabled || readOnly}

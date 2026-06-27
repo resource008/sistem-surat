@@ -3,6 +3,7 @@
 import { createPortal } from "react-dom"
 import { X } from "lucide-react"
 import { FilterPanel } from "./filter-panel"
+import type { DataSuratSearchColumn } from "@/components/surat/data-surat/topbar-search"
 
 interface FilterDesktopProps {
   mounted: boolean
@@ -13,12 +14,16 @@ interface FilterDesktopProps {
   onSelectDate: (d: Date | undefined) => void
   selectedDepts: string[]
   onToggleDept: (dept: string) => void
+  searchColumns?: DataSuratSearchColumn[]
+  selectedSearchColumn?: string
+  onSelectSearchColumn?: (column: string) => void
   hideDepartments?: boolean
 }
 
 export function FilterDesktop({
   mounted, visible, onClose, hasFilter,
   date, onSelectDate, selectedDepts, onToggleDept,
+  searchColumns, selectedSearchColumn, onSelectSearchColumn,
   hideDepartments,
 }: FilterDesktopProps) {
   if (!mounted) return null
@@ -75,6 +80,9 @@ export function FilterDesktop({
           <FilterPanel
             date={date} onSelectDate={onSelectDate}
             selectedDepts={selectedDepts} onToggleDept={onToggleDept}
+            searchColumns={searchColumns}
+            selectedSearchColumn={selectedSearchColumn}
+            onSelectSearchColumn={onSelectSearchColumn}
             hideDepartments={hideDepartments}
           />
         </div>

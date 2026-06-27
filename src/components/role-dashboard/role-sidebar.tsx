@@ -106,15 +106,29 @@ export function RoleSidebar({
   }, [])
 
   async function handleLogout() {
-    const { data: session } = await authClient.getSession()
-    if (session?.session?.token) {
-      await authClient.revokeSession({ token: session.session.token })
+    let redirected = false
+    const redirectToLogin = () => {
+      if (redirected) return
+      redirected = true
+      window.location.href = `${routes.login}?logout=true`
     }
-    await authClient.signOut({
-      fetchOptions: {
-        onSuccess: () => { window.location.href = `${routes.login}?logout=true` },
-      },
-    })
+
+    try {
+      const { data: session } = await authClient.getSession()
+      await fetch("/api/logout-activity", { method: "POST", keepalive: true }).catch(() => {})
+
+      if (session?.session?.token) {
+        await authClient.revokeSession({ token: session.session.token }).catch(() => {})
+      }
+
+      await authClient.signOut({
+        fetchOptions: {
+          onSuccess: redirectToLogin,
+        },
+      })
+    } finally {
+      redirectToLogin()
+    }
   }
 
   return (
@@ -258,7 +272,7 @@ export function RoleSidebar({
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Batal</AlertDialogCancel>
-              <AlertDialogAction onClick={handleLogout} className="bg-red-500 hover:bg-red-600 text-white">
+              <AlertDialogAction onClick={handleLogout} variant="destructive">
                 Keluar
               </AlertDialogAction>
             </AlertDialogFooter>

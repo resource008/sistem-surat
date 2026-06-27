@@ -19,8 +19,8 @@ export function Field({ label, value, placeholder = "Tidak diisi", fullWidth, mo
       </p>
       <div className={cn(
         "rounded-xl border px-3.5 py-2.5 text-[14px] min-h-[38px]",
-        "border-slate-200 dark:border-slate-800",
-        "bg-white dark:bg-slate-950",
+        "border-slate-200 dark:border-neutral-800",
+        "bg-white dark:bg-neutral-950",
         mono && !isEmpty && "font-mono",
         isEmpty
           ? "text-slate-400 dark:text-slate-600 italic"   // ← styling placeholder

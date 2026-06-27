@@ -44,7 +44,7 @@ export function getColumnLabel(column?: DepartemenColumn | null) {
 
 export function getTypeLabel(column: DepartemenColumn) {
   if (column.id.includes(NOMOR_DEFAULT_ID)) return "Angka (otomatis)"
-  if (column.id.includes(TANGGAL_DEFAULT_ID)) return "Tanggal"
+  if (column.id.includes(TANGGAL_DEFAULT_ID)) return "Tanggal (otomatis)"
   if (column.isDefault) return "Teks (otomatis)"
   return TYPE_LABEL[column.type]
 }

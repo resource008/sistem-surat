@@ -1,12 +1,12 @@
 import { AdminDashboardRepository } from "./repositories"
 import {
   DashboardStatsResult,
+  RiwayatAktivitasPengguna,
   StatistikFilter,
   TipeWaktuStatistik,
 } from "./types"
 
 const DAY_LABELS = ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab"]
-const ACTIVE_USER_WINDOW_MS = 45 * 1_000
 
 const MONTH_LABELS = [
   "Jan", "Feb", "Mar", "Apr", "Mei", "Jun",
@@ -96,6 +96,23 @@ function getStatisticIndex(date: Date, tipeWaktu: TipeWaktuStatistik) {
   return date.getMonth()
 }
 
+function buildRiwayatAktivitasPengguna(
+  users: Awaited<ReturnType<AdminDashboardRepository["findUserActivities"]>>
+): RiwayatAktivitasPengguna[] {
+  return users.map((user) => {
+    const lastSession   = user.sessions[0]
+    const terakhirAktif = lastSession?.updatedAt ?? user.lastLoginAt
+    const isActive = Boolean(lastSession)
+
+    return {
+      id:           user.id,
+      nama:         user.name,
+      terakhirMasuk: terakhirAktif,
+      status:       isActive ? "Sedang aktif" : "Tidak aktif",
+    }
+  })
+}
+
 export async function getAdminDashboardStats(
   repository: AdminDashboardRepository,
   filter: StatistikFilter
@@ -129,7 +146,26 @@ export async function getAdminDashboardStats(
   const selectedDepartment = requestedDepartment ?? departments[0]
 
   if (!selectedDepartment) {
-    throw new Error("NOT_FOUND: Tidak ada departemen aktif")
+    const statistikData = labels.map(() => 0)
+
+    return {
+      aktivitas: {
+        jumlahAkun,
+        totalDepartemen,
+        totalSuratMasuk,
+        perubahanSuratMasuk: getChangePercent(currentSuratMasuk, previousSuratMasuk),
+      },
+      suratPerDepartemen: [],
+      statistikSurat: {
+        departemenId: "",
+        departemen:   "Belum ada departemen",
+        tipeWaktu:    filter.tipeWaktu,
+        labels,
+        data:  statistikData,
+        total: 0,
+      },
+      riwayatAktivitasPengguna: buildRiwayatAktivitasPengguna(users),
+    }
   }
 
   const statistikRaw = await repository.findSuratStatistics(
@@ -160,21 +196,7 @@ export async function getAdminDashboardStats(
     }
   }
 
-  const riwayatAktivitasPengguna = users.map((user) => {
-    const lastSession   = user.sessions[0]
-    const terakhirAktif = lastSession?.updatedAt ?? user.lastLoginAt
-    const isRecentlySeen = lastSession
-      ? Date.now() - lastSession.updatedAt.getTime() <= ACTIVE_USER_WINDOW_MS
-      : false
-    const isActive = Boolean(lastSession) && isRecentlySeen
-
-    return {
-      id:           user.id,
-      nama:         user.name,
-      terakhirMasuk: terakhirAktif,
-      status:       isActive ? "Sedang aktif" : "Tidak aktif",
-    } as const
-  })
+  const riwayatAktivitasPengguna = buildRiwayatAktivitasPengguna(users)
 
   return {
     aktivitas: {

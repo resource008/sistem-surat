@@ -2,6 +2,7 @@
 
 import { Building2 } from "lucide-react"
 import { EmptyState } from "@/components/ui/empty-state"
+import { Skeleton } from "@/components/ui/skeleton"
 import type { Departemen } from "@/types"
 
 function getDisplayName(departemen: Departemen) {
@@ -48,9 +49,9 @@ export function DepartemenTable({
             key={i}
             className="grid grid-cols-[180px_minmax(0,1fr)_150px] items-center border-b border-border/40 px-4 py-3"
           >
-            <div className="h-4 w-32 animate-pulse rounded-md bg-muted" />
-            <div className="h-4 w-1/2 animate-pulse rounded-md bg-muted" />
-            <div className="h-4 w-16 animate-pulse rounded-md bg-muted" />
+            <Skeleton className="h-4 w-32" />
+            <Skeleton className="h-4 w-1/2" />
+            <Skeleton className="h-4 w-16" />
           </div>
         ))
       ) : (
