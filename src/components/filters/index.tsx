@@ -77,10 +77,10 @@ function TopbarFilterInner({
       <button
         onClick={disabled ? undefined : handleTriggerClick}
         style={{
-          display: "flex", alignItems: "center", justifyContent: "center", gap: isMobile ? 0 : "6px",
-          padding: isMobile ? 0 : "0 12px",
-          width: isMobile ? "36px" : undefined,
-          height: isMobile ? "36px" : "34px",
+          display: "flex", alignItems: "center", justifyContent: "center", gap: 0,
+          padding: 0,
+          width: "36px",
+          height: "36px",
           borderRadius: "8px",
           border: `1px solid ${hasAnyFilter ? "#2563eb" : "var(--border)"}`,
           background: hasAnyFilter ? "#2563eb" : "transparent",
@@ -92,19 +92,11 @@ function TopbarFilterInner({
           fontWeight: 500, whiteSpace: "nowrap", flexShrink: 0,
           transition: "all 0.2s ease",
         }}
+        aria-label="Filter"
+        title="Filter"
       >
         <SlidersHorizontal size={14} />
-        {!isMobile && "Filter"}
-        {hasAnyFilter && !isMobile && (
-          <span style={{
-            background: "rgba(255,255,255,0.25)", color: "#fff",
-            fontSize: "10px", fontWeight: 700,
-            padding: "1px 6px", borderRadius: "10px",
-          }}>
-            {activeFilterCount}
-          </span>
-        )}
-        {hasAnyFilter && isMobile && (
+        {hasAnyFilter && (
           <span style={{
             position: "absolute",
             top: "-6px",
@@ -168,8 +160,8 @@ export default function TopbarFilter(props: Props) {
       <button
         disabled
         style={{
-          display: "flex", alignItems: "center", gap: "6px",
-          padding: "0 12px", height: "34px", borderRadius: "8px",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          padding: 0, width: "36px", height: "36px", borderRadius: "8px",
           border: "1px solid var(--border)",
           background: "transparent",
           color: "var(--muted-foreground)",
@@ -177,9 +169,10 @@ export default function TopbarFilter(props: Props) {
           fontFamily: "inherit", fontWeight: 500,
           cursor: "not-allowed", flexShrink: 0,
         }}
+        aria-label="Filter"
+        title="Filter"
       >
         <SlidersHorizontal size={14} />
-        Filter
       </button>
     }>
       <TopbarFilterInner {...props} />

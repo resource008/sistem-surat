@@ -19,7 +19,6 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { toast } from "sonner"
 
-const SESSION_KEY = "datasurat:selectedIds"
 const CETAK_IDS_KEY = "cetak:ids"
 const LIMIT = 20
 const SEARCH_COLUMN_ALL = "all"
@@ -31,22 +30,6 @@ const STATIC_SEARCH_COLUMNS = [
 const HIDDEN_SEARCH_COLUMN_OPTIONS = new Set([SEARCH_COLUMN_ALL, "tanggal_terima", "tujuan"])
 
 function isClient() { return typeof window !== "undefined" }
-
-function readSession(): Set<number> {
-  if (!isClient()) return new Set()
-  try {
-    const raw = sessionStorage.getItem(SESSION_KEY)
-    if (!raw) return new Set()
-    const parsed = JSON.parse(raw)
-    if (!Array.isArray(parsed)) return new Set()
-    return new Set(parsed.filter((id): id is number => typeof id === "number"))
-  } catch { return new Set() }
-}
-
-function writeSession(ids: Set<number>) {
-  if (!isClient()) return
-  try { sessionStorage.setItem(SESSION_KEY, JSON.stringify(Array.from(ids))) } catch {}
-}
 
 function safeFormat(date: string | Date | null | undefined, fmt: string): string | null {
   if (!date) return null
@@ -244,9 +227,6 @@ export function useDataSurat(printPath: string) {
   const [page,        setPage]        = useState(1)
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
 
-  useEffect(() => { setSelectedIds(readSession()) }, [])
-  useEffect(() => { writeSession(selectedIds)     }, [selectedIds])
-
   // ✅ Gunakan ref untuk track filter aktif — hindari stale closure di fetchPage
   const filterRef = useRef({ filterDate, filterDeptsRaw })
   useEffect(() => {
@@ -390,9 +370,6 @@ export function useDataSurat(printPath: string) {
     },
     clearSelection: () => {
       setSelectedIds(new Set())
-      if (isClient()) {
-        try { sessionStorage.removeItem(SESSION_KEY) } catch {}
-      }
     },
     handlePrint: () => {
       const idsString = Array.from(selectedIds).join(",")
