@@ -110,7 +110,7 @@ function MobileList({ group }: { group: CetakGroup }) {
 function DesktopTable({ group }: { group: CetakGroup }) {
   const columns = group.columns ?? group.registers[0]?.dept?.columns ?? []
   const Th = ({ children, className = "" }: any) => (
-    <th className={`border-b border-slate-100 px-4 py-3 text-left text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:border-slate-800 dark:text-slate-500 ${className}`}>
+    <th className={`border-b border-slate-100 px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0px] text-slate-400 dark:border-slate-800 dark:text-slate-500 ${className}`}>
       {children}
     </th>
   )

@@ -28,9 +28,9 @@ export function DesktopTable({ registers, selectedIds, basePath, actions }: any)
         <TableHeader className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
           <TableRow className="hover:bg-transparent border-none">
             <TableHead className="w-12 border-r border-slate-200 dark:border-slate-800 p-0" />
-            <TableHead className="w-36 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest px-4 border-r border-slate-200 dark:border-slate-800">Nomor Reg</TableHead>
+            <TableHead className="w-36 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-[0px] px-4 border-r border-slate-200 dark:border-slate-800">Nomor Reg</TableHead>
             {detailDisplayColumns.map((column: any) => (
-              <TableHead key={column.id} className="min-w-[140px] text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest px-4 border-r border-slate-200 dark:border-slate-800">
+              <TableHead key={column.id} className="min-w-[140px] text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-[0px] px-4 border-r border-slate-200 dark:border-slate-800">
                 {column.label}
               </TableHead>
             ))}
