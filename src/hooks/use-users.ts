@@ -43,7 +43,7 @@ export function useUsers(options: UseUsersOptions = {}) {
   if (role)   params.set("role",   role)
 
   const { data, error, isLoading, mutate } = useSWR<PaginatedUsers>(
-    `/api/users?${params.toString()}`,
+    `/api/admin/users?${params.toString()}`,
     fetcher,
     {
       refreshInterval:    5_000,  // polling tiap 5 detik
@@ -76,7 +76,7 @@ export function useInfiniteUsers(options: Omit<UseUsersOptions, "page"> = {}) {
     if (search) params.set("search", search)
     if (role) params.set("role", role)
 
-    return `/api/users?${params.toString()}`
+    return `/api/admin/users?${params.toString()}`
   }
 
   const { data, error, isLoading, isValidating, mutate, size, setSize } =
@@ -117,7 +117,7 @@ export function useUserActions(onSuccess?: () => void) {
     }) => {
       setLoading(true)
       try {
-        const res  = await fetch("/api/users", {
+        const res  = await fetch("/api/admin/users", {
           method:  "POST",
           headers: { "Content-Type": "application/json" },
           body:    JSON.stringify(body),
@@ -146,7 +146,7 @@ export function useUserActions(onSuccess?: () => void) {
     }>) => {
       setLoading(true)
       try {
-        const res  = await fetch(`/api/users/${id}`, {
+        const res  = await fetch(`/api/admin/users/${id}`, {
           method:  "PATCH",
           headers: { "Content-Type": "application/json" },
           body:    JSON.stringify(body),
@@ -171,7 +171,7 @@ export function useUserActions(onSuccess?: () => void) {
     async (id: string) => {
       setLoading(true)
       try {
-        const res  = await fetch(`/api/users/${id}`, { method: "DELETE" })
+        const res  = await fetch(`/api/admin/users/${id}`, { method: "DELETE" })
         const json = await res.json()
         if (!res.ok) throw new Error(getApiMessage(json, "Gagal menghapus user"))
         toast.success(json.message ?? "Akun berhasil dihapus")

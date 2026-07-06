@@ -26,7 +26,7 @@ export function EmptyState({
 }: EmptyStateProps) {
   return (
     <div className={cn(
-      "flex flex-col items-center justify-center gap-5 px-4",
+      "empty-state-viewport flex flex-col items-center justify-center gap-5 px-4",
       className,
     )}>
       {/* Icon container */}

@@ -50,6 +50,21 @@ export function StatistikSuratCard({
     [statistik]
   )
 
+  if (!hasDepartments) {
+    return (
+      <section className="space-y-3">
+        <h2 className="whitespace-nowrap text-base font-semibold tracking-normal">
+          Statistik Surat
+        </h2>
+        <Card className="overflow-hidden rounded-xl">
+          <CardContent className="flex min-h-40 items-center justify-center p-4 text-sm text-muted-foreground sm:p-5">
+            Tidak ada departemen
+          </CardContent>
+        </Card>
+      </section>
+    )
+  }
+
   return (
     <section className="space-y-3">
       {/* Header responsif agar dropdown tidak terpotong di area konten sempit */}
@@ -66,15 +81,11 @@ export function StatistikSuratCard({
               <SelectValue placeholder="Pilih Departemen" />
             </SelectTrigger>
             <SelectContent>
-              {hasDepartments ? departments.map((item) => (
+              {departments.map((item) => (
                 <SelectItem key={item.departemenId} value={item.departemenId}>
                   {item.departemen}
                 </SelectItem>
-              )) : (
-                <SelectItem value="__empty_departemen__" disabled>
-                  Belum ada departemen
-                </SelectItem>
-              )}
+              ))}
             </SelectContent>
           </Select>
 
@@ -95,12 +106,6 @@ export function StatistikSuratCard({
           </Select>
         </div>
       </div>
-
-      {!hasDepartments && (
-        <div className="mb-4 rounded-lg border border-yellow-200 bg-yellow-50 px-3 py-2 text-xs text-yellow-700 dark:border-yellow-900/50 dark:bg-yellow-950/30 dark:text-yellow-300">
-          Departemen tidak ada. Silahkan tambah data departemen terlebih dahulu untuk melihat statistik surat.
-        </div>
-      )}
 
       <Card className="overflow-hidden rounded-xl">
         <CardContent className="p-4 sm:p-5">

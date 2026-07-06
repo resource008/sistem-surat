@@ -1,10 +1,6 @@
-// ============================================================
-// src/app/validation/user.ts
-// ============================================================
-
 import { z } from "zod"
 
-// ── Shared ────────────────────────────────────────────────────
+// Shared 
 
 const RoleEnum = z.enum(["ADMIN", "STAFF", "PKL"] as const, {
   error: "Role harus ADMIN, STAFF, atau PKL",
@@ -18,7 +14,7 @@ const PermissionSchema = z.object({
   canTrack:  z.boolean().optional(),
 })
 
-// ── POST /api/users ───────────────────────────────────────────
+// POST /api/admin/users
 
 export const CreateUserSchema = z.object({
   name: z
@@ -51,7 +47,7 @@ export const CreateUserSchema = z.object({
 
 export type CreateUserInput = z.infer<typeof CreateUserSchema>
 
-// ── PATCH /api/users/[id] ─────────────────────────────────────
+// PATCH /api/admin/users/[id]
 
 export const UpdateUserSchema = z
   .object({
@@ -84,7 +80,7 @@ export const UpdateUserSchema = z
       .optional(),
 
     role:        RoleEnum.optional(),
-    permissions: PermissionSchema.optional(),  // ← fix: 'permission' → 'permissions'
+    permissions: PermissionSchema.optional(),
   })
   .refine(
     (data) => Object.values(data).some((v) => v !== undefined),
@@ -132,7 +128,7 @@ export const UpdateProfileSchema = z
 
 export type UpdateProfileInput = z.infer<typeof UpdateProfileSchema>
 
-// ── GET /api/users (query params) ────────────────────────────
+// GET /api/admin/users (query params)
 
 export const GetUsersQuerySchema = z.object({
   page: z

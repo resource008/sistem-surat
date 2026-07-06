@@ -1,11 +1,13 @@
 "use client"
 
 import UsersDelete from "@/components/admin/users/users-delete"
+import { LoadingSkeleton } from "@/components/shared/loading-skeleton"
 import { UserAvatar } from "@/components/shared/user-avatar"
 import { Button } from "@/components/ui/button"
+import { USER_PERMISSION_LABELS, USER_ROLE_LABEL } from "@/constants/user"
 import type { User } from "@/domain/user/types"
 import {
-  ArrowLeft, FileText, KeyRound, Loader2, Pencil, Trash2,
+  AlertTriangle, ArrowLeft, FileText, KeyRound, Pencil, Trash2,
 } from "lucide-react"
 import { useParams, useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
@@ -27,20 +29,6 @@ function formatTime(dateStr: Date | string | null | undefined) {
     minute: "2-digit",
   })
 }
-
-const ROLE_LABEL: Record<string, string> = {
-  ADMIN: "Admin",
-  STAFF: "Staff",
-  PKL: "PKL",
-}
-
-const PERMISSIONS = [
-  { key: "canCreate", label: "Tambah Data Surat" },
-  { key: "canPrint", label: "Cetak Surat" },
-  { key: "canEdit", label: "Edit Data Surat" },
-  { key: "canTrack", label: "Lacak Surat" },
-  { key: "canDelete", label: "Hapus Data Surat" },
-] as const
 
 function Field({ label, value }: { label: string; value?: string | null }) {
   return (
@@ -99,7 +87,7 @@ export default function UserDetailPage() {
 
     async function loadUser() {
       try {
-        const response = await fetch(`/api/users/${id}`)
+        const response = await fetch(`/api/admin/users/${id}`)
         const data = await response.json().catch(() => null)
         if (!response.ok) throw new Error(data?.error ?? "Gagal memuat data user")
 
@@ -107,7 +95,7 @@ export default function UserDetailPage() {
         setUser(data)
 
         if (data.role === "ADMIN") {
-          const adminResponse = await fetch("/api/users?role=ADMIN&page=1&limit=1")
+          const adminResponse = await fetch("/api/admin/users?role=ADMIN&page=1&limit=1")
           const adminData = await adminResponse.json().catch(() => null)
           if (adminResponse.ok && active) {
             setAdminCount(adminData?.meta?.total ?? null)
@@ -134,15 +122,13 @@ export default function UserDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="animate-spin text-muted-foreground" size={24} />
-      </div>
+      <LoadingSkeleton type="profile" />
     )
   }
 
   if (!user) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] gap-3">
+      <div className="empty-state-viewport flex flex-col items-center justify-center gap-3">
         <p className="text-sm text-muted-foreground">User tidak ditemukan</p>
         <Button variant="outline" size="sm" onClick={() => router.back()}>
           <ArrowLeft size={14} className="mr-1.5" /> Kembali
@@ -156,9 +142,12 @@ export default function UserDetailPage() {
   return (
     <div className="flex flex-col gap-4 pb-32">
       {isLastAdmin && (
-        <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-100">
-          Akun ini adalah satu-satunya admin, jadi tidak bisa diubah atau dihapus.
-          Tambahkan admin lain terlebih dahulu untuk membuka aksi edit dan hapus.
+        <div className="flex items-start gap-2.5 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-100">
+          <AlertTriangle className="mt-0.5 size-4 shrink-0" />
+          <p>
+            Akun ini adalah satu-satunya admin, jadi tidak bisa dihapus.
+            Informasi akun tetap bisa diubah.
+          </p>
         </div>
       )}
 
@@ -175,7 +164,7 @@ export default function UserDetailPage() {
               <div className="flex flex-col gap-0.5">
                 <span className="text-sm font-semibold">{user.name}</span>
                 <span className="text-xs text-muted-foreground">
-                  {ROLE_LABEL[user.role] ?? user.role}
+                  {USER_ROLE_LABEL[user.role] ?? user.role}
                 </span>
               </div>
             </div>
@@ -189,7 +178,7 @@ export default function UserDetailPage() {
             <Field label="Nama Lengkap" value={user.name} />
             <Field label="Nama Pengguna" value={user.username} />
             <Field label="Email" value={user.email} />
-            <Field label="Role" value={ROLE_LABEL[user.role] ?? user.role} />
+            <Field label="Role" value={USER_ROLE_LABEL[user.role] ?? user.role} />
           </div>
         </div>
       </div>
@@ -202,7 +191,7 @@ export default function UserDetailPage() {
           </div>
           <div className="px-6 py-6">
             <div className="flex flex-col">
-              {PERMISSIONS.map(({ key, label }) => {
+              {USER_PERMISSION_LABELS.map(({ key, label }) => {
                 const active = user.permissions?.[key] ?? false
 
                 return (
@@ -224,8 +213,8 @@ export default function UserDetailPage() {
         <AccountDateInfo user={user} />
       </div>
 
-      {!isLastAdmin && (
-        <div className="fixed bottom-8 right-8 z-50 flex items-center gap-3">
+      <div className="fixed bottom-8 left-[var(--topbar-left,0px)] right-8 z-40 flex items-center justify-end gap-3 transition-[left] duration-300 ease-in-out max-sm:bottom-5 max-sm:right-5">
+        {!isLastAdmin && (
           <Button
             size="icon"
             variant="secondary"
@@ -236,17 +225,17 @@ export default function UserDetailPage() {
             <Trash2 size={20} />
             <span className="sr-only">Hapus Pengguna</span>
           </Button>
-          <Button
-            size="icon"
-            onClick={() => router.push(`/admin/users/${id}/edit`)}
-            className="size-14 rounded-full shadow-lg bg-blue-600 hover:bg-blue-700"
-            title="Edit Pengguna"
-          >
-            <Pencil size={20} className="text-white" />
-            <span className="sr-only">Edit Pengguna</span>
-          </Button>
-        </div>
-      )}
+        )}
+        <Button
+          size="icon"
+          onClick={() => router.push(`/admin/users/${id}/edit`)}
+          className="size-14 rounded-full shadow-lg bg-blue-600 hover:bg-blue-700"
+          title="Edit Pengguna"
+        >
+          <Pencil size={20} className="text-white" />
+          <span className="sr-only">Edit Pengguna</span>
+        </Button>
+      </div>
 
       <UsersDelete
         open={deleteOpen}

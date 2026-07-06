@@ -1,25 +1,30 @@
 import { Checkbox } from "@/components/ui/checkbox"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { formatCustomFieldValue, getSuratBuiltInFieldValue, isTujuanColumn } from "@/domain/surat/custom-fields"
+import {
+  ASAL_DEFAULT_ID,
+  NOMOR_DEFAULT_ID,
+  TANGGAL_DEFAULT_ID,
+} from "@/constants/departemen-columns"
+import { formatCustomFieldValue, getCustomFieldValue, getSuratBuiltInFieldValue, isTujuanColumn } from "@/domain/surat/custom-fields"
 import { useRouter } from "next/navigation"
 
 export function DesktopTable({ registers, selectedIds, basePath, actions }: any) {
   const router = useRouter()
   const displayColumns = (registers[0]?.dept?.displayColumns ?? [])
   const detailDisplayColumns = displayColumns
-    .filter((column: any) => !String(column.id).includes("default_nomor_register"))
+    .filter((column: any) => !String(column.id).includes(NOMOR_DEFAULT_ID))
 
   const getColumnValue = (column: any, reg: any, detail: any) => {
-    if (String(column.id).includes("default_tanggal_terima")) {
+    if (String(column.id).includes(TANGGAL_DEFAULT_ID)) {
       return formatCustomFieldValue({ ...column, type: "date" }, reg.tanggalTerima)
     }
-    if (String(column.id).includes("default_asal_surat")) return reg.asalSurat || "-"
+    if (String(column.id).includes(ASAL_DEFAULT_ID)) return reg.asalSurat || "-"
     if (isTujuanColumn(column)) return detail.tujuan || reg.dept.shortName || "-"
 
     const builtInValue = getSuratBuiltInFieldValue(column, detail)
     if (builtInValue !== null) return builtInValue
 
-    return formatCustomFieldValue(column, detail.customFields?.[column.id])
+    return formatCustomFieldValue(column, getCustomFieldValue(column, detail.customFields))
   }
 
   return (
@@ -28,9 +33,9 @@ export function DesktopTable({ registers, selectedIds, basePath, actions }: any)
         <TableHeader className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
           <TableRow className="hover:bg-transparent border-none">
             <TableHead className="w-12 border-r border-slate-200 dark:border-slate-800 p-0" />
-            <TableHead className="w-36 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest px-4 border-r border-slate-200 dark:border-slate-800">Nomor Reg</TableHead>
+            <TableHead className="w-36 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-[0px] px-4 border-r border-slate-200 dark:border-slate-800">Nomor Reg</TableHead>
             {detailDisplayColumns.map((column: any) => (
-              <TableHead key={column.id} className="min-w-[140px] text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest px-4 border-r border-slate-200 dark:border-slate-800">
+              <TableHead key={column.id} className="min-w-[140px] text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-[0px] px-4 border-r border-slate-200 dark:border-slate-800">
                 {column.label}
               </TableHead>
             ))}

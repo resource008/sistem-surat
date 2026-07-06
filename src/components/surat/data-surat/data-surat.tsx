@@ -1,15 +1,16 @@
 "use client"
 
-import { LoadingSkeleton } from "@/components/shared/loading-skeleton"
+import { DataSuratMoreSkeleton, LoadingSkeleton } from "@/components/shared/loading-skeleton"
 import { Role } from "@/components/surat/shared"
 import { EmptyState } from "@/components/ui/empty-state"
-import { Loader2, Plus } from "lucide-react"
+import { Building2, Plus } from "lucide-react"
 import { Suspense, useEffect, useRef } from "react"
 
 import { useDataSurat } from "@/hooks/use-data-surat"
 import { FloatingActionBar } from "./action-bar"
 import { DesktopTable } from "./desktop-table"
 import { MobileList } from "./mobile-list"
+import useSWR from "swr"
 
 interface Props {
   role: Role
@@ -17,8 +18,33 @@ interface Props {
   printPath: string
 }
 
+type DepartmentOption = {
+  id: string
+  shortName: string
+}
+
+const fetchDepartments = async (url: string): Promise<DepartmentOption[]> => {
+  const response = await fetch(url)
+  const json = await response.json().catch(() => null)
+  if (!response.ok) throw new Error(json?.error ?? "Gagal mengambil departemen")
+  return Array.isArray(json) ? json : []
+}
+
 function DataSuratInner({ basePath, printPath }: Props) {
   const { state, actions } = useDataSurat(printPath)
+  const {
+    data: departments,
+    isLoading: departmentsLoading,
+    error: departmentsError,
+  } = useSWR<DepartmentOption[]>(
+    "/api/admin/dept",
+    fetchDepartments,
+    {
+      revalidateOnFocus: true,
+    }
+  )
+  const hasNoDepartments =
+    !departmentsLoading && !departmentsError && (departments?.length ?? 0) === 0
 
   const sentinelRef = useRef<HTMLDivElement>(null)
 
@@ -52,11 +78,29 @@ function DataSuratInner({ basePath, printPath }: Props) {
     }
   }, [state.selectedIds.size])
 
-  if (state.loading) {
+  useEffect(() => {
+    window.dispatchEvent(
+      new CustomEvent("data-surat:search-columns", {
+        detail: { columns: state.searchColumns },
+      })
+    )
+  }, [state.searchColumns])
+
+  if (state.loading || departmentsLoading) {
     return <div className="w-full mt-2"><LoadingSkeleton type="table" /></div>
   }
 
-  if (state.filteredData.length === 0) {
+  if (hasNoDepartments) {
+    return (
+      <EmptyState
+        title="Departemen tidak ada"
+        description="Mohon hubungi admin untuk menambahkan departemen"
+        icon={<Building2 size={120} strokeWidth={1} />}
+      />
+    )
+  }
+
+  if (!state.hasLoadedData) {
     return (
       <EmptyState
         description={
@@ -78,7 +122,15 @@ function DataSuratInner({ basePath, printPath }: Props) {
 
   return (
     <div className="w-full animate-in fade-in duration-500 flex flex-col gap-3 pb-24">
-      {state.sortedGroupKeys.map((groupKey) => {
+      {state.filteredData.length === 0 ? (
+        <EmptyState
+          description={
+            <span className="leading-none">
+              Tidak ada hasil pencarian untuk kolom yang dipilih.
+            </span>
+          }
+        />
+      ) : state.sortedGroupKeys.map((groupKey) => {
         const [date,, dept] = groupKey.split("|||")
         const registers    = state.groupedData[groupKey]
 
@@ -109,11 +161,9 @@ function DataSuratInner({ basePath, printPath }: Props) {
       {/* Sentinel — trigger load more saat masuk viewport */}
       <div ref={sentinelRef} className="h-1" />
 
-      {/* Spinner load more */}
+      {/* Skeleton load more */}
       {state.loadingMore && (
-        <div className="flex justify-center py-4">
-          <Loader2 size={20} className="animate-spin text-slate-400" />
-        </div>
+        <DataSuratMoreSkeleton rows={2} className="py-1" />
       )}
 
       {/* Semua data sudah tampil */}

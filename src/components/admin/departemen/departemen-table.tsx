@@ -3,6 +3,7 @@
 import { Building2 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { EmptyState } from "@/components/ui/empty-state"
+import { Skeleton } from "@/components/ui/skeleton"
 import type { Departemen } from "@/types"
 
 function getDisplayName(departemen: Departemen) {
@@ -34,7 +35,6 @@ export function DepartemenTable({
     return (
       <div className="hidden rounded-xl border border-border/40 bg-background md:block">
         <EmptyState
-          className="min-h-[320px]"
           icon={<Building2 size={64} strokeWidth={1.25} />}
           title={error ? "Gagal memuat departemen" : "Belum ada departemen"}
           description={error?.message ?? "Tambahkan departemen baru untuk mulai mengelola data."}
@@ -58,10 +58,10 @@ export function DepartemenTable({
             key={i}
             className="grid grid-cols-[120px_minmax(0,1fr)_150px_150px] items-center border-b border-border/40 px-4 py-3"
           >
-            <div className="h-4 w-10 animate-pulse rounded-md bg-muted" />
-            <div className="h-4 w-1/2 animate-pulse rounded-md bg-muted" />
-            <div className="h-4 w-16 animate-pulse rounded-md bg-muted" />
-            <div className="h-5 w-24 animate-pulse rounded-full bg-muted" />
+            <Skeleton className="h-4 w-10" />
+            <Skeleton className="h-4 w-1/2" />
+            <Skeleton className="h-4 w-16" />
+            <Skeleton className="h-5 w-24 rounded-full" />
           </div>
         ))
       ) : (

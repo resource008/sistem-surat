@@ -49,7 +49,7 @@ export function DepartemenDeleteDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <DialogFooter className="sm:justify-center">
+        <DialogFooter>
           <Button
             type="button"
             variant="outline"
@@ -71,9 +71,9 @@ export function DepartemenDeleteDialog({
           ) : null}
           <Button
             type="button"
+            variant="destructive"
             onClick={onPermanentDelete}
             disabled={isDeleting}
-            className="bg-red-500 text-white hover:bg-red-600"
           >
             {deletingAction === "permanent" && <Loader2 className="size-4 animate-spin" />}
             Hapus permanen

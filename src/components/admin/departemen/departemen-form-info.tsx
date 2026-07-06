@@ -1,27 +1,40 @@
+"use client"
+
 import { Info } from "lucide-react"
-import { cn } from "@/lib/utils"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 
-export function DepartemenFormInfo({ className }: { className?: string }) {
+interface Props {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+}
+
+export function DepartemenFormInfo({ open, onOpenChange }: Props) {
   return (
-    <div
-      className={cn(
-        "rounded-xl bg-blue-100/80 px-5 py-5 text-sm text-slate-950 dark:bg-blue-950/30 dark:text-slate-100",
-        className
-      )}
-    >
-      <div className="mb-5 flex items-center gap-4 text-blue-600 dark:text-blue-300">
-        <Info className="size-5" />
-        <h3 className="text-[17px] font-bold">
-          Informasi Pengisian Departemen
-        </h3>
-      </div>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-auto sm:max-w-xl">
+        <DialogHeader>
+          <div className="flex items-center gap-2 pr-8">
+            <Info className="size-4 shrink-0 text-primary" />
+            <DialogTitle>Informasi Pengisian Departemen</DialogTitle>
+          </div>
+          <DialogDescription>
+            Pastikan data departemen dan konfigurasi kolom sesuai kebutuhan registrasi surat.
+          </DialogDescription>
+        </DialogHeader>
 
-      <ul className="list-disc space-y-1 pl-9 text-[15px] leading-snug">
-        <li>Masukkan nama departemen dengan lengkap dan detail</li>
-        <li>Masukkan singkatan departemen yang dibuat karena akan digunakan saat registrasi surat</li>
-        <li>Nomor register, tanggal terima, asal surat, dan tujuan selalu tampil sebagai kolom default</li>
-        <li>Kolom yang tampil di data surat dibatasi maksimal 5 kolom</li>
-      </ul>
-    </div>
+        <ul className="list-disc space-y-2 pl-5 text-sm leading-6 text-muted-foreground">
+          <li>Masukkan nama departemen dengan lengkap dan detail.</li>
+          <li>Masukkan singkatan departemen untuk registrasi surat.</li>
+          <li>Nomor register, tanggal terima, asal surat, dan tujuan selalu tampil sebagai kolom default.</li>
+          <li>Kolom yang tampil di data surat dibatasi maksimal 5 kolom.</li>
+        </ul>
+      </DialogContent>
+    </Dialog>
   )
 } 

@@ -1,5 +1,4 @@
-import type { UserPermissions } from "@/domain/user/types"
-import type { DashboardRole } from "@/components/role-dashboard/types"
+import type { DashboardRole, UserPermissions } from "@/domain/user/types"
 
 export type PermissionKey = keyof UserPermissions
 

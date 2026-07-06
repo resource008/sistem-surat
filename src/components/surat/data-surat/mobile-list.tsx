@@ -1,22 +1,27 @@
 import { RegisterSurat } from "@/components/surat/shared"
 import { Checkbox } from "@/components/ui/checkbox"
-import { formatCustomFieldValue, getSuratBuiltInFieldValue } from "@/domain/surat/custom-fields"
+import {
+  ASAL_DEFAULT_ID,
+  NOMOR_DEFAULT_ID,
+  TANGGAL_DEFAULT_ID,
+} from "@/constants/departemen-columns"
+import { formatCustomFieldValue, getCustomFieldValue, getSuratBuiltInFieldValue, isTujuanColumn } from "@/domain/surat/custom-fields"
 import { useRouter } from "next/navigation"
 
 export function MobileList({ registers, selectedIds, basePath, actions }: any) {
   const router = useRouter()
 
   const getColumnValue = (column: any, reg: any, detail: any) => {
-    if (String(column.id).includes("default_tanggal_terima")) {
+    if (String(column.id).includes(TANGGAL_DEFAULT_ID)) {
       return formatCustomFieldValue({ ...column, type: "date" }, reg.tanggalTerima)
     }
-    if (String(column.id).includes("default_asal_surat")) return reg.asalSurat || "-"
-    if (String(column.id).includes("default_tujuan")) return detail.tujuan || reg.dept.shortName || "-"
+    if (String(column.id).includes(ASAL_DEFAULT_ID)) return reg.asalSurat || "-"
+    if (isTujuanColumn(column)) return detail.tujuan || reg.dept.shortName || "-"
 
     const builtInValue = getSuratBuiltInFieldValue(column, detail)
     if (builtInValue !== null) return builtInValue
 
-    return formatCustomFieldValue(column, detail.customFields?.[column.id])
+    return formatCustomFieldValue(column, getCustomFieldValue(column, detail.customFields))
   }
 
   return (
@@ -41,7 +46,7 @@ export function MobileList({ registers, selectedIds, basePath, actions }: any) {
           }>
             {(reg.detailSurat ?? []).map((detail: any) => {
               const detailDisplayColumns = (reg.dept.displayColumns ?? [])
-                .filter((column: any) => !String(column.id).includes("default_nomor_register"))
+                .filter((column: any) => !String(column.id).includes(NOMOR_DEFAULT_ID))
               const primaryColumn = detailDisplayColumns[0]
               const primaryText = primaryColumn
                 ? getColumnValue(primaryColumn, reg, detail)

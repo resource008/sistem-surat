@@ -3,6 +3,7 @@
 import { useRef, useEffect } from "react"
 import { X } from "lucide-react"
 import { FilterPanel } from "./filter-panel"
+import type { DataSuratSearchColumn } from "@/components/surat/data-surat/topbar-search"
 
 interface FilterSheetProps {
   mounted: boolean
@@ -13,12 +14,16 @@ interface FilterSheetProps {
   onSelectDate: (d: Date | undefined) => void
   selectedDepts: string[]
   onToggleDept: (dept: string) => void
+  searchColumns?: DataSuratSearchColumn[]
+  selectedSearchColumn?: string
+  onSelectSearchColumn?: (column: string) => void
   hideDepartments?: boolean
 }
 
 export function FilterSheet({
   mounted, visible, onClose, hasFilter,
   date, onSelectDate, selectedDepts, onToggleDept,
+  searchColumns, selectedSearchColumn, onSelectSearchColumn,
   hideDepartments,
 }: FilterSheetProps) {
   const sheetRef = useRef<HTMLDivElement>(null)
@@ -131,6 +136,9 @@ export function FilterSheet({
           <FilterPanel
             date={date} onSelectDate={onSelectDate}
             selectedDepts={selectedDepts} onToggleDept={onToggleDept}
+            searchColumns={searchColumns}
+            selectedSearchColumn={selectedSearchColumn}
+            onSelectSearchColumn={onSelectSearchColumn}
             hideDepartments={hideDepartments}
             isMobile
           />

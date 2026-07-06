@@ -1,7 +1,7 @@
 import { useLayoutEffect, useRef } from "react"
 import { Input } from "@/components/ui/input"
 import type { DepartemenColumn } from "@/types"
-import { formatCustomFieldValue, formatNumberFieldInput, isDetailBuiltInColumn } from "@/domain/surat/custom-fields"
+import { formatCustomFieldValue, formatNumberFieldInput, getCustomFieldValue, isDetailBuiltInColumn } from "@/domain/surat/custom-fields"
 import { DatePicker, FormField } from "./shared"
 import { Field } from "./view-surat/field"
 
@@ -25,6 +25,10 @@ function getNumberCaretPosition(value: string) {
 
 function hasNumberValue(value: string) {
   return /-?\d+(?:[.,]\d*)?/.test(value)
+}
+
+function getInputFieldKey(column: DepartemenColumn) {
+  return column.label
 }
 
 function NumberFieldInput({
@@ -100,8 +104,8 @@ export function CustomFieldsForm({
         >
           {column.type === "date" ? (
             <DatePicker
-              value={values[column.id] ?? ""}
-              onChange={(value) => onChange(column.id, value)}
+              value={getCustomFieldValue(column, values) ?? ""}
+              onChange={(value) => onChange(getInputFieldKey(column), value)}
               placeholder={column.isRequired ? "Wajib diisi" : "Opsional"}
               hasError={Boolean(errors[column.id])}
             />
@@ -110,14 +114,14 @@ export function CustomFieldsForm({
               <NumberFieldInput
                 column={column}
                 error={errors[column.id]}
-                value={values[column.id] ?? ""}
-                onChange={(value) => onChange(column.id, value)}
+                value={getCustomFieldValue(column, values) ?? ""}
+                onChange={(value) => onChange(getInputFieldKey(column), value)}
               />
             ) : (
               <Input
                 type="text"
-                value={values[column.id] ?? ""}
-                onChange={(event) => onChange(column.id, event.target.value)}
+                value={getCustomFieldValue(column, values) ?? ""}
+                onChange={(event) => onChange(getInputFieldKey(column), event.target.value)}
                 placeholder={column.isRequired ? "Wajib diisi" : "Opsional"}
                 className="h-10 rounded-xl text-[14px]"
               />
@@ -142,7 +146,7 @@ export function CustomFieldsView({ columns, values = {}, includeBuiltIn = false 
   return (
     <>
       {customColumns.map((column) => {
-        const rawValue = values[column.id]?.trim() ?? ""
+        const rawValue = getCustomFieldValue(column, values)?.trim() ?? ""
         const value = rawValue ? formatCustomFieldValue(column, rawValue) : undefined
 
         return (

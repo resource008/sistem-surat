@@ -3,6 +3,7 @@
 import { Building2 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { EmptyState } from "@/components/ui/empty-state"
+import { Skeleton } from "@/components/ui/skeleton"
 import type { Departemen } from "@/types"
 
 function getDisplayName(departemen: Departemen) {
@@ -35,15 +36,15 @@ export function DepartemenMobileList({
       {isLoading ? (
         Array.from({ length: 5 }).map((_, i) => (
           <div key={i} className="rounded-xl border border-border/40 p-4">
-            <div className="h-4 w-1/2 animate-pulse rounded-md bg-muted" />
-            <div className="mt-3 h-3 w-20 animate-pulse rounded-md bg-muted" />
-            <div className="mt-3 h-5 w-24 animate-pulse rounded-full bg-muted" />
+            <Skeleton className="h-4 w-1/2" />
+            <Skeleton className="mt-3 h-3 w-20" />
+            <Skeleton className="mt-3 h-5 w-24 rounded-full" />
           </div>
         ))
       ) : departments.length === 0 ? (
         <div className="rounded-xl border border-border/40">
           <EmptyState
-            className="min-h-[280px] px-4"
+            className="px-4"
             icon={<Building2 size={64} strokeWidth={1.25} />}
             title={error ? "Gagal memuat departemen" : "Belum ada departemen"}
             description={error?.message ?? "Tambahkan departemen baru untuk mulai mengelola data."}

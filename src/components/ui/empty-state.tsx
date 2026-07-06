@@ -18,7 +18,7 @@ export function EmptyState({
   className,
 }: EmptyStateProps) {
   return (
-    <div className={cn("flex min-h-125 w-full flex-col items-center justify-center space-y-4 animate-in fade-in duration-700", className)}>
+    <div className={cn("empty-state-viewport flex w-full flex-col items-center justify-center space-y-4 animate-in fade-in duration-700", className)}>
       {/* Ikon Inbox Statis */}
       <div className="text-slate-200 dark:text-slate-800">
         {icon ?? <Inbox size={120} strokeWidth={1} />}

@@ -7,7 +7,7 @@ interface UsersEmptyProps {
 
 export default function UsersEmpty({ searchQuery }: UsersEmptyProps) {
   return (
-    <div className="flex w-full h-full min-h-[400px] items-center justify-center p-8">
+    <div className="empty-state-viewport flex w-full h-full items-center justify-center p-4 md:p-8">
       <div className="flex flex-col items-center justify-center gap-5 px-4 text-center">
         
         {/* ── Icon Container (Glass Effect) ── */}

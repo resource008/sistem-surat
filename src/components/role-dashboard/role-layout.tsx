@@ -5,18 +5,20 @@ import TopbarFilter from "@/components/filters/index"
 import type { Filters } from "@/hooks/use-filter"
 import { PermissionDenied } from "@/components/shared/permission"
 import { RoleSidebar } from "@/components/role-dashboard/role-sidebar"
+import {
+  TopbarDataSuratSearch,
+  type DataSuratSearchColumn,
+} from "@/components/surat/data-surat/topbar-search"
+import type { DashboardRole, UserPermissions } from "@/domain/user/types"
 import { usePresenceHeartbeat } from "@/hooks/use-presence-heartbeat"
 import { useSession } from "@/infrastructure/auth/auth-client"
 import type { Role } from "@/types"
-import type { UserPermissions } from "@/domain/user/types"
 import {
   ChevronRight, Menu, Plus, Printer, X,
 } from "lucide-react"
-import { usePathname, useRouter } from "next/navigation"
-import { Suspense, useEffect, useState } from "react"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { Suspense, useEffect, useLayoutEffect, useState } from "react"
 import useSWR from "swr"
-
-type DashboardRole = Extract<Role, "STAFF" | "PKL">
 
 interface Props {
   role: DashboardRole
@@ -28,12 +30,24 @@ interface PermissionResponse {
   permissions: UserPermissions
 }
 
+interface DepartmentOption {
+  id: string
+  shortName: string
+}
+
 type PermissionKey = keyof UserPermissions
 
 const fetchPermissions = async (url: string): Promise<PermissionResponse> => {
   const res = await fetch(url)
   if (!res.ok) throw new Error("Gagal mengambil hak akses")
   return res.json()
+}
+
+const fetchDepartments = async (url: string): Promise<DepartmentOption[]> => {
+  const res = await fetch(url)
+  const json = await res.json().catch(() => null)
+  if (!res.ok) throw new Error(json?.error ?? "Gagal mengambil departemen")
+  return Array.isArray(json) ? json : []
 }
 
 const FEATURE_LABEL: Record<string, string> = {
@@ -58,6 +72,7 @@ function getRequiredPermission(
 function RoleLayoutInner({ role, children }: Props) {
   const pathname = usePathname()
   const router = useRouter()
+  const searchParams = useSearchParams()
   usePresenceHeartbeat()
 
   const roleLower = role.toLowerCase()
@@ -93,10 +108,38 @@ function RoleLayoutInner({ role, children }: Props) {
   })
   const [hasCetakData, setHasCetakData] = useState(false)
   const [selectedDataSuratCount, setSelectedDataSuratCount] = useState(0)
+  const [dataSuratSearchColumns, setDataSuratSearchColumns] = useState<DataSuratSearchColumn[]>([])
+  const [dataSuratSearchExpanded, setDataSuratSearchExpanded] = useState(false)
 
   const isDataSuratPage = pathname === `${base}/data-surat`
+  const isDataSuratSubPage =
+    pathname.startsWith(`${base}/add`) ||
+    pathname.includes(`${base}/data-surat/edit/`) ||
+    pathname.includes(`${base}/data-surat/view/`)
   const isCetakPage = pathname.startsWith(`${base}/cetak`)
-  const hasActiveFilters = filters.date !== null || filters.departments.length > 0
+  const activeSearchColumn = searchParams.get("column")
+  const hasActiveFilters =
+    filters.date !== null ||
+    filters.departments.length > 0 ||
+    Boolean(
+      activeSearchColumn &&
+      activeSearchColumn !== "all" &&
+      activeSearchColumn !== "tanggal_terima" &&
+      activeSearchColumn !== "tujuan"
+    )
+  const {
+    data: departments,
+    isLoading: departmentsLoading,
+    error: departmentsError,
+  } = useSWR<DepartmentOption[]>(
+    isDataSuratPage ? "/api/admin/dept" : null,
+    fetchDepartments,
+    {
+      revalidateOnFocus: true,
+    }
+  )
+  const hasNoDepartments =
+    isDataSuratPage && !departmentsLoading && !departmentsError && (departments?.length ?? 0) === 0
 
   useEffect(() => {
     const saved = localStorage.getItem("sidebar_collapsed")
@@ -139,13 +182,13 @@ function RoleLayoutInner({ role, children }: Props) {
     setSubsubtitle(null)
   }, [pathname])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const handler = (event: Event) => setSubtitle((event as CustomEvent<string | null>).detail)
     window.addEventListener("breadcrumb:sub", handler)
     return () => window.removeEventListener("breadcrumb:sub", handler)
   }, [])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const handler = (event: Event) => setSubsubtitle((event as CustomEvent<string | null>).detail)
     window.addEventListener("breadcrumb:subsub", handler)
     return () => window.removeEventListener("breadcrumb:subsub", handler)
@@ -180,14 +223,35 @@ function RoleLayoutInner({ role, children }: Props) {
   }, [pathname])
 
   useEffect(() => {
-    if (!isDataSuratPage) setSelectedDataSuratCount(0)
+    if (!isDataSuratPage) {
+      setSelectedDataSuratCount(0)
+      setDataSuratSearchExpanded(false)
+    }
+  }, [isDataSuratPage])
+
+  useEffect(() => {
+    const handler = (event: Event) => {
+      const columns = (event as CustomEvent<{ columns: DataSuratSearchColumn[] }>).detail.columns
+      setDataSuratSearchColumns(Array.isArray(columns) ? columns : [])
+    }
+    window.addEventListener("data-surat:search-columns", handler)
+    return () => window.removeEventListener("data-surat:search-columns", handler)
+  }, [])
+
+  useEffect(() => {
+    if (!isDataSuratPage) setDataSuratSearchColumns([])
   }, [isDataSuratPage])
 
   function handleClearFilters() {
     const next: Filters = { date: null, departments: [] }
     setFilters(next)
     localStorage.removeItem("topbar_filters")
-    router.push(`${base}/data-surat`)
+    const params = new URLSearchParams(searchParams.toString())
+    params.delete("date")
+    params.delete("dept")
+    params.delete("column")
+    const query = params.toString()
+    router.push(query ? `${base}/data-surat?${query}` : `${base}/data-surat`)
   }
 
   function handleClearCetak() {
@@ -195,7 +259,7 @@ function RoleLayoutInner({ role, children }: Props) {
   }
 
   function handleBreadcrumbParentClick() {
-    router.push(isCetakPage ? `${base}/cetak/all` : `${base}/data-surat`)
+    router.push(isCetakPage ? `${base}/cetak` : `${base}/data-surat`)
   }
 
   if (!isMounted) return <div className="min-h-screen bg-background" />
@@ -204,11 +268,20 @@ function RoleLayoutInner({ role, children }: Props) {
     if (pathname.startsWith(`${base}/akun`)) return "Akun Anda"
     if (pathname.includes("/cetak")) return "Cetak"
     if (pathname.includes("/akun")) return "Akun Anda"
+    if (pathname.startsWith(`${base}/add`)) return "Data Surat"
     if (pathname.includes("/data-surat")) return "Data Surat"
     if (pathname.includes("/track")) return "Track Surat"
     if (pathname.includes("/view/") || pathname.includes("/edit/")) return "Data Surat"
     return "Data Surat"
   })()
+
+  const routeSubtitle = (() => {
+    if (pathname.startsWith(`${base}/add`)) return "Tambah data"
+    if (pathname.includes(`${base}/data-surat/edit/`)) return "Edit"
+    return null
+  })()
+  const effectiveSubtitle = subtitle?.trim() ? subtitle : routeSubtitle
+  const effectiveSubsubtitle = subsubtitle?.trim() ? subsubtitle : null
 
   const topbarLeft = isMobile
     ? "0px"
@@ -240,9 +313,19 @@ function RoleLayoutInner({ role, children }: Props) {
         `}
         style={{ "--topbar-left": topbarLeft } as React.CSSProperties}
       >
-        <div id="topbar" className={styles.topbar}>
-          <div className={styles.topbarLeft}>
-            {isMobile && (
+        <div
+          id="topbar"
+          className={`${styles.topbar} ${isDataSuratPage ? styles.topbarDataSurat : ""}`}
+        >
+          <div
+            className={[
+              styles.topbarLeft,
+              isDataSuratPage ? styles.topbarLeftDataSurat : "",
+              isDataSuratSubPage ? styles.topbarLeftDataSuratSubPage : "",
+              isCetakPage ? styles.topbarLeftCetak : "",
+            ].join(" ")}
+          >
+            {isMobile && (!isDataSuratPage || !dataSuratSearchExpanded) && (
               <button
                 className={styles.hamburger}
                 onClick={() => setMobileOpen(true)}
@@ -252,8 +335,9 @@ function RoleLayoutInner({ role, children }: Props) {
               </button>
             )}
 
+            {!(isMobile && isDataSuratPage && dataSuratSearchExpanded) && (
             <nav className={styles.breadcrumb} aria-label="breadcrumb">
-              {subtitle && subsubtitle ? (
+              {effectiveSubtitle && effectiveSubsubtitle ? (
                 <>
                   <button
                     className={styles.breadcrumbParent}
@@ -266,12 +350,12 @@ function RoleLayoutInner({ role, children }: Props) {
                     className={styles.breadcrumbParent}
                     onClick={() => router.back()}
                   >
-                    {subtitle}
+                    {effectiveSubtitle}
                   </button>
                   <ChevronRight size={14} className={styles.breadcrumbSep} />
-                  <span className={styles.breadcrumbSub}>{subsubtitle}</span>
+                  <span className={styles.breadcrumbSub}>{effectiveSubsubtitle}</span>
                 </>
-              ) : subtitle ? (
+              ) : effectiveSubtitle ? (
                 <>
                   <button
                     className={styles.breadcrumbParent}
@@ -280,19 +364,37 @@ function RoleLayoutInner({ role, children }: Props) {
                     {currentPage}
                   </button>
                   <ChevronRight size={14} className={styles.breadcrumbSep} />
-                  <span className={styles.breadcrumbSub}>{subtitle}</span>
+                  <span className={styles.breadcrumbSub}>{effectiveSubtitle}</span>
                 </>
               ) : (
                 <span className={styles.topbarTitle}>{currentPage}</span>
               )}
             </nav>
+            )}
           </div>
 
           {isDataSuratPage && (
-            <div className="flex items-center gap-1.5">
+            <div
+              className={`${styles.topbarCenter} ${
+                dataSuratSearchExpanded ? styles.topbarCenterExpanded : ""
+              }`}
+            >
+              <TopbarDataSuratSearch
+                disabled={hasNoDepartments}
+                requireSearchColumn
+                searchColumns={dataSuratSearchColumns}
+                onMobileExpandedChange={setDataSuratSearchExpanded}
+              />
+            </div>
+          )}
+
+          {isDataSuratPage && (
+            <div className={styles.topbarRight}>
               <TopbarFilter
                 initialFilters={filters}
                 mode="surat"
+                searchColumns={dataSuratSearchColumns}
+                showSearchColumnFilter
                 onFilterChange={(nextFilters) => {
                   setFilters(nextFilters)
                   localStorage.setItem("topbar_filters", JSON.stringify(nextFilters))
@@ -317,13 +419,14 @@ function RoleLayoutInner({ role, children }: Props) {
           )}
 
           {isCetakPage && !isDenied && (
-            <div className="flex items-center gap-2">
+            <div className={`${styles.topbarRight} ${styles.topbarCetakActions}`}>
               <button
                 onClick={hasCetakData ? handleClearCetak : undefined}
                 disabled={!hasCetakData}
                 title={hasCetakData ? "Bersihkan & kembali" : "Tidak ada data"}
                 className={[
-                  "flex items-center gap-1.5 px-4 h-9 rounded-lg",
+                  "flex items-center justify-center gap-1.5 h-9 rounded-lg",
+                  isMobile ? "w-9 px-0" : "px-4",
                   "border text-[13px] font-medium transition-colors shrink-0",
                   hasCetakData
                     ? `border-slate-200 dark:border-slate-700
@@ -344,7 +447,8 @@ function RoleLayoutInner({ role, children }: Props) {
                 disabled={!hasCetakData}
                 title={hasCetakData ? "Cetak sekarang" : "Tidak ada data untuk dicetak"}
                 className={[
-                  "flex items-center gap-2 px-4 h-9 rounded-lg",
+                  "flex items-center justify-center gap-2 h-9 rounded-lg",
+                  isMobile ? "w-9 px-0" : "px-4",
                   "text-[13px] font-semibold transition-colors shrink-0",
                   hasCetakData
                     ? "bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white"
@@ -366,7 +470,7 @@ function RoleLayoutInner({ role, children }: Props) {
           )}
         </div>
 
-        {isDataSuratPage && (permissions?.canCreate ?? false) && !(isMobile && selectedDataSuratCount > 0) && (
+        {isDataSuratPage && !hasNoDepartments && (permissions?.canCreate ?? false) && !(isMobile && selectedDataSuratCount > 0) && (
           <button
             onClick={() => {
               sessionStorage.setItem("add_return_mode", "surat")

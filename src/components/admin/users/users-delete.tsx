@@ -42,7 +42,7 @@ export default function UsersDelete({ open, onOpenChange, user, onSuccess }: Pro
           <AlertDialogAction
             onClick={handleConfirm}
             disabled={loading}
-            className="bg-red-500 hover:bg-red-600 text-white"
+            variant="destructive"
           >
             {loading ? "Menghapus..." : "Hapus"}
           </AlertDialogAction>

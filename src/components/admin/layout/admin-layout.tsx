@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { usePathname, useRouter } from "next/navigation"
 import styles from "@/app/layout.module.css"
-import { AdminSidebar } from "@/components/admin/dashboard/admin-sidebar"
+import { AdminSidebar } from "@/components/admin/layout/admin-sidebar"
 import { AdminSearchContext } from "@/components/admin/layout/admin-search-context"
 import { AdminTopbar } from "@/components/admin/layout/admin-topbar"
 import { usePresenceHeartbeat } from "@/hooks/use-presence-heartbeat"
@@ -112,6 +112,11 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 
     if (pathname.includes("/departemen")) {
       router.push("/admin/departemen")
+      return
+    }
+
+    if (pathname.includes("/kelola-tabel-lacak")) {
+      router.push("/admin/kelola-tabel-lacak")
       return
     }
 

@@ -11,10 +11,9 @@ import { CetakEmpty }                      from "@/components/surat/cetak/empty-
 import { LoadingSkeleton }                 from "@/components/shared/loading-skeleton"
 import { CetakPrintStyles }               from "@/components/surat/cetak/print-styles"
 import { CetakScreenView }                from "@/components/surat/cetak/screen-view"
-import type { CetakGroup }                from "@/types/surat-types"
+import type { CetakGroup }                from "@/types/surat"
 
 type ActiveFilter = string
-const ALL_TAB = "ALL"
 
 interface CetakPageContentProps {
   printSheetName : ActiveFilter
@@ -31,7 +30,7 @@ function CetakContent({
   const idsParam              = searchParams.get("ids") ?? ""
   const { data, loading, error } = useCetakData(idsParam, printSheetName)
   const [cleared, setCleared] = useState(false)
-  const [activeTab, setActiveTab] = useState(printSheetName || ALL_TAB)
+  const [activeTab, setActiveTab] = useState(printSheetName)
 
   useEffect(() => {
     const handler = () => {
@@ -75,7 +74,7 @@ function CetakContent({
 
   if (loading) {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center">
+      <div className="flex empty-state-viewport items-center justify-center">
         <LoadingSkeleton type="table" />
       </div>
     )
@@ -92,14 +91,14 @@ function CetakContent({
         onBersihkan={() => window.dispatchEvent(new CustomEvent("cetak:clear"))}
       />
       {error ? (
-        <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="flex items-center justify-center">
           <CetakEmpty
             title="Gagal Mengambil Data Cetak"
             description={error}
           />
         </div>
       ) : visibleGroups.length === 0 && (
-        <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="flex items-center justify-center">
           <CetakEmpty />
         </div>
       )}
@@ -114,7 +113,7 @@ export function CetakPageContent(props: CetakPageContentProps) {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="flex empty-state-viewport items-center justify-center">
           <LoadingSkeleton type="table" />
         </div>
       }

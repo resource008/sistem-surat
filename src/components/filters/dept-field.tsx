@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { Check } from "lucide-react"
+import { Skeleton } from "@/components/ui/skeleton"
 
 type DepartmentOption = {
   id: string
@@ -26,7 +27,7 @@ export function DeptField({ selected, onToggle, maxHeight = 200 }: DeptFieldProp
       setLoading(true)
       setError(null)
       try {
-        const res = await fetch("/api/dept")
+        const res = await fetch("/api/admin/dept")
         const json = await res.json().catch(() => null)
         if (!res.ok) throw new Error(json?.error ?? "Gagal mengambil departemen")
         if (!ignore) setDepartments(Array.isArray(json) ? json : [])
@@ -58,8 +59,13 @@ export function DeptField({ selected, onToggle, maxHeight = 200 }: DeptFieldProp
   function renderContent() {
     if (loading) {
       return (
-        <div className="px-3 py-2 text-[12px] text-muted-foreground">
-          Memuat departemen...
+        <div className="space-y-2 px-3 py-2">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="flex items-center justify-between gap-3">
+              <Skeleton className="h-4 w-20" />
+              <Skeleton className="size-3 rounded" />
+            </div>
+          ))}
         </div>
       )
     }

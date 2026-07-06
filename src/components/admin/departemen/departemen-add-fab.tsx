@@ -1,6 +1,7 @@
 "use client"
 
 import { Plus } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 interface Props {
   onClick: () => void
@@ -8,14 +9,16 @@ interface Props {
 
 export function DepartemenAddFab({ onClick }: Props) {
   return (
-    <button
+    <Button
       type="button"
+      variant="action-primary"
+      size="icon-lg"
       onClick={onClick}
       title="Tambah Departemen"
       aria-label="Tambah Departemen"
-      className="fixed bottom-6 right-6 z-50 flex size-14 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg shadow-blue-600/25 transition-all hover:bg-blue-700 hover:shadow-xl active:scale-95 active:bg-blue-800"
+      className="fixed bottom-6 right-6 z-50 size-14 rounded-full shadow-lg"
     >
       <Plus size={24} strokeWidth={2.5} />
-    </button>
+    </Button>
   )
 }

@@ -2,12 +2,12 @@ import { NextResponse } from "next/server"
 import { AppError } from "@/lib/errors"
 import { getCurrentSession, getUserPermissions } from "@/lib/current-user-permissions"
 import { userService } from "@/services/user-service"
-import type { Role } from "@/types"
+import type { DashboardRole, UserRole } from "@/domain/user/types"
 
 function getSessionUser(
   session: Awaited<ReturnType<typeof getCurrentSession>>
-): { id: string; role: Extract<Role, "STAFF" | "PKL"> } {
-  const user = session?.user as { id?: string; role?: Role } | undefined
+): { id: string; role: DashboardRole } {
+  const user = session?.user as { id?: string; role?: UserRole } | undefined
   if (!user?.id || !user.role) throw new AppError(401, "Unauthorized")
   if (user.role !== "STAFF" && user.role !== "PKL") {
     throw new AppError(403, "Halaman akun hanya untuk Staff dan PKL")
