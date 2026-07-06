@@ -10,13 +10,13 @@ interface Props {
 export function RegisterInfoPanel({ register }: Props) {
   return (
     <div className="w-full lg:w-4/12 xl:w-4/12 flex flex-col gap-4 lg:h-full lg:pb-6">
-      <div className="rounded-2xl border border-slate-200 dark:border-slate-800
-                      bg-white dark:bg-slate-950 overflow-hidden
+      <div className="rounded-2xl border border-slate-200 dark:border-neutral-800
+                      bg-white dark:bg-neutral-950 overflow-hidden
                       flex flex-col max-h-full">
 
         {/* Header */}
-        <div className="px-6 py-4 bg-slate-50 dark:bg-slate-900
-                        border-b border-slate-200 dark:border-slate-800 shrink-0">
+        <div className="px-6 py-4 bg-slate-50 dark:bg-neutral-900
+                        border-b border-slate-200 dark:border-neutral-800 shrink-0">
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="text-[12px] font-medium text-slate-400 dark:text-slate-500 mb-1">
@@ -28,9 +28,9 @@ export function RegisterInfoPanel({ register }: Props) {
               </p>
             </div>
             <Badge className="text-[12px] font-medium px-2.5 py-0.5 rounded-full
-                              bg-slate-100 dark:bg-slate-800
+                              bg-slate-100 dark:bg-neutral-800
                               text-slate-700 dark:text-slate-300
-                              border border-slate-200 dark:border-slate-700 mt-0.5">
+                              border border-slate-200 dark:border-neutral-700 mt-0.5">
               {register.dept.shortName}
             </Badge>
           </div>

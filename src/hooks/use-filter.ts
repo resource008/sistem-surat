@@ -36,12 +36,17 @@ export function useFilter(
   const searchParams = useSearchParams()
 
   const onFilterChangeRef = useRef(onFilterChange)
+  const searchParamsRef   = useRef(searchParams)
   const isMounted         = useRef(false)
   const isResetting       = useRef(false)
 
   useEffect(() => {
     onFilterChangeRef.current = onFilterChange
   }, [onFilterChange])
+
+  useEffect(() => {
+    searchParamsRef.current = searchParams
+  }, [searchParams])
 
   const [date, setDateState] = useState<Date | undefined>(() => {
     const urlDate = searchParams.get("date")
@@ -91,7 +96,10 @@ export function useFilter(
     }
 
     const effectiveDepts = mode === "pi" ? [] : debouncedDepts
-    const params = new URLSearchParams()
+    const params = new URLSearchParams(searchParamsRef.current.toString())
+    params.delete("date")
+    params.delete("dept")
+    params.delete("mode")
     if (mode === "pi")              params.set("mode", "pi")
     if (debouncedDate)              params.set("date", format(debouncedDate, "yyyy-MM-dd"))
     if (effectiveDepts.length > 0)  params.set("dept", effectiveDepts.join(","))

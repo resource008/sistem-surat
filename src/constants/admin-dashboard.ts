@@ -10,23 +10,23 @@ export const STATISTIC_TIME_OPTIONS: { value: TipeWaktuStatistik; label: string 
 
 export const ACTIVITY_CARD_STYLES = [
   {
-    gradient:  "from-sky-400 to-blue-500 dark:from-sky-700/60 dark:to-blue-800/60",
-    iconBg:    "bg-blue-600/30",
+    surface:   "bg-sky-600 dark:bg-sky-700",
+    iconBg:    "bg-white/15",
     iconColor: "text-white",
   },
   {
-    gradient:  "from-violet-400 to-purple-500 dark:from-violet-700/60 dark:to-purple-800/60",
-    iconBg:    "bg-purple-600/30",
+    surface:   "bg-indigo-600 dark:bg-indigo-700",
+    iconBg:    "bg-white/15",
     iconColor: "text-white",
   },
   {
-    gradient:  "from-emerald-400 to-teal-500 dark:from-emerald-700/60 dark:to-teal-800/60",
-    iconBg:    "bg-teal-600/30",
+    surface:   "bg-emerald-600 dark:bg-emerald-700",
+    iconBg:    "bg-white/15",
     iconColor: "text-white",
   },
   {
-    gradient:  "from-rose-400 to-pink-500 dark:from-rose-700/60 dark:to-pink-800/60",
-    iconBg:    "bg-pink-600/30",
+    surface:   "bg-rose-600 dark:bg-rose-700",
+    iconBg:    "bg-white/15",
     iconColor: "text-white",
   },
 ] as const

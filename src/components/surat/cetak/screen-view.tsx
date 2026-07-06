@@ -3,9 +3,10 @@
 import { useSidebar } from "@/components/ui/sidebar"
 import { isCetakRowSpanColumn } from "@/domain/surat/custom-fields"
 import { formatTanggalShort, getCetakColumnValue } from "@/lib/surat-helpers"
-import type { CetakGroup } from "@/types/surat-types"
+import type { CetakGroup } from "@/types/surat"
 import { format } from "date-fns"
 import { id } from "date-fns/locale"
+import { useEffect, useState } from "react"
 
 interface Props {
   groups: CetakGroup[]
@@ -18,6 +19,21 @@ interface Props {
 function useSidebarSafe() {
   try { return useSidebar() }
   catch { return { state: "collapsed" as const, isMobile: false } }
+}
+
+function useIsMobileViewport() {
+  const [isMobileViewport, setIsMobileViewport] = useState(false)
+
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 767px)")
+    const update = () => setIsMobileViewport(media.matches)
+
+    update()
+    media.addEventListener("change", update)
+    return () => media.removeEventListener("change", update)
+  }, [])
+
+  return isMobileViewport
 }
 
 function getGroupTitle(group: CetakGroup) {
@@ -94,7 +110,7 @@ function MobileList({ group }: { group: CetakGroup }) {
 function DesktopTable({ group }: { group: CetakGroup }) {
   const columns = group.columns ?? group.registers[0]?.dept?.columns ?? []
   const Th = ({ children, className = "" }: any) => (
-    <th className={`border-b border-slate-100 px-4 py-3 text-left text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:border-slate-800 dark:text-slate-500 ${className}`}>
+    <th className={`border-b border-slate-100 px-4 py-3 text-left text-[10px] font-bold uppercase tracking-[0px] text-slate-400 dark:border-slate-800 dark:text-slate-500 ${className}`}>
       {children}
     </th>
   )
@@ -149,8 +165,10 @@ function DesktopTable({ group }: { group: CetakGroup }) {
 }
 
 function FloatingFilterTab({ activeFilter, tabs, onTabChange, sidebarState, isMobile }: any) {
+  const isMobileViewport = useIsMobileViewport()
   if (!tabs.length) return null
 
+  const shouldUseFullViewport = isMobile || isMobileViewport
   const sidebarOffset = isMobile
     ? "0px"
     : sidebarState === "expanded"
@@ -159,9 +177,10 @@ function FloatingFilterTab({ activeFilter, tabs, onTabChange, sidebarState, isMo
 
   return (
     <div
-      className="fixed bottom-6 z-10 -translate-x-1/2 transition-[left,opacity] duration-300 ease-in-out"
+      className="fixed bottom-6 z-10 flex justify-center px-4 transition-[left,width,opacity] duration-300 ease-in-out"
       style={{
-        left: `calc(${sidebarOffset} + ((100vw - ${sidebarOffset}) / 2))`,
+        left: shouldUseFullViewport ? "0px" : sidebarOffset,
+        width: shouldUseFullViewport ? "100dvw" : `calc(100vw - ${sidebarOffset})`,
       }}
     >
       <div className="flex max-w-[calc(100vw-2rem)] items-center gap-1 overflow-x-auto rounded-2xl border border-slate-200 bg-white p-1.5 shadow-lg shadow-black/20 dark:border-slate-700 dark:bg-slate-900">

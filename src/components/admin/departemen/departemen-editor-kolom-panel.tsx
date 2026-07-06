@@ -9,12 +9,13 @@ import {
   fieldClass,
   innerPanelClass,
   panelClass,
-} from "./departemen-form-config"
+  readonlyFieldClass,
+} from "./styles/form"
 import {
   getColumnLabel,
   getDefaultValueLabel,
   getTypeLabel,
-} from "./departemen-kolom-utils"
+} from "./utils/kolom"
 import { DepartemenFormFieldRow } from "./departemen-form-field-row"
 import { DepartemenSectionToggle } from "./departemen-section-toggle"
 
@@ -67,7 +68,7 @@ export function DepartemenEditorKolomPanel({
       />
 
       {open && (
-        <div className="space-y-6 px-4 pb-5 pt-2">
+        <div className="space-y-4 px-4 pb-4 pt-3">
           {orderedColumns.map((column) => {
             const label = getColumnLabel(column)
             const customIndex = customColumns.findIndex((item) => item.id === column.id)
@@ -77,7 +78,7 @@ export function DepartemenEditorKolomPanel({
             return (
               <div
                 key={column.id}
-                className={`${innerPanelClass} px-4 py-4 ${column.isDefault && !readOnly ? "opacity-85" : ""}`}
+                className={`${innerPanelClass} px-4 py-4 ${column.isDefault && !readOnly ? "opacity-80" : ""}`}
               >
                 <div
                   role="button"
@@ -98,27 +99,29 @@ export function DepartemenEditorKolomPanel({
                         className="flex shrink-0 items-center gap-1"
                         onClick={(event) => event.stopPropagation()}
                       >
-                        <button
+                        <Button
                           type="button"
+                          variant="action-neutral"
+                          size="icon-sm"
                           disabled={disabled || customIndex <= 0}
                           aria-label={`Pindahkan ${label} ke atas`}
-                          className="flex size-7 items-center justify-center rounded-lg text-slate-950 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40 dark:text-slate-100 dark:hover:bg-slate-800"
                           onClick={() => onMoveColumn(column.id, -1)}
                         >
                           <ArrowUp size={16} />
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                           type="button"
+                          variant="action-neutral"
+                          size="icon-sm"
                           disabled={disabled || customIndex === customColumns.length - 1}
                           aria-label={`Pindahkan ${label} ke bawah`}
-                          className="flex size-7 items-center justify-center rounded-lg text-slate-950 hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-40 dark:text-slate-100 dark:hover:bg-slate-800"
                           onClick={() => onMoveColumn(column.id, 1)}
                         >
                           <ArrowDown size={16} />
-                        </button>
+                        </Button>
                       </div>
                     )}
-                    <span className="truncate text-[15px] font-medium text-slate-950 dark:text-slate-50">
+                    <span className="truncate text-sm font-medium">
                       {columnTitle}
                     </span>
                   </div>
@@ -126,10 +129,10 @@ export function DepartemenEditorKolomPanel({
                   <div className="flex shrink-0 items-center gap-3">
                     {!column.isDefault && (
                       <div
-                        className="flex shrink-0 items-center gap-3 text-[14px] font-medium"
+                        className="flex shrink-0 items-center gap-3 text-sm font-medium"
                         onClick={(event) => event.stopPropagation()}
                       >
-                        <span>Wajib diisi</span>
+                        <span className="text-muted-foreground">Wajib diisi</span>
                         <Checkbox
                           className="size-5 disabled:opacity-100"
                           checked={column.isRequired}
@@ -142,10 +145,9 @@ export function DepartemenEditorKolomPanel({
                         {!readOnly && (
                           <Button
                             type="button"
-                            variant="ghost"
+                            variant="action-danger-soft"
                             size="icon"
                             aria-label={`Hapus kolom ${customIndex + 1}`}
-                            className="size-8 rounded-lg text-red-500 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30"
                             disabled={disabled}
                             onClick={(event) => {
                               event.stopPropagation()
@@ -185,7 +187,7 @@ export function DepartemenEditorKolomPanel({
                     </DepartemenFormFieldRow>
                     <DepartemenFormFieldRow label="Tipe data">
                       {column.isDefault || readOnly ? (
-                        <div className={`flex items-center ${fieldClass}`}>
+                        <div className={`flex items-center ${readonlyFieldClass}`}>
                           {getTypeLabel(column)}
                         </div>
                       ) : (
@@ -231,11 +233,12 @@ export function DepartemenEditorKolomPanel({
             <div className="flex justify-end">
               <Button
                 type="button"
+                variant="outline"
+                size="lg"
                 onClick={onAddColumn}
                 disabled={disabled}
-                className="h-10 gap-2 rounded-full bg-blue-600 px-5 text-white hover:bg-blue-700"
               >
-                {addButtonIcon && <Plus size={18} />} Tambah
+                {addButtonIcon && <Plus />} Tambah
               </Button>
             </div>
           )}

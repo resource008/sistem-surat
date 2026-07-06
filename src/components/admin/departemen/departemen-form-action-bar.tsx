@@ -28,23 +28,31 @@ export function DepartemenFormActionBar({
   dangerAction,
 }: Props) {
   return (
-    <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2">
-      <div className="inline-flex items-center gap-1 rounded-2xl border border-slate-200/70 bg-white/90 p-1.5 shadow-2xl shadow-slate-900/10 backdrop-blur-xl dark:border-slate-700/40 dark:bg-slate-950/90 dark:shadow-black/50">
+    <div
+      className="pointer-events-none fixed bottom-4 z-30 flex -translate-x-1/2 justify-center px-2 pb-1 transition-[left,width] duration-300 ease-in-out"
+      style={{
+        left: "calc(var(--topbar-left, 0px) + ((100vw - var(--topbar-left, 0px)) / 2))",
+        width: "calc(100vw - var(--topbar-left, 0px) - 1rem)",
+      }}
+    >
+      <div className="pointer-events-auto flex w-max max-w-full flex-nowrap justify-start gap-1 overflow-x-auto rounded-xl border bg-background/95 p-1.5 shadow-lg backdrop-blur sm:justify-center">
         <Button
           type="button"
-          variant="ghost"
+          variant="action-neutral"
+          size="fab-action"
           onClick={onCancel}
-          className="h-10 gap-2 rounded-xl px-4 text-[13px] font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
+          className="shrink-0"
         >
           <X size={14} /> Batal
         </Button>
         {secondaryAction && (
           <Button
             type="button"
-            variant="ghost"
+            variant="action-secondary"
+            size="fab-action"
             onClick={secondaryAction.onClick}
             disabled={saving}
-            className="h-10 gap-2 rounded-xl px-4 text-[13px] font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
+            className="shrink-0"
           >
             {secondaryAction.icon ?? <Plus size={14} />}
             {secondaryAction.label}
@@ -53,10 +61,11 @@ export function DepartemenFormActionBar({
         {dangerAction && (
           <Button
             type="button"
-            variant="destructive"
+            variant="action-danger"
+            size="fab-action"
             onClick={dangerAction.onClick}
             disabled={saving}
-            className="h-10 gap-2 rounded-xl bg-red-600 px-5 text-[13px] font-semibold text-white hover:bg-red-700"
+            className="shrink-0"
           >
             {dangerAction.icon}
             {dangerAction.label}
@@ -65,8 +74,10 @@ export function DepartemenFormActionBar({
         {showSubmit && (
           <Button
             type="submit"
+            variant="action-primary"
+            size="fab-action"
             disabled={saving}
-            className="h-10 gap-2 rounded-xl bg-blue-600 px-5 text-[13px] font-semibold text-white hover:bg-blue-700"
+            className="shrink-0"
           >
             {saving
               ? <><Loader2 size={14} className="animate-spin" /> Menyimpan...</>

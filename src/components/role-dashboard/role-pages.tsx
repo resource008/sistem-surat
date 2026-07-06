@@ -2,7 +2,7 @@ import DataSuratPage from "@/components/surat/data-surat/data-surat"
 import EditSuratPage from "@/components/surat/edit-surat/edit-surat"
 import TambahSuratPage from "@/components/surat/tambah-surat/tambah-surat"
 import ViewSuratPage from "@/components/surat/view-surat/view-surat"
-import type { DashboardRole } from "@/components/role-dashboard/types"
+import type { DashboardRole } from "@/domain/user/types"
 import { getRoleBasePath } from "@/lib/role-dashboard"
 
 export function RoleDataSuratPage({ role }: { role: DashboardRole }) {

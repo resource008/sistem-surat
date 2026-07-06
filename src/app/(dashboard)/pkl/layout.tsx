@@ -1,5 +1,5 @@
-import { RoleLayout } from "@/components/role-dashboard/role-layout"
+import { PklLayout } from "@/components/pkl/pkl-layout"
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  return <RoleLayout role="PKL">{children}</RoleLayout>
+  return <PklLayout>{children}</PklLayout>
 }

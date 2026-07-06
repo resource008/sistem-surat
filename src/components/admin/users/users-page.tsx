@@ -4,6 +4,8 @@ import { useAdminSearch } from "@/components/admin/layout/admin-search-context"
 import { UserAvatar } from "@/components/shared/user-avatar"
 import { UserStatusBadge } from "@/components/shared/user-status-badge"
 import { Button } from "@/components/ui/button"
+import { Skeleton } from "@/components/ui/skeleton"
+import { USER_ROLE_LABEL } from "@/constants/user"
 import {
   Table,
   TableBody,
@@ -34,20 +36,14 @@ function formatTimestamp(dateStr: Date | string | null | undefined) {
   return `${dateLabel}, ${timeLabel}`
 }
 
-const ROLE_LABEL: Record<string, string> = {
-  ADMIN: "Admin",
-  STAFF: "Staff",
-  PKL: "PKL",
-}
-
 function DesktopSkeletonRow() {
   return (
     <TableRow>
-      <TableCell><div className="h-4 rounded-md bg-muted animate-pulse" /></TableCell>
-      <TableCell><div className="h-4 rounded-md bg-muted animate-pulse" /></TableCell>
-      <TableCell className="hidden lg:table-cell"><div className="h-4 rounded-md bg-muted animate-pulse" /></TableCell>
-      <TableCell className="hidden lg:table-cell"><div className="h-4 rounded-md bg-muted animate-pulse" /></TableCell>
-      <TableCell><div className="h-4 rounded-md bg-muted animate-pulse" /></TableCell>
+      <TableCell><Skeleton className="h-4" /></TableCell>
+      <TableCell><Skeleton className="h-4" /></TableCell>
+      <TableCell className="hidden lg:table-cell"><Skeleton className="h-4" /></TableCell>
+      <TableCell className="hidden lg:table-cell"><Skeleton className="h-4" /></TableCell>
+      <TableCell><Skeleton className="h-4" /></TableCell>
     </TableRow>
   )
 }
@@ -56,17 +52,17 @@ function MobileSkeletonCard() {
   return (
     <div className="space-y-3 rounded-xl border border-border/50 p-4">
       <div className="flex items-center gap-3">
-        <div className="size-10 shrink-0 rounded-full bg-muted animate-pulse" />
-        <div className="h-4 w-1/2 rounded-md bg-muted animate-pulse" />
+        <Skeleton className="size-10 shrink-0 rounded-full" />
+        <Skeleton className="h-4 w-1/2" />
       </div>
-      <div className="h-3 w-full rounded-md bg-muted animate-pulse" />
+      <Skeleton className="h-3 w-full" />
     </div>
   )
 }
 
 export default function UsersPage() {
   const router = useRouter()
-  const { debouncedSearch } = useAdminSearch()
+  const { search, debouncedSearch } = useAdminSearch()
   const [page, setPage] = useState(1)
 
   const { data, loading } = useUsers({
@@ -90,6 +86,7 @@ export default function UsersPage() {
   const users = data?.data ?? []
   const meta = data?.meta
   const showEmpty = users.length === 0 && !loading
+  const isSearchActive = search.trim().length > 0
 
   const renderDesktopContent = () => {
     if (showEmpty) {
@@ -130,7 +127,7 @@ export default function UsersPage() {
                 </div>
               </TableCell>
               <TableCell className="text-sm">
-                {ROLE_LABEL[user.role] ?? user.role}
+                {USER_ROLE_LABEL[user.role] ?? user.role}
               </TableCell>
               <TableCell className="hidden text-sm text-muted-foreground lg:table-cell">
                 {user.email}
@@ -176,7 +173,7 @@ export default function UsersPage() {
             <div className="mt-1 flex items-center justify-between border-t border-border/50 pt-3">
               <UserStatusBadge status={user.status} />
               <span className="rounded-md bg-muted px-2 py-1 text-xs font-medium">
-                {ROLE_LABEL[user.role] ?? user.role}
+                {USER_ROLE_LABEL[user.role] ?? user.role}
               </span>
             </div>
           </div>
@@ -219,14 +216,16 @@ export default function UsersPage() {
         </div>
       )}
 
-      <Button
-        onClick={handleAdd}
-        size="icon"
-        className="fixed bottom-8 right-8 size-14 rounded-full bg-blue-600 shadow-lg hover:bg-blue-700"
-      >
-        <Plus className="size-6 text-white" />
-        <span className="sr-only">Tambah Pengguna</span>
-      </Button>
+      {!isSearchActive && (
+        <Button
+          onClick={handleAdd}
+          size="icon"
+          className="fixed bottom-8 right-8 size-14 rounded-full bg-blue-600 shadow-lg hover:bg-blue-700"
+        >
+          <Plus className="size-6 text-white" />
+          <span className="sr-only">Tambah Pengguna</span>
+        </Button>
+      )}
 
     </div>
   )

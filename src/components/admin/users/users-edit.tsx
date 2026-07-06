@@ -3,8 +3,9 @@
 import { useState, useEffect }        from "react"
 import { useParams, useRouter }       from "next/navigation"
 import { toast }                      from "sonner"
-import { ArrowLeft, Loader2 } from "lucide-react"
+import { AlertTriangle, ArrowLeft } from "lucide-react"
 import { Button }  from "@/components/ui/button"
+import { LoadingSkeleton } from "@/components/shared/loading-skeleton"
 import type { User, UserPermissions } from "@/domain/user/types"
 import { UserEditAccountSection } from "./user-edit-account-section"
 import { UserEditActionBar } from "./user-edit-action-bar"
@@ -13,7 +14,7 @@ import {
   EMPTY_USER_EDIT_FORM,
   EMPTY_USER_PERMISSIONS,
   type UserEditFormState,
-} from "./user-edit-types"
+} from "./types/user-edit"
 
 export default function UserEditPage() {
   const { id }  = useParams<{ id: string }>()
@@ -33,7 +34,7 @@ export default function UserEditPage() {
 
     async function loadUser() {
       try {
-        const response = await fetch(`/api/users/${id}`)
+        const response = await fetch(`/api/admin/users/${id}`)
         const data = await response.json().catch(() => null)
         if (!response.ok) throw new Error(data?.error ?? "Gagal memuat data user")
         if (!active) return
@@ -55,7 +56,7 @@ export default function UserEditPage() {
         })
 
         if (data.role === "ADMIN") {
-          const adminResponse = await fetch("/api/users?role=ADMIN&page=1&limit=1")
+          const adminResponse = await fetch("/api/admin/users?role=ADMIN&page=1&limit=1")
           const adminData = await adminResponse.json().catch(() => null)
           if (adminResponse.ok && active) {
             setAdminCount(adminData?.meta?.total ?? null)
@@ -88,8 +89,8 @@ export default function UserEditPage() {
   }
 
   async function handleSave() {
-    if (user?.role === "ADMIN" && adminCount !== null && adminCount <= 1) {
-      toast.error("Akun admin terakhir tidak bisa diubah")
+    if (isLastAdmin && form.role !== "ADMIN") {
+      toast.error("Role admin terakhir tidak bisa diubah")
       return
     }
 
@@ -110,7 +111,7 @@ export default function UserEditPage() {
       }
       if (form.password) body.password = form.password
 
-      const res  = await fetch(`/api/users/${id}`, {
+      const res  = await fetch(`/api/admin/users/${id}`, {
         method:  "PATCH",
         headers: { "Content-Type": "application/json" },
         body:    JSON.stringify(body),
@@ -127,9 +128,7 @@ export default function UserEditPage() {
   }
 
   if (loading) return (
-    <div className="flex items-center justify-center min-h-[400px]">
-      <Loader2 className="animate-spin text-muted-foreground" size={24} />
-    </div>
+    <LoadingSkeleton type="profile" />
   )
 
   if (!user) return (
@@ -146,16 +145,20 @@ export default function UserEditPage() {
   return (
     <div className="flex flex-col gap-4 pb-32">
       {isLastAdmin && (
-        <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-100">
-          Akun ini adalah satu-satunya admin, jadi data akun tidak bisa diubah.
-          Tambahkan admin lain terlebih dahulu jika akun ini perlu diedit.
+        <div className="flex items-start gap-2.5 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-100">
+          <AlertTriangle className="mt-0.5 size-4 shrink-0" />
+          <p>
+            Akun ini adalah satu-satunya admin. Informasi akun tetap bisa diubah,
+            tetapi role admin tidak bisa diganti.
+          </p>
         </div>
       )}
 
       <UserEditAccountSection
         user={user}
         form={form}
-        disabled={isLastAdmin}
+        disabled={saving}
+        roleDisabled={isLastAdmin}
         onFieldChange={setField}
       />
 
@@ -168,7 +171,7 @@ export default function UserEditPage() {
 
       <UserEditActionBar
         saving={saving}
-        disabled={isLastAdmin}
+        disabled={false}
         onCancel={() => router.push(`/admin/users/${id}`)}
         onSave={handleSave}
       />

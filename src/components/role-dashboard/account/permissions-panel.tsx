@@ -1,6 +1,6 @@
 import { KeyRound } from "lucide-react"
+import { USER_PERMISSION_LABELS } from "@/constants/user"
 import type { User } from "@/domain/user/types"
-import { ACCOUNT_PERMISSIONS } from "./constants"
 import { PermissionBadge } from "./permission-badge"
 
 type PermissionsPanelProps = {
@@ -17,7 +17,7 @@ export function PermissionsPanel({ user }: PermissionsPanelProps) {
 
       <div className="px-8 py-5 max-lg:px-6 max-sm:px-5">
         <div className="flex flex-col">
-          {ACCOUNT_PERMISSIONS.map(({ key, label }) => (
+          {USER_PERMISSION_LABELS.map(({ key, label }) => (
             <div
               key={key}
               className="flex items-center justify-between gap-4 border-b border-border/70 py-3 last:border-0"

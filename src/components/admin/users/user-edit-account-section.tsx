@@ -12,13 +12,14 @@ import {
 import type { User } from "@/domain/user/types"
 import { Eye, EyeOff, FileText, Shuffle } from "lucide-react"
 import { useState } from "react"
-import { generatePassword } from "./user-form-utils"
-import type { UserEditFormState } from "./user-edit-types"
+import type { UserEditFormState } from "./types/user-edit"
+import { generatePassword } from "./utils/password"
 
 type UserEditAccountSectionProps = {
   user: User
   form: UserEditFormState
   disabled: boolean
+  roleDisabled?: boolean
   onFieldChange: <K extends keyof UserEditFormState>(
     key: K,
     value: UserEditFormState[K],
@@ -29,6 +30,7 @@ export function UserEditAccountSection({
   user,
   form,
   disabled,
+  roleDisabled = false,
   onFieldChange,
 }: UserEditAccountSectionProps) {
   const [showPassword, setShowPassword] = useState(false)
@@ -91,7 +93,7 @@ export function UserEditAccountSection({
               onValueChange={(value) => {
                 onFieldChange("role", value as UserEditFormState["role"])
               }}
-              disabled={disabled}
+              disabled={disabled || roleDisabled}
             >
               <SelectTrigger className="h-10 rounded-xl text-sm">
                 <SelectValue />

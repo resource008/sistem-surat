@@ -7,7 +7,8 @@ import {
   fieldClass,
   innerPanelClass,
   panelClass,
-} from "./departemen-form-config"
+  readonlyFieldClass,
+} from "./styles/form"
 import { DepartemenFormFieldRow } from "./departemen-form-field-row"
 import { DepartemenSectionToggle } from "./departemen-section-toggle"
 
@@ -52,32 +53,28 @@ export function DepartemenIdentifikasiNamaLembarPanel({
       />
 
       {openPrintIdentity && (
-        <div className="px-6 pb-5 pt-1">
-          <div className={`${innerPanelClass} grid gap-4 px-4 py-4`}>
+        <div className="px-4 pb-4 pt-3">
+          <div className={`${innerPanelClass} grid gap-4 px-4 py-3`}>
             {summary ? (
               <>
                 {showMode && (
                   <DepartemenFormFieldRow label="Pilih">
-                    <div className={`flex items-center ${fieldClass}`}>
+                    <div className={`flex items-center ${readonlyFieldClass}`}>
                       {mode === "existing" ? "Yang sudah ada" : "Buat baru"}
                     </div>
                   </DepartemenFormFieldRow>
                 )}
                 <DepartemenFormFieldRow label="Nama lembar">
-                  <div className={`flex items-center ${fieldClass}`}>
+                  <div className={`flex items-center ${readonlyFieldClass}`}>
                     {value || "Tidak ada data"}
                   </div>
                 </DepartemenFormFieldRow>
               </>
             ) : readOnly ? (
               <DepartemenFormFieldRow label="Otomatis">
-                <Input
-                  value={value}
-                  placeholder={placeholder}
-                  className={`${fieldClass} cursor-default`}
-                  disabled
-                  readOnly
-                />
+                <div className={`flex items-center ${readonlyFieldClass}`}>
+                  {value || placeholder}
+                </div>
               </DepartemenFormFieldRow>
             ) : !showMode ? (
               <DepartemenFormFieldRow label="Nama lembar">

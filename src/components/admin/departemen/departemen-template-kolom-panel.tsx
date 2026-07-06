@@ -1,7 +1,15 @@
 import { List } from "lucide-react"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import type { Departemen } from "@/types"
-import { fieldClass, panelClass } from "./departemen-form-config"
+import { fieldClass } from "./styles/form"
 
 type DepartemenTemplateKolomPanelProps = {
   departments: Departemen[]
@@ -17,37 +25,37 @@ export function DepartemenTemplateKolomPanel({
   onChange,
 }: DepartemenTemplateKolomPanelProps) {
   return (
-    <div className={`${panelClass} px-6 py-5`}>
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-end">
-        <div>
-          <div className="flex items-start gap-5">
-            <List className="mt-1 size-6 shrink-0 text-slate-950 dark:text-slate-50" />
-            <div className="min-w-0">
-              <h3 className="text-[17px] font-bold leading-tight">Pilih departemen</h3>
-              <p className="mt-3 text-[15px] leading-snug text-slate-950 dark:text-slate-100">
-                Silahkan pilih departemen dengan kolom yang ada
-              </p>
-            </div>
-          </div>
-          <span className="mt-6 block text-[16px] font-medium">Pilih departemen</span>
+    <Card>
+      <CardHeader>
+        <div className="flex items-center gap-2">
+          <List className="size-4 text-muted-foreground" />
+          <CardTitle>Pilih departemen</CardTitle>
         </div>
-        <Select
-          value={value}
-          onValueChange={onChange}
-          disabled={disabled || departments.length === 0}
-        >
-          <SelectTrigger className={`${fieldClass} w-full`}>
-            <SelectValue placeholder="Pilih departemen" />
-          </SelectTrigger>
-          <SelectContent>
-            {departments.map((department) => (
-              <SelectItem key={department.id} value={department.id}>
-                {department.shortName} - {department.tujuan}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-    </div>
+        <CardDescription>
+          Gunakan susunan kolom dari departemen yang sudah ada.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="grid gap-2 lg:grid-cols-[minmax(0,1fr)_minmax(260px,360px)] lg:items-center">
+          <Label className="text-sm font-medium">Departemen sumber</Label>
+          <Select
+            value={value}
+            onValueChange={onChange}
+            disabled={disabled || departments.length === 0}
+          >
+            <SelectTrigger className={`${fieldClass} w-full`}>
+              <SelectValue placeholder="Pilih departemen" />
+            </SelectTrigger>
+            <SelectContent>
+              {departments.map((department) => (
+                <SelectItem key={department.id} value={department.id}>
+                  {department.shortName} - {department.tujuan}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </CardContent>
+    </Card>
   )
 }
