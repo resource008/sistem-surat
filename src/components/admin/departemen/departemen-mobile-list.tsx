@@ -34,7 +34,7 @@ export function DepartemenMobileList({
       ) : departments.length === 0 ? (
         <div className="rounded-xl border border-border/40">
           <EmptyState
-            className="min-h-[280px] px-4"
+            className="px-4"
             icon={<Building2 size={64} strokeWidth={1.25} />}
             title={error ? "Gagal memuat departemen" : "Belum ada departemen"}
             description={error?.message ?? "Tambahkan departemen baru untuk mulai mengelola data."}
