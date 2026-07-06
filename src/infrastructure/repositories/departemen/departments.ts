@@ -126,6 +126,20 @@ export async function findActiveDepartmentShortName(id: string) {
   return rows[0] ?? null
 }
 
+export async function findAnyDepartmentShortName(id: string) {
+  const rows = await prisma.$queryRawUnsafe<DepartmentShortNameRow[]>(
+    `
+      SELECT id, short_name AS "shortName"
+      FROM departments
+      WHERE id = $1
+      LIMIT 1
+    `,
+    id
+  )
+
+  return rows[0] ?? null
+}
+
 export async function findDepartmentDuplicateByShortName(
   shortName: string,
   exceptDepartmentId: string
@@ -136,6 +150,7 @@ export async function findDepartmentDuplicateByShortName(
       FROM departments
       WHERE short_name = $1
         AND id <> $2
+      ORDER BY is_active DESC, id ASC
       LIMIT 1
     `,
     shortName,
@@ -234,6 +249,14 @@ export async function softDeleteDepartment(departmentId: string) {
   await prisma.$executeRaw`
     UPDATE departments
     SET is_active = false
+    WHERE id = ${departmentId}
+  `
+}
+
+export async function showDepartment(departmentId: string) {
+  await prisma.$executeRaw`
+    UPDATE departments
+    SET is_active = true
     WHERE id = ${departmentId}
   `
 }

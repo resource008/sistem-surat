@@ -14,6 +14,7 @@ import {
   createDepartmentId,
   findActiveDepartmentRef,
   findActiveDepartmentShortName,
+  findAnyDepartmentShortName,
   findAnyDepartmentRef,
   findDepartmentDuplicateByShortName,
   findDepartmentsByShortName,
@@ -24,6 +25,7 @@ import {
   isUniqueConflict,
   reactivateDepartment,
   renameInactiveDepartment,
+  showDepartment,
   softDeleteDepartment,
   updateDepartment,
 } from "./departments"
@@ -150,6 +152,22 @@ export async function deleteDepartmentMutation(id: string) {
   if (!current) throw new AppError(404, "Departemen tidak ditemukan")
 
   await softDeleteDepartment(resolvedId)
+}
+
+export async function showDepartmentMutation(id: string) {
+  const resolvedId = await findAnyDepartmentRef(id)
+  if (!resolvedId) throw new AppError(404, "Departemen tidak ditemukan")
+
+  const current = await findAnyDepartmentShortName(resolvedId)
+  if (!current) throw new AppError(404, "Departemen tidak ditemukan")
+
+  const duplicate = await findDepartmentDuplicateByShortName(current.shortName, resolvedId)
+  if (duplicate?.isActive) {
+    throw new AppError(409, "Singkatan departemen sudah digunakan")
+  }
+
+  await showDepartment(resolvedId)
+  return resolvedId
 }
 
 export async function hardDeleteDepartmentMutation(id: string) {
