@@ -20,7 +20,7 @@ const fetcher = async (url: string): Promise<Departemen[]> => {
 }
 
 export function useDepartemenList() {
-  const { data, error, isLoading, mutate } = useSWR<Departemen[]>("/api/dept", fetcher, {
+  const { data, error, isLoading, mutate } = useSWR<Departemen[]>("/api/dept?includeInactive=true", fetcher, {
     revalidateOnFocus: true,
   })
 

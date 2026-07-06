@@ -16,6 +16,7 @@ type DepartmentRow = {
   fullName: string
   tujuan: string
   printSheetName: string
+  isActive: boolean
 }
 
 type DepartmentColumnRow = {
@@ -487,7 +488,7 @@ export class DepartemenRepository {
     return printSheetName
   }
 
-  async findAllActive() {
+  async findAll({ includeInactive = false } = {}) {
     await this.ensureDepartmentMetaColumns()
     const nameColumn = await this.getNameColumn()
 
@@ -497,19 +498,22 @@ export class DepartemenRepository {
         short_name AS "shortName",
         ${nameColumn} AS "fullName",
         ${nameColumn} AS tujuan,
-        print_column_name AS "printSheetName"
+        print_column_name AS "printSheetName",
+        is_active AS "isActive"
       FROM departments
-      WHERE is_active = true
+      ${includeInactive ? "" : "WHERE is_active = true"}
       ORDER BY short_name ASC
     `)
 
     return this.attachColumns(rows)
   }
 
-  async findById(id: string) {
+  async findById(id: string, { includeInactive = false } = {}) {
     await this.ensureDepartmentMetaColumns()
     const nameColumn = await this.getNameColumn()
-    const resolvedId = await this.findActiveDepartmentRef(id)
+    const resolvedId = includeInactive
+      ? await this.findAnyDepartmentRef(id)
+      : await this.findActiveDepartmentRef(id)
     if (!resolvedId) throw new AppError(404, "Departemen tidak ditemukan")
 
     const rows = await prisma.$queryRawUnsafe<DepartmentRow[]>(
@@ -519,10 +523,11 @@ export class DepartemenRepository {
           short_name AS "shortName",
           ${nameColumn} AS "fullName",
           ${nameColumn} AS tujuan,
-          print_column_name AS "printSheetName"
+          print_column_name AS "printSheetName",
+          is_active AS "isActive"
         FROM departments
         WHERE id = $1
-          AND is_active = true
+          ${includeInactive ? "" : "AND is_active = true"}
         LIMIT 1
       `,
       resolvedId
@@ -647,6 +652,7 @@ export class DepartemenRepository {
           FROM departments
           WHERE short_name = $1
             AND id <> $2
+          ORDER BY is_active DESC, id ASC
           LIMIT 1
         `,
         input.shortName,
@@ -706,6 +712,48 @@ export class DepartemenRepository {
       SET is_active = false
       WHERE id = ${resolvedId}
     `
+  }
+
+  async show(id: string) {
+    const resolvedId = await this.findAnyDepartmentRef(id)
+    if (!resolvedId) throw new AppError(404, "Departemen tidak ditemukan")
+
+    const currentRows = await prisma.$queryRawUnsafe<Array<{ id: string; shortName: string }>>(
+      `
+        SELECT id, short_name AS "shortName"
+        FROM departments
+        WHERE id = $1
+        LIMIT 1
+      `,
+      resolvedId
+    )
+    const current = currentRows[0]
+    if (!current) throw new AppError(404, "Departemen tidak ditemukan")
+
+    const duplicateRows = await prisma.$queryRawUnsafe<Array<{ id: string; isActive: boolean }>>(
+      `
+        SELECT id, is_active AS "isActive"
+        FROM departments
+        WHERE short_name = $1
+          AND id <> $2
+        ORDER BY is_active DESC, id ASC
+        LIMIT 1
+      `,
+      current.shortName,
+      resolvedId
+    )
+
+    if (duplicateRows[0]?.isActive) {
+      throw new AppError(409, "Singkatan departemen sudah digunakan")
+    }
+
+    await prisma.$executeRaw`
+      UPDATE departments
+      SET is_active = true
+      WHERE id = ${resolvedId}
+    `
+
+    return this.findById(resolvedId, { includeInactive: true })
   }
 
   async hardDelete(id: string) {

@@ -4,20 +4,23 @@ import type { ReactNode } from "react"
 import { Loader2, Plus, Save, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
+type ActionBarVariant = "action-primary" | "action-secondary" | "action-neutral" | "action-danger"
+
+type ActionBarItem = {
+  icon?: ReactNode
+  label: string
+  onClick: () => void
+  disabled?: boolean
+  variant?: ActionBarVariant
+}
+
 interface Props {
   saving: boolean
   onCancel: () => void
   showSubmit?: boolean
-  secondaryAction?: {
-    icon?: ReactNode
-    label: string
-    onClick: () => void
-  }
-  dangerAction?: {
-    icon?: ReactNode
-    label: string
-    onClick: () => void
-  }
+  secondaryAction?: ActionBarItem
+  extraActions?: ActionBarItem[]
+  dangerAction?: ActionBarItem
 }
 
 export function DepartemenFormActionBar({
@@ -25,6 +28,7 @@ export function DepartemenFormActionBar({
   onCancel,
   showSubmit = true,
   secondaryAction,
+  extraActions = [],
   dangerAction,
 }: Props) {
   return (
@@ -43,19 +47,34 @@ export function DepartemenFormActionBar({
             type="button"
             variant="ghost"
             onClick={secondaryAction.onClick}
-            disabled={saving}
+            disabled={saving || secondaryAction.disabled}
             className="h-10 gap-2 rounded-xl px-4 text-[13px] font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
           >
             {secondaryAction.icon ?? <Plus size={14} />}
             {secondaryAction.label}
           </Button>
         )}
+        {extraActions.map((action) => (
+          <Button
+            key={action.label}
+            type="button"
+            variant={action.variant === "action-primary" ? "default" : "ghost"}
+            onClick={action.onClick}
+            disabled={saving || action.disabled}
+            className={action.variant === "action-primary"
+              ? "h-10 gap-2 rounded-xl bg-blue-600 px-5 text-[13px] font-semibold text-white hover:bg-blue-700"
+              : "h-10 gap-2 rounded-xl px-4 text-[13px] font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"}
+          >
+            {action.icon}
+            {action.label}
+          </Button>
+        ))}
         {dangerAction && (
           <Button
             type="button"
             variant="destructive"
             onClick={dangerAction.onClick}
-            disabled={saving}
+            disabled={saving || dangerAction.disabled}
             className="h-10 gap-2 rounded-xl bg-red-600 px-5 text-[13px] font-semibold text-white hover:bg-red-700"
           >
             {dangerAction.icon}

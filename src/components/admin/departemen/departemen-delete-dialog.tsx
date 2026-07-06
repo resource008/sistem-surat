@@ -15,6 +15,7 @@ import type { Departemen } from "@/types"
 interface Props {
   departemen: Departemen | null
   deletingAction: "soft" | "permanent" | null
+  allowSoftDelete?: boolean
   onOpenChange: (open: boolean) => void
   onSoftDelete: () => void
   onPermanentDelete: () => void
@@ -23,6 +24,7 @@ interface Props {
 export function DepartemenDeleteDialog({
   departemen,
   deletingAction,
+  allowSoftDelete = true,
   onOpenChange,
   onSoftDelete,
   onPermanentDelete,
@@ -39,10 +41,11 @@ export function DepartemenDeleteDialog({
     >
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Hapus departemen?</DialogTitle>
+          <DialogTitle>{allowSoftDelete ? "Hapus departemen?" : "Hapus permanen departemen?"}</DialogTitle>
           <DialogDescription>
-            Pilih hapus dari daftar jika data departemen tetap ingin disimpan.
-            Pilih hapus permanen jika data departemen ingin dihapus dari database.
+            {allowSoftDelete
+              ? "Pilih sembunyikan dari daftar jika data departemen tetap ingin disimpan. Pilih hapus permanen jika data departemen ingin dihapus dari database."
+              : "Hapus permanen akan menghapus data departemen dari database."}
           </DialogDescription>
         </DialogHeader>
 
@@ -50,12 +53,22 @@ export function DepartemenDeleteDialog({
           <Button
             type="button"
             variant="outline"
-            onClick={onSoftDelete}
+            onClick={() => onOpenChange(false)}
             disabled={isDeleting}
           >
-            {deletingAction === "soft" && <Loader2 className="size-4 animate-spin" />}
-            Hapus dari daftar
+            Batal
           </Button>
+          {allowSoftDelete ? (
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={onSoftDelete}
+              disabled={isDeleting}
+            >
+              {deletingAction === "soft" && <Loader2 className="size-4 animate-spin" />}
+              Sembunyikan dari daftar
+            </Button>
+          ) : null}
           <Button
             type="button"
             onClick={onPermanentDelete}

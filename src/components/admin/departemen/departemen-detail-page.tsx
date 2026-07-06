@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Loader2, Pencil, Trash2 } from "lucide-react"
+import { Eye, EyeOff, Loader2, Pencil, Trash2 } from "lucide-react"
 import { useParams, useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
@@ -17,6 +17,7 @@ export default function DepartemenDetailPage() {
   const { state, actions } = useEditDepartemen(id, "Detail Departemen")
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [deletingAction, setDeletingAction] = useState<"soft" | "permanent" | null>(null)
+  const [visibilityAction, setVisibilityAction] = useState<"show" | "hide" | null>(null)
 
   async function deleteDepartemen(permanent = false) {
     if (!state.departemen) return
@@ -34,11 +35,43 @@ export default function DepartemenDetailPage() {
       }
 
       toast.success(json?.message ?? "Departemen berhasil dihapus")
-      router.push("/admin/departemen")
+      if (permanent) {
+        router.push("/admin/departemen")
+        return
+      }
+      setDeleteOpen(false)
+      actions.reload()
     } catch (error) {
       toast.error(getErrorMessage(error, "Gagal menghapus departemen"))
     } finally {
       setDeletingAction(null)
+    }
+  }
+
+  async function setDepartemenVisibility(nextActive: boolean) {
+    if (!state.departemen) return
+    const action = nextActive ? "show" : "hide"
+    setVisibilityAction(action)
+
+    try {
+      const res = await fetch(
+        `/api/dept/${encodeURIComponent(state.departemen.id)}?action=${action}`,
+        { method: "PATCH" }
+      )
+      const json = await res.json().catch(() => null)
+
+      if (!res.ok) {
+        throw new Error(json?.error ?? "Gagal mengubah status departemen")
+      }
+
+      toast.success(json?.message ?? (
+        nextActive ? "Departemen berhasil ditampilkan" : "Departemen berhasil disembunyikan"
+      ))
+      actions.reload()
+    } catch (error) {
+      toast.error(getErrorMessage(error, "Gagal mengubah status departemen"))
+    } finally {
+      setVisibilityAction(null)
     }
   }
 
@@ -61,6 +94,8 @@ export default function DepartemenDetailPage() {
     )
   }
 
+  const isActive = state.departemen.isActive !== false
+
   return (
     <div className="flex flex-col gap-4 pb-32">
       <DepartemenEditFormFields
@@ -75,20 +110,40 @@ export default function DepartemenDetailPage() {
         saving={state.saving}
         onCancel={actions.cancel}
         showSubmit={false}
+        secondaryAction={isActive
+          ? {
+              icon: <Pencil size={14} />,
+              label: "Edit",
+              onClick: () => router.push(`/admin/departemen/${encodeURIComponent(id)}/edit`),
+            }
+          : undefined}
+        extraActions={[
+          isActive
+            ? {
+                icon: <EyeOff size={14} />,
+                label: visibilityAction === "hide" ? "Menyembunyikan" : "Sembunyikan",
+                onClick: () => setDepartemenVisibility(false),
+                disabled: Boolean(visibilityAction),
+                variant: "action-secondary",
+              }
+            : {
+                icon: <Eye size={14} />,
+                label: visibilityAction === "show" ? "Menampilkan" : "Tampilkan",
+                onClick: () => setDepartemenVisibility(true),
+                disabled: Boolean(visibilityAction),
+                variant: "action-primary",
+              },
+        ]}
         dangerAction={{
           icon: <Trash2 size={14} />,
           label: "Hapus",
           onClick: () => setDeleteOpen(true),
         }}
-        secondaryAction={{
-          icon: <Pencil size={14} />,
-          label: "Edit",
-          onClick: () => router.push(`/admin/departemen/${encodeURIComponent(id)}/edit`),
-        }}
       />
       <DepartemenDeleteDialog
         departemen={deleteOpen ? state.departemen : null}
         deletingAction={deletingAction}
+        allowSoftDelete={false}
         onOpenChange={setDeleteOpen}
         onSoftDelete={() => deleteDepartemen(false)}
         onPermanentDelete={() => deleteDepartemen(true)}

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { UpdateDepartemenSchema } from "@/app/validation/departemen"
 import { AppError } from "@/lib/errors"
 import { requireAdmin } from "@/lib/require-admin"
-import { updateDepartemen } from "@/services/departemen-service"
+import { deleteDepartemen, showDepartemen, updateDepartemen } from "@/services/departemen-service"
 
 type RouteContext = { params: Promise<{ id: string }> }
 
@@ -20,6 +20,21 @@ async function handleEditDepartemen(req: NextRequest, { params }: RouteContext, 
   try {
     await requireAdmin()
     const { id } = await params
+    const decodedId = decodeURIComponent(id)
+
+    if (method === "PATCH") {
+      const action = req.nextUrl.searchParams.get("action")
+
+      if (action === "show") {
+        const departemen = await showDepartemen(decodedId)
+        return NextResponse.json({ message: "Departemen berhasil ditampilkan", departemen })
+      }
+
+      if (action === "hide") {
+        await deleteDepartemen(decodedId)
+        return NextResponse.json({ message: "Departemen berhasil disembunyikan" })
+      }
+    }
 
     const body = await req.json().catch(() => null)
     if (!body) {
@@ -31,7 +46,7 @@ async function handleEditDepartemen(req: NextRequest, { params }: RouteContext, 
       return validationResponse(parsed.error.flatten().fieldErrors)
     }
 
-    await updateDepartemen(decodeURIComponent(id), parsed.data)
+    await updateDepartemen(decodedId, parsed.data)
     return NextResponse.json({ message: "Data departemen berhasil diubah" })
   } catch (error) {
     if (error instanceof AppError) {

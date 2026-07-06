@@ -1,11 +1,20 @@
 "use client"
 
 import { Building2 } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
 import { EmptyState } from "@/components/ui/empty-state"
 import type { Departemen } from "@/types"
 
 function getDisplayName(departemen: Departemen) {
   return departemen.fullName ?? departemen.tujuan
+}
+
+function DepartemenStatusBadge({ departemen }: { departemen: Departemen }) {
+  return (
+    <Badge variant={departemen.isActive ? "secondary" : "outline"}>
+      {departemen.isActive ? "Ditampilkan" : "Disembunyikan"}
+    </Badge>
+  )
 }
 
 interface Props {
@@ -28,6 +37,7 @@ export function DepartemenMobileList({
           <div key={i} className="rounded-xl border border-border/40 p-4">
             <div className="h-4 w-1/2 animate-pulse rounded-md bg-muted" />
             <div className="mt-3 h-3 w-20 animate-pulse rounded-md bg-muted" />
+            <div className="mt-3 h-5 w-24 animate-pulse rounded-full bg-muted" />
           </div>
         ))
       ) : departments.length === 0 ? (
@@ -59,6 +69,9 @@ export function DepartemenMobileList({
                   <div className="truncate text-sm font-semibold">{index + 1}</div>
                   <div className="mt-1 truncate text-sm">{getDisplayName(departemen)}</div>
                   <div className="mt-1 text-xs text-muted-foreground">{departemen.shortName}</div>
+                  <div className="mt-3">
+                    <DepartemenStatusBadge departemen={departemen} />
+                  </div>
                 </div>
               </div>
             </div>

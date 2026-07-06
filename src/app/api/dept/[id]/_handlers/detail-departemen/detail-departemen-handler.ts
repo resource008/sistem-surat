@@ -34,7 +34,7 @@ export async function detailDepartemen(_req: NextRequest, { params }: RouteConte
 
     const { id } = await params
 
-    const data = await fetchDepartemenById(decodeURIComponent(id))
+    const data = await fetchDepartemenById(decodeURIComponent(id), { includeInactive: true })
     return NextResponse.json(stripColumnIds(data))
   } catch (error) {
     if (error instanceof AppError) {

@@ -49,6 +49,7 @@ export function useEditDepartemen(id: string, breadcrumbTitle = "Edit Departemen
   const [form, setForm] = useState<DepartemenFormState>(EMPTY_DEPARTEMEN_FORM)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [reloadKey, setReloadKey] = useState(0)
 
   useEffect(() => {
     window.dispatchEvent(new CustomEvent("breadcrumb:sub", { detail: breadcrumbTitle }))
@@ -103,10 +104,14 @@ export function useEditDepartemen(id: string, breadcrumbTitle = "Edit Departemen
     return () => {
       ignore = true
     }
-  }, [id])
+  }, [id, reloadKey])
 
   function cancel() {
     router.push("/admin/departemen")
+  }
+
+  function reload() {
+    setReloadKey((current) => current + 1)
   }
 
   async function submit(e: React.FormEvent<HTMLFormElement>) {
@@ -158,7 +163,7 @@ export function useEditDepartemen(id: string, breadcrumbTitle = "Edit Departemen
 
   return {
     state: { departemen, departments, form, loading, saving },
-    actions: { setForm, submit, cancel },
+    actions: { setForm, submit, cancel, reload },
   }
 }
 
