@@ -1,5 +1,6 @@
 "use client"
 
+import { Search } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { Suspense } from "react"
@@ -41,6 +42,7 @@ export function LoginPage() {
           <LoginForm />
 
           <Link href={routes.guest.lacakSurat} className={styles.trackBtn}>
+            <Search size={16} />
             Lacak Surat
           </Link>
 
