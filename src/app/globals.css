@@ -181,3 +181,27 @@ input[type="password"]::-ms-clear {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+
+@layer components {
+  .empty-state-viewport {
+    min-height: min(31.25rem, calc(100svh - 112px));
+  }
+
+  @media (max-width: 1024px) {
+    .empty-state-viewport {
+      min-height: min(31.25rem, calc(100svh - 104px));
+    }
+  }
+
+  @media (max-width: 768px) {
+    .empty-state-viewport {
+      min-height: min(24rem, calc(100svh - 88px));
+    }
+  }
+
+  @media (max-width: 480px) {
+    .empty-state-viewport {
+      min-height: min(22rem, calc(100svh - 80px));
+    }
+  }
+}

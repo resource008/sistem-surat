@@ -385,6 +385,10 @@
   flex: 0 1 auto;
 }
 
+.topbarLeftCetak {
+  flex: 1 1 auto;
+}
+
 .topbarLeftAdmin {
   flex: 1 1 auto;
   overflow: hidden;
@@ -443,6 +447,10 @@
 .topbarRightSearchExpanded {
   flex: 1 1 auto;
   min-width: 0;
+}
+
+.topbarCetakActions {
+  margin-left: auto;
 }
 
 .topbarTitle {
@@ -516,6 +524,7 @@
     max-width: none;
   }
   .topbarLeftDataSurat { max-width: 160px; }
+  .topbarLeftCetak { max-width: none; }
   .topbarLeftSearchPage {
     flex: 1 1 auto;
     max-width: none;
@@ -574,6 +583,9 @@
     justify-content: flex-end;
     z-index: 43;
   }
+  .topbarCetakActions {
+    margin-left: auto;
+  }
   .topbarRightSearchExpanded {
     flex: 1 1 auto;
     min-width: 0;
@@ -586,6 +598,7 @@
   .topbarLeft { max-width: 44px; }
   .topbarLeftAdmin { max-width: none; }
   .topbarLeftDataSurat { max-width: 132px; }
+  .topbarLeftCetak { max-width: none; }
   .topbarLeftSearchPage { max-width: none; }
   .content { padding: 12px; padding-top: calc(56px + 12px); }
 }

@@ -91,7 +91,7 @@ export default function UsersPage() {
   const renderDesktopContent = () => {
     if (showEmpty) {
       return (
-        <div className="flex min-h-[400px] items-center justify-center">
+        <div className="empty-state-viewport flex items-center justify-center">
           <UsersEmpty searchQuery={debouncedSearch} />
         </div>
       )

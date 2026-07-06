@@ -74,7 +74,7 @@ function CetakContent({
 
   if (loading) {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center">
+      <div className="flex empty-state-viewport items-center justify-center">
         <LoadingSkeleton type="table" />
       </div>
     )
@@ -91,14 +91,14 @@ function CetakContent({
         onBersihkan={() => window.dispatchEvent(new CustomEvent("cetak:clear"))}
       />
       {error ? (
-        <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="flex items-center justify-center">
           <CetakEmpty
             title="Gagal Mengambil Data Cetak"
             description={error}
           />
         </div>
       ) : visibleGroups.length === 0 && (
-        <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="flex items-center justify-center">
           <CetakEmpty />
         </div>
       )}
@@ -113,7 +113,7 @@ export function CetakPageContent(props: CetakPageContentProps) {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="flex empty-state-viewport items-center justify-center">
           <LoadingSkeleton type="table" />
         </div>
       }
