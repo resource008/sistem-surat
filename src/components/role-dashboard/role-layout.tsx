@@ -314,7 +314,13 @@ function RoleLayoutInner({ role, children }: Props) {
           id="topbar"
           className={`${styles.topbar} ${isDataSuratPage ? styles.topbarDataSurat : ""}`}
         >
-          <div className={`${styles.topbarLeft} ${isDataSuratPage ? styles.topbarLeftDataSurat : ""}`}>
+          <div
+            className={[
+              styles.topbarLeft,
+              isDataSuratPage ? styles.topbarLeftDataSurat : "",
+              isCetakPage ? styles.topbarLeftCetak : "",
+            ].join(" ")}
+          >
             {isMobile && (!isDataSuratPage || !dataSuratSearchExpanded) && (
               <button
                 className={styles.hamburger}
@@ -409,13 +415,14 @@ function RoleLayoutInner({ role, children }: Props) {
           )}
 
           {isCetakPage && !isDenied && (
-            <div className="flex items-center gap-2">
+            <div className={`${styles.topbarRight} ${styles.topbarCetakActions}`}>
               <button
                 onClick={hasCetakData ? handleClearCetak : undefined}
                 disabled={!hasCetakData}
                 title={hasCetakData ? "Bersihkan & kembali" : "Tidak ada data"}
                 className={[
-                  "flex items-center gap-1.5 px-4 h-9 rounded-lg",
+                  "flex items-center justify-center gap-1.5 h-9 rounded-lg",
+                  isMobile ? "w-9 px-0" : "px-4",
                   "border text-[13px] font-medium transition-colors shrink-0",
                   hasCetakData
                     ? `border-slate-200 dark:border-slate-700
@@ -436,7 +443,8 @@ function RoleLayoutInner({ role, children }: Props) {
                 disabled={!hasCetakData}
                 title={hasCetakData ? "Cetak sekarang" : "Tidak ada data untuk dicetak"}
                 className={[
-                  "flex items-center gap-2 px-4 h-9 rounded-lg",
+                  "flex items-center justify-center gap-2 h-9 rounded-lg",
+                  isMobile ? "w-9 px-0" : "px-4",
                   "text-[13px] font-semibold transition-colors shrink-0",
                   hasCetakData
                     ? "bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white"
