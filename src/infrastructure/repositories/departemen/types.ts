@@ -8,6 +8,7 @@ export type DepartmentRow = {
   fullName: string
   tujuan: string
   printSheetName: string
+  isActive: boolean
 }
 
 export type DepartmentColumnRow = {

@@ -6,20 +6,21 @@ import {
   createDepartmentMutation,
   deleteDepartmentMutation,
   hardDeleteDepartmentMutation,
+  showDepartmentMutation,
   updateDepartmentMutation,
 } from "@/infrastructure/repositories/departemen/mutations"
 import {
-  findActiveDepartmentByIdOrThrow,
-  findAllActiveDepartments,
+  findDepartmentByIdOrThrow,
+  findDepartments,
 } from "@/infrastructure/repositories/departemen/reads"
 
 export class DepartemenRepository {
-  async findAllActive() {
-    return findAllActiveDepartments()
+  async findAll({ includeInactive = false } = {}) {
+    return findDepartments({ includeInactive })
   }
 
-  async findById(id: string) {
-    return findActiveDepartmentByIdOrThrow(id)
+  async findById(id: string, { includeInactive = false } = {}) {
+    return findDepartmentByIdOrThrow(id, { includeInactive })
   }
 
   async create(input: CreateDepartemenInput) {
@@ -34,6 +35,11 @@ export class DepartemenRepository {
 
   async delete(id: string) {
     await deleteDepartmentMutation(id)
+  }
+
+  async show(id: string) {
+    const departmentId = await showDepartmentMutation(id)
+    return this.findById(departmentId, { includeInactive: true })
   }
 
   async hardDelete(id: string) {

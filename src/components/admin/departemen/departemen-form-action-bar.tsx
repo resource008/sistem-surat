@@ -4,20 +4,23 @@ import type { ReactNode } from "react"
 import { Loader2, Plus, Save, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
+type ActionBarVariant = "action-primary" | "action-secondary" | "action-neutral" | "action-danger"
+
+type ActionBarItem = {
+  icon?: ReactNode
+  label: string
+  onClick: () => void
+  disabled?: boolean
+  variant?: ActionBarVariant
+}
+
 interface Props {
   saving: boolean
   onCancel: () => void
   showSubmit?: boolean
-  secondaryAction?: {
-    icon?: ReactNode
-    label: string
-    onClick: () => void
-  }
-  dangerAction?: {
-    icon?: ReactNode
-    label: string
-    onClick: () => void
-  }
+  secondaryAction?: ActionBarItem
+  extraActions?: ActionBarItem[]
+  dangerAction?: ActionBarItem
 }
 
 export function DepartemenFormActionBar({
@@ -25,6 +28,7 @@ export function DepartemenFormActionBar({
   onCancel,
   showSubmit = true,
   secondaryAction,
+  extraActions = [],
   dangerAction,
 }: Props) {
   return (
@@ -51,20 +55,34 @@ export function DepartemenFormActionBar({
             variant="action-secondary"
             size="fab-action"
             onClick={secondaryAction.onClick}
-            disabled={saving}
+            disabled={saving || secondaryAction.disabled}
             className="shrink-0"
           >
             {secondaryAction.icon ?? <Plus size={14} />}
             {secondaryAction.label}
           </Button>
         )}
+        {extraActions.map((action) => (
+          <Button
+            key={action.label}
+            type="button"
+            variant={action.variant ?? "action-secondary"}
+            size="fab-action"
+            onClick={action.onClick}
+            disabled={saving || action.disabled}
+            className="shrink-0"
+          >
+            {action.icon}
+            {action.label}
+          </Button>
+        ))}
         {dangerAction && (
           <Button
             type="button"
             variant="action-danger"
             size="fab-action"
             onClick={dangerAction.onClick}
-            disabled={saving}
+            disabled={saving || dangerAction.disabled}
             className="shrink-0"
           >
             {dangerAction.icon}
