@@ -11,9 +11,11 @@ function getDisplayName(departemen: Departemen) {
 }
 
 function DepartemenStatusBadge({ departemen }: { departemen: Departemen }) {
+  const isActive = departemen.isActive !== false
+
   return (
-    <Badge variant={departemen.isActive ? "secondary" : "outline"}>
-      {departemen.isActive ? "Ditampilkan" : "Disembunyikan"}
+    <Badge variant={isActive ? "secondary" : "outline"}>
+      {isActive ? "Ditampilkan" : "Disembunyikan"}
     </Badge>
   )
 }

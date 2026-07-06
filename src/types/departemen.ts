@@ -9,7 +9,7 @@ export interface Departemen {
   id: string
   shortName: string
   tujuan: string
-  isActive: boolean
+  isActive?: boolean
   fullName?: string
   printSheetName?: string
   columns?: DepartemenColumn[]
