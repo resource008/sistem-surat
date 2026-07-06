@@ -42,7 +42,6 @@ export function LoginPage() {
           <LoginForm />
 
           <Link href={routes.guest.lacakSurat} className={styles.trackBtn}>
-            <Search size={16} />
             Lacak Surat
           </Link>
 

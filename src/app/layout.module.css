@@ -385,6 +385,15 @@
   flex: 0 1 auto;
 }
 
+.topbarLeftDataSuratSubPage {
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
+.topbarLeftDataSuratSubPage .breadcrumb {
+  overflow: hidden;
+}
+
 .topbarLeftCetak {
   flex: 1 1 auto;
 }
@@ -524,6 +533,7 @@
     max-width: none;
   }
   .topbarLeftDataSurat { max-width: 160px; }
+  .topbarLeftDataSuratSubPage { max-width: none; }
   .topbarLeftCetak { max-width: none; }
   .topbarLeftSearchPage {
     flex: 1 1 auto;
@@ -598,6 +608,7 @@
   .topbarLeft { max-width: 44px; }
   .topbarLeftAdmin { max-width: none; }
   .topbarLeftDataSurat { max-width: 132px; }
+  .topbarLeftDataSuratSubPage { max-width: none; }
   .topbarLeftCetak { max-width: none; }
   .topbarLeftSearchPage { max-width: none; }
   .content { padding: 12px; padding-top: calc(56px + 12px); }

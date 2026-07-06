@@ -17,7 +17,7 @@ import {
   ChevronRight, Menu, Plus, Printer, X,
 } from "lucide-react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { Suspense, useEffect, useState } from "react"
+import { Suspense, useEffect, useLayoutEffect, useState } from "react"
 import useSWR from "swr"
 
 interface Props {
@@ -112,6 +112,10 @@ function RoleLayoutInner({ role, children }: Props) {
   const [dataSuratSearchExpanded, setDataSuratSearchExpanded] = useState(false)
 
   const isDataSuratPage = pathname === `${base}/data-surat`
+  const isDataSuratSubPage =
+    pathname.startsWith(`${base}/add`) ||
+    pathname.includes(`${base}/data-surat/edit/`) ||
+    pathname.includes(`${base}/data-surat/view/`)
   const isCetakPage = pathname.startsWith(`${base}/cetak`)
   const activeSearchColumn = searchParams.get("column")
   const hasActiveFilters =
@@ -178,13 +182,13 @@ function RoleLayoutInner({ role, children }: Props) {
     setSubsubtitle(null)
   }, [pathname])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const handler = (event: Event) => setSubtitle((event as CustomEvent<string | null>).detail)
     window.addEventListener("breadcrumb:sub", handler)
     return () => window.removeEventListener("breadcrumb:sub", handler)
   }, [])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const handler = (event: Event) => setSubsubtitle((event as CustomEvent<string | null>).detail)
     window.addEventListener("breadcrumb:subsub", handler)
     return () => window.removeEventListener("breadcrumb:subsub", handler)
@@ -272,9 +276,8 @@ function RoleLayoutInner({ role, children }: Props) {
   })()
 
   const routeSubtitle = (() => {
-    if (pathname.startsWith(`${base}/add`)) return "Tambah Data"
-    if (pathname.includes(`${base}/data-surat/edit/`)) return "Edit Data"
-    if (pathname.includes(`${base}/data-surat/view/`)) return "Detail Data"
+    if (pathname.startsWith(`${base}/add`)) return "Tambah data"
+    if (pathname.includes(`${base}/data-surat/edit/`)) return "Edit"
     return null
   })()
   const effectiveSubtitle = subtitle?.trim() ? subtitle : routeSubtitle
@@ -318,6 +321,7 @@ function RoleLayoutInner({ role, children }: Props) {
             className={[
               styles.topbarLeft,
               isDataSuratPage ? styles.topbarLeftDataSurat : "",
+              isDataSuratSubPage ? styles.topbarLeftDataSuratSubPage : "",
               isCetakPage ? styles.topbarLeftCetak : "",
             ].join(" ")}
           >

@@ -98,8 +98,9 @@ export function useEditSurat(basePath: string) {
         })))
 
         window.dispatchEvent(new CustomEvent("breadcrumb:sub", {
-          detail: `Edit - ${d.dept?.shortName} / ${d.nomor}`,
+          detail: `Edit - ${d.dept?.shortName ?? d.tujuan} / ${d.nomor}`,
         }))
+        window.dispatchEvent(new CustomEvent("breadcrumb:subsub", { detail: null }))
       })
       .catch((e: unknown) => setError(getErrorMessage(e)))
       .finally(() => setLoading(false))
