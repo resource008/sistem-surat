@@ -4,12 +4,15 @@
 
 .root {
   min-height: 100vh;
+  min-height: 100svh;
+  height: 100svh;
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: var(--font-figtree), sans-serif;
   position: relative;
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 /* ================================
@@ -60,6 +63,7 @@
   background: #ffffff;
   border-radius: 20px;
   padding: 40px 36px;
+  max-height: calc(100svh - 32px);
   box-shadow:
     0 24px 48px rgba(0, 0, 0, 0.35),
     0 8px 16px rgba(0, 0, 0, 0.15);
@@ -274,4 +278,99 @@
   -webkit-box-shadow: 0 0 0 30px #f9fafb inset !important;
   -webkit-text-fill-color: #111827 !important;
   transition: background-color 5000s ease-in-out 0s;
+}
+
+@media (max-width: 480px), (max-height: 760px) {
+  .cardWrapper {
+    max-width: 390px;
+    padding: 0 20px;
+  }
+
+  .card {
+    border-radius: 18px;
+    padding: 28px 28px;
+  }
+
+  .cardHeader {
+    margin-bottom: 20px;
+  }
+
+  .logo {
+    width: 66px;
+    margin-bottom: 14px;
+  }
+
+  .cardTitle {
+    font-size: 20px;
+    margin-bottom: 4px;
+  }
+
+  .cardSubtitle {
+    font-size: 13px;
+  }
+
+  .divider {
+    margin-bottom: 20px;
+  }
+
+  .form {
+    gap: 14px;
+  }
+
+  .field {
+    gap: 5px;
+  }
+
+  .fieldInput {
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+
+  .submitBtn,
+  .trackBtn {
+    min-height: 42px;
+  }
+
+  .submitBtn {
+    margin-top: 2px;
+  }
+
+  .trackBtn {
+    margin-top: 10px;
+  }
+
+  .cardFooter {
+    margin-top: 18px;
+  }
+}
+
+@media (max-height: 680px) {
+  .card {
+    padding: 22px 26px;
+  }
+
+  .cardHeader {
+    margin-bottom: 16px;
+  }
+
+  .logo {
+    width: 58px;
+    margin-bottom: 10px;
+  }
+
+  .divider {
+    margin-bottom: 16px;
+  }
+
+  .form {
+    gap: 12px;
+  }
+
+  .trackBtn {
+    margin-top: 8px;
+  }
+
+  .cardFooter {
+    margin-top: 14px;
+  }
 }
