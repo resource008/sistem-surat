@@ -115,6 +115,11 @@ export function AdminLayout({ children }: AdminLayoutProps) {
       return
     }
 
+    if (pathname.includes("/kelola-tabel-lacak")) {
+      router.push("/admin/kelola-tabel-lacak")
+      return
+    }
+
     router.back()
   }
 

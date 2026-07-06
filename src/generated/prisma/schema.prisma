@@ -150,3 +150,51 @@ model NomorCounter {
 
   @@map("nomor_counter")
 }
+
+model TrackSheet {
+  id          String          @id
+  name        String
+  description String          @default("")
+  sortOrder   Int             @default(0) @map("sort_order")
+  createdAt   DateTime        @default(now()) @map("created_at")
+  updatedAt   DateTime        @updatedAt @map("updated_at")
+  hiddenAt    DateTime?       @map("hidden_at")
+  categories  TrackCategory[]
+  fields      TrackField[]
+
+  @@map("track_sheets")
+}
+
+model TrackCategory {
+  id        String     @id
+  sheetId   String     @map("sheet_id")
+  sheet     TrackSheet @relation(fields: [sheetId], references: [id], onDelete: Cascade)
+  name      String
+  color     String     @default("#2563eb")
+  sortOrder Int        @default(0) @map("sort_order")
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+
+  @@index([sheetId])
+  @@map("track_categories")
+}
+
+model TrackField {
+  id              String     @id
+  sheetId         String     @map("sheet_id")
+  sheet           TrackSheet @relation(fields: [sheetId], references: [id], onDelete: Cascade)
+  categoryId      String?    @map("category_id")
+  category        String
+  categoryColor   String     @default("#2563eb") @map("category_color")
+  region          String
+  columnName      String     @map("column_name")
+  dataType        String     @map("data_type")
+  defaultValue    String     @default("") @map("default_value")
+  categoryOptions String     @default("[]") @map("category_options")
+  sortOrder       Int        @default(0) @map("sort_order")
+  createdAt       DateTime   @default(now()) @map("created_at")
+  updatedAt       DateTime   @updatedAt @map("updated_at")
+
+  @@index([sheetId])
+  @@map("track_fields")
+}

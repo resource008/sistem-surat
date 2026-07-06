@@ -13,7 +13,7 @@ import { authClient }     from "@/infrastructure/auth/auth-client"
 import type { Role }      from "@/types"
 import {
   ArrowLeftCircle, ArrowRightCircle,
-  Building2, House, LogOut, UserRoundCog, X,
+  Building2, House, LogOut, TableProperties, UserRoundCog, X,
 } from "lucide-react"
 import Image           from "next/image"
 import Link            from "next/link"
@@ -28,6 +28,7 @@ const navItems = [
   { label: "Dashboard",       href: "/admin/dashboard",  icon: House },
   { label: "Kelola Pengguna", href: "/admin/users",      icon: UserRoundCog },
   { label: "Kelola Departemen", href: "/admin/departemen", icon: Building2 },
+  { label: "Kelola Tabel Lacak", href: "/admin/kelola-tabel-lacak", icon: TableProperties },
 ]
 
 interface Props {
