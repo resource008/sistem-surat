@@ -26,7 +26,6 @@ export function DepartemenTable({
     return (
       <div className="hidden rounded-xl border border-border/40 bg-background md:block">
         <EmptyState
-          className="min-h-[320px]"
           icon={<Building2 size={64} strokeWidth={1.25} />}
           title={error ? "Gagal memuat departemen" : "Belum ada departemen"}
           description={error?.message ?? "Tambahkan departemen baru untuk mulai mengelola data."}

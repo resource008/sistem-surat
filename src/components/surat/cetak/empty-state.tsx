@@ -25,7 +25,6 @@ export function CetakEmpty({
           &nbsp;untuk melanjutkan.
         </>
       )}
-      className="min-h-105"
     />
   )
 }

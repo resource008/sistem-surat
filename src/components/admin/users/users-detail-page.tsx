@@ -128,7 +128,7 @@ export default function UserDetailPage() {
 
   if (!user) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px] gap-3">
+      <div className="empty-state-viewport flex flex-col items-center justify-center gap-3">
         <p className="text-sm text-muted-foreground">User tidak ditemukan</p>
         <Button variant="outline" size="sm" onClick={() => router.back()}>
           <ArrowLeft size={14} className="mr-1.5" /> Kembali
