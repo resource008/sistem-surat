@@ -14,6 +14,8 @@ export const DEFAULT_DATA_SURAT_SEARCH_COLUMNS: DataSuratSearchColumn[] = [
   { id: "asal_surat", label: "Asal Surat" },
 ]
 
+const SEARCH_MAX_LENGTH = 50
+
 type TopbarDataSuratSearchProps = {
   disabled?: boolean
   requireSearchColumn?: boolean
@@ -31,7 +33,8 @@ export function TopbarDataSuratSearch({
   const router = useRouter()
   const searchParams = useSearchParams()
 
-  const urlQuery = searchParams.get("search") ?? ""
+  const rawUrlQuery = searchParams.get("search") ?? ""
+  const urlQuery = rawUrlQuery.slice(0, SEARCH_MAX_LENGTH)
   const selectedColumn = searchParams.get("column")
   const hasSelectedSearchColumn = Boolean(selectedColumn && selectedColumn !== "all")
   const selectedColumnLabel = (() => {
@@ -54,7 +57,7 @@ export function TopbarDataSuratSearch({
 
   const replaceSearch = useCallback((value: string) => {
     const params = new URLSearchParams(searchParams.toString())
-    const normalizedValue = value.trim()
+    const normalizedValue = value.slice(0, SEARCH_MAX_LENGTH).trim()
 
     if (!normalizedValue || !canUseSearch) {
       params.delete("search")
@@ -69,6 +72,11 @@ export function TopbarDataSuratSearch({
   useEffect(() => {
     setQuery(urlQuery)
   }, [urlQuery])
+
+  useEffect(() => {
+    if (rawUrlQuery.length <= SEARCH_MAX_LENGTH) return
+    replaceSearch(rawUrlQuery)
+  }, [rawUrlQuery, replaceSearch])
 
   useEffect(() => {
     if (canUseSearch || !urlQuery) return
@@ -118,10 +126,11 @@ export function TopbarDataSuratSearch({
       <input
         ref={useMobileFocusRef ? inputRef : undefined}
         value={query}
-        onChange={(event) => setQuery(event.target.value)}
+        onChange={(event) => setQuery(event.target.value.slice(0, SEARCH_MAX_LENGTH))}
         onKeyDown={(event) => event.key === "Escape" && handleClear()}
         disabled={isDisabled}
         placeholder={placeholder}
+        maxLength={SEARCH_MAX_LENGTH}
         className="h-full w-full bg-transparent pl-9 pr-9 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed"
       />
       {(query || expanded) && !isDisabled && (

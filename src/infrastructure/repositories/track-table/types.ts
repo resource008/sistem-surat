@@ -17,6 +17,7 @@ export type TrackCategoryRow = {
   sheetId: string
   name: string
   color: string
+  fillByHrd: boolean
   sortOrder: number
 }
 
@@ -31,5 +32,7 @@ export type TrackFieldRow = {
   type: TrackFieldType
   defaultValue: string
   categoryOptions: string
+  fillByHrd: boolean
+  hiddenAt: Date | null
   sortOrder: number
 }

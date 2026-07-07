@@ -12,6 +12,7 @@ import {
   ChevronRight,
   Columns3,
   Eye,
+  EyeOff,
   FileSpreadsheet,
   Plus,
   RotateCcw,
@@ -20,8 +21,18 @@ import {
   Trash2,
   X,
 } from "lucide-react"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -53,6 +64,15 @@ type TrackFormErrors = {
   sheetName?: string
   fields: Record<string, TrackFieldErrors>
 }
+
+type TrackFieldUsageResponse = {
+  usage: Record<string, number>
+}
+
+type PendingFieldDelete = {
+  field: TrackField
+  valueCount: number
+} | null
 
 const CATEGORY_COLORS = [
   "#2563eb",
@@ -104,13 +124,33 @@ function getRandomCategoryColor() {
   return CATEGORY_COLORS[Math.floor(Math.random() * CATEGORY_COLORS.length)] ?? CATEGORY_COLORS[0]
 }
 
+function getSoftCategoryColor(color: string) {
+  const hex = color.replace("#", "")
+  if (!/^[0-9A-Fa-f]{6}$/.test(hex)) return color
+
+  const red = parseInt(hex.slice(0, 2), 16)
+  const green = parseInt(hex.slice(2, 4), 16)
+  const blue = parseInt(hex.slice(4, 6), 16)
+  const mix = 0.72
+
+  return `rgb(${Math.round(red + (255 - red) * mix)}, ${Math.round(green + (255 - green) * mix)}, ${Math.round(blue + (255 - blue) * mix)})`
+}
+
 function createBlankCategory(sortOrder: number): TrackCategory {
   return {
     id: createClientId("category"),
     name: "",
     color: getRandomCategoryColor(),
+    fillByHrd: false,
     sortOrder,
   }
+}
+
+const fieldUsageFetcher = async (url: string): Promise<TrackFieldUsageResponse> => {
+  const res = await fetch(url)
+  const json = await res.json()
+  if (!res.ok) throw new Error(json.error ?? "Gagal mengambil penggunaan kolom")
+  return json
 }
 
 function createBlankField(sortOrder: number, category?: TrackCategory): TrackField {
@@ -124,6 +164,8 @@ function createBlankField(sortOrder: number, category?: TrackCategory): TrackFie
     type: "text",
     defaultValue: "",
     categoryOptions: [],
+    fillByHrd: category?.fillByHrd ?? false,
+    hiddenAt: null,
     sortOrder,
   }
 }
@@ -139,6 +181,7 @@ function applyFieldCategory(field: TrackField, category?: TrackCategory): TrackF
     category: category?.name ?? "",
     categoryColor: category?.color ?? CATEGORY_COLORS[0],
     region: category?.name ?? "",
+    fillByHrd: isDefaultIdField(field) ? false : category?.fillByHrd ?? field.fillByHrd ?? false,
   }
 }
 
@@ -153,6 +196,8 @@ function createDefaultIdField(sortOrder: number, category?: TrackCategory): Trac
     type: "number",
     defaultValue: "",
     categoryOptions: [],
+    fillByHrd: false,
+    hiddenAt: null,
     sortOrder,
   }, category)
 }
@@ -167,6 +212,8 @@ function ensureDefaultIdField(sheet: TrackSheet): TrackSheet {
     type: "number" as TrackFieldType,
     defaultValue: "",
     categoryOptions: [],
+    fillByHrd: false,
+    hiddenAt: null,
   }
   const fields = [
     applyFieldCategory(normalizedDefaultField, firstCategory),
@@ -236,7 +283,11 @@ function createBlankSheet(): TrackSheet {
 
 function normalizeSheetForForm(sheet: TrackSheet): TrackSheet {
   const categories = sheet.categories.length > 0
-    ? sheet.categories.map((category, index) => ({ ...category, sortOrder: index }))
+    ? sheet.categories.map((category, index) => ({
+        ...category,
+        fillByHrd: category.fillByHrd ?? false,
+        sortOrder: index,
+      }))
     : []
   const categoryIds = new Set(categories.map((category) => category.id))
   const fields = sheet.fields.length > 0
@@ -250,6 +301,8 @@ function normalizeSheetForForm(sheet: TrackSheet): TrackSheet {
           category: category?.name ?? "",
           categoryColor: category?.color ?? field.categoryColor,
           region: category?.name ?? "",
+          fillByHrd: isDefaultIdField(field) ? false : category?.fillByHrd ?? field.fillByHrd ?? false,
+          hiddenAt: isDefaultIdField(field) ? null : field.hiddenAt ?? null,
           sortOrder: index,
         }
       })
@@ -270,11 +323,16 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
   const [activeColumnGroupId, setActiveColumnGroupId] = useState("")
   const [saving, setSaving] = useState(false)
   const [showing, setShowing] = useState(false)
+  const [pendingFieldDelete, setPendingFieldDelete] = useState<PendingFieldDelete>(null)
   const isEdit = mode === "edit"
   const { data: tableData } = useSWR<TrackTableResponse>("/api/admin/track-table", listFetcher)
   const { data: sheetData, error, isLoading, mutate: mutateSheet } = useSWR<TrackSheet>(
     isEdit && sheetId ? `/api/admin/track-table/${encodeURIComponent(sheetId)}` : null,
     sheetFetcher,
+  )
+  const { data: fieldUsageData } = useSWR<TrackFieldUsageResponse>(
+    isEdit && sheetId ? `/api/admin/track-table/${encodeURIComponent(sheetId)}/field-usage` : null,
+    fieldUsageFetcher,
   )
 
   useEffect(() => {
@@ -342,6 +400,7 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
             category: category.name,
             categoryColor: category.color,
             region: category.name,
+            fillByHrd: isDefaultIdField(field) ? false : category.fillByHrd,
           }
         }),
       }
@@ -366,6 +425,7 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
                   category: nextCategory.name,
                   categoryColor: nextCategory.color,
                   region: nextCategory.name,
+                  fillByHrd: nextCategory.fillByHrd,
                 })
           : current.fields,
       }
@@ -392,6 +452,7 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
               category: "",
               categoryColor: CATEGORY_COLORS[0],
               region: "",
+              fillByHrd: false,
             }
           }
           return {
@@ -400,6 +461,7 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
             category: fallback.name,
             categoryColor: fallback.color,
             region: fallback.name,
+            fillByHrd: fallback.fillByHrd,
           }
         }),
       }
@@ -516,7 +578,7 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
     setOpenFieldId(nextField.id)
   }
 
-  function removeField(fieldId: string) {
+  function removeFieldFromForm(fieldId: string) {
     if (form.fields.some((field) => field.id === fieldId && isDefaultIdField(field))) return
 
     setForm((current) => ({
@@ -534,6 +596,39 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
       const nextField = form.fields.find((field) => field.id !== fieldId)
       setOpenFieldId(nextField?.id ?? null)
     }
+  }
+
+  function toggleFieldHidden(fieldId: string, hidden: boolean) {
+    if (form.fields.some((field) => field.id === fieldId && isDefaultIdField(field))) return
+
+    updateField(fieldId, (field) => ({
+      ...field,
+      hiddenAt: hidden ? new Date().toISOString() : null,
+    }))
+  }
+
+  function requestRemoveField(field: TrackField) {
+    if (isDefaultIdField(field)) return
+
+    const valueCount = fieldUsageData?.usage[field.id] ?? 0
+    if (isEdit && valueCount > 0) {
+      setPendingFieldDelete({ field, valueCount })
+      return
+    }
+
+    removeFieldFromForm(field.id)
+  }
+
+  function hidePendingField() {
+    if (!pendingFieldDelete) return
+    toggleFieldHidden(pendingFieldDelete.field.id, true)
+    setPendingFieldDelete(null)
+  }
+
+  function removePendingField() {
+    if (!pendingFieldDelete) return
+    removeFieldFromForm(pendingFieldDelete.field.id)
+    setPendingFieldDelete(null)
   }
 
   function moveField(fieldId: string, categoryId: string, direction: -1 | 1) {
@@ -582,6 +677,7 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
       id: category.id,
       name: category.name,
       color: category.color,
+      fillByHrd: category.fillByHrd ?? false,
       sortOrder: index,
     }))
     const preparedForm = ensureDefaultIdField({ ...form, categories })
@@ -620,6 +716,8 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
             type: field.type,
             defaultValue: field.defaultValue,
             categoryOptions: field.type === "category" ? field.categoryOptions : [],
+            fillByHrd: isDefaultIdField(field) ? false : category?.fillByHrd ?? field.fillByHrd ?? false,
+            hiddenAt: isDefaultIdField(field) ? null : field.hiddenAt ?? null,
             sortOrder: index,
           }
         }),
@@ -697,6 +795,7 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
     id: "",
     name: "Tanpa kategori",
     color: CATEGORY_COLORS[0],
+    fillByHrd: false,
     sortOrder: form.categories.length,
   }
   const hasUncategorizedGroup = form.categories.length === 0 || form.fields.some((field) => !field.categoryId)
@@ -768,7 +867,7 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
             </div>
           </div>
           <Button type="button" variant="outline" onClick={addCategory} disabled={saving}>
-            <Plus /> Kategori
+            <Plus /> Tambah Kategori
           </Button>
         </div>
 
@@ -780,26 +879,34 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
           ) : (
             form.categories.map((category, index) => (
               <div key={category.id} className="rounded-lg border border-border/40 bg-muted/20 p-3">
-                <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-end">
-                  <div className="grid gap-2">
-                    <Label htmlFor={`category-name-${category.id}`}>Nama kategori</Label>
-                    <div className="flex items-center gap-2">
-                      <span
-                        className="size-4 shrink-0 rounded-full border border-border/60"
-                        style={{ backgroundColor: category.color }}
-                      />
-                      <Input
-                        id={`category-name-${category.id}`}
-                        value={category.name}
-                        onChange={(event) => updateCategory(category.id, (current) => ({
-                          ...current,
-                          name: event.target.value,
-                        }))}
-                        placeholder={`Kategori ${index + 1}`}
-                        disabled={saving}
-                      />
-                    </div>
-                  </div>
+                <div className="flex items-center gap-3">
+                  <span
+                    className="size-4 shrink-0 rounded-full border border-border/60"
+                    style={{ backgroundColor: getSoftCategoryColor(category.color) }}
+                  />
+                  <Input
+                    id={`category-name-${category.id}`}
+                    aria-label="Nama kategori"
+                    value={category.name}
+                    onChange={(event) => updateCategory(category.id, (current) => ({
+                      ...current,
+                      name: event.target.value,
+                    }))}
+                    placeholder={`Kategori ${index + 1}`}
+                    disabled={saving}
+                    className="min-w-0 flex-1"
+                  />
+                  <label className="flex shrink-0 items-center gap-2 text-sm font-medium text-muted-foreground">
+                    <Checkbox
+                      checked={category.fillByHrd}
+                      onCheckedChange={(checked) => updateCategory(category.id, (current) => ({
+                        ...current,
+                        fillByHrd: checked === true,
+                      }))}
+                      disabled={saving}
+                    />
+                    Diisi HRD
+                  </label>
                   <Button
                     type="button"
                     variant="action-danger-soft"
@@ -807,6 +914,7 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
                     aria-label="Hapus kategori"
                     onClick={() => removeCategory(category.id)}
                     disabled={saving}
+                    className="shrink-0"
                   >
                     <Trash2 />
                   </Button>
@@ -834,12 +942,12 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
 
         <div className="grid gap-4 p-4">
           <div className="rounded-xl border border-border/40 bg-muted/10">
-            <div className="flex flex-col gap-3 border-b border-border/40 px-4 py-3 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex flex-col gap-3 border-b border-border/40 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex min-w-0 items-center gap-2">
                 {activeGroup.id ? (
                   <span
                     className="size-3 shrink-0 rounded-full border border-border/60"
-                    style={{ backgroundColor: activeGroup.color }}
+                    style={{ backgroundColor: getSoftCategoryColor(activeGroup.color) }}
                   />
                 ) : null}
                 <div className="min-w-0">
@@ -849,28 +957,33 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
                   <div className="text-xs text-muted-foreground">
                     {activeFields.length} kolom
                   </div>
+                  {activeGroup.id && activeGroup.fillByHrd ? (
+                    <Badge variant="secondary" className="mt-1">Diisi HRD</Badge>
+                  ) : null}
                 </div>
               </div>
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                <div className="flex items-center justify-between gap-2 sm:justify-start">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
+                <div className="flex items-center justify-between gap-2 rounded-lg border border-border/50 bg-background p-1 sm:justify-start">
                   <Button
                     type="button"
-                    variant="outline"
+                    variant="ghost"
                     size="sm"
                     onClick={() => goToColumnGroup(-1)}
                     disabled={saving || activeGroupIndex === 0}
+                    className="h-8"
                   >
                     <ChevronLeft /> Previous
                   </Button>
-                  <span className="min-w-12 text-center text-xs text-muted-foreground">
+                  <span className="min-w-12 text-center text-xs font-medium text-muted-foreground">
                     {activeGroupIndex + 1}/{columnGroups.length}
                   </span>
                   <Button
                     type="button"
-                    variant="outline"
+                    variant="ghost"
                     size="sm"
                     onClick={() => goToColumnGroup(1)}
                     disabled={saving || activeGroupIndex === columnGroups.length - 1}
+                    className="h-8"
                   >
                     Next <ChevronRight />
                   </Button>
@@ -882,7 +995,7 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
                   disabled={saving}
                   className="w-full sm:w-auto"
                 >
-                  <Plus /> Kolom
+                  <Plus /> Tambah Kolom
                 </Button>
               </div>
             </div>
@@ -895,9 +1008,11 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
               ) : (
                 activeFields.map((field, index) => {
                   const isDefaultId = isDefaultIdField(field)
+                  const isHidden = Boolean(field.hiddenAt)
                   const fieldError = formErrors.fields[field.id]
                   const movableFields = activeFields.filter((item) => !isDefaultIdField(item))
                   const movableIndex = movableFields.findIndex((item) => item.id === field.id)
+                  const canSetFieldHrd = !isDefaultId && (form.categories.length === 0 || !field.categoryId)
 
                   return (
                     <Collapsible
@@ -914,11 +1029,15 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
                         >
                           <ChevronDown className={`size-4 shrink-0 text-muted-foreground transition-transform ${openFieldId === field.id ? "rotate-0" : "-rotate-90"}`} />
                           <div className="min-w-0">
-                            <div className="truncate text-sm font-medium">
-                              {field.columnName.trim() || `Kolom ${index + 1}`}
+                            <div className="flex min-w-0 flex-wrap items-center gap-2">
+                              <span className="truncate text-sm font-medium">
+                                {field.columnName.trim() || `Kolom ${index + 1}`}
+                              </span>
+                              {isHidden ? <Badge variant="outline">Disembunyikan</Badge> : null}
                             </div>
                             <div className="mt-1 text-xs text-muted-foreground">
                               {TRACK_FIELD_TYPES.find((type) => type.value === field.type)?.label ?? "Teks"}
+                              {field.fillByHrd ? " - Diisi HRD" : ""}
                             </div>
                           </div>
                         </button>
@@ -946,10 +1065,20 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
                         </Button>
                         <Button
                           type="button"
+                          variant={isHidden ? "action-primary" : "action-neutral"}
+                          size="icon-sm"
+                          aria-label={isHidden ? "Tampilkan kolom" : "Sembunyikan kolom"}
+                          onClick={() => toggleFieldHidden(field.id, !isHidden)}
+                          disabled={saving || isDefaultId}
+                        >
+                          {isHidden ? <Eye /> : <EyeOff />}
+                        </Button>
+                        <Button
+                          type="button"
                           variant="action-danger-soft"
                           size="icon-sm"
                           aria-label="Hapus kolom"
-                          onClick={() => removeField(field.id)}
+                          onClick={() => requestRemoveField(field)}
                           disabled={saving || isDefaultId}
                         >
                           <Trash2 />
@@ -1013,6 +1142,19 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
                             disabled={saving || isDefaultId || field.type === "date"}
                           />
                         </div>
+                        {canSetFieldHrd ? (
+                          <label className="flex items-center gap-2 rounded-lg border border-border/40 bg-muted/10 px-3 py-2 text-sm font-medium md:col-span-3">
+                            <Checkbox
+                              checked={field.fillByHrd}
+                              onCheckedChange={(checked) => updateField(field.id, (current) => ({
+                                ...current,
+                                fillByHrd: checked === true,
+                              }))}
+                              disabled={saving}
+                            />
+                            Khusus diisi HRD
+                          </label>
+                        ) : null}
 
                         {field.type === "category" ? (
                           <div className="grid gap-3 rounded-lg border border-border/40 bg-muted/10 p-3 md:col-span-3">
@@ -1144,6 +1286,49 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
           </Button>
         </div>
       </div>
+
+      <AlertDialog
+        open={Boolean(pendingFieldDelete)}
+        onOpenChange={(open) => {
+          if (!open) setPendingFieldDelete(null)
+        }}
+      >
+        <AlertDialogContent className="max-w-[386px] gap-0 overflow-hidden p-0">
+          <button
+            type="button"
+            aria-label="Batal"
+            onClick={() => setPendingFieldDelete(null)}
+            className="absolute right-3 top-3 inline-flex size-8 items-center justify-center rounded-lg text-muted-foreground transition hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <X className="size-4" />
+          </button>
+          <AlertDialogHeader className="items-start gap-2 px-5 pb-4 pt-5 text-left">
+            <AlertDialogTitle>Kolom sudah memiliki data</AlertDialogTitle>
+            <AlertDialogDescription className="text-left leading-relaxed">
+              Kolom "{pendingFieldDelete?.field.columnName || "ini"}" sudah dipakai pada {pendingFieldDelete?.valueCount ?? 0} data.
+              Jika dihapus, kolom tidak tampil lagi di admin. Sebaiknya sembunyikan kolom agar data lama tetap aman dan bisa ditampilkan kembali.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="mx-0 mb-0 justify-end gap-2 rounded-none px-5 py-4 sm:flex-row sm:flex-wrap">
+            <AlertDialogAction
+              type="button"
+              variant="outline"
+              className="w-full sm:w-auto"
+              onClick={hidePendingField}
+            >
+              Sembunyikan
+            </AlertDialogAction>
+            <AlertDialogAction
+              type="button"
+              variant="destructive"
+              className="w-full sm:w-auto"
+              onClick={removePendingField}
+            >
+              Tetap hapus
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </form>
   )
 }

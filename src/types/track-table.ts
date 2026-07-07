@@ -4,6 +4,7 @@ export interface TrackCategory {
   id: string
   name: string
   color: string
+  fillByHrd: boolean
   sortOrder: number
 }
 
@@ -17,6 +18,8 @@ export interface TrackField {
   type: TrackFieldType
   defaultValue: string
   categoryOptions: string[]
+  fillByHrd: boolean
+  hiddenAt?: string | Date | null
   sortOrder: number
 }
 
@@ -33,6 +36,19 @@ export interface TrackSheet {
 export interface TrackTableResponse {
   sheets: TrackSheet[]
   regions: string[]
+}
+
+export interface TrackRecord {
+  id: string
+  sheetId: string
+  values: Record<string, string>
+  createdById?: string | null
+  createdAt: string
+  updatedAt: string
+}
+
+export interface TrackRecordResponse {
+  records: TrackRecord[]
 }
 
 export const TRACK_FIELD_TYPES: Array<{ value: TrackFieldType; label: string }> = [
@@ -52,6 +68,8 @@ export const EMPTY_TRACK_FIELD: TrackField = {
   type: "text",
   defaultValue: "",
   categoryOptions: [],
+  fillByHrd: false,
+  hiddenAt: null,
   sortOrder: 0,
 }
 

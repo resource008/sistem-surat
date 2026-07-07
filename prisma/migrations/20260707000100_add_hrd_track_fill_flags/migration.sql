@@ -1,0 +1,5 @@
+ALTER TABLE "track_categories"
+ADD COLUMN IF NOT EXISTS "fill_by_hrd" BOOLEAN NOT NULL DEFAULT false;
+
+ALTER TABLE "track_fields"
+ADD COLUMN IF NOT EXISTS "fill_by_hrd" BOOLEAN NOT NULL DEFAULT false;

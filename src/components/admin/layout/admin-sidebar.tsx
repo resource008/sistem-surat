@@ -28,7 +28,7 @@ const navItems = [
   { label: "Dashboard",       href: "/admin/dashboard",  icon: House },
   { label: "Kelola Pengguna", href: "/admin/users",      icon: UserRoundCog },
   { label: "Kelola Departemen", href: "/admin/departemen", icon: Building2 },
-  { label: "Kelola Tabel Lacak", href: "/admin/kelola-tabel-lacak", icon: TableProperties },
+  { label: "Kelola Sheet Lacak", href: "/admin/kelola-tabel-lacak", icon: TableProperties },
 ]
 
 interface Props {

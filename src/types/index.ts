@@ -17,6 +17,8 @@ export type {
   TrackCategory,
   TrackField,
   TrackFieldType,
+  TrackRecord,
+  TrackRecordResponse,
   TrackSheet,
   TrackTableResponse,
 } from "./track-table"
