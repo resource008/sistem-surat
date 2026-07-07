@@ -1,7 +1,15 @@
 import type { Metadata } from "next"
+import { Figtree } from "next/font/google"
 import "./globals.css"
 import { Toaster } from "sonner"
 import { ThemeProvider } from "next-themes"
+
+const figtree = Figtree({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800"],
+  style: ["normal", "italic"],
+  variable: "--font-figtree",
+})
 
 export const metadata: Metadata = {
   title: "Sistem Surat",
@@ -15,7 +23,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="id" suppressHydrationWarning>
-      <body>
+      <body className={`${figtree.className} ${figtree.variable}`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
