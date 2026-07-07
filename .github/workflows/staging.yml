@@ -6,43 +6,38 @@ on:
       - staging
 
 jobs:
-    build-and-push:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v6
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
 
-            - name: Login to Docker Hub
-              uses: docker/login-action@v3
-              with:
-                username: ${{ secrets.DOCKERHUB_USERNAME }}
-                password: ${{ secrets.DOCKERHUB_TOKEN }}
-        
-            - name: Build and push Docker image
-              uses: docker/build-push-action@v5
-              with:
-                context: .
-                push: true
-                tags: ${{ secrets.DOCKERHUB_USERNAME }}/sistem-surat:staging
-                build-args: |
-                    DATABASE_URL=${{ secrets.DATABASE_URL }}
-            
-    deploy:
-        name: Pembaruan Container di VPS
-        needs: build-and-push
-        runs-on: ubuntu-latest
-        steps:
-            - name: Eksekusi Remote SSH Via Tabby key
-              uses: appleboy/ssh-action@v1.0.3
-              with:
-                host: ${{ secrets.VPS_HOST }}
-                username: ${{ secrets.VPS_USER }}
-                key: ${{ secrets.VPS_SSH_KEY }}
-                script: |
-                    cd /var/www/docker-staging
-                    DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }} docker compose -f docker-compose.staging.yml pull
-                    DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }} docker compose -f docker-compose.staging.yml up -d
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-                    sleep 5
-                    docker exec sistem_surat_staging npx prisma migrate deploy || true
-                    docker image prune -f
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/sistem-surat:staging
+
+  deploy:
+    name: Pembaruan Container di VPS
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Eksekusi Remote SSH Via Tabby key
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd /var/www/docker-staging
+            DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }} docker compose -f docker-compose.staging.yml pull
+            DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }} docker compose -f docker-compose.staging.yml up -d
+            docker image prune -f
