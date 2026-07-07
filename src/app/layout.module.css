@@ -370,6 +370,11 @@
   justify-self: end;
 }
 
+.topbarTrack {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
 /* Kiri topbar */
 .topbarLeft {
   display: flex;
@@ -396,6 +401,17 @@
 
 .topbarLeftCetak {
   flex: 1 1 auto;
+}
+
+.topbarLeftTrack {
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
+.topbarLeftTrack .breadcrumb,
+.topbarLeftTrack .topbarTitle {
+  min-width: 0;
+  overflow: hidden;
 }
 
 .topbarLeftAdmin {
@@ -456,6 +472,11 @@
 .topbarRightSearchExpanded {
   flex: 1 1 auto;
   min-width: 0;
+}
+
+.topbarRightTrack {
+  justify-self: end;
+  margin-left: 0;
 }
 
 .topbarCetakActions {
@@ -523,6 +544,11 @@
 
 @media (max-width: 768px) {
   .topbar { padding: 0 16px; height: 56px; left: 0; }
+  .topbarTrack {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px;
+  }
   .topbarDataSurat {
     display: flex;
     gap: 10px;
@@ -535,6 +561,11 @@
   .topbarLeftDataSurat { max-width: 160px; }
   .topbarLeftDataSuratSubPage { max-width: none; }
   .topbarLeftCetak { max-width: none; }
+  .topbarLeftTrack {
+    flex: 1 1 auto;
+    max-width: none;
+    min-width: 0;
+  }
   .topbarLeftSearchPage {
     flex: 1 1 auto;
     max-width: none;
@@ -593,6 +624,10 @@
     justify-content: flex-end;
     z-index: 43;
   }
+  .topbarRightTrack {
+    justify-self: end;
+    margin-left: 0;
+  }
   .topbarCetakActions {
     margin-left: auto;
   }
@@ -610,6 +645,10 @@
   .topbarLeftDataSurat { max-width: 132px; }
   .topbarLeftDataSuratSubPage { max-width: none; }
   .topbarLeftCetak { max-width: none; }
+  .topbarLeftTrack {
+    max-width: none;
+    min-width: 0;
+  }
   .topbarLeftSearchPage { max-width: none; }
   .content { padding: 12px; padding-top: calc(56px + 12px); }
 }

@@ -9,6 +9,7 @@ const figtree = Figtree({
   weight: ["300", "400", "500", "600", "700", "800"],
   style: ["normal", "italic"],
   variable: "--font-figtree",
+  display: "swap",
 })
 
 export const metadata: Metadata = {
@@ -22,8 +23,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="id" suppressHydrationWarning>
-      <body className={`${figtree.className} ${figtree.variable}`}>
+    <html lang="id" className={figtree.variable} suppressHydrationWarning>
+      <body className={figtree.className}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -35,7 +36,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             richColors
             toastOptions={{
               style: {
-                fontFamily: "var(--font-figtree), sans-serif",
+                fontFamily: 'var(--font-figtree, "Figtree", sans-serif)',
               },
             }}
           />

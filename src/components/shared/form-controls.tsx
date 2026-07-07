@@ -41,6 +41,13 @@ interface DatePickerProps {
   disabled?: boolean
 }
 
+function parseDateValue(value: string) {
+  if (!value) return undefined
+
+  const date = new Date(`${value}T00:00:00`)
+  return Number.isNaN(date.getTime()) ? undefined : date
+}
+
 export function DatePicker({
   value,
   onChange,
@@ -49,7 +56,7 @@ export function DatePicker({
   disabled = false,
 }: DatePickerProps) {
   const [open, setOpen] = useState(false)
-  const selected = value ? new Date(`${value}T00:00:00`) : undefined
+  const selected = parseDateValue(value)
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -59,16 +66,15 @@ export function DatePicker({
           variant="outline"
           disabled={disabled}
           className={cn(
-            "h-10 w-full justify-start rounded-xl px-3 text-left text-[14px] font-normal",
-            "text-slate-800 dark:text-slate-200",
-            !value && "text-slate-400 dark:text-slate-500",
+            "h-10 w-full justify-start border border-input bg-background px-3 text-left font-normal shadow-sm hover:bg-background",
+            !selected && "text-muted-foreground",
             hasError &&
-              "border-red-500 focus-visible:ring-red-500 dark:border-red-500"
+              "border-red-500 focus-visible:ring-red-500"
           )}
         >
-          <CalendarIcon className="mr-2 h-3.5 w-3.5 shrink-0 text-slate-400 dark:text-slate-500" />
-          {value
-            ? format(selected!, "dd MMMM yyyy", { locale: localeID })
+          <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
+          {selected
+            ? format(selected, "dd MMMM yyyy", { locale: localeID })
             : placeholder}
         </Button>
       </PopoverTrigger>

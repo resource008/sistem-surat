@@ -26,6 +26,7 @@ function mapTrackCategory(row: TrackCategoryRow): TrackCategory {
     id: row.id,
     name: row.name,
     color: row.color,
+    fillByHrd: row.fillByHrd,
     sortOrder: row.sortOrder,
   }
 }
@@ -43,6 +44,8 @@ export function mapTrackField(row: TrackFieldRow): TrackField {
     type: isDefaultId ? "number" : normalizeTrackFieldType(row.type),
     defaultValue: isDefaultId ? "" : row.defaultValue,
     categoryOptions: isDefaultId ? [] : parseCategoryOptions(row.categoryOptions),
+    fillByHrd: isDefaultId ? false : row.fillByHrd,
+    hiddenAt: isDefaultId ? null : row.hiddenAt,
     sortOrder: row.sortOrder,
   }
 }
@@ -63,6 +66,7 @@ function deriveCategoriesFromFields(fields: TrackField[]) {
       id: field.categoryId || `derived_${key.replace(/[^a-z0-9]+/g, "_")}`,
       name,
       color: field.categoryColor || "#2563eb",
+      fillByHrd: field.fillByHrd,
       sortOrder: categories.length,
     })
   })

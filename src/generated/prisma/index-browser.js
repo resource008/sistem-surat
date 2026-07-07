@@ -237,6 +237,7 @@ exports.Prisma.TrackCategoryScalarFieldEnum = {
   sheetId: 'sheetId',
   name: 'name',
   color: 'color',
+  fillByHrd: 'fillByHrd',
   sortOrder: 'sortOrder',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -253,7 +254,17 @@ exports.Prisma.TrackFieldScalarFieldEnum = {
   dataType: 'dataType',
   defaultValue: 'defaultValue',
   categoryOptions: 'categoryOptions',
+  fillByHrd: 'fillByHrd',
   sortOrder: 'sortOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.TrackRecordScalarFieldEnum = {
+  id: 'id',
+  sheetId: 'sheetId',
+  values: 'values',
+  createdById: 'createdById',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -300,7 +311,8 @@ exports.Prisma.ModelName = {
   NomorCounter: 'NomorCounter',
   TrackSheet: 'TrackSheet',
   TrackCategory: 'TrackCategory',
-  TrackField: 'TrackField'
+  TrackField: 'TrackField',
+  TrackRecord: 'TrackRecord'
 };
 
 /**
