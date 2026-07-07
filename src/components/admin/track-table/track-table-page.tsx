@@ -86,13 +86,6 @@ export default function TrackTablePage() {
   return (
     <div className="flex flex-col gap-4 pb-24">
       <div className="hidden overflow-hidden rounded-xl border border-border/40 bg-background md:block">
-        <div className="grid grid-cols-[minmax(0,1fr)_140px_140px_120px] border-b border-border/40 bg-muted/40 px-4 py-3 text-[12px] font-medium text-muted-foreground">
-          <div>Nama Sheet</div>
-          <div>Status</div>
-          <div>Kolom</div>
-          <div>Aksi</div>
-        </div>
-
         {sheets.length === 0 ? (
           <EmptyState
             icon={<FileSpreadsheet size={64} strokeWidth={1.25} />}
@@ -100,53 +93,62 @@ export default function TrackTablePage() {
             description={error?.message ?? "Tambahkan sheet pertama untuk mulai mengelola tabel lacak."}
           />
         ) : (
-          sheets.map((sheet, index) => (
-            <div
-              key={sheet.id}
-              role="button"
-              tabIndex={0}
-              className="grid cursor-pointer grid-cols-[minmax(0,1fr)_140px_140px_120px] items-center border-b border-border/40 px-4 py-3 outline-none transition-colors last:border-b-0 hover:bg-muted/30 focus-visible:bg-muted/40"
-              onClick={() => openDetail(sheet)}
-              onKeyDown={(event) => {
-                if (event.key === "Enter" || event.key === " ") {
-                  event.preventDefault()
-                  openDetail(sheet)
-                }
-              }}
-            >
-              <div className="flex min-w-0 items-center gap-2 pr-4">
-                <span className="truncate text-[13px] font-medium">{sheet.name}</span>
-              </div>
-              <div>
-                <TrackSheetStatusBadge sheet={sheet} />
-              </div>
-              <div>
-                <Badge variant="secondary">{sheet.fields.length} kolom</Badge>
-              </div>
-              <div className="flex items-center gap-1" onClick={(event) => event.stopPropagation()}>
-                <Button
-                  type="button"
-                  variant="action-neutral"
-                  size="icon-sm"
-                  aria-label={`Naikkan urutan ${sheet.name}`}
-                  disabled={!!reorderingId || index === 0}
-                  onClick={() => moveSheet(sheet.id, -1)}
-                >
-                  <ArrowUp />
-                </Button>
-                <Button
-                  type="button"
-                  variant="action-neutral"
-                  size="icon-sm"
-                  aria-label={`Turunkan urutan ${sheet.name}`}
-                  disabled={!!reorderingId || index === sheets.length - 1}
-                  onClick={() => moveSheet(sheet.id, 1)}
-                >
-                  <ArrowDown />
-                </Button>
-              </div>
+          <>
+            <div className="grid grid-cols-[minmax(0,1fr)_140px_140px_120px] border-b border-border/40 bg-muted/40 px-4 py-3 text-[12px] font-medium text-muted-foreground">
+              <div>Nama Sheet</div>
+              <div>Status</div>
+              <div>Kolom</div>
+              <div>Aksi</div>
             </div>
-          ))
+
+            {sheets.map((sheet, index) => (
+              <div
+                key={sheet.id}
+                role="button"
+                tabIndex={0}
+                className="grid cursor-pointer grid-cols-[minmax(0,1fr)_140px_140px_120px] items-center border-b border-border/40 px-4 py-3 outline-none transition-colors last:border-b-0 hover:bg-muted/30 focus-visible:bg-muted/40"
+                onClick={() => openDetail(sheet)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault()
+                    openDetail(sheet)
+                  }
+                }}
+              >
+                <div className="flex min-w-0 items-center gap-2 pr-4">
+                  <span className="truncate text-[13px] font-medium">{sheet.name}</span>
+                </div>
+                <div>
+                  <TrackSheetStatusBadge sheet={sheet} />
+                </div>
+                <div>
+                  <Badge variant="secondary">{sheet.fields.length} kolom</Badge>
+                </div>
+                <div className="flex items-center gap-1" onClick={(event) => event.stopPropagation()}>
+                  <Button
+                    type="button"
+                    variant="action-neutral"
+                    size="icon-sm"
+                    aria-label={`Naikkan urutan ${sheet.name}`}
+                    disabled={!!reorderingId || index === 0}
+                    onClick={() => moveSheet(sheet.id, -1)}
+                  >
+                    <ArrowUp />
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="action-neutral"
+                    size="icon-sm"
+                    aria-label={`Turunkan urutan ${sheet.name}`}
+                    disabled={!!reorderingId || index === sheets.length - 1}
+                    onClick={() => moveSheet(sheet.id, 1)}
+                  >
+                    <ArrowDown />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </>
         )}
       </div>
 

@@ -10,6 +10,8 @@ const TrackFieldSchema = z.object({
   type: z.enum(["text", "date", "number", "category"]),
   defaultValue: z.string().max(120, "Isian awal maksimal 120 karakter").optional().default(""),
   categoryOptions: z.array(z.string().max(80, "Pilihan kategori maksimal 80 karakter")).optional().default([]),
+  fillByHrd: z.boolean().optional().default(false),
+  hiddenAt: z.union([z.string(), z.date(), z.null()]).optional().default(null),
   sortOrder: z.number().int().nonnegative().optional().default(0),
 })
 
@@ -17,6 +19,7 @@ const TrackCategorySchema = z.object({
   id: z.string().optional(),
   name: z.string().min(1, "Nama kategori wajib diisi").max(80, "Nama kategori maksimal 80 karakter").trim(),
   color: z.string().regex(/^#[0-9A-Fa-f]{6}$/, "Warna kategori tidak valid").optional().default("#2563eb"),
+  fillByHrd: z.boolean().optional().default(false),
   sortOrder: z.number().int().nonnegative().optional().default(0),
 })
 

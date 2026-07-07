@@ -49,8 +49,8 @@
 }
 
 :root {
-  --font-figtree: "Segoe UI", Arial, sans-serif;
-  --font-geist-mono: "Cascadia Mono", "Consolas", monospace;
+  --font-figtree: "Figtree", sans-serif;
+  --font-geist-mono: var(--font-figtree, "Figtree", sans-serif);
   --background: oklch(100% 0.00011 271.152);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -152,6 +152,7 @@ input[type="password"]::-ms-clear {
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    font-family: inherit;
 
     html.no-transition *,
     html.no-transition *::before,
@@ -162,11 +163,28 @@ input[type="password"]::-ms-clear {
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
+    font-family: var(--font-figtree, "Figtree", sans-serif);
   }
 
   html {
     @apply font-sans;
+    font-family: var(--font-figtree, "Figtree", sans-serif);
+  }
+
+  *::before,
+  *::after,
+  button,
+  input,
+  textarea,
+  select,
+  option,
+  optgroup,
+  [role="dialog"],
+  [role="alertdialog"],
+  [data-radix-popper-content-wrapper],
+  [data-slot] {
+    font-family: inherit;
   }
 
   html, body {

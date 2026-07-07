@@ -73,6 +73,11 @@ export type TrackCategory = $Result.DefaultSelection<Prisma.$TrackCategoryPayloa
  * 
  */
 export type TrackField = $Result.DefaultSelection<Prisma.$TrackFieldPayload>
+/**
+ * Model TrackRecord
+ * 
+ */
+export type TrackRecord = $Result.DefaultSelection<Prisma.$TrackRecordPayload>
 
 /**
  * Enums
@@ -332,6 +337,16 @@ export class PrismaClient<
     * ```
     */
   get trackField(): Prisma.TrackFieldDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.trackRecord`: Exposes CRUD operations for the **TrackRecord** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more TrackRecords
+    * const trackRecords = await prisma.trackRecord.findMany()
+    * ```
+    */
+  get trackRecord(): Prisma.TrackRecordDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -777,7 +792,8 @@ export namespace Prisma {
     NomorCounter: 'NomorCounter',
     TrackSheet: 'TrackSheet',
     TrackCategory: 'TrackCategory',
-    TrackField: 'TrackField'
+    TrackField: 'TrackField',
+    TrackRecord: 'TrackRecord'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -793,7 +809,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "session" | "account" | "userPermission" | "department" | "departmentColumn" | "registerSurat" | "detailSurat" | "nomorCounter" | "trackSheet" | "trackCategory" | "trackField"
+      modelProps: "user" | "session" | "account" | "userPermission" | "department" | "departmentColumn" | "registerSurat" | "detailSurat" | "nomorCounter" | "trackSheet" | "trackCategory" | "trackField" | "trackRecord"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1685,6 +1701,80 @@ export namespace Prisma {
           }
         }
       }
+      TrackRecord: {
+        payload: Prisma.$TrackRecordPayload<ExtArgs>
+        fields: Prisma.TrackRecordFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.TrackRecordFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrackRecordPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.TrackRecordFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrackRecordPayload>
+          }
+          findFirst: {
+            args: Prisma.TrackRecordFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrackRecordPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.TrackRecordFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrackRecordPayload>
+          }
+          findMany: {
+            args: Prisma.TrackRecordFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrackRecordPayload>[]
+          }
+          create: {
+            args: Prisma.TrackRecordCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrackRecordPayload>
+          }
+          createMany: {
+            args: Prisma.TrackRecordCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.TrackRecordCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrackRecordPayload>[]
+          }
+          delete: {
+            args: Prisma.TrackRecordDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrackRecordPayload>
+          }
+          update: {
+            args: Prisma.TrackRecordUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrackRecordPayload>
+          }
+          deleteMany: {
+            args: Prisma.TrackRecordDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.TrackRecordUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.TrackRecordUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrackRecordPayload>[]
+          }
+          upsert: {
+            args: Prisma.TrackRecordUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TrackRecordPayload>
+          }
+          aggregate: {
+            args: Prisma.TrackRecordAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateTrackRecord>
+          }
+          groupBy: {
+            args: Prisma.TrackRecordGroupByArgs<ExtArgs>
+            result: $Utils.Optional<TrackRecordGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.TrackRecordCountArgs<ExtArgs>
+            result: $Utils.Optional<TrackRecordCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1805,6 +1895,7 @@ export namespace Prisma {
     trackSheet?: TrackSheetOmit
     trackCategory?: TrackCategoryOmit
     trackField?: TrackFieldOmit
+    trackRecord?: TrackRecordOmit
   }
 
   /* Types for Logging */
@@ -1998,11 +2089,13 @@ export namespace Prisma {
   export type TrackSheetCountOutputType = {
     categories: number
     fields: number
+    records: number
   }
 
   export type TrackSheetCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     categories?: boolean | TrackSheetCountOutputTypeCountCategoriesArgs
     fields?: boolean | TrackSheetCountOutputTypeCountFieldsArgs
+    records?: boolean | TrackSheetCountOutputTypeCountRecordsArgs
   }
 
   // Custom InputTypes
@@ -2028,6 +2121,13 @@ export namespace Prisma {
    */
   export type TrackSheetCountOutputTypeCountFieldsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: TrackFieldWhereInput
+  }
+
+  /**
+   * TrackSheetCountOutputType without action
+   */
+  export type TrackSheetCountOutputTypeCountRecordsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TrackRecordWhereInput
   }
 
 
@@ -12500,6 +12600,7 @@ export namespace Prisma {
     hiddenAt?: boolean
     categories?: boolean | TrackSheet$categoriesArgs<ExtArgs>
     fields?: boolean | TrackSheet$fieldsArgs<ExtArgs>
+    records?: boolean | TrackSheet$recordsArgs<ExtArgs>
     _count?: boolean | TrackSheetCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["trackSheet"]>
 
@@ -12537,6 +12638,7 @@ export namespace Prisma {
   export type TrackSheetInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     categories?: boolean | TrackSheet$categoriesArgs<ExtArgs>
     fields?: boolean | TrackSheet$fieldsArgs<ExtArgs>
+    records?: boolean | TrackSheet$recordsArgs<ExtArgs>
     _count?: boolean | TrackSheetCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type TrackSheetIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -12547,6 +12649,7 @@ export namespace Prisma {
     objects: {
       categories: Prisma.$TrackCategoryPayload<ExtArgs>[]
       fields: Prisma.$TrackFieldPayload<ExtArgs>[]
+      records: Prisma.$TrackRecordPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -12952,6 +13055,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     categories<T extends TrackSheet$categoriesArgs<ExtArgs> = {}>(args?: Subset<T, TrackSheet$categoriesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TrackCategoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     fields<T extends TrackSheet$fieldsArgs<ExtArgs> = {}>(args?: Subset<T, TrackSheet$fieldsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TrackFieldPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    records<T extends TrackSheet$recordsArgs<ExtArgs> = {}>(args?: Subset<T, TrackSheet$recordsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TrackRecordPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -13429,6 +13533,30 @@ export namespace Prisma {
   }
 
   /**
+   * TrackSheet.records
+   */
+  export type TrackSheet$recordsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrackRecord
+     */
+    select?: TrackRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrackRecord
+     */
+    omit?: TrackRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrackRecordInclude<ExtArgs> | null
+    where?: TrackRecordWhereInput
+    orderBy?: TrackRecordOrderByWithRelationInput | TrackRecordOrderByWithRelationInput[]
+    cursor?: TrackRecordWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: TrackRecordScalarFieldEnum | TrackRecordScalarFieldEnum[]
+  }
+
+  /**
    * TrackSheet without action
    */
   export type TrackSheetDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -13472,6 +13600,7 @@ export namespace Prisma {
     sheetId: string | null
     name: string | null
     color: string | null
+    fillByHrd: boolean | null
     sortOrder: number | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -13482,6 +13611,7 @@ export namespace Prisma {
     sheetId: string | null
     name: string | null
     color: string | null
+    fillByHrd: boolean | null
     sortOrder: number | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -13492,6 +13622,7 @@ export namespace Prisma {
     sheetId: number
     name: number
     color: number
+    fillByHrd: number
     sortOrder: number
     createdAt: number
     updatedAt: number
@@ -13512,6 +13643,7 @@ export namespace Prisma {
     sheetId?: true
     name?: true
     color?: true
+    fillByHrd?: true
     sortOrder?: true
     createdAt?: true
     updatedAt?: true
@@ -13522,6 +13654,7 @@ export namespace Prisma {
     sheetId?: true
     name?: true
     color?: true
+    fillByHrd?: true
     sortOrder?: true
     createdAt?: true
     updatedAt?: true
@@ -13532,6 +13665,7 @@ export namespace Prisma {
     sheetId?: true
     name?: true
     color?: true
+    fillByHrd?: true
     sortOrder?: true
     createdAt?: true
     updatedAt?: true
@@ -13629,6 +13763,7 @@ export namespace Prisma {
     sheetId: string
     name: string
     color: string
+    fillByHrd: boolean
     sortOrder: number
     createdAt: Date
     updatedAt: Date
@@ -13658,6 +13793,7 @@ export namespace Prisma {
     sheetId?: boolean
     name?: boolean
     color?: boolean
+    fillByHrd?: boolean
     sortOrder?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -13669,6 +13805,7 @@ export namespace Prisma {
     sheetId?: boolean
     name?: boolean
     color?: boolean
+    fillByHrd?: boolean
     sortOrder?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -13680,6 +13817,7 @@ export namespace Prisma {
     sheetId?: boolean
     name?: boolean
     color?: boolean
+    fillByHrd?: boolean
     sortOrder?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -13691,12 +13829,13 @@ export namespace Prisma {
     sheetId?: boolean
     name?: boolean
     color?: boolean
+    fillByHrd?: boolean
     sortOrder?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type TrackCategoryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "sheetId" | "name" | "color" | "sortOrder" | "createdAt" | "updatedAt", ExtArgs["result"]["trackCategory"]>
+  export type TrackCategoryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "sheetId" | "name" | "color" | "fillByHrd" | "sortOrder" | "createdAt" | "updatedAt", ExtArgs["result"]["trackCategory"]>
   export type TrackCategoryInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     sheet?: boolean | TrackSheetDefaultArgs<ExtArgs>
   }
@@ -13717,6 +13856,7 @@ export namespace Prisma {
       sheetId: string
       name: string
       color: string
+      fillByHrd: boolean
       sortOrder: number
       createdAt: Date
       updatedAt: Date
@@ -14148,6 +14288,7 @@ export namespace Prisma {
     readonly sheetId: FieldRef<"TrackCategory", 'String'>
     readonly name: FieldRef<"TrackCategory", 'String'>
     readonly color: FieldRef<"TrackCategory", 'String'>
+    readonly fillByHrd: FieldRef<"TrackCategory", 'Boolean'>
     readonly sortOrder: FieldRef<"TrackCategory", 'Int'>
     readonly createdAt: FieldRef<"TrackCategory", 'DateTime'>
     readonly updatedAt: FieldRef<"TrackCategory", 'DateTime'>
@@ -14601,6 +14742,7 @@ export namespace Prisma {
     dataType: string | null
     defaultValue: string | null
     categoryOptions: string | null
+    fillByHrd: boolean | null
     sortOrder: number | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -14617,6 +14759,7 @@ export namespace Prisma {
     dataType: string | null
     defaultValue: string | null
     categoryOptions: string | null
+    fillByHrd: boolean | null
     sortOrder: number | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -14633,6 +14776,7 @@ export namespace Prisma {
     dataType: number
     defaultValue: number
     categoryOptions: number
+    fillByHrd: number
     sortOrder: number
     createdAt: number
     updatedAt: number
@@ -14659,6 +14803,7 @@ export namespace Prisma {
     dataType?: true
     defaultValue?: true
     categoryOptions?: true
+    fillByHrd?: true
     sortOrder?: true
     createdAt?: true
     updatedAt?: true
@@ -14675,6 +14820,7 @@ export namespace Prisma {
     dataType?: true
     defaultValue?: true
     categoryOptions?: true
+    fillByHrd?: true
     sortOrder?: true
     createdAt?: true
     updatedAt?: true
@@ -14691,6 +14837,7 @@ export namespace Prisma {
     dataType?: true
     defaultValue?: true
     categoryOptions?: true
+    fillByHrd?: true
     sortOrder?: true
     createdAt?: true
     updatedAt?: true
@@ -14794,6 +14941,7 @@ export namespace Prisma {
     dataType: string
     defaultValue: string
     categoryOptions: string
+    fillByHrd: boolean
     sortOrder: number
     createdAt: Date
     updatedAt: Date
@@ -14829,6 +14977,7 @@ export namespace Prisma {
     dataType?: boolean
     defaultValue?: boolean
     categoryOptions?: boolean
+    fillByHrd?: boolean
     sortOrder?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -14846,6 +14995,7 @@ export namespace Prisma {
     dataType?: boolean
     defaultValue?: boolean
     categoryOptions?: boolean
+    fillByHrd?: boolean
     sortOrder?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -14863,6 +15013,7 @@ export namespace Prisma {
     dataType?: boolean
     defaultValue?: boolean
     categoryOptions?: boolean
+    fillByHrd?: boolean
     sortOrder?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -14880,12 +15031,13 @@ export namespace Prisma {
     dataType?: boolean
     defaultValue?: boolean
     categoryOptions?: boolean
+    fillByHrd?: boolean
     sortOrder?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type TrackFieldOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "sheetId" | "categoryId" | "category" | "categoryColor" | "region" | "columnName" | "dataType" | "defaultValue" | "categoryOptions" | "sortOrder" | "createdAt" | "updatedAt", ExtArgs["result"]["trackField"]>
+  export type TrackFieldOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "sheetId" | "categoryId" | "category" | "categoryColor" | "region" | "columnName" | "dataType" | "defaultValue" | "categoryOptions" | "fillByHrd" | "sortOrder" | "createdAt" | "updatedAt", ExtArgs["result"]["trackField"]>
   export type TrackFieldInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     sheet?: boolean | TrackSheetDefaultArgs<ExtArgs>
   }
@@ -14912,6 +15064,7 @@ export namespace Prisma {
       dataType: string
       defaultValue: string
       categoryOptions: string
+      fillByHrd: boolean
       sortOrder: number
       createdAt: Date
       updatedAt: Date
@@ -15349,6 +15502,7 @@ export namespace Prisma {
     readonly dataType: FieldRef<"TrackField", 'String'>
     readonly defaultValue: FieldRef<"TrackField", 'String'>
     readonly categoryOptions: FieldRef<"TrackField", 'String'>
+    readonly fillByHrd: FieldRef<"TrackField", 'Boolean'>
     readonly sortOrder: FieldRef<"TrackField", 'Int'>
     readonly createdAt: FieldRef<"TrackField", 'DateTime'>
     readonly updatedAt: FieldRef<"TrackField", 'DateTime'>
@@ -15772,6 +15926,1078 @@ export namespace Prisma {
 
 
   /**
+   * Model TrackRecord
+   */
+
+  export type AggregateTrackRecord = {
+    _count: TrackRecordCountAggregateOutputType | null
+    _min: TrackRecordMinAggregateOutputType | null
+    _max: TrackRecordMaxAggregateOutputType | null
+  }
+
+  export type TrackRecordMinAggregateOutputType = {
+    id: string | null
+    sheetId: string | null
+    createdById: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type TrackRecordMaxAggregateOutputType = {
+    id: string | null
+    sheetId: string | null
+    createdById: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type TrackRecordCountAggregateOutputType = {
+    id: number
+    sheetId: number
+    values: number
+    createdById: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type TrackRecordMinAggregateInputType = {
+    id?: true
+    sheetId?: true
+    createdById?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type TrackRecordMaxAggregateInputType = {
+    id?: true
+    sheetId?: true
+    createdById?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type TrackRecordCountAggregateInputType = {
+    id?: true
+    sheetId?: true
+    values?: true
+    createdById?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type TrackRecordAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TrackRecord to aggregate.
+     */
+    where?: TrackRecordWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TrackRecords to fetch.
+     */
+    orderBy?: TrackRecordOrderByWithRelationInput | TrackRecordOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: TrackRecordWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TrackRecords from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TrackRecords.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned TrackRecords
+    **/
+    _count?: true | TrackRecordCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: TrackRecordMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: TrackRecordMaxAggregateInputType
+  }
+
+  export type GetTrackRecordAggregateType<T extends TrackRecordAggregateArgs> = {
+        [P in keyof T & keyof AggregateTrackRecord]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateTrackRecord[P]>
+      : GetScalarType<T[P], AggregateTrackRecord[P]>
+  }
+
+
+
+
+  export type TrackRecordGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TrackRecordWhereInput
+    orderBy?: TrackRecordOrderByWithAggregationInput | TrackRecordOrderByWithAggregationInput[]
+    by: TrackRecordScalarFieldEnum[] | TrackRecordScalarFieldEnum
+    having?: TrackRecordScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: TrackRecordCountAggregateInputType | true
+    _min?: TrackRecordMinAggregateInputType
+    _max?: TrackRecordMaxAggregateInputType
+  }
+
+  export type TrackRecordGroupByOutputType = {
+    id: string
+    sheetId: string
+    values: JsonValue
+    createdById: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: TrackRecordCountAggregateOutputType | null
+    _min: TrackRecordMinAggregateOutputType | null
+    _max: TrackRecordMaxAggregateOutputType | null
+  }
+
+  type GetTrackRecordGroupByPayload<T extends TrackRecordGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<TrackRecordGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof TrackRecordGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], TrackRecordGroupByOutputType[P]>
+            : GetScalarType<T[P], TrackRecordGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type TrackRecordSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    sheetId?: boolean
+    values?: boolean
+    createdById?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    sheet?: boolean | TrackSheetDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["trackRecord"]>
+
+  export type TrackRecordSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    sheetId?: boolean
+    values?: boolean
+    createdById?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    sheet?: boolean | TrackSheetDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["trackRecord"]>
+
+  export type TrackRecordSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    sheetId?: boolean
+    values?: boolean
+    createdById?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    sheet?: boolean | TrackSheetDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["trackRecord"]>
+
+  export type TrackRecordSelectScalar = {
+    id?: boolean
+    sheetId?: boolean
+    values?: boolean
+    createdById?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type TrackRecordOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "sheetId" | "values" | "createdById" | "createdAt" | "updatedAt", ExtArgs["result"]["trackRecord"]>
+  export type TrackRecordInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    sheet?: boolean | TrackSheetDefaultArgs<ExtArgs>
+  }
+  export type TrackRecordIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    sheet?: boolean | TrackSheetDefaultArgs<ExtArgs>
+  }
+  export type TrackRecordIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    sheet?: boolean | TrackSheetDefaultArgs<ExtArgs>
+  }
+
+  export type $TrackRecordPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "TrackRecord"
+    objects: {
+      sheet: Prisma.$TrackSheetPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      sheetId: string
+      values: Prisma.JsonValue
+      createdById: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["trackRecord"]>
+    composites: {}
+  }
+
+  type TrackRecordGetPayload<S extends boolean | null | undefined | TrackRecordDefaultArgs> = $Result.GetResult<Prisma.$TrackRecordPayload, S>
+
+  type TrackRecordCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<TrackRecordFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: TrackRecordCountAggregateInputType | true
+    }
+
+  export interface TrackRecordDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['TrackRecord'], meta: { name: 'TrackRecord' } }
+    /**
+     * Find zero or one TrackRecord that matches the filter.
+     * @param {TrackRecordFindUniqueArgs} args - Arguments to find a TrackRecord
+     * @example
+     * // Get one TrackRecord
+     * const trackRecord = await prisma.trackRecord.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends TrackRecordFindUniqueArgs>(args: SelectSubset<T, TrackRecordFindUniqueArgs<ExtArgs>>): Prisma__TrackRecordClient<$Result.GetResult<Prisma.$TrackRecordPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one TrackRecord that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {TrackRecordFindUniqueOrThrowArgs} args - Arguments to find a TrackRecord
+     * @example
+     * // Get one TrackRecord
+     * const trackRecord = await prisma.trackRecord.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends TrackRecordFindUniqueOrThrowArgs>(args: SelectSubset<T, TrackRecordFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TrackRecordClient<$Result.GetResult<Prisma.$TrackRecordPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TrackRecord that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TrackRecordFindFirstArgs} args - Arguments to find a TrackRecord
+     * @example
+     * // Get one TrackRecord
+     * const trackRecord = await prisma.trackRecord.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends TrackRecordFindFirstArgs>(args?: SelectSubset<T, TrackRecordFindFirstArgs<ExtArgs>>): Prisma__TrackRecordClient<$Result.GetResult<Prisma.$TrackRecordPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first TrackRecord that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TrackRecordFindFirstOrThrowArgs} args - Arguments to find a TrackRecord
+     * @example
+     * // Get one TrackRecord
+     * const trackRecord = await prisma.trackRecord.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends TrackRecordFindFirstOrThrowArgs>(args?: SelectSubset<T, TrackRecordFindFirstOrThrowArgs<ExtArgs>>): Prisma__TrackRecordClient<$Result.GetResult<Prisma.$TrackRecordPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more TrackRecords that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TrackRecordFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all TrackRecords
+     * const trackRecords = await prisma.trackRecord.findMany()
+     * 
+     * // Get first 10 TrackRecords
+     * const trackRecords = await prisma.trackRecord.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const trackRecordWithIdOnly = await prisma.trackRecord.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends TrackRecordFindManyArgs>(args?: SelectSubset<T, TrackRecordFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TrackRecordPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a TrackRecord.
+     * @param {TrackRecordCreateArgs} args - Arguments to create a TrackRecord.
+     * @example
+     * // Create one TrackRecord
+     * const TrackRecord = await prisma.trackRecord.create({
+     *   data: {
+     *     // ... data to create a TrackRecord
+     *   }
+     * })
+     * 
+     */
+    create<T extends TrackRecordCreateArgs>(args: SelectSubset<T, TrackRecordCreateArgs<ExtArgs>>): Prisma__TrackRecordClient<$Result.GetResult<Prisma.$TrackRecordPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many TrackRecords.
+     * @param {TrackRecordCreateManyArgs} args - Arguments to create many TrackRecords.
+     * @example
+     * // Create many TrackRecords
+     * const trackRecord = await prisma.trackRecord.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends TrackRecordCreateManyArgs>(args?: SelectSubset<T, TrackRecordCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many TrackRecords and returns the data saved in the database.
+     * @param {TrackRecordCreateManyAndReturnArgs} args - Arguments to create many TrackRecords.
+     * @example
+     * // Create many TrackRecords
+     * const trackRecord = await prisma.trackRecord.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many TrackRecords and only return the `id`
+     * const trackRecordWithIdOnly = await prisma.trackRecord.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends TrackRecordCreateManyAndReturnArgs>(args?: SelectSubset<T, TrackRecordCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TrackRecordPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a TrackRecord.
+     * @param {TrackRecordDeleteArgs} args - Arguments to delete one TrackRecord.
+     * @example
+     * // Delete one TrackRecord
+     * const TrackRecord = await prisma.trackRecord.delete({
+     *   where: {
+     *     // ... filter to delete one TrackRecord
+     *   }
+     * })
+     * 
+     */
+    delete<T extends TrackRecordDeleteArgs>(args: SelectSubset<T, TrackRecordDeleteArgs<ExtArgs>>): Prisma__TrackRecordClient<$Result.GetResult<Prisma.$TrackRecordPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one TrackRecord.
+     * @param {TrackRecordUpdateArgs} args - Arguments to update one TrackRecord.
+     * @example
+     * // Update one TrackRecord
+     * const trackRecord = await prisma.trackRecord.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends TrackRecordUpdateArgs>(args: SelectSubset<T, TrackRecordUpdateArgs<ExtArgs>>): Prisma__TrackRecordClient<$Result.GetResult<Prisma.$TrackRecordPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more TrackRecords.
+     * @param {TrackRecordDeleteManyArgs} args - Arguments to filter TrackRecords to delete.
+     * @example
+     * // Delete a few TrackRecords
+     * const { count } = await prisma.trackRecord.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends TrackRecordDeleteManyArgs>(args?: SelectSubset<T, TrackRecordDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TrackRecords.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TrackRecordUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many TrackRecords
+     * const trackRecord = await prisma.trackRecord.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends TrackRecordUpdateManyArgs>(args: SelectSubset<T, TrackRecordUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more TrackRecords and returns the data updated in the database.
+     * @param {TrackRecordUpdateManyAndReturnArgs} args - Arguments to update many TrackRecords.
+     * @example
+     * // Update many TrackRecords
+     * const trackRecord = await prisma.trackRecord.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more TrackRecords and only return the `id`
+     * const trackRecordWithIdOnly = await prisma.trackRecord.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends TrackRecordUpdateManyAndReturnArgs>(args: SelectSubset<T, TrackRecordUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TrackRecordPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one TrackRecord.
+     * @param {TrackRecordUpsertArgs} args - Arguments to update or create a TrackRecord.
+     * @example
+     * // Update or create a TrackRecord
+     * const trackRecord = await prisma.trackRecord.upsert({
+     *   create: {
+     *     // ... data to create a TrackRecord
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the TrackRecord we want to update
+     *   }
+     * })
+     */
+    upsert<T extends TrackRecordUpsertArgs>(args: SelectSubset<T, TrackRecordUpsertArgs<ExtArgs>>): Prisma__TrackRecordClient<$Result.GetResult<Prisma.$TrackRecordPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of TrackRecords.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TrackRecordCountArgs} args - Arguments to filter TrackRecords to count.
+     * @example
+     * // Count the number of TrackRecords
+     * const count = await prisma.trackRecord.count({
+     *   where: {
+     *     // ... the filter for the TrackRecords we want to count
+     *   }
+     * })
+    **/
+    count<T extends TrackRecordCountArgs>(
+      args?: Subset<T, TrackRecordCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], TrackRecordCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a TrackRecord.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TrackRecordAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends TrackRecordAggregateArgs>(args: Subset<T, TrackRecordAggregateArgs>): Prisma.PrismaPromise<GetTrackRecordAggregateType<T>>
+
+    /**
+     * Group by TrackRecord.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TrackRecordGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends TrackRecordGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: TrackRecordGroupByArgs['orderBy'] }
+        : { orderBy?: TrackRecordGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, TrackRecordGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTrackRecordGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the TrackRecord model
+   */
+  readonly fields: TrackRecordFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for TrackRecord.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__TrackRecordClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    sheet<T extends TrackSheetDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TrackSheetDefaultArgs<ExtArgs>>): Prisma__TrackSheetClient<$Result.GetResult<Prisma.$TrackSheetPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the TrackRecord model
+   */
+  interface TrackRecordFieldRefs {
+    readonly id: FieldRef<"TrackRecord", 'String'>
+    readonly sheetId: FieldRef<"TrackRecord", 'String'>
+    readonly values: FieldRef<"TrackRecord", 'Json'>
+    readonly createdById: FieldRef<"TrackRecord", 'String'>
+    readonly createdAt: FieldRef<"TrackRecord", 'DateTime'>
+    readonly updatedAt: FieldRef<"TrackRecord", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * TrackRecord findUnique
+   */
+  export type TrackRecordFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrackRecord
+     */
+    select?: TrackRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrackRecord
+     */
+    omit?: TrackRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrackRecordInclude<ExtArgs> | null
+    /**
+     * Filter, which TrackRecord to fetch.
+     */
+    where: TrackRecordWhereUniqueInput
+  }
+
+  /**
+   * TrackRecord findUniqueOrThrow
+   */
+  export type TrackRecordFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrackRecord
+     */
+    select?: TrackRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrackRecord
+     */
+    omit?: TrackRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrackRecordInclude<ExtArgs> | null
+    /**
+     * Filter, which TrackRecord to fetch.
+     */
+    where: TrackRecordWhereUniqueInput
+  }
+
+  /**
+   * TrackRecord findFirst
+   */
+  export type TrackRecordFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrackRecord
+     */
+    select?: TrackRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrackRecord
+     */
+    omit?: TrackRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrackRecordInclude<ExtArgs> | null
+    /**
+     * Filter, which TrackRecord to fetch.
+     */
+    where?: TrackRecordWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TrackRecords to fetch.
+     */
+    orderBy?: TrackRecordOrderByWithRelationInput | TrackRecordOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TrackRecords.
+     */
+    cursor?: TrackRecordWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TrackRecords from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TrackRecords.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TrackRecords.
+     */
+    distinct?: TrackRecordScalarFieldEnum | TrackRecordScalarFieldEnum[]
+  }
+
+  /**
+   * TrackRecord findFirstOrThrow
+   */
+  export type TrackRecordFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrackRecord
+     */
+    select?: TrackRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrackRecord
+     */
+    omit?: TrackRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrackRecordInclude<ExtArgs> | null
+    /**
+     * Filter, which TrackRecord to fetch.
+     */
+    where?: TrackRecordWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TrackRecords to fetch.
+     */
+    orderBy?: TrackRecordOrderByWithRelationInput | TrackRecordOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for TrackRecords.
+     */
+    cursor?: TrackRecordWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TrackRecords from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TrackRecords.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TrackRecords.
+     */
+    distinct?: TrackRecordScalarFieldEnum | TrackRecordScalarFieldEnum[]
+  }
+
+  /**
+   * TrackRecord findMany
+   */
+  export type TrackRecordFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrackRecord
+     */
+    select?: TrackRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrackRecord
+     */
+    omit?: TrackRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrackRecordInclude<ExtArgs> | null
+    /**
+     * Filter, which TrackRecords to fetch.
+     */
+    where?: TrackRecordWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of TrackRecords to fetch.
+     */
+    orderBy?: TrackRecordOrderByWithRelationInput | TrackRecordOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing TrackRecords.
+     */
+    cursor?: TrackRecordWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` TrackRecords from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` TrackRecords.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of TrackRecords.
+     */
+    distinct?: TrackRecordScalarFieldEnum | TrackRecordScalarFieldEnum[]
+  }
+
+  /**
+   * TrackRecord create
+   */
+  export type TrackRecordCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrackRecord
+     */
+    select?: TrackRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrackRecord
+     */
+    omit?: TrackRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrackRecordInclude<ExtArgs> | null
+    /**
+     * The data needed to create a TrackRecord.
+     */
+    data: XOR<TrackRecordCreateInput, TrackRecordUncheckedCreateInput>
+  }
+
+  /**
+   * TrackRecord createMany
+   */
+  export type TrackRecordCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many TrackRecords.
+     */
+    data: TrackRecordCreateManyInput | TrackRecordCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * TrackRecord createManyAndReturn
+   */
+  export type TrackRecordCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrackRecord
+     */
+    select?: TrackRecordSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrackRecord
+     */
+    omit?: TrackRecordOmit<ExtArgs> | null
+    /**
+     * The data used to create many TrackRecords.
+     */
+    data: TrackRecordCreateManyInput | TrackRecordCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrackRecordIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * TrackRecord update
+   */
+  export type TrackRecordUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrackRecord
+     */
+    select?: TrackRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrackRecord
+     */
+    omit?: TrackRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrackRecordInclude<ExtArgs> | null
+    /**
+     * The data needed to update a TrackRecord.
+     */
+    data: XOR<TrackRecordUpdateInput, TrackRecordUncheckedUpdateInput>
+    /**
+     * Choose, which TrackRecord to update.
+     */
+    where: TrackRecordWhereUniqueInput
+  }
+
+  /**
+   * TrackRecord updateMany
+   */
+  export type TrackRecordUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update TrackRecords.
+     */
+    data: XOR<TrackRecordUpdateManyMutationInput, TrackRecordUncheckedUpdateManyInput>
+    /**
+     * Filter which TrackRecords to update
+     */
+    where?: TrackRecordWhereInput
+    /**
+     * Limit how many TrackRecords to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * TrackRecord updateManyAndReturn
+   */
+  export type TrackRecordUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrackRecord
+     */
+    select?: TrackRecordSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrackRecord
+     */
+    omit?: TrackRecordOmit<ExtArgs> | null
+    /**
+     * The data used to update TrackRecords.
+     */
+    data: XOR<TrackRecordUpdateManyMutationInput, TrackRecordUncheckedUpdateManyInput>
+    /**
+     * Filter which TrackRecords to update
+     */
+    where?: TrackRecordWhereInput
+    /**
+     * Limit how many TrackRecords to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrackRecordIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * TrackRecord upsert
+   */
+  export type TrackRecordUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrackRecord
+     */
+    select?: TrackRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrackRecord
+     */
+    omit?: TrackRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrackRecordInclude<ExtArgs> | null
+    /**
+     * The filter to search for the TrackRecord to update in case it exists.
+     */
+    where: TrackRecordWhereUniqueInput
+    /**
+     * In case the TrackRecord found by the `where` argument doesn't exist, create a new TrackRecord with this data.
+     */
+    create: XOR<TrackRecordCreateInput, TrackRecordUncheckedCreateInput>
+    /**
+     * In case the TrackRecord was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<TrackRecordUpdateInput, TrackRecordUncheckedUpdateInput>
+  }
+
+  /**
+   * TrackRecord delete
+   */
+  export type TrackRecordDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrackRecord
+     */
+    select?: TrackRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrackRecord
+     */
+    omit?: TrackRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrackRecordInclude<ExtArgs> | null
+    /**
+     * Filter which TrackRecord to delete.
+     */
+    where: TrackRecordWhereUniqueInput
+  }
+
+  /**
+   * TrackRecord deleteMany
+   */
+  export type TrackRecordDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which TrackRecords to delete
+     */
+    where?: TrackRecordWhereInput
+    /**
+     * Limit how many TrackRecords to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * TrackRecord without action
+   */
+  export type TrackRecordDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TrackRecord
+     */
+    select?: TrackRecordSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the TrackRecord
+     */
+    omit?: TrackRecordOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TrackRecordInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -15932,6 +17158,7 @@ export namespace Prisma {
     sheetId: 'sheetId',
     name: 'name',
     color: 'color',
+    fillByHrd: 'fillByHrd',
     sortOrder: 'sortOrder',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
@@ -15951,12 +17178,25 @@ export namespace Prisma {
     dataType: 'dataType',
     defaultValue: 'defaultValue',
     categoryOptions: 'categoryOptions',
+    fillByHrd: 'fillByHrd',
     sortOrder: 'sortOrder',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
 
   export type TrackFieldScalarFieldEnum = (typeof TrackFieldScalarFieldEnum)[keyof typeof TrackFieldScalarFieldEnum]
+
+
+  export const TrackRecordScalarFieldEnum: {
+    id: 'id',
+    sheetId: 'sheetId',
+    values: 'values',
+    createdById: 'createdById',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type TrackRecordScalarFieldEnum = (typeof TrackRecordScalarFieldEnum)[keyof typeof TrackRecordScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -16779,6 +18019,7 @@ export namespace Prisma {
     hiddenAt?: DateTimeNullableFilter<"TrackSheet"> | Date | string | null
     categories?: TrackCategoryListRelationFilter
     fields?: TrackFieldListRelationFilter
+    records?: TrackRecordListRelationFilter
   }
 
   export type TrackSheetOrderByWithRelationInput = {
@@ -16791,6 +18032,7 @@ export namespace Prisma {
     hiddenAt?: SortOrderInput | SortOrder
     categories?: TrackCategoryOrderByRelationAggregateInput
     fields?: TrackFieldOrderByRelationAggregateInput
+    records?: TrackRecordOrderByRelationAggregateInput
   }
 
   export type TrackSheetWhereUniqueInput = Prisma.AtLeast<{
@@ -16806,6 +18048,7 @@ export namespace Prisma {
     hiddenAt?: DateTimeNullableFilter<"TrackSheet"> | Date | string | null
     categories?: TrackCategoryListRelationFilter
     fields?: TrackFieldListRelationFilter
+    records?: TrackRecordListRelationFilter
   }, "id">
 
   export type TrackSheetOrderByWithAggregationInput = {
@@ -16844,6 +18087,7 @@ export namespace Prisma {
     sheetId?: StringFilter<"TrackCategory"> | string
     name?: StringFilter<"TrackCategory"> | string
     color?: StringFilter<"TrackCategory"> | string
+    fillByHrd?: BoolFilter<"TrackCategory"> | boolean
     sortOrder?: IntFilter<"TrackCategory"> | number
     createdAt?: DateTimeFilter<"TrackCategory"> | Date | string
     updatedAt?: DateTimeFilter<"TrackCategory"> | Date | string
@@ -16855,6 +18099,7 @@ export namespace Prisma {
     sheetId?: SortOrder
     name?: SortOrder
     color?: SortOrder
+    fillByHrd?: SortOrder
     sortOrder?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -16869,6 +18114,7 @@ export namespace Prisma {
     sheetId?: StringFilter<"TrackCategory"> | string
     name?: StringFilter<"TrackCategory"> | string
     color?: StringFilter<"TrackCategory"> | string
+    fillByHrd?: BoolFilter<"TrackCategory"> | boolean
     sortOrder?: IntFilter<"TrackCategory"> | number
     createdAt?: DateTimeFilter<"TrackCategory"> | Date | string
     updatedAt?: DateTimeFilter<"TrackCategory"> | Date | string
@@ -16880,6 +18126,7 @@ export namespace Prisma {
     sheetId?: SortOrder
     name?: SortOrder
     color?: SortOrder
+    fillByHrd?: SortOrder
     sortOrder?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -16898,6 +18145,7 @@ export namespace Prisma {
     sheetId?: StringWithAggregatesFilter<"TrackCategory"> | string
     name?: StringWithAggregatesFilter<"TrackCategory"> | string
     color?: StringWithAggregatesFilter<"TrackCategory"> | string
+    fillByHrd?: BoolWithAggregatesFilter<"TrackCategory"> | boolean
     sortOrder?: IntWithAggregatesFilter<"TrackCategory"> | number
     createdAt?: DateTimeWithAggregatesFilter<"TrackCategory"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"TrackCategory"> | Date | string
@@ -16917,6 +18165,7 @@ export namespace Prisma {
     dataType?: StringFilter<"TrackField"> | string
     defaultValue?: StringFilter<"TrackField"> | string
     categoryOptions?: StringFilter<"TrackField"> | string
+    fillByHrd?: BoolFilter<"TrackField"> | boolean
     sortOrder?: IntFilter<"TrackField"> | number
     createdAt?: DateTimeFilter<"TrackField"> | Date | string
     updatedAt?: DateTimeFilter<"TrackField"> | Date | string
@@ -16934,6 +18183,7 @@ export namespace Prisma {
     dataType?: SortOrder
     defaultValue?: SortOrder
     categoryOptions?: SortOrder
+    fillByHrd?: SortOrder
     sortOrder?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -16954,6 +18204,7 @@ export namespace Prisma {
     dataType?: StringFilter<"TrackField"> | string
     defaultValue?: StringFilter<"TrackField"> | string
     categoryOptions?: StringFilter<"TrackField"> | string
+    fillByHrd?: BoolFilter<"TrackField"> | boolean
     sortOrder?: IntFilter<"TrackField"> | number
     createdAt?: DateTimeFilter<"TrackField"> | Date | string
     updatedAt?: DateTimeFilter<"TrackField"> | Date | string
@@ -16971,6 +18222,7 @@ export namespace Prisma {
     dataType?: SortOrder
     defaultValue?: SortOrder
     categoryOptions?: SortOrder
+    fillByHrd?: SortOrder
     sortOrder?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -16995,9 +18247,70 @@ export namespace Prisma {
     dataType?: StringWithAggregatesFilter<"TrackField"> | string
     defaultValue?: StringWithAggregatesFilter<"TrackField"> | string
     categoryOptions?: StringWithAggregatesFilter<"TrackField"> | string
+    fillByHrd?: BoolWithAggregatesFilter<"TrackField"> | boolean
     sortOrder?: IntWithAggregatesFilter<"TrackField"> | number
     createdAt?: DateTimeWithAggregatesFilter<"TrackField"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"TrackField"> | Date | string
+  }
+
+  export type TrackRecordWhereInput = {
+    AND?: TrackRecordWhereInput | TrackRecordWhereInput[]
+    OR?: TrackRecordWhereInput[]
+    NOT?: TrackRecordWhereInput | TrackRecordWhereInput[]
+    id?: StringFilter<"TrackRecord"> | string
+    sheetId?: StringFilter<"TrackRecord"> | string
+    values?: JsonFilter<"TrackRecord">
+    createdById?: StringNullableFilter<"TrackRecord"> | string | null
+    createdAt?: DateTimeFilter<"TrackRecord"> | Date | string
+    updatedAt?: DateTimeFilter<"TrackRecord"> | Date | string
+    sheet?: XOR<TrackSheetScalarRelationFilter, TrackSheetWhereInput>
+  }
+
+  export type TrackRecordOrderByWithRelationInput = {
+    id?: SortOrder
+    sheetId?: SortOrder
+    values?: SortOrder
+    createdById?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    sheet?: TrackSheetOrderByWithRelationInput
+  }
+
+  export type TrackRecordWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: TrackRecordWhereInput | TrackRecordWhereInput[]
+    OR?: TrackRecordWhereInput[]
+    NOT?: TrackRecordWhereInput | TrackRecordWhereInput[]
+    sheetId?: StringFilter<"TrackRecord"> | string
+    values?: JsonFilter<"TrackRecord">
+    createdById?: StringNullableFilter<"TrackRecord"> | string | null
+    createdAt?: DateTimeFilter<"TrackRecord"> | Date | string
+    updatedAt?: DateTimeFilter<"TrackRecord"> | Date | string
+    sheet?: XOR<TrackSheetScalarRelationFilter, TrackSheetWhereInput>
+  }, "id">
+
+  export type TrackRecordOrderByWithAggregationInput = {
+    id?: SortOrder
+    sheetId?: SortOrder
+    values?: SortOrder
+    createdById?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: TrackRecordCountOrderByAggregateInput
+    _max?: TrackRecordMaxOrderByAggregateInput
+    _min?: TrackRecordMinOrderByAggregateInput
+  }
+
+  export type TrackRecordScalarWhereWithAggregatesInput = {
+    AND?: TrackRecordScalarWhereWithAggregatesInput | TrackRecordScalarWhereWithAggregatesInput[]
+    OR?: TrackRecordScalarWhereWithAggregatesInput[]
+    NOT?: TrackRecordScalarWhereWithAggregatesInput | TrackRecordScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"TrackRecord"> | string
+    sheetId?: StringWithAggregatesFilter<"TrackRecord"> | string
+    values?: JsonWithAggregatesFilter<"TrackRecord">
+    createdById?: StringNullableWithAggregatesFilter<"TrackRecord"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"TrackRecord"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"TrackRecord"> | Date | string
   }
 
   export type UserCreateInput = {
@@ -17739,6 +19052,7 @@ export namespace Prisma {
     hiddenAt?: Date | string | null
     categories?: TrackCategoryCreateNestedManyWithoutSheetInput
     fields?: TrackFieldCreateNestedManyWithoutSheetInput
+    records?: TrackRecordCreateNestedManyWithoutSheetInput
   }
 
   export type TrackSheetUncheckedCreateInput = {
@@ -17751,6 +19065,7 @@ export namespace Prisma {
     hiddenAt?: Date | string | null
     categories?: TrackCategoryUncheckedCreateNestedManyWithoutSheetInput
     fields?: TrackFieldUncheckedCreateNestedManyWithoutSheetInput
+    records?: TrackRecordUncheckedCreateNestedManyWithoutSheetInput
   }
 
   export type TrackSheetUpdateInput = {
@@ -17763,6 +19078,7 @@ export namespace Prisma {
     hiddenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     categories?: TrackCategoryUpdateManyWithoutSheetNestedInput
     fields?: TrackFieldUpdateManyWithoutSheetNestedInput
+    records?: TrackRecordUpdateManyWithoutSheetNestedInput
   }
 
   export type TrackSheetUncheckedUpdateInput = {
@@ -17775,6 +19091,7 @@ export namespace Prisma {
     hiddenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     categories?: TrackCategoryUncheckedUpdateManyWithoutSheetNestedInput
     fields?: TrackFieldUncheckedUpdateManyWithoutSheetNestedInput
+    records?: TrackRecordUncheckedUpdateManyWithoutSheetNestedInput
   }
 
   export type TrackSheetCreateManyInput = {
@@ -17811,6 +19128,7 @@ export namespace Prisma {
     id: string
     name: string
     color?: string
+    fillByHrd?: boolean
     sortOrder?: number
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -17822,6 +19140,7 @@ export namespace Prisma {
     sheetId: string
     name: string
     color?: string
+    fillByHrd?: boolean
     sortOrder?: number
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -17831,6 +19150,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     color?: StringFieldUpdateOperationsInput | string
+    fillByHrd?: BoolFieldUpdateOperationsInput | boolean
     sortOrder?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -17842,6 +19162,7 @@ export namespace Prisma {
     sheetId?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     color?: StringFieldUpdateOperationsInput | string
+    fillByHrd?: BoolFieldUpdateOperationsInput | boolean
     sortOrder?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -17852,6 +19173,7 @@ export namespace Prisma {
     sheetId: string
     name: string
     color?: string
+    fillByHrd?: boolean
     sortOrder?: number
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -17861,6 +19183,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     color?: StringFieldUpdateOperationsInput | string
+    fillByHrd?: BoolFieldUpdateOperationsInput | boolean
     sortOrder?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -17871,6 +19194,7 @@ export namespace Prisma {
     sheetId?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     color?: StringFieldUpdateOperationsInput | string
+    fillByHrd?: BoolFieldUpdateOperationsInput | boolean
     sortOrder?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -17886,6 +19210,7 @@ export namespace Prisma {
     dataType: string
     defaultValue?: string
     categoryOptions?: string
+    fillByHrd?: boolean
     sortOrder?: number
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -17903,6 +19228,7 @@ export namespace Prisma {
     dataType: string
     defaultValue?: string
     categoryOptions?: string
+    fillByHrd?: boolean
     sortOrder?: number
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -17918,6 +19244,7 @@ export namespace Prisma {
     dataType?: StringFieldUpdateOperationsInput | string
     defaultValue?: StringFieldUpdateOperationsInput | string
     categoryOptions?: StringFieldUpdateOperationsInput | string
+    fillByHrd?: BoolFieldUpdateOperationsInput | boolean
     sortOrder?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -17935,6 +19262,7 @@ export namespace Prisma {
     dataType?: StringFieldUpdateOperationsInput | string
     defaultValue?: StringFieldUpdateOperationsInput | string
     categoryOptions?: StringFieldUpdateOperationsInput | string
+    fillByHrd?: BoolFieldUpdateOperationsInput | boolean
     sortOrder?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -17951,6 +19279,7 @@ export namespace Prisma {
     dataType: string
     defaultValue?: string
     categoryOptions?: string
+    fillByHrd?: boolean
     sortOrder?: number
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -17966,6 +19295,7 @@ export namespace Prisma {
     dataType?: StringFieldUpdateOperationsInput | string
     defaultValue?: StringFieldUpdateOperationsInput | string
     categoryOptions?: StringFieldUpdateOperationsInput | string
+    fillByHrd?: BoolFieldUpdateOperationsInput | boolean
     sortOrder?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -17982,7 +19312,70 @@ export namespace Prisma {
     dataType?: StringFieldUpdateOperationsInput | string
     defaultValue?: StringFieldUpdateOperationsInput | string
     categoryOptions?: StringFieldUpdateOperationsInput | string
+    fillByHrd?: BoolFieldUpdateOperationsInput | boolean
     sortOrder?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TrackRecordCreateInput = {
+    id: string
+    values?: JsonNullValueInput | InputJsonValue
+    createdById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    sheet: TrackSheetCreateNestedOneWithoutRecordsInput
+  }
+
+  export type TrackRecordUncheckedCreateInput = {
+    id: string
+    sheetId: string
+    values?: JsonNullValueInput | InputJsonValue
+    createdById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TrackRecordUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    values?: JsonNullValueInput | InputJsonValue
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sheet?: TrackSheetUpdateOneRequiredWithoutRecordsNestedInput
+  }
+
+  export type TrackRecordUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sheetId?: StringFieldUpdateOperationsInput | string
+    values?: JsonNullValueInput | InputJsonValue
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TrackRecordCreateManyInput = {
+    id: string
+    sheetId: string
+    values?: JsonNullValueInput | InputJsonValue
+    createdById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TrackRecordUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    values?: JsonNullValueInput | InputJsonValue
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TrackRecordUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sheetId?: StringFieldUpdateOperationsInput | string
+    values?: JsonNullValueInput | InputJsonValue
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -18639,11 +20032,21 @@ export namespace Prisma {
     none?: TrackFieldWhereInput
   }
 
+  export type TrackRecordListRelationFilter = {
+    every?: TrackRecordWhereInput
+    some?: TrackRecordWhereInput
+    none?: TrackRecordWhereInput
+  }
+
   export type TrackCategoryOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
   export type TrackFieldOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type TrackRecordOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -18695,6 +20098,7 @@ export namespace Prisma {
     sheetId?: SortOrder
     name?: SortOrder
     color?: SortOrder
+    fillByHrd?: SortOrder
     sortOrder?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -18709,6 +20113,7 @@ export namespace Prisma {
     sheetId?: SortOrder
     name?: SortOrder
     color?: SortOrder
+    fillByHrd?: SortOrder
     sortOrder?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -18719,6 +20124,7 @@ export namespace Prisma {
     sheetId?: SortOrder
     name?: SortOrder
     color?: SortOrder
+    fillByHrd?: SortOrder
     sortOrder?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -18739,6 +20145,7 @@ export namespace Prisma {
     dataType?: SortOrder
     defaultValue?: SortOrder
     categoryOptions?: SortOrder
+    fillByHrd?: SortOrder
     sortOrder?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -18759,6 +20166,7 @@ export namespace Prisma {
     dataType?: SortOrder
     defaultValue?: SortOrder
     categoryOptions?: SortOrder
+    fillByHrd?: SortOrder
     sortOrder?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -18775,6 +20183,7 @@ export namespace Prisma {
     dataType?: SortOrder
     defaultValue?: SortOrder
     categoryOptions?: SortOrder
+    fillByHrd?: SortOrder
     sortOrder?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -18782,6 +20191,31 @@ export namespace Prisma {
 
   export type TrackFieldSumOrderByAggregateInput = {
     sortOrder?: SortOrder
+  }
+
+  export type TrackRecordCountOrderByAggregateInput = {
+    id?: SortOrder
+    sheetId?: SortOrder
+    values?: SortOrder
+    createdById?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type TrackRecordMaxOrderByAggregateInput = {
+    id?: SortOrder
+    sheetId?: SortOrder
+    createdById?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type TrackRecordMinOrderByAggregateInput = {
+    id?: SortOrder
+    sheetId?: SortOrder
+    createdById?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type SessionCreateNestedManyWithoutUserInput = {
@@ -19202,6 +20636,13 @@ export namespace Prisma {
     connect?: TrackFieldWhereUniqueInput | TrackFieldWhereUniqueInput[]
   }
 
+  export type TrackRecordCreateNestedManyWithoutSheetInput = {
+    create?: XOR<TrackRecordCreateWithoutSheetInput, TrackRecordUncheckedCreateWithoutSheetInput> | TrackRecordCreateWithoutSheetInput[] | TrackRecordUncheckedCreateWithoutSheetInput[]
+    connectOrCreate?: TrackRecordCreateOrConnectWithoutSheetInput | TrackRecordCreateOrConnectWithoutSheetInput[]
+    createMany?: TrackRecordCreateManySheetInputEnvelope
+    connect?: TrackRecordWhereUniqueInput | TrackRecordWhereUniqueInput[]
+  }
+
   export type TrackCategoryUncheckedCreateNestedManyWithoutSheetInput = {
     create?: XOR<TrackCategoryCreateWithoutSheetInput, TrackCategoryUncheckedCreateWithoutSheetInput> | TrackCategoryCreateWithoutSheetInput[] | TrackCategoryUncheckedCreateWithoutSheetInput[]
     connectOrCreate?: TrackCategoryCreateOrConnectWithoutSheetInput | TrackCategoryCreateOrConnectWithoutSheetInput[]
@@ -19214,6 +20655,13 @@ export namespace Prisma {
     connectOrCreate?: TrackFieldCreateOrConnectWithoutSheetInput | TrackFieldCreateOrConnectWithoutSheetInput[]
     createMany?: TrackFieldCreateManySheetInputEnvelope
     connect?: TrackFieldWhereUniqueInput | TrackFieldWhereUniqueInput[]
+  }
+
+  export type TrackRecordUncheckedCreateNestedManyWithoutSheetInput = {
+    create?: XOR<TrackRecordCreateWithoutSheetInput, TrackRecordUncheckedCreateWithoutSheetInput> | TrackRecordCreateWithoutSheetInput[] | TrackRecordUncheckedCreateWithoutSheetInput[]
+    connectOrCreate?: TrackRecordCreateOrConnectWithoutSheetInput | TrackRecordCreateOrConnectWithoutSheetInput[]
+    createMany?: TrackRecordCreateManySheetInputEnvelope
+    connect?: TrackRecordWhereUniqueInput | TrackRecordWhereUniqueInput[]
   }
 
   export type TrackCategoryUpdateManyWithoutSheetNestedInput = {
@@ -19244,6 +20692,20 @@ export namespace Prisma {
     deleteMany?: TrackFieldScalarWhereInput | TrackFieldScalarWhereInput[]
   }
 
+  export type TrackRecordUpdateManyWithoutSheetNestedInput = {
+    create?: XOR<TrackRecordCreateWithoutSheetInput, TrackRecordUncheckedCreateWithoutSheetInput> | TrackRecordCreateWithoutSheetInput[] | TrackRecordUncheckedCreateWithoutSheetInput[]
+    connectOrCreate?: TrackRecordCreateOrConnectWithoutSheetInput | TrackRecordCreateOrConnectWithoutSheetInput[]
+    upsert?: TrackRecordUpsertWithWhereUniqueWithoutSheetInput | TrackRecordUpsertWithWhereUniqueWithoutSheetInput[]
+    createMany?: TrackRecordCreateManySheetInputEnvelope
+    set?: TrackRecordWhereUniqueInput | TrackRecordWhereUniqueInput[]
+    disconnect?: TrackRecordWhereUniqueInput | TrackRecordWhereUniqueInput[]
+    delete?: TrackRecordWhereUniqueInput | TrackRecordWhereUniqueInput[]
+    connect?: TrackRecordWhereUniqueInput | TrackRecordWhereUniqueInput[]
+    update?: TrackRecordUpdateWithWhereUniqueWithoutSheetInput | TrackRecordUpdateWithWhereUniqueWithoutSheetInput[]
+    updateMany?: TrackRecordUpdateManyWithWhereWithoutSheetInput | TrackRecordUpdateManyWithWhereWithoutSheetInput[]
+    deleteMany?: TrackRecordScalarWhereInput | TrackRecordScalarWhereInput[]
+  }
+
   export type TrackCategoryUncheckedUpdateManyWithoutSheetNestedInput = {
     create?: XOR<TrackCategoryCreateWithoutSheetInput, TrackCategoryUncheckedCreateWithoutSheetInput> | TrackCategoryCreateWithoutSheetInput[] | TrackCategoryUncheckedCreateWithoutSheetInput[]
     connectOrCreate?: TrackCategoryCreateOrConnectWithoutSheetInput | TrackCategoryCreateOrConnectWithoutSheetInput[]
@@ -19272,6 +20734,20 @@ export namespace Prisma {
     deleteMany?: TrackFieldScalarWhereInput | TrackFieldScalarWhereInput[]
   }
 
+  export type TrackRecordUncheckedUpdateManyWithoutSheetNestedInput = {
+    create?: XOR<TrackRecordCreateWithoutSheetInput, TrackRecordUncheckedCreateWithoutSheetInput> | TrackRecordCreateWithoutSheetInput[] | TrackRecordUncheckedCreateWithoutSheetInput[]
+    connectOrCreate?: TrackRecordCreateOrConnectWithoutSheetInput | TrackRecordCreateOrConnectWithoutSheetInput[]
+    upsert?: TrackRecordUpsertWithWhereUniqueWithoutSheetInput | TrackRecordUpsertWithWhereUniqueWithoutSheetInput[]
+    createMany?: TrackRecordCreateManySheetInputEnvelope
+    set?: TrackRecordWhereUniqueInput | TrackRecordWhereUniqueInput[]
+    disconnect?: TrackRecordWhereUniqueInput | TrackRecordWhereUniqueInput[]
+    delete?: TrackRecordWhereUniqueInput | TrackRecordWhereUniqueInput[]
+    connect?: TrackRecordWhereUniqueInput | TrackRecordWhereUniqueInput[]
+    update?: TrackRecordUpdateWithWhereUniqueWithoutSheetInput | TrackRecordUpdateWithWhereUniqueWithoutSheetInput[]
+    updateMany?: TrackRecordUpdateManyWithWhereWithoutSheetInput | TrackRecordUpdateManyWithWhereWithoutSheetInput[]
+    deleteMany?: TrackRecordScalarWhereInput | TrackRecordScalarWhereInput[]
+  }
+
   export type TrackSheetCreateNestedOneWithoutCategoriesInput = {
     create?: XOR<TrackSheetCreateWithoutCategoriesInput, TrackSheetUncheckedCreateWithoutCategoriesInput>
     connectOrCreate?: TrackSheetCreateOrConnectWithoutCategoriesInput
@@ -19298,6 +20774,20 @@ export namespace Prisma {
     upsert?: TrackSheetUpsertWithoutFieldsInput
     connect?: TrackSheetWhereUniqueInput
     update?: XOR<XOR<TrackSheetUpdateToOneWithWhereWithoutFieldsInput, TrackSheetUpdateWithoutFieldsInput>, TrackSheetUncheckedUpdateWithoutFieldsInput>
+  }
+
+  export type TrackSheetCreateNestedOneWithoutRecordsInput = {
+    create?: XOR<TrackSheetCreateWithoutRecordsInput, TrackSheetUncheckedCreateWithoutRecordsInput>
+    connectOrCreate?: TrackSheetCreateOrConnectWithoutRecordsInput
+    connect?: TrackSheetWhereUniqueInput
+  }
+
+  export type TrackSheetUpdateOneRequiredWithoutRecordsNestedInput = {
+    create?: XOR<TrackSheetCreateWithoutRecordsInput, TrackSheetUncheckedCreateWithoutRecordsInput>
+    connectOrCreate?: TrackSheetCreateOrConnectWithoutRecordsInput
+    upsert?: TrackSheetUpsertWithoutRecordsInput
+    connect?: TrackSheetWhereUniqueInput
+    update?: XOR<XOR<TrackSheetUpdateToOneWithWhereWithoutRecordsInput, TrackSheetUpdateWithoutRecordsInput>, TrackSheetUncheckedUpdateWithoutRecordsInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -20389,6 +21879,7 @@ export namespace Prisma {
     id: string
     name: string
     color?: string
+    fillByHrd?: boolean
     sortOrder?: number
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -20398,6 +21889,7 @@ export namespace Prisma {
     id: string
     name: string
     color?: string
+    fillByHrd?: boolean
     sortOrder?: number
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -20423,6 +21915,7 @@ export namespace Prisma {
     dataType: string
     defaultValue?: string
     categoryOptions?: string
+    fillByHrd?: boolean
     sortOrder?: number
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -20438,6 +21931,7 @@ export namespace Prisma {
     dataType: string
     defaultValue?: string
     categoryOptions?: string
+    fillByHrd?: boolean
     sortOrder?: number
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -20450,6 +21944,32 @@ export namespace Prisma {
 
   export type TrackFieldCreateManySheetInputEnvelope = {
     data: TrackFieldCreateManySheetInput | TrackFieldCreateManySheetInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type TrackRecordCreateWithoutSheetInput = {
+    id: string
+    values?: JsonNullValueInput | InputJsonValue
+    createdById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TrackRecordUncheckedCreateWithoutSheetInput = {
+    id: string
+    values?: JsonNullValueInput | InputJsonValue
+    createdById?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TrackRecordCreateOrConnectWithoutSheetInput = {
+    where: TrackRecordWhereUniqueInput
+    create: XOR<TrackRecordCreateWithoutSheetInput, TrackRecordUncheckedCreateWithoutSheetInput>
+  }
+
+  export type TrackRecordCreateManySheetInputEnvelope = {
+    data: TrackRecordCreateManySheetInput | TrackRecordCreateManySheetInput[]
     skipDuplicates?: boolean
   }
 
@@ -20477,6 +21997,7 @@ export namespace Prisma {
     sheetId?: StringFilter<"TrackCategory"> | string
     name?: StringFilter<"TrackCategory"> | string
     color?: StringFilter<"TrackCategory"> | string
+    fillByHrd?: BoolFilter<"TrackCategory"> | boolean
     sortOrder?: IntFilter<"TrackCategory"> | number
     createdAt?: DateTimeFilter<"TrackCategory"> | Date | string
     updatedAt?: DateTimeFilter<"TrackCategory"> | Date | string
@@ -20512,9 +22033,38 @@ export namespace Prisma {
     dataType?: StringFilter<"TrackField"> | string
     defaultValue?: StringFilter<"TrackField"> | string
     categoryOptions?: StringFilter<"TrackField"> | string
+    fillByHrd?: BoolFilter<"TrackField"> | boolean
     sortOrder?: IntFilter<"TrackField"> | number
     createdAt?: DateTimeFilter<"TrackField"> | Date | string
     updatedAt?: DateTimeFilter<"TrackField"> | Date | string
+  }
+
+  export type TrackRecordUpsertWithWhereUniqueWithoutSheetInput = {
+    where: TrackRecordWhereUniqueInput
+    update: XOR<TrackRecordUpdateWithoutSheetInput, TrackRecordUncheckedUpdateWithoutSheetInput>
+    create: XOR<TrackRecordCreateWithoutSheetInput, TrackRecordUncheckedCreateWithoutSheetInput>
+  }
+
+  export type TrackRecordUpdateWithWhereUniqueWithoutSheetInput = {
+    where: TrackRecordWhereUniqueInput
+    data: XOR<TrackRecordUpdateWithoutSheetInput, TrackRecordUncheckedUpdateWithoutSheetInput>
+  }
+
+  export type TrackRecordUpdateManyWithWhereWithoutSheetInput = {
+    where: TrackRecordScalarWhereInput
+    data: XOR<TrackRecordUpdateManyMutationInput, TrackRecordUncheckedUpdateManyWithoutSheetInput>
+  }
+
+  export type TrackRecordScalarWhereInput = {
+    AND?: TrackRecordScalarWhereInput | TrackRecordScalarWhereInput[]
+    OR?: TrackRecordScalarWhereInput[]
+    NOT?: TrackRecordScalarWhereInput | TrackRecordScalarWhereInput[]
+    id?: StringFilter<"TrackRecord"> | string
+    sheetId?: StringFilter<"TrackRecord"> | string
+    values?: JsonFilter<"TrackRecord">
+    createdById?: StringNullableFilter<"TrackRecord"> | string | null
+    createdAt?: DateTimeFilter<"TrackRecord"> | Date | string
+    updatedAt?: DateTimeFilter<"TrackRecord"> | Date | string
   }
 
   export type TrackSheetCreateWithoutCategoriesInput = {
@@ -20526,6 +22076,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     hiddenAt?: Date | string | null
     fields?: TrackFieldCreateNestedManyWithoutSheetInput
+    records?: TrackRecordCreateNestedManyWithoutSheetInput
   }
 
   export type TrackSheetUncheckedCreateWithoutCategoriesInput = {
@@ -20537,6 +22088,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     hiddenAt?: Date | string | null
     fields?: TrackFieldUncheckedCreateNestedManyWithoutSheetInput
+    records?: TrackRecordUncheckedCreateNestedManyWithoutSheetInput
   }
 
   export type TrackSheetCreateOrConnectWithoutCategoriesInput = {
@@ -20564,6 +22116,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     hiddenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     fields?: TrackFieldUpdateManyWithoutSheetNestedInput
+    records?: TrackRecordUpdateManyWithoutSheetNestedInput
   }
 
   export type TrackSheetUncheckedUpdateWithoutCategoriesInput = {
@@ -20575,6 +22128,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     hiddenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     fields?: TrackFieldUncheckedUpdateManyWithoutSheetNestedInput
+    records?: TrackRecordUncheckedUpdateManyWithoutSheetNestedInput
   }
 
   export type TrackSheetCreateWithoutFieldsInput = {
@@ -20586,6 +22140,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     hiddenAt?: Date | string | null
     categories?: TrackCategoryCreateNestedManyWithoutSheetInput
+    records?: TrackRecordCreateNestedManyWithoutSheetInput
   }
 
   export type TrackSheetUncheckedCreateWithoutFieldsInput = {
@@ -20597,6 +22152,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     hiddenAt?: Date | string | null
     categories?: TrackCategoryUncheckedCreateNestedManyWithoutSheetInput
+    records?: TrackRecordUncheckedCreateNestedManyWithoutSheetInput
   }
 
   export type TrackSheetCreateOrConnectWithoutFieldsInput = {
@@ -20624,6 +22180,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     hiddenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     categories?: TrackCategoryUpdateManyWithoutSheetNestedInput
+    records?: TrackRecordUpdateManyWithoutSheetNestedInput
   }
 
   export type TrackSheetUncheckedUpdateWithoutFieldsInput = {
@@ -20635,6 +22192,71 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     hiddenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     categories?: TrackCategoryUncheckedUpdateManyWithoutSheetNestedInput
+    records?: TrackRecordUncheckedUpdateManyWithoutSheetNestedInput
+  }
+
+  export type TrackSheetCreateWithoutRecordsInput = {
+    id: string
+    name: string
+    description?: string
+    sortOrder?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    hiddenAt?: Date | string | null
+    categories?: TrackCategoryCreateNestedManyWithoutSheetInput
+    fields?: TrackFieldCreateNestedManyWithoutSheetInput
+  }
+
+  export type TrackSheetUncheckedCreateWithoutRecordsInput = {
+    id: string
+    name: string
+    description?: string
+    sortOrder?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    hiddenAt?: Date | string | null
+    categories?: TrackCategoryUncheckedCreateNestedManyWithoutSheetInput
+    fields?: TrackFieldUncheckedCreateNestedManyWithoutSheetInput
+  }
+
+  export type TrackSheetCreateOrConnectWithoutRecordsInput = {
+    where: TrackSheetWhereUniqueInput
+    create: XOR<TrackSheetCreateWithoutRecordsInput, TrackSheetUncheckedCreateWithoutRecordsInput>
+  }
+
+  export type TrackSheetUpsertWithoutRecordsInput = {
+    update: XOR<TrackSheetUpdateWithoutRecordsInput, TrackSheetUncheckedUpdateWithoutRecordsInput>
+    create: XOR<TrackSheetCreateWithoutRecordsInput, TrackSheetUncheckedCreateWithoutRecordsInput>
+    where?: TrackSheetWhereInput
+  }
+
+  export type TrackSheetUpdateToOneWithWhereWithoutRecordsInput = {
+    where?: TrackSheetWhereInput
+    data: XOR<TrackSheetUpdateWithoutRecordsInput, TrackSheetUncheckedUpdateWithoutRecordsInput>
+  }
+
+  export type TrackSheetUpdateWithoutRecordsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    hiddenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    categories?: TrackCategoryUpdateManyWithoutSheetNestedInput
+    fields?: TrackFieldUpdateManyWithoutSheetNestedInput
+  }
+
+  export type TrackSheetUncheckedUpdateWithoutRecordsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: StringFieldUpdateOperationsInput | string
+    sortOrder?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    hiddenAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    categories?: TrackCategoryUncheckedUpdateManyWithoutSheetNestedInput
+    fields?: TrackFieldUncheckedUpdateManyWithoutSheetNestedInput
   }
 
   export type SessionCreateManyUserInput = {
@@ -20885,6 +22507,7 @@ export namespace Prisma {
     id: string
     name: string
     color?: string
+    fillByHrd?: boolean
     sortOrder?: number
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -20900,7 +22523,16 @@ export namespace Prisma {
     dataType: string
     defaultValue?: string
     categoryOptions?: string
+    fillByHrd?: boolean
     sortOrder?: number
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type TrackRecordCreateManySheetInput = {
+    id: string
+    values?: JsonNullValueInput | InputJsonValue
+    createdById?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -20909,6 +22541,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     color?: StringFieldUpdateOperationsInput | string
+    fillByHrd?: BoolFieldUpdateOperationsInput | boolean
     sortOrder?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -20918,6 +22551,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     color?: StringFieldUpdateOperationsInput | string
+    fillByHrd?: BoolFieldUpdateOperationsInput | boolean
     sortOrder?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -20927,6 +22561,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
     color?: StringFieldUpdateOperationsInput | string
+    fillByHrd?: BoolFieldUpdateOperationsInput | boolean
     sortOrder?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -20942,6 +22577,7 @@ export namespace Prisma {
     dataType?: StringFieldUpdateOperationsInput | string
     defaultValue?: StringFieldUpdateOperationsInput | string
     categoryOptions?: StringFieldUpdateOperationsInput | string
+    fillByHrd?: BoolFieldUpdateOperationsInput | boolean
     sortOrder?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -20957,6 +22593,7 @@ export namespace Prisma {
     dataType?: StringFieldUpdateOperationsInput | string
     defaultValue?: StringFieldUpdateOperationsInput | string
     categoryOptions?: StringFieldUpdateOperationsInput | string
+    fillByHrd?: BoolFieldUpdateOperationsInput | boolean
     sortOrder?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -20972,7 +22609,32 @@ export namespace Prisma {
     dataType?: StringFieldUpdateOperationsInput | string
     defaultValue?: StringFieldUpdateOperationsInput | string
     categoryOptions?: StringFieldUpdateOperationsInput | string
+    fillByHrd?: BoolFieldUpdateOperationsInput | boolean
     sortOrder?: IntFieldUpdateOperationsInput | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TrackRecordUpdateWithoutSheetInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    values?: JsonNullValueInput | InputJsonValue
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TrackRecordUncheckedUpdateWithoutSheetInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    values?: JsonNullValueInput | InputJsonValue
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TrackRecordUncheckedUpdateManyWithoutSheetInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    values?: JsonNullValueInput | InputJsonValue
+    createdById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

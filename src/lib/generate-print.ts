@@ -97,6 +97,8 @@ export function generateCetakHTML(
   <meta charset="UTF-8">
   <title>Cetak Surat</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300..800;1,300..800&display=swap');
+
     /* ── Page ─────────────────────────────────────────────── */
     @page {
       size: A4 landscape;
@@ -114,7 +116,7 @@ export function generateCetakHTML(
       padding     : 0;
       background  : white;
       color       : #000;
-      font-family : Arial, Helvetica, sans-serif;
+      font-family : "Figtree", Arial, Helvetica, sans-serif;
       font-size   : 9pt;
     }
 
@@ -175,7 +177,7 @@ export function generateCetakHTML(
     }
 
     /* ── Utility ────────────────────────────────────────────── */
-    .cell-mono   { font-family: "Courier New", Courier, monospace; }
+    .cell-mono   { font-family: "Figtree", Arial, Helvetica, sans-serif; }
     .cell-bold   { font-weight: 700; }
     .cell-nowrap { white-space: nowrap; }
     .cell-center { text-align: center; }

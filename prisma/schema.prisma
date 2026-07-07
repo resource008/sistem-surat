@@ -161,6 +161,7 @@ model TrackSheet {
   hiddenAt    DateTime?    @map("hidden_at")
   categories  TrackCategory[]
   fields      TrackField[]
+  records     TrackRecord[]
 
   @@map("track_sheets")
 }
@@ -171,6 +172,7 @@ model TrackCategory {
   sheet     TrackSheet @relation(fields: [sheetId], references: [id], onDelete: Cascade)
   name      String
   color     String     @default("#2563eb")
+  fillByHrd Boolean    @default(false) @map("fill_by_hrd")
   sortOrder Int        @default(0) @map("sort_order")
   createdAt DateTime   @default(now()) @map("created_at")
   updatedAt DateTime   @updatedAt @map("updated_at")
@@ -191,11 +193,25 @@ model TrackField {
   dataType   String     @map("data_type")
   defaultValue String   @default("") @map("default_value")
   categoryOptions String @default("[]") @map("category_options")
+  fillByHrd Boolean     @default(false) @map("fill_by_hrd")
   sortOrder  Int        @default(0) @map("sort_order")
   createdAt  DateTime   @default(now()) @map("created_at")
   updatedAt  DateTime   @updatedAt @map("updated_at")
 
   @@index([sheetId])
   @@map("track_fields")
+}
+
+model TrackRecord {
+  id          String     @id
+  sheetId     String     @map("sheet_id")
+  sheet       TrackSheet @relation(fields: [sheetId], references: [id], onDelete: Cascade)
+  values      Json       @default("{}")
+  createdById String?    @map("created_by_id")
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+
+  @@index([sheetId])
+  @@map("track_records")
 }
 

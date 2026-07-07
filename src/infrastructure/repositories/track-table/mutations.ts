@@ -6,7 +6,6 @@ import { ensureTrackTableSchema } from "./schema"
 import type { DbClient } from "./types"
 
 type ExistingNameRow = { id: string }
-type ExistingSheetNameRow = { id: string; name: string }
 const DEFAULT_ID_COLUMN_NAME = "ID"
 
 function createTrackSheetId() {
@@ -49,6 +48,8 @@ function createDefaultIdField(): TrackSheetInput["fields"][number] {
     type: "number",
     defaultValue: "",
     categoryOptions: [],
+    fillByHrd: false,
+    hiddenAt: null,
     sortOrder: 0,
   }
 }
@@ -59,6 +60,7 @@ function normalizeInput(input: TrackSheetInput): TrackSheetInput {
     id: category.id || createTrackCategoryId(),
     name: category.name.trim(),
     color: category.color || "#2563eb",
+    fillByHrd: category.fillByHrd ?? false,
     sortOrder: index,
   }))
   const fallbackCategory = categories[0]
@@ -91,6 +93,8 @@ function normalizeInput(input: TrackSheetInput): TrackSheetInput {
         type: isDefaultId ? "number" : field.type,
         defaultValue: isDefaultId ? "" : (field.defaultValue ?? "").trim(),
         categoryOptions: !isDefaultId && field.type === "category" ? normalizeCategoryOptions(field.categoryOptions ?? []) : [],
+        fillByHrd: isDefaultId ? false : category?.fillByHrd ?? field.fillByHrd ?? false,
+        hiddenAt: isDefaultId ? null : field.hiddenAt ?? null,
         sortOrder: index,
       }
     }),
@@ -121,19 +125,6 @@ function ensureUniqueColumns(input: TrackSheetInput) {
   })
 }
 
-async function ensureUniqueSheetName(name: string, ignoreId?: string) {
-  const rows = await prisma.$queryRaw<ExistingNameRow[]>`
-    SELECT id
-    FROM track_sheets
-    WHERE LOWER(name) = LOWER(${name})
-      AND hidden_at IS NULL
-      AND (${ignoreId ?? ""} = '' OR id <> ${ignoreId ?? ""})
-    LIMIT 1
-  `
-
-  if (rows[0]) throw new AppError(409, "Nama sheet sudah digunakan")
-}
-
 async function ensureTrackSheetExists(id: string, options: { includeHidden?: boolean } = {}) {
   const rows = await prisma.$queryRaw<ExistingNameRow[]>`
     SELECT id
@@ -159,6 +150,7 @@ async function saveTrackCategories(db: DbClient, sheetId: string, input: TrackSh
         sheet_id,
         name,
         color,
+        fill_by_hrd,
         sort_order
       )
       VALUES (
@@ -166,6 +158,7 @@ async function saveTrackCategories(db: DbClient, sheetId: string, input: TrackSh
         ${sheetId},
         ${category.name},
         ${category.color},
+        ${category.fillByHrd},
         ${index}
       )
     `
@@ -191,6 +184,8 @@ async function saveTrackFields(db: DbClient, sheetId: string, input: TrackSheetI
         data_type,
         default_value,
         category_options,
+        fill_by_hrd,
+        hidden_at,
         sort_order
       )
       VALUES (
@@ -204,6 +199,8 @@ async function saveTrackFields(db: DbClient, sheetId: string, input: TrackSheetI
         ${field.type},
         ${field.defaultValue},
         ${JSON.stringify(field.categoryOptions ?? [])},
+        ${field.fillByHrd},
+        ${field.hiddenAt ? new Date(field.hiddenAt) : null},
         ${index}
       )
     `
@@ -215,7 +212,6 @@ export async function createTrackSheetMutation(input: TrackSheetInput) {
   const normalized = normalizeInput(input)
   ensureUniqueCategories(normalized)
   ensureUniqueColumns(normalized)
-  await ensureUniqueSheetName(normalized.name)
 
   const sheetId = createTrackSheetId()
   await prisma.$transaction(async (tx) => {
@@ -247,7 +243,6 @@ export async function updateTrackSheetMutation(id: string, input: TrackSheetInpu
   await ensureTrackSheetExists(id, { includeHidden: true })
   ensureUniqueCategories(normalized)
   ensureUniqueColumns(normalized)
-  await ensureUniqueSheetName(normalized.name, id)
 
   await prisma.$transaction(async (tx) => {
     await tx.$executeRaw`
@@ -282,16 +277,6 @@ export async function hideTrackSheetMutation(id: string) {
 export async function showTrackSheetMutation(id: string) {
   await ensureTrackTableSchema()
   await ensureTrackSheetExists(id, { includeHidden: true })
-
-  const rows = await prisma.$queryRaw<ExistingSheetNameRow[]>`
-    SELECT id, name
-    FROM track_sheets
-    WHERE id = ${id}
-    LIMIT 1
-  `
-  const sheet = rows[0]
-  if (!sheet) throw new AppError(404, "Sheet lacak tidak ditemukan")
-  await ensureUniqueSheetName(sheet.name, id)
 
   await prisma.$executeRaw`
     UPDATE track_sheets

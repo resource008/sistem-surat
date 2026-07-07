@@ -27,6 +27,7 @@ async function findTrackCategoryRows(sheetIds: string[]) {
       sheet_id AS "sheetId",
       name,
       color,
+      fill_by_hrd AS "fillByHrd",
       sort_order AS "sortOrder"
     FROM track_categories
     WHERE sheet_id = ANY(${sheetIds})
@@ -49,6 +50,8 @@ async function findTrackFieldRows(sheetIds: string[]) {
       data_type AS "type",
       default_value AS "defaultValue",
       category_options AS "categoryOptions",
+      fill_by_hrd AS "fillByHrd",
+      hidden_at AS "hiddenAt",
       sort_order AS "sortOrder"
     FROM track_fields
     WHERE sheet_id = ANY(${sheetIds})

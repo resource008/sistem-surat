@@ -30,7 +30,7 @@ export function CetakPrintStyles() {
           -webkit-print-color-adjust: exact !important;
           print-color-adjust: exact !important;
           box-sizing: border-box !important;
-          font-family: Calibri, "Segoe UI", Arial, sans-serif !important;
+          font-family: var(--font-figtree), "Figtree", Arial, sans-serif !important;
           font-size: 12pt !important;
         }
 

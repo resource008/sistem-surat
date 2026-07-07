@@ -115,8 +115,8 @@ function SelectItem({
         // Pengaturan layout bawaan (jangan diubah)
         "relative flex w-full cursor-default items-center gap-1.5 rounded-md py-1 pr-8 pl-1.5 text-sm outline-hidden select-none",
         
-        // --- WARNA HOVER BARU (TERANG & GELAP) ---
-        "focus:bg-blue-50 focus:text-blue-700 dark:focus:bg-slate-800 dark:focus:text-white",
+        // Hover/focus cukup netral; pilihan aktif ditandai oleh centang.
+        "focus:bg-transparent focus:text-current dark:focus:bg-transparent dark:focus:text-current",
         
         // State disabled & icon (jangan diubah)
         "data-disabled:pointer-events-none data-disabled:opacity-50",
@@ -126,9 +126,9 @@ function SelectItem({
       )}
       {...props}
     >
-      <span className="pointer-events-none absolute right-2 flex size-4 items-center justify-center">
+      <span className="pointer-events-none absolute right-2 flex size-4 items-center justify-center text-foreground">
         <SelectPrimitive.ItemIndicator>
-          <CheckIcon className="pointer-events-none" />
+          <CheckIcon className="pointer-events-none text-foreground" />
         </SelectPrimitive.ItemIndicator>
       </span>
       <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>

@@ -5,6 +5,7 @@ import TopbarFilter from "@/components/filters/index"
 import type { Filters } from "@/hooks/use-filter"
 import { PermissionDenied } from "@/components/shared/permission"
 import { RoleSidebar } from "@/components/role-dashboard/role-sidebar"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
   TopbarDataSuratSearch,
   type DataSuratSearchColumn,
@@ -12,7 +13,7 @@ import {
 import type { DashboardRole, UserPermissions } from "@/domain/user/types"
 import { usePresenceHeartbeat } from "@/hooks/use-presence-heartbeat"
 import { useSession } from "@/infrastructure/auth/auth-client"
-import type { Role } from "@/types"
+import type { Role, TrackTableResponse } from "@/types"
 import {
   ChevronRight, Menu, Plus, Printer, X,
 } from "lucide-react"
@@ -48,6 +49,13 @@ const fetchDepartments = async (url: string): Promise<DepartmentOption[]> => {
   const json = await res.json().catch(() => null)
   if (!res.ok) throw new Error(json?.error ?? "Gagal mengambil departemen")
   return Array.isArray(json) ? json : []
+}
+
+const fetchTrackTables = async (url: string): Promise<TrackTableResponse> => {
+  const res = await fetch(url)
+  const json = await res.json().catch(() => null)
+  if (!res.ok) throw new Error(json?.error ?? "Gagal mengambil sheet lacak")
+  return json
 }
 
 const FEATURE_LABEL: Record<string, string> = {
@@ -117,6 +125,7 @@ function RoleLayoutInner({ role, children }: Props) {
     pathname.includes(`${base}/data-surat/edit/`) ||
     pathname.includes(`${base}/data-surat/view/`)
   const isCetakPage = pathname.startsWith(`${base}/cetak`)
+  const isTrackPage = pathname.startsWith(`${base}/track`)
   const activeSearchColumn = searchParams.get("column")
   const hasActiveFilters =
     filters.date !== null ||
@@ -140,6 +149,15 @@ function RoleLayoutInner({ role, children }: Props) {
   )
   const hasNoDepartments =
     isDataSuratPage && !departmentsLoading && !departmentsError && (departments?.length ?? 0) === 0
+  const { data: trackTableData, isLoading: trackSheetsLoading } = useSWR<TrackTableResponse>(
+    isTrackPage ? "/api/track-sheets" : null,
+    fetchTrackTables,
+    {
+      revalidateOnFocus: true,
+    }
+  )
+  const trackSheets = (trackTableData?.sheets ?? []).filter((sheet) => !sheet.hiddenAt)
+  const selectedTrackSheetId = searchParams.get("sheet") ?? ""
 
   useEffect(() => {
     const saved = localStorage.getItem("sidebar_collapsed")
@@ -258,6 +276,12 @@ function RoleLayoutInner({ role, children }: Props) {
     window.dispatchEvent(new CustomEvent("cetak:clear"))
   }
 
+  function handleTrackSheetChange(sheetId: string) {
+    const params = new URLSearchParams(searchParams.toString())
+    params.set("sheet", sheetId)
+    router.push(`${base}/track?${params.toString()}`)
+  }
+
   function handleBreadcrumbParentClick() {
     router.push(isCetakPage ? `${base}/cetak` : `${base}/data-surat`)
   }
@@ -315,7 +339,7 @@ function RoleLayoutInner({ role, children }: Props) {
       >
         <div
           id="topbar"
-          className={`${styles.topbar} ${isDataSuratPage ? styles.topbarDataSurat : ""}`}
+          className={`${styles.topbar} ${isDataSuratPage ? styles.topbarDataSurat : ""} ${isTrackPage ? styles.topbarTrack : ""}`}
         >
           <div
             className={[
@@ -323,6 +347,7 @@ function RoleLayoutInner({ role, children }: Props) {
               isDataSuratPage ? styles.topbarLeftDataSurat : "",
               isDataSuratSubPage ? styles.topbarLeftDataSuratSubPage : "",
               isCetakPage ? styles.topbarLeftCetak : "",
+              isTrackPage ? styles.topbarLeftTrack : "",
             ].join(" ")}
           >
             {isMobile && (!isDataSuratPage || !dataSuratSearchExpanded) && (
@@ -460,6 +485,27 @@ function RoleLayoutInner({ role, children }: Props) {
               </button>
             </div>
           )}
+
+          {isTrackPage && !isDenied && (
+            <div className={`${styles.topbarRight} ${styles.topbarRightTrack}`}>
+              <Select
+                value={selectedTrackSheetId}
+                onValueChange={handleTrackSheetChange}
+                disabled={trackSheetsLoading || trackSheets.length === 0}
+              >
+                <SelectTrigger className="h-9 w-[clamp(132px,42vw,180px)] rounded-xl text-[13px] sm:w-[220px]">
+                  <SelectValue placeholder="Pilih Sheet" />
+                </SelectTrigger>
+                <SelectContent>
+                  {trackSheets.map((sheet) => (
+                    <SelectItem key={sheet.id} value={sheet.id}>
+                      {sheet.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
         </div>
 
         <div className={styles.content}>
@@ -477,7 +523,7 @@ function RoleLayoutInner({ role, children }: Props) {
               router.push(`${base}/add`)
             }}
             title="Tambah Surat"
-            className="fixed bottom-6 right-6 z-50
+            className="fixed bottom-6 right-6 z-30
               flex items-center justify-center
               w-14 h-14 rounded-full
               bg-blue-600 hover:bg-blue-700 active:bg-blue-800

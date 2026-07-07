@@ -39,7 +39,7 @@ export function DepartemenDeleteDialog({
         onOpenChange(open)
       }}
     >
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md" showCloseButton={false}>
         <DialogHeader>
           <DialogTitle>{allowSoftDelete ? "Hapus departemen?" : "Hapus permanen departemen?"}</DialogTitle>
           <DialogDescription>
