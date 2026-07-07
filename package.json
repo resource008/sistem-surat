@@ -8,6 +8,7 @@
     "start": "next start --port 3001",
     "seed": "tsx prisma/seed.ts",
     "db:push": "prisma db push",
+    "db:migrate:deploy": "prisma migrate deploy",
     "lint": "eslint src"
   },
   "dependencies": {

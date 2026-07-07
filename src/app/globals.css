@@ -49,6 +49,8 @@
 }
 
 :root {
+  --font-figtree: "Segoe UI", Arial, sans-serif;
+  --font-geist-mono: "Cascadia Mono", "Consolas", monospace;
   --background: oklch(100% 0.00011 271.152);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
