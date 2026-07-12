@@ -36,6 +36,7 @@ export const readonlyClass = cn(
 interface DatePickerProps {
   value: string
   onChange: (value: string) => void
+  className?: string
   placeholder?: string
   hasError?: boolean
   disabled?: boolean
@@ -51,6 +52,7 @@ function parseDateValue(value: string) {
 export function DatePicker({
   value,
   onChange,
+  className,
   placeholder = "Pilih tanggal",
   hasError = false,
   disabled = false,
@@ -69,7 +71,8 @@ export function DatePicker({
             "h-10 w-full justify-start border border-input bg-background px-3 text-left font-normal shadow-sm hover:bg-background",
             !selected && "text-muted-foreground",
             hasError &&
-              "border-red-500 focus-visible:ring-red-500"
+              "border-red-500 focus-visible:ring-red-500",
+            className
           )}
         >
           <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />

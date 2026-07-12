@@ -4,14 +4,13 @@ import { Suspense, useEffect, useMemo, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import useSWR from "swr"
 import { toast } from "sonner"
-import { ArrowRight, FileSpreadsheet, Rows3, X } from "lucide-react"
+import { Eye, FileSpreadsheet, Pencil, Rows3, Save, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { EmptyState } from "@/components/ui/empty-state"
 import { Label } from "@/components/ui/label"
 import {
   Sheet,
   SheetContent,
-  SheetFooter,
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet"
@@ -116,8 +115,11 @@ function getFirstCategoryFields(sheet: TrackSheet) {
   return fields.length > 0 ? fields : sheet.fields
 }
 
+function getGroupKey(group: FieldGroup) {
+  return group.category?.id ?? "uncategorized"
+}
+
 function TrackFormSidebar({
-  editableFields,
   groups,
   open,
   record,
@@ -126,7 +128,6 @@ function TrackFormSidebar({
   onOpenChange,
   onSaved,
 }: {
-  editableFields: TrackField[]
   groups: FieldGroup[]
   open: boolean
   record?: TrackRecord | null
@@ -138,21 +139,45 @@ function TrackFormSidebar({
   const isMobile = useIsMobile()
   const [values, setValues] = useState<Record<string, string>>({})
   const [editing, setEditing] = useState(false)
+  const [editingGroupKey, setEditingGroupKey] = useState("")
   const [saving, setSaving] = useState(false)
+  const editingGroup = editingGroupKey
+    ? groups.find((group) => getGroupKey(group) === editingGroupKey)
+    : undefined
+  const editableFields = useMemo(
+    () => editingGroup?.fields.filter(isEditableTrackField) ?? [],
+    [editingGroup]
+  )
 
   useEffect(() => {
     if (!open) {
       setEditing(false)
+      setEditingGroupKey("")
+      setValues({})
       return
     }
 
+    if (!editingGroup) return
     setValues(
       editableFields.reduce<Record<string, string>>((acc, field) => {
         acc[field.id] = record?.values[field.id] ?? ""
         return acc
       }, {})
     )
-  }, [editableFields, open, record])
+  }, [editableFields, editingGroup, open, record])
+
+  function startEditingGroup(group: FieldGroup) {
+    if (saving || (editing && editingGroupKey !== getGroupKey(group))) return
+    setEditingGroupKey(getGroupKey(group))
+    setEditing(true)
+  }
+
+  function cancelEditing() {
+    if (saving) return
+    setEditing(false)
+    setEditingGroupKey("")
+    setValues({})
+  }
 
   function setFieldValue(fieldId: string, value: string) {
     setValues((current) => ({ ...current, [fieldId]: value.slice(0, TRACK_RECORD_VALUE_MAX_LENGTH) }))
@@ -187,7 +212,7 @@ function TrackFormSidebar({
       toast.success(json?.message ?? (record ? "Data track surat berhasil diperbarui" : "Data track surat berhasil disimpan"))
       setValues({})
       setEditing(false)
-      onOpenChange(false)
+      setEditingGroupKey("")
       onSaved()
     } catch (err) {
       toast.error(getErrorMessage(err, "Gagal menyimpan data track surat"))
@@ -230,12 +255,21 @@ function TrackFormSidebar({
           <form onSubmit={submit} className="flex min-h-0 flex-1 flex-col">
             <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
               <div className="grid gap-4">
-                {groups.map((group) => (
+                {groups.map((group) => {
+                  const groupKey = getGroupKey(group)
+                  const groupEditableFields = group.fields.filter(isEditableTrackField)
+                  const isEditingGroup = editing && editingGroupKey === groupKey
+                  const isOtherGroupEditing = editing && !isEditingGroup
+                  const isEditButtonDisabled = saving || isOtherGroupEditing || groupEditableFields.length === 0
+                  const editButtonLabel = isEditButtonDisabled ? "Hanya View" : "Edit"
+                  const lockedByActiveEdit = isOtherGroupEditing || saving
+
+                  return (
                   <section
-                    key={group.category?.id ?? "uncategorized"}
+                    key={groupKey}
                     className="overflow-hidden rounded-xl border-2 border-border/70 bg-background"
                   >
-                    <div className="border-b-2 border-border/60 px-3 py-3">
+                    <div className="flex flex-col gap-3 border-b-2 border-border/60 px-3 py-3">
                       <span
                         className="inline-flex max-w-full rounded-md px-3 py-1 text-xs font-semibold"
                         style={{
@@ -245,12 +279,42 @@ function TrackFormSidebar({
                       >
                         <span className="truncate">{group.name}</span>
                       </span>
+                      {isEditingGroup ? (
+                        <div className="flex flex-wrap gap-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={cancelEditing}
+                            disabled={saving}
+                            className="bg-background text-foreground hover:bg-muted hover:text-foreground focus-visible:text-foreground"
+                          >
+                            Batal
+                          </Button>
+                          <Button type="submit" variant="action-primary" size="sm" disabled={saving || editableFields.length === 0}>
+                            <Save className="size-4" />
+                            {saving ? "Menyimpan" : "Simpan Data"}
+                          </Button>
+                        </div>
+                      ) : (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => startEditingGroup(group)}
+                          disabled={isEditButtonDisabled}
+                          className={`w-fit ${lockedByActiveEdit ? "disabled:opacity-40" : "disabled:opacity-100"}`}
+                        >
+                          {isEditButtonDisabled ? <Eye className="size-4" /> : <Pencil className="size-4" />}
+                          {editButtonLabel}
+                        </Button>
+                      )}
                     </div>
 
                     <div className="grid gap-3 p-3">
                       {group.fields.map((field) => {
                         const inputId = `track-mobile-field-${field.id}`
-                        const editable = editing && isEditableTrackField(field)
+                        const editable = isEditingGroup && isEditableTrackField(field)
 
                         return (
                           <div
@@ -285,35 +349,10 @@ function TrackFormSidebar({
                       })}
                     </div>
                   </section>
-                ))}
+                  )
+                })}
               </div>
             </div>
-
-            <SheetFooter className="items-end border-t-2 border-border/70 bg-background/95 px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
-              {editing ? (
-                <div className="flex w-full flex-wrap items-center justify-end gap-2">
-                  <Button type="button" variant="secondary" size="lg" onClick={() => setEditing(false)} disabled={saving}>
-                    Batal
-                  </Button>
-                  <Button type="submit" variant="action-primary" size="lg" disabled={saving || editableFields.length === 0}>
-                    {saving ? "Menyimpan" : "Simpan"}
-                  </Button>
-                </div>
-              ) : (
-                <div className="flex w-full justify-end">
-                  <Button
-                    type="button"
-                    variant="action-primary"
-                    size="lg"
-                    onClick={() => setEditing(true)}
-                    disabled={editableFields.length === 0}
-                  >
-                    Lengkapi data
-                    <ArrowRight className="size-4" />
-                  </Button>
-                </div>
-              )}
-            </SheetFooter>
           </form>
         </SheetContent>
       </Sheet>
@@ -336,9 +375,18 @@ function TrackFormSidebar({
 
         <form onSubmit={submit} className="flex min-h-0 flex-1 flex-col">
           <div className="grid min-h-0 flex-1 gap-4 overflow-y-auto px-4 py-2">
-            {groups.map((group) => (
-              <section key={group.category?.id ?? "uncategorized"} className="rounded-xl border border-border/40 bg-muted/10">
-                <div className="flex items-center gap-2 border-b border-border/40 px-3 py-3">
+            {groups.map((group) => {
+              const groupKey = getGroupKey(group)
+              const groupEditableFields = group.fields.filter(isEditableTrackField)
+              const isEditingGroup = editing && editingGroupKey === groupKey
+              const isOtherGroupEditing = editing && !isEditingGroup
+              const isEditButtonDisabled = saving || isOtherGroupEditing || groupEditableFields.length === 0
+              const editButtonLabel = isEditButtonDisabled ? "Hanya View" : "Edit"
+              const lockedByActiveEdit = isOtherGroupEditing || saving
+
+              return (
+              <section key={groupKey} className="rounded-xl border border-border/40 bg-muted/10">
+                <div className="flex flex-col gap-3 border-b border-border/40 px-3 py-3 sm:flex-row sm:items-center sm:justify-between">
                   <span
                     className="inline-flex max-w-full rounded-md px-3 py-1 text-xs font-semibold"
                     style={{
@@ -348,11 +396,41 @@ function TrackFormSidebar({
                   >
                     <span className="truncate">{group.name}</span>
                   </span>
+                  {isEditingGroup ? (
+                    <div className="flex flex-wrap gap-2 sm:justify-end">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={cancelEditing}
+                        disabled={saving}
+                        className="bg-background text-foreground hover:bg-muted hover:text-foreground focus-visible:text-foreground"
+                      >
+                        Batal
+                      </Button>
+                      <Button type="submit" size="sm" disabled={saving || editableFields.length === 0}>
+                        <Save className="size-4" />
+                        {saving ? "Menyimpan" : "Simpan Data"}
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => startEditingGroup(group)}
+                      disabled={isEditButtonDisabled}
+                      className={`w-fit ${lockedByActiveEdit ? "disabled:opacity-40" : "disabled:opacity-100"}`}
+                    >
+                      {isEditButtonDisabled ? <Eye className="size-4" /> : <Pencil className="size-4" />}
+                      {editButtonLabel}
+                    </Button>
+                  )}
                 </div>
                 <div className="grid gap-3 p-3">
                   {group.fields.map((field) => {
                     const inputId = `track-field-${field.id}`
-                    const editable = editing && isEditableTrackField(field)
+                    const editable = isEditingGroup && isEditableTrackField(field)
 
                     return (
                       <div key={field.id} className="grid gap-2">
@@ -379,28 +457,9 @@ function TrackFormSidebar({
                   })}
                 </div>
               </section>
-            ))}
+              )
+            })}
           </div>
-
-          <SheetFooter className="items-end border-t border-border/40">
-            {editing ? (
-              <div className="flex w-full flex-wrap items-center justify-end gap-2">
-                <Button type="button" variant="secondary" onClick={() => setEditing(false)} disabled={saving}>
-                  Batal
-                </Button>
-                <Button type="submit" disabled={saving || editableFields.length === 0}>
-                  {saving ? "Menyimpan" : "Simpan"}
-                </Button>
-              </div>
-            ) : (
-              <div className="flex w-full justify-end">
-                <Button type="button" onClick={() => setEditing(true)} disabled={editableFields.length === 0}>
-                  Lengkapi data
-                  <ArrowRight className="size-4" />
-                </Button>
-              </div>
-            )}
-          </SheetFooter>
         </form>
       </SheetContent>
     </Sheet>
@@ -427,10 +486,6 @@ function TrackSuratInner() {
   const allFields = useMemo(
     () => sheet?.fields ?? [],
     [sheet]
-  )
-  const editableFields = useMemo(
-    () => allFields.filter(isEditableTrackField),
-    [allFields]
   )
   const allGroups = useMemo(
     () => sheet ? buildFieldGroups(sheet, allFields) : [],
@@ -572,10 +627,11 @@ function TrackSuratInner() {
 
             <div className="grid gap-3 p-4 md:hidden">
               {records.map((record, recordIndex) => (
-                <button
+                <Button
                   key={record.id}
                   type="button"
-                  className="rounded-xl border border-border/50 px-4 py-3 text-left outline-none transition-colors hover:bg-muted/25 focus-visible:bg-muted/30"
+                  variant="outline"
+                  className="h-auto w-full justify-start rounded-xl border-border/50 px-4 py-3 text-left hover:bg-muted/25 hover:text-foreground focus-visible:bg-muted/30"
                   onClick={() => openRecord(record, recordIndex)}
                 >
                   <div className="grid gap-2">
@@ -590,7 +646,7 @@ function TrackSuratInner() {
                       </div>
                     ))}
                   </div>
-                </button>
+                </Button>
               ))}
             </div>
           </>
@@ -598,7 +654,6 @@ function TrackSuratInner() {
       </div>
 
       <TrackFormSidebar
-        editableFields={editableFields}
         groups={allGroups}
         open={formOpen}
         record={selectedRecord}

@@ -3,9 +3,11 @@
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { DatePicker } from "@/components/shared/form-controls"
+import { cn } from "@/lib/utils"
 import type { TrackField } from "@/types"
 
 type TrackRecordFieldControlProps = {
+  className?: string
   disabled?: boolean
   field: TrackField
   inputId: string
@@ -20,6 +22,7 @@ function getInputType(field: TrackField) {
 }
 
 export function TrackRecordFieldControl({
+  className,
   disabled = false,
   field,
   inputId,
@@ -32,6 +35,7 @@ export function TrackRecordFieldControl({
       <DatePicker
         value={value}
         onChange={onChange}
+        className={className}
         placeholder={field.defaultValue || "Pilih tanggal"}
         disabled={disabled}
       />
@@ -43,7 +47,7 @@ export function TrackRecordFieldControl({
       <Select value={value || undefined} onValueChange={onChange} disabled={disabled}>
         <SelectTrigger
           id={inputId}
-          className="h-10 w-full rounded-lg border-input bg-background text-sm text-foreground shadow-sm"
+          className={cn("h-10 w-full rounded-lg border-input bg-background text-sm text-foreground shadow-sm", className)}
         >
           <SelectValue placeholder={field.defaultValue || "Pilih kategori"} />
         </SelectTrigger>
@@ -67,7 +71,7 @@ export function TrackRecordFieldControl({
       placeholder={field.defaultValue || "Isi data"}
       disabled={disabled}
       maxLength={maxLength}
-      className="h-10 rounded-lg border-input bg-background text-sm text-foreground shadow-sm placeholder:text-muted-foreground"
+      className={cn("h-10 rounded-lg border-input bg-background text-sm text-foreground shadow-sm placeholder:text-muted-foreground", className)}
     />
   )
 }

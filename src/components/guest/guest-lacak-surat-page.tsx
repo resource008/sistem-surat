@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { useEffect, useMemo, useRef, useState } from "react"
 import useSWR from "swr"
 import { LogIn, Plus, Search, X } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import { EmptyState } from "@/components/ui/empty-state"
 import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -229,22 +230,27 @@ export function GuestLacakSuratPage({ initialSheetId = "" }: GuestLacakSuratPage
             className="h-9 rounded-lg border-neutral-300 bg-white pl-10 text-left text-[13px] shadow-none placeholder:text-neutral-500 focus-visible:ring-blue-200 sm:text-right"
           />
         </div>
-        <button
+        <Button
           type="button"
+          variant="outline"
+          size="icon-lg"
           onClick={() => setSearchExpanded(true)}
           aria-label="Cari"
-          className={`hidden size-9 items-center justify-center rounded-lg border border-neutral-200 bg-white text-neutral-700 transition-colors hover:bg-neutral-100 max-md:flex ${(searchExpanded || query.trim().length > 0) ? "max-md:hidden" : ""}`}
+          className={`hidden border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-100 hover:text-neutral-700 max-md:flex ${(searchExpanded || query.trim().length > 0) ? "max-md:hidden" : ""}`}
         >
           <Search className="size-4" />
-        </button>
+        </Button>
         <div className={`flex justify-end ${(searchExpanded || query.trim().length > 0) ? "max-md:hidden" : ""}`}>
-          <Link
-            href={routes.login}
-            className="inline-flex h-9 items-center gap-2 rounded-lg bg-blue-100 px-4 text-[13px] font-medium text-blue-700 transition-colors hover:bg-blue-200 max-lg:size-9 max-lg:justify-center max-lg:px-0"
+          <Button
+            asChild
+            variant="outline"
+            className="h-9 border-blue-100 bg-blue-100 px-4 text-[13px] font-medium text-blue-700 hover:bg-blue-200 hover:text-blue-700 max-lg:size-9 max-lg:px-0"
           >
-            <LogIn className="size-4" />
-            <span className="max-lg:sr-only">Login</span>
-          </Link>
+            <Link href={routes.login}>
+              <LogIn className="size-4" />
+              <span className="max-lg:sr-only">Login</span>
+            </Link>
+          </Button>
         </div>
         {(searchExpanded || query.trim().length > 0) ? (
           <div className="hidden min-w-0 items-center gap-2 max-md:col-span-3 max-md:flex">
@@ -259,14 +265,16 @@ export function GuestLacakSuratPage({ initialSheetId = "" }: GuestLacakSuratPage
                 className="h-9 rounded-lg border-neutral-300 bg-white pl-10 text-left text-[13px] shadow-none placeholder:text-neutral-500 focus-visible:ring-blue-200"
               />
             </div>
-            <button
+            <Button
               type="button"
+              variant="outline"
+              size="icon-lg"
               onClick={clearSearch}
               aria-label="Tutup pencarian"
-              className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-neutral-200 bg-white text-neutral-700 transition-colors hover:bg-neutral-100"
+              className="shrink-0 border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-100 hover:text-neutral-700"
             >
               <X className="size-4" />
-            </button>
+            </Button>
           </div>
         ) : null}
       </header>
@@ -365,18 +373,19 @@ export function GuestLacakSuratPage({ initialSheetId = "" }: GuestLacakSuratPage
             {sheets.map((sheet) => {
               const active = selectedSheet?.id === sheet.id
               return (
-                <button
+                <Button
                   key={sheet.id}
                   type="button"
+                  variant={active ? "action-primary" : "ghost"}
                   onClick={() => selectSheet(sheet.id)}
-                  className={`h-9 rounded-full px-4 text-[13px] font-medium transition-colors ${
+                  className={`h-9 rounded-full px-4 text-[13px] font-medium ${
                     active
-                      ? "bg-blue-600 text-white"
+                      ? "bg-blue-600 text-white hover:bg-blue-700 hover:text-white"
                       : "text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900"
                   }`}
                 >
                   {sheet.name}
-                </button>
+                </Button>
               )
             })}
           </div>
@@ -384,22 +393,26 @@ export function GuestLacakSuratPage({ initialSheetId = "" }: GuestLacakSuratPage
       ) : null}
 
       {selectedSheet ? (
-        <Link
-          href={`${routes.guest.lacakSurat}/add?sheet=${encodeURIComponent(selectedSheet.id)}`}
+        <Button
+          asChild
+          variant="action-primary"
           aria-label="Tambah data"
-          className="fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom))] right-6 z-40 flex size-14 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg transition hover:bg-blue-700 max-sm:right-4"
+          className="fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom))] right-6 z-40 size-14 rounded-full bg-blue-600 p-0 text-white shadow-lg hover:bg-blue-700 hover:text-white max-sm:right-4"
         >
-          <Plus className="size-6" strokeWidth={2.5} />
-        </Link>
+          <Link href={`${routes.guest.lacakSurat}/add?sheet=${encodeURIComponent(selectedSheet.id)}`}>
+            <Plus className="size-6" strokeWidth={2.5} />
+          </Link>
+        </Button>
       ) : (
-        <button
+        <Button
           type="button"
           disabled
+          variant="action-primary"
           aria-label="Tambah data"
-          className="fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom))] right-6 z-40 flex size-14 cursor-not-allowed items-center justify-center rounded-full bg-blue-200 text-white shadow-lg max-sm:right-4"
+          className="fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom))] right-6 z-40 size-14 cursor-not-allowed rounded-full bg-blue-200 p-0 text-white shadow-lg max-sm:right-4"
         >
           <Plus className="size-6" strokeWidth={2.5} />
-        </button>
+        </Button>
       )}
 
     </main>
