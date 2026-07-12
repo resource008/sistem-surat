@@ -47,6 +47,11 @@ function getFieldExtraItems(field: TrackField) {
   return [field.defaultValue || "-"]
 }
 
+function getPermissionLabel(field: TrackField) {
+  if (isDefaultIdField(field)) return "Sistem"
+  return field.fillByHrd ? "User lihat, HRD edit" : "User edit, HRD lihat"
+}
+
 function FieldExtraBadges({ field, className = "" }: { field: TrackField; className?: string }) {
   return (
     <div className={`flex flex-wrap items-center gap-1 ${className}`}>
@@ -179,7 +184,7 @@ export default function TrackTableDetailPage() {
             </div>
           </div>
           <div className="grid gap-1 sm:grid-cols-[140px_minmax(0,1fr)]">
-            <span className="text-muted-foreground">Diisi HRD</span>
+            <span className="text-muted-foreground">Izin HRD</span>
             <div>
               <Badge variant={hrdFieldsCount > 0 ? "secondary" : "outline"}>
                 {hrdFieldsCount} kolom
@@ -202,7 +207,7 @@ export default function TrackTableDetailPage() {
           <div>
             <h2 className="text-base font-semibold">Seluruh Kolom</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Daftar kolom, kategori, tipe data, dan penanda pengisian HRD.
+              Daftar kolom, kategori, tipe data, dan mode izin pengisian.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -220,16 +225,16 @@ export default function TrackTableDetailPage() {
         ) : (
           <>
             <div className="hidden overflow-x-auto md:block">
-              <div className="grid min-w-[920px] grid-cols-[56px_minmax(180px,1.4fr)_200px_120px_120px_minmax(180px,1fr)] items-center bg-muted/40 px-4 py-3 text-[12px] font-medium text-muted-foreground">
+              <div className="grid min-w-[1080px] grid-cols-[56px_minmax(180px,1.2fr)_200px_120px_minmax(190px,0.9fr)_minmax(180px,1fr)] items-center bg-muted/40 px-4 py-3 text-[12px] font-medium text-muted-foreground">
                 <div>No</div>
                 <div>Nama Kolom</div>
                 <div>Kategori</div>
                 <div>Tipe Kolom</div>
-                <div>HRD</div>
+                <div>Izin</div>
                 <div>Isian/Pilihan</div>
               </div>
               {sheet.fields.map((field, index) => (
-                <div key={field.id} className="grid min-w-[920px] grid-cols-[56px_minmax(180px,1.4fr)_200px_120px_120px_minmax(180px,1fr)] items-center border-t border-border/40 px-4 py-3 text-sm transition-colors hover:bg-muted/20">
+                <div key={field.id} className="grid min-w-[1080px] grid-cols-[56px_minmax(180px,1.2fr)_200px_120px_minmax(190px,0.9fr)_minmax(180px,1fr)] items-center border-t border-border/40 px-4 py-3 text-sm transition-colors hover:bg-muted/20">
                   <div>
                     <span className="inline-flex size-7 items-center justify-center rounded-md bg-muted text-xs font-semibold text-muted-foreground">
                       {index + 1}
@@ -259,7 +264,7 @@ export default function TrackTableDetailPage() {
                       variant={field.fillByHrd ? "secondary" : "outline"}
                       className={field.fillByHrd ? "bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300" : "text-muted-foreground"}
                     >
-                      {field.fillByHrd ? "Ya" : "Tidak"}
+                      {getPermissionLabel(field)}
                     </Badge>
                   </div>
                   <FieldExtraBadges field={field} className="pr-2" />
@@ -298,7 +303,7 @@ export default function TrackTableDetailPage() {
                       variant={field.fillByHrd ? "secondary" : "outline"}
                       className={field.fillByHrd ? "bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300" : "text-muted-foreground"}
                     >
-                      {field.fillByHrd ? "Diisi HRD" : "Bukan HRD"}
+                      {getPermissionLabel(field)}
                     </Badge>
                     <Badge variant="outline">{getTypeLabel(field.type)}</Badge>
                   </div>

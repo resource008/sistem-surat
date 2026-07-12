@@ -185,21 +185,24 @@ function GuestLacakSuratAddContent() {
 
   return (
     <main className="min-h-svh bg-[#fbfbfb] text-black">
-      <header className="sticky top-0 z-30 flex min-h-16 items-center justify-between gap-3 border-b border-neutral-200 bg-white px-6 py-3 max-sm:px-4">
-        <div className="flex min-w-0 items-center gap-2">
-          <Link
-            href={routes.guest.lacakSurat}
-            aria-label="Kembali"
-            className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg text-neutral-700 transition hover:bg-neutral-100"
+      <header className="sticky top-0 z-30 flex min-h-20 items-center justify-between gap-3 border-b border-neutral-200 bg-white px-10 py-4 max-md:px-6 max-sm:min-h-16 max-sm:px-4">
+        <div className="flex min-w-0 items-center gap-3">
+          <Button
+            asChild
+            variant="ghost"
+            size="icon-lg"
+            className="shrink-0 text-neutral-800 hover:bg-neutral-100 hover:text-neutral-900"
           >
-            <ArrowLeft className="size-4" />
-          </Link>
-          <h1 className="truncate text-sm font-semibold">Tambah Data Lacak</h1>
+            <Link href={routes.guest.lacakSurat} aria-label="Kembali">
+              <ArrowLeft className="size-4" />
+            </Link>
+          </Button>
+          <h1 className="truncate text-base font-semibold">Tambah data</h1>
         </div>
 
-        <div className="w-52 shrink-0 max-sm:w-36">
+        <div className="w-44 shrink-0 max-sm:w-36">
           <Select value={selectedSheet?.id ?? ""} onValueChange={changeSheet} disabled={saving || sheets.length === 0}>
-            <SelectTrigger className="w-full rounded-xl border-neutral-200 bg-white text-sm shadow-sm">
+            <SelectTrigger className="h-10 w-full rounded-full border-neutral-200 bg-white px-5 text-sm text-neutral-700 shadow-sm">
               <SelectValue placeholder="Pilih Sheet" />
             </SelectTrigger>
             <SelectContent className="bg-white text-black">
@@ -213,7 +216,7 @@ function GuestLacakSuratAddContent() {
         </div>
       </header>
 
-      <section className="mx-auto w-full max-w-6xl px-6 py-6 pb-[calc(6.5rem+env(safe-area-inset-bottom))] max-md:px-4">
+      <section className="w-full px-10 py-8 pb-[calc(7rem+env(safe-area-inset-bottom))] max-md:px-6 max-sm:px-4">
         {isLoading ? (
           <div className="grid gap-4">
             <Skeleton className="h-12 w-full rounded-xl bg-neutral-200" />
@@ -248,23 +251,23 @@ function GuestLacakSuratAddContent() {
             {...GUEST_EMPTY_STATE_COLORS}
           />
         ) : (
-          <form id="guest-track-add-form" onSubmit={submit} className="grid gap-4">
-            <section className="overflow-hidden rounded-xl border border-neutral-200 bg-white">
-              {firstGroup?.category ? (
+          <form id="guest-track-add-form" onSubmit={submit} className="grid gap-6">
+            <section className="grid gap-6">
+              {firstGroup ? (
                 <div
-                  className="border-b border-neutral-200 px-4 py-2 text-center text-xs font-bold"
+                  className="inline-flex h-8 w-40 items-center justify-center rounded-lg px-4 text-sm font-medium"
                   style={getSoftCategoryStyle(firstGroup.color)}
                 >
                   {firstGroup.name}
                 </div>
               ) : null}
 
-              <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 xl:grid-cols-3">
+              <div className="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
                 {fields.map((field) => {
                   const inputId = `guest-track-add-${field.id}`
                   return (
                     <div key={field.id} className="grid gap-2">
-                      <Label htmlFor={inputId} className="text-xs font-semibold text-neutral-700">
+                      <Label htmlFor={inputId} className="text-xs font-bold uppercase tracking-[0px] text-neutral-600">
                         {field.columnName}
                       </Label>
                       <TrackRecordFieldControl
@@ -274,6 +277,7 @@ function GuestLacakSuratAddContent() {
                         onChange={(value) => updateValue(field.id, value)}
                         disabled={saving}
                         maxLength={TRACK_RECORD_VALUE_MAX_LENGTH}
+                        className="h-8 rounded-lg border-neutral-200 bg-neutral-100 text-xs font-medium shadow-none placeholder:text-neutral-500 hover:bg-neutral-100"
                       />
                     </div>
                   )
@@ -291,7 +295,7 @@ function GuestLacakSuratAddContent() {
           if (!selectedSheet || fields.length === 0) validateBeforeSave()
         }}
         disabled={saving || isLoading || Boolean(error)}
-        className="fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom))] right-6 z-40 h-11 rounded-xl bg-blue-600 px-5 text-sm font-semibold text-white shadow-lg hover:bg-blue-700 max-sm:left-4 max-sm:right-4 max-sm:w-auto"
+        className="fixed bottom-[calc(3rem+env(safe-area-inset-bottom))] right-10 z-40 h-12 rounded-xl bg-blue-600 px-6 text-sm font-semibold text-white shadow-lg hover:bg-blue-700 hover:text-white disabled:bg-blue-400 max-sm:left-4 max-sm:right-4 max-sm:w-auto"
       >
         <Save className="size-4" />
         {saving ? "Menyimpan" : "Simpan"}

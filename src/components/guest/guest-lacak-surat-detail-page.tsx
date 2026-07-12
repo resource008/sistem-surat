@@ -4,10 +4,13 @@ import Link from "next/link"
 import { useParams, useSearchParams } from "next/navigation"
 import { useEffect, useMemo, useState, type FormEvent } from "react"
 import useSWR from "swr"
-import { ArrowLeft, ArrowRight, Pencil, Save } from "lucide-react"
+import { ArrowLeft, Eye, Pencil, Save } from "lucide-react"
 import { toast } from "sonner"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Card, CardAction, CardContent, CardHeader } from "@/components/ui/card"
 import { EmptyState } from "@/components/ui/empty-state"
+import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Skeleton } from "@/components/ui/skeleton"
 import { TrackRecordFieldControl } from "@/components/shared/track-record-field-control"
@@ -96,31 +99,6 @@ function getGroupKey(group: FieldGroup) {
   return group.category?.id ?? "uncategorized"
 }
 
-function buildEditSearchParams(sheet: TrackSheet, group: FieldGroup) {
-  const params = new URLSearchParams({
-    sheet: sheet.id,
-    category: getGroupKey(group),
-    categoryName: group.name,
-  })
-
-  return params.toString()
-}
-
-function parseCategorySegment(segment?: string) {
-  if (!segment) return ""
-
-  const decoded = decodeURIComponent(segment)
-  return decoded.startsWith("category=") ? decoded.slice("category=".length) : decoded
-}
-
-function buildCategorySegment(categoryName: string) {
-  return `category=${encodeURIComponent(categoryName)}`
-}
-
-function buildGuestCategoryRoute(action: "view-detail" | "edit-category" | "fill-data", categoryName: string, recordId: string) {
-  return `${routes.guest.lacakSurat}/${action}/${buildCategorySegment(categoryName)}/${encodeURIComponent(recordId)}`
-}
-
 function buildDisplayGroups(sheet: TrackSheet): FieldGroup[] {
   const visibleFields = sheet.fields.filter((field) => !isDefaultIdField(field))
   const groups: FieldGroup[] = []
@@ -149,12 +127,10 @@ function buildDisplayGroups(sheet: TrackSheet): FieldGroup[] {
 }
 
 export function GuestLacakSuratDetailPage() {
-  const params = useParams<{ recordId: string; categoryParam?: string }>()
+  const params = useParams<{ recordId: string }>()
   const searchParams = useSearchParams()
   const recordId = decodeURIComponent(params.recordId)
-  const routeCategoryName = parseCategorySegment(params.categoryParam)
   const sheetId = searchParams.get("sheet") ?? ""
-  const [activeGroupKey, setActiveGroupKey] = useState("")
   const [editingGroupKey, setEditingGroupKey] = useState("")
   const [editing, setEditing] = useState(false)
   const [values, setValues] = useState<Record<string, string>>({})
@@ -182,42 +158,19 @@ export function GuestLacakSuratDetailPage() {
   const record = recordData?.records.find((item) => item.id === recordId) ?? lookupRecord
   const recordIndex = Math.max(0, recordData?.records.findIndex((item) => item.id === recordId) ?? 0)
   const groups = useMemo(() => sheet ? buildDisplayGroups(sheet) : [], [sheet])
-  const firstGroup = groups[0]
-  const routeGroup = routeCategoryName
-    ? groups.find((group) => group.name.toLowerCase() === routeCategoryName.toLowerCase())
-    : undefined
-  const activeGroup = activeGroupKey
-    ? groups.find((group) => (group.category?.id ?? "uncategorized") === activeGroupKey)
-    : routeGroup && routeGroup !== firstGroup
-      ? routeGroup
-      : undefined
-  const selectedGroup = activeGroup && activeGroup !== firstGroup ? activeGroup : undefined
-  const displayedGroups = [firstGroup, selectedGroup].filter(Boolean) as FieldGroup[]
+  const displayedGroups = groups
   const editingGroup = editingGroupKey
     ? groups.find((group) => getGroupKey(group) === editingGroupKey)
     : undefined
-  const categoryBarGroups = groups.slice(1)
-  const firstGroupEditableFields = useMemo(
-    () => firstGroup?.fields.filter((field) => isEditableField(field, firstGroup)) ?? [],
-    [firstGroup]
-  )
-  const selectedGroupEditableFields = useMemo(
-    () => selectedGroup?.fields.filter((field) => isEditableField(field, selectedGroup)) ?? [],
-    [selectedGroup]
-  )
   const editableFields = useMemo(
     () => editingGroup?.fields.filter((field) => isEditableField(field, editingGroup)) ?? [],
     [editingGroup]
   )
-  const editHref = sheet && firstGroup
-    ? buildGuestCategoryRoute("edit-category", firstGroup.name, recordId)
-    : routes.guest.lacakSurat
 
   useEffect(() => {
     setEditing(false)
     setEditingGroupKey("")
     setValues({})
-    setActiveGroupKey("")
   }, [recordId, effectiveSheetId])
 
   useEffect(() => {
@@ -231,8 +184,16 @@ export function GuestLacakSuratDetailPage() {
   }, [editingGroup, editableFields, editing, record])
 
   function startEditingGroup(group: FieldGroup) {
+    if (saving || (editing && editingGroupKey !== getGroupKey(group))) return
     setEditingGroupKey(getGroupKey(group))
     setEditing(true)
+  }
+
+  function cancelEditing() {
+    if (saving) return
+    setEditing(false)
+    setEditingGroupKey("")
+    setValues({})
   }
 
   function updateValue(fieldId: string, value: string) {
@@ -286,44 +247,24 @@ export function GuestLacakSuratDetailPage() {
 
   return (
     <main className="min-h-svh bg-[#fbfbfb] text-black">
-      <header className="sticky top-0 z-30 flex min-h-16 items-center justify-between gap-3 border-b border-neutral-200 bg-white px-6 py-3 max-sm:px-4">
-        <div className="flex min-w-0 items-center gap-2">
-          <Link
-            href={routes.guest.lacakSurat}
-            aria-label="Kembali"
-            className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg text-neutral-700 transition hover:bg-neutral-100"
+      <header className="sticky top-0 z-30 flex min-h-14 items-center justify-between gap-3 border-b border-neutral-200 bg-white px-10 py-2 max-md:px-6 max-sm:px-4">
+        <div className="flex min-w-0 items-center gap-3">
+          <Button
+            asChild
+            variant="ghost"
+            size="icon-lg"
+            className="shrink-0 text-neutral-800 hover:bg-neutral-100 hover:text-neutral-900"
           >
-            <ArrowLeft className="size-4" />
-          </Link>
+            <Link href={routes.guest.lacakSurat} aria-label="Kembali">
+              <ArrowLeft className="size-4" />
+            </Link>
+          </Button>
           <h1 className="truncate text-sm font-semibold">{pageTitle}</h1>
         </div>
 
-        {!editing ? (
-          <div className="hidden items-center gap-2 max-sm:flex">
-            {firstGroup && firstGroupEditableFields.length > 0 ? (
-              <Link
-                href={editHref}
-                className="inline-flex h-9 items-center gap-1 rounded-lg border border-neutral-200 bg-neutral-100 px-3 text-sm font-semibold text-neutral-700 shadow-sm [-webkit-tap-highlight-color:transparent] hover:bg-neutral-100 active:bg-neutral-100 active:text-neutral-700"
-              >
-                <Pencil className="size-4" />
-                Edit
-              </Link>
-            ) : null}
-
-            {selectedGroup && selectedGroupEditableFields.length > 0 ? (
-              <Link
-                href={buildGuestCategoryRoute("fill-data", selectedGroup.name, recordId)}
-                className="inline-flex h-9 items-center gap-1 rounded-lg bg-blue-600 px-3 text-sm font-semibold text-white shadow-sm [-webkit-tap-highlight-color:transparent] hover:bg-blue-600 active:bg-blue-600 active:text-white"
-              >
-                Isi Data
-                <ArrowRight className="size-4" />
-              </Link>
-            ) : null}
-          </div>
-        ) : null}
       </header>
 
-      <section className="mx-auto w-full px-8 py-8 pb-[calc(7rem+env(safe-area-inset-bottom))] max-md:px-4">
+      <section className="w-full px-10 pb-6 pt-4 max-md:px-6 max-sm:px-4">
         {isLoading ? (
           <div className="grid gap-4">
             <Skeleton className="h-12 w-full rounded-xl bg-neutral-200" />
@@ -351,134 +292,124 @@ export function GuestLacakSuratDetailPage() {
             {...GUEST_EMPTY_STATE_COLORS}
           />
         ) : displayedGroups.length > 0 ? (
-          <div className="grid gap-7">
+          <div className="grid gap-4">
             {displayedGroups.map((group) => {
-              const isEditingGroup = editing && editingGroup === group
+              const groupKey = getGroupKey(group)
+              const groupEditableFields = group.fields.filter((field) => isEditableField(field, group))
+              const isEditingGroup = editing && editingGroupKey === groupKey
+              const isOtherGroupEditing = editing && !isEditingGroup
               const fields = isEditingGroup ? editableFields : group.fields
+              const formId = `guest-track-detail-edit-form-${groupKey}`
+              const isEditButtonDisabled = saving || isOtherGroupEditing || groupEditableFields.length === 0
+              const editButtonLabel = isEditButtonDisabled ? "Hanya View" : "Edit"
+              const lockedByActiveEdit = isOtherGroupEditing || saving
 
               return (
-                <section
+                <Card
                   key={group.category?.id ?? group.name}
-                  className="grid gap-5 rounded-2xl border border-neutral-200 bg-white p-5 shadow-sm max-sm:p-4"
+                  className="gap-0 rounded-xl border-neutral-200 bg-white py-0 shadow-sm ring-0"
                 >
-                  <div
-                    className="inline-flex w-fit min-w-44 items-center justify-center rounded-lg px-6 py-2 text-sm font-medium max-sm:min-w-36"
-                    style={getSoftCategoryStyle(group.color)}
-                  >
-                    {group.name}
-                  </div>
-
-                  {isEditingGroup ? (
-                    <form
-                      id="guest-track-detail-edit-form"
-                      onSubmit={submit}
-                      className="grid grid-cols-1 gap-x-9 gap-y-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5"
+                  <CardHeader className="grid-cols-[1fr_auto] gap-3 px-5 py-4 max-sm:px-4">
+                    <Badge
+                      variant="secondary"
+                      className="h-8 w-40 rounded-lg border-0 px-4 text-sm font-semibold"
+                      style={getSoftCategoryStyle(group.color)}
                     >
-                      {fields.map((field) => {
-                        const inputId = `guest-track-detail-${field.id}`
-                        return (
+                      {group.name}
+                    </Badge>
+
+                    <CardAction>
+                      {isEditingGroup ? (
+                      <div className="flex flex-wrap gap-2 sm:justify-end">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={cancelEditing}
+                          disabled={saving}
+                          className="h-9 rounded-lg border-neutral-200 bg-white px-4 text-sm font-semibold text-neutral-700 hover:bg-neutral-100 hover:text-neutral-700 focus-visible:text-neutral-700"
+                        >
+                          Batal
+                        </Button>
+                        <Button
+                          type="submit"
+                          form={formId}
+                          disabled={saving || editableFields.length === 0}
+                          className="h-9 rounded-lg bg-blue-600 px-4 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 hover:text-white"
+                        >
+                          <Save className="size-4" />
+                          {saving ? "Menyimpan" : "Simpan Data"}
+                        </Button>
+                      </div>
+                    ) : (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => startEditingGroup(group)}
+                        disabled={isEditButtonDisabled}
+                        className={`h-9 w-fit rounded-lg border-neutral-200 bg-white px-4 text-sm font-semibold text-neutral-700 shadow-sm hover:bg-neutral-100 hover:text-neutral-800 ${
+                          lockedByActiveEdit ? "disabled:opacity-40" : "disabled:opacity-100"
+                        }`}
+                      >
+                        {isEditButtonDisabled ? <Eye className="size-4" /> : <Pencil className="size-4" />}
+                        {editButtonLabel}
+                      </Button>
+                    )}
+                    </CardAction>
+                  </CardHeader>
+
+                  <CardContent className="px-5 pb-5 max-sm:px-4">
+                    {isEditingGroup ? (
+                      <form
+                        id={formId}
+                        onSubmit={submit}
+                        className="grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5"
+                      >
+                        {fields.map((field) => {
+                          const inputId = `guest-track-detail-${field.id}`
+                          return (
+                            <div key={field.id} className="grid gap-2">
+                              <Label
+                                htmlFor={inputId}
+                                className="text-xs font-bold tracking-[0px] text-neutral-700"
+                              >
+                                {field.columnName}
+                              </Label>
+                              <TrackRecordFieldControl
+                                field={field}
+                                inputId={inputId}
+                                value={values[field.id] ?? ""}
+                                onChange={(value) => updateValue(field.id, value)}
+                                disabled={saving}
+                                maxLength={TRACK_RECORD_VALUE_MAX_LENGTH}
+                                className="h-8 rounded-lg border-neutral-200 bg-neutral-100 text-xs font-medium shadow-none placeholder:text-neutral-500 hover:bg-neutral-100"
+                              />
+                            </div>
+                          )
+                        })}
+                      </form>
+                    ) : (
+                      <div className="grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+                        {fields.map((field) => (
                           <div key={field.id} className="grid gap-2">
-                            <Label
-                              htmlFor={inputId}
-                              className="text-sm font-medium tracking-[0px] text-neutral-700"
-                            >
+                            <Label className="text-xs font-bold tracking-[0px] text-neutral-700">
                               {field.columnName}
                             </Label>
-                            <TrackRecordFieldControl
-                              field={field}
-                              inputId={inputId}
-                              value={values[field.id] ?? ""}
-                              onChange={(value) => updateValue(field.id, value)}
-                              disabled={saving}
-                              maxLength={TRACK_RECORD_VALUE_MAX_LENGTH}
+                            <Input
+                              value={getRecordValue(record, field, recordIndex)}
+                              readOnly
+                              className="h-8 rounded-lg border-neutral-200 bg-neutral-100 text-xs font-medium text-neutral-900 shadow-none"
                             />
                           </div>
-                        )
-                      })}
-                    </form>
-                  ) : (
-                    <div className="grid grid-cols-1 gap-x-9 gap-y-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-                      {fields.map((field) => (
-                        <div key={field.id} className="grid gap-2">
-                          <span className="text-sm font-medium tracking-[0px] text-neutral-700">
-                            {field.columnName}
-                          </span>
-                          <span className="min-h-10 break-words rounded-lg border border-neutral-200 bg-neutral-100 px-4 py-3 text-xs font-medium text-neutral-900">
-                            {getRecordValue(record, field, recordIndex)}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </section>
+                        ))}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
               )
             })}
           </div>
         ) : null}
       </section>
-
-      {!editing && firstGroup && firstGroupEditableFields.length > 0 ? (
-        <Link
-          href={editHref}
-          className="fixed bottom-[calc(2rem+env(safe-area-inset-bottom))] left-8 z-40 inline-flex h-10 items-center gap-2 rounded-lg border border-neutral-200 bg-neutral-100 px-4 text-sm font-semibold text-neutral-700 shadow-sm transition hover:bg-neutral-200 max-sm:hidden"
-        >
-          <Pencil className="size-4" />
-          Edit
-        </Link>
-      ) : null}
-
-      {!editing && selectedGroup && selectedGroupEditableFields.length > 0 ? (
-        <Link
-          href={buildGuestCategoryRoute("fill-data", selectedGroup.name, recordId)}
-          className="fixed bottom-[calc(2rem+env(safe-area-inset-bottom))] right-8 z-40 inline-flex h-10 items-center gap-2 rounded-lg bg-blue-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 max-sm:hidden"
-        >
-          Isi Data
-          <ArrowRight className="size-4" />
-        </Link>
-      ) : null}
-
-      {editing ? (
-        <Button
-          type="submit"
-          form="guest-track-detail-edit-form"
-          disabled={saving || editableFields.length === 0}
-          className="fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom))] right-6 z-40 h-11 rounded-xl bg-blue-600 px-5 text-sm font-semibold text-white shadow-lg hover:bg-blue-700 max-sm:left-4 max-sm:right-4 max-sm:w-auto"
-        >
-          <Save className="size-4" />
-          {saving ? "Menyimpan" : "Simpan Data"}
-        </Button>
-      ) : null}
-
-      {sheet && categoryBarGroups.length > 0 && !editing ? (
-        <div className="fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom))] left-1/2 z-40 max-w-[calc(100vw-2rem)] -translate-x-1/2 overflow-x-auto rounded-full border border-neutral-200 bg-white/95 p-1 shadow-sm backdrop-blur">
-          <div className="flex min-w-max items-center gap-1">
-            {categoryBarGroups.map((group) => {
-              const key = group.category?.id ?? "uncategorized"
-              const active = activeGroupKey === key
-              return (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => {
-                    setEditing(false)
-                    setEditingGroupKey("")
-                    setActiveGroupKey((current) => current === key ? "" : key)
-                  }}
-                  aria-pressed={active}
-                  className="h-9 rounded-full border px-4 text-[13px] font-semibold transition-colors"
-                  style={{
-                    backgroundColor: active ? "#2563eb" : "#ffffff",
-                    borderColor: "#2563eb",
-                    color: active ? "#ffffff" : "#2563eb",
-                  }}
-                >
-                  {group.name}
-                </button>
-              )
-            })}
-          </div>
-        </div>
-      ) : null}
     </main>
   )
 }

@@ -32,7 +32,6 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -85,6 +84,29 @@ const CATEGORY_COLORS = [
   "#64748b",
 ]
 const DEFAULT_ID_COLUMN_NAME = "ID"
+const TRACK_PERMISSION_MODES = [
+  {
+    value: "user-edit",
+    label: "Region user bisa edit",
+    summary: "Regional User bisa Edit, HRD sebagai View",
+  },
+  {
+    value: "hrd-edit",
+    label: "HRD bisa edit",
+    summary: "Regional User sebagai View, HRD bisa Edit",
+  },
+] as const
+
+type TrackPermissionMode = typeof TRACK_PERMISSION_MODES[number]["value"]
+
+function getPermissionMode(fillByHrd: boolean): TrackPermissionMode {
+  return fillByHrd ? "hrd-edit" : "user-edit"
+}
+
+function getPermissionSummary(fillByHrd: boolean) {
+  return TRACK_PERMISSION_MODES.find((mode) => mode.value === getPermissionMode(fillByHrd))?.summary
+    ?? TRACK_PERMISSION_MODES[0].summary
+}
 
 function createEmptyFormErrors(): TrackFormErrors {
   return { fields: {} }
@@ -879,7 +901,7 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
           ) : (
             form.categories.map((category, index) => (
               <div key={category.id} className="rounded-lg border border-border/40 bg-muted/20 p-3">
-                <div className="flex items-center gap-3">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                   <span
                     className="size-4 shrink-0 rounded-full border border-border/60"
                     style={{ backgroundColor: getSoftCategoryColor(category.color) }}
@@ -896,17 +918,31 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
                     disabled={saving}
                     className="min-w-0 flex-1"
                   />
-                  <label className="flex shrink-0 items-center gap-2 text-sm font-medium text-muted-foreground">
-                    <Checkbox
-                      checked={category.fillByHrd}
-                      onCheckedChange={(checked) => updateCategory(category.id, (current) => ({
+                  <div className="grid w-full sm:w-[230px]">
+                    <Select
+                      value={getPermissionMode(category.fillByHrd)}
+                      onValueChange={(value) => updateCategory(category.id, (current) => ({
                         ...current,
-                        fillByHrd: checked === true,
+                        fillByHrd: value === "hrd-edit",
                       }))}
                       disabled={saving}
-                    />
-                    Diisi HRD
-                  </label>
+                    >
+                      <SelectTrigger
+                        id={`category-permission-${category.id}`}
+                        aria-label="Izin kategori"
+                        className="h-9 w-full"
+                      >
+                        <SelectValue placeholder="Izin kategori" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {TRACK_PERMISSION_MODES.map((mode) => (
+                          <SelectItem key={mode.value} value={mode.value}>
+                            {mode.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                   <Button
                     type="button"
                     variant="action-danger-soft"
@@ -957,12 +993,17 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
                   <div className="text-xs text-muted-foreground">
                     {activeFields.length} kolom
                   </div>
-                  {activeGroup.id && activeGroup.fillByHrd ? (
-                    <Badge variant="secondary" className="mt-1">Diisi HRD</Badge>
-                  ) : null}
                 </div>
               </div>
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
+              <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
+                {activeGroup.id ? (
+                  <Badge
+                    variant="secondary"
+                    className="h-auto min-h-8 w-full max-w-full justify-center whitespace-normal px-3 py-1.5 text-center leading-snug sm:w-auto sm:max-w-[min(42vw,360px)] sm:justify-start sm:text-left lg:max-w-[420px]"
+                  >
+                    {getPermissionSummary(activeGroup.fillByHrd)}
+                  </Badge>
+                ) : null}
                 <div className="flex items-center justify-between gap-2 rounded-lg border border-border/50 bg-background p-1 sm:justify-start">
                   <Button
                     type="button"
@@ -1037,7 +1078,7 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
                             </div>
                             <div className="mt-1 text-xs text-muted-foreground">
                               {TRACK_FIELD_TYPES.find((type) => type.value === field.type)?.label ?? "Teks"}
-                              {field.fillByHrd ? " - Diisi HRD" : ""}
+                              {!isDefaultId ? ` - ${getPermissionSummary(field.fillByHrd)}` : ""}
                             </div>
                           </div>
                         </button>
@@ -1143,17 +1184,28 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
                           />
                         </div>
                         {canSetFieldHrd ? (
-                          <label className="flex items-center gap-2 rounded-lg border border-border/40 bg-muted/10 px-3 py-2 text-sm font-medium md:col-span-3">
-                            <Checkbox
-                              checked={field.fillByHrd}
-                              onCheckedChange={(checked) => updateField(field.id, (current) => ({
+                          <div className="grid gap-2 rounded-lg border border-border/40 bg-muted/10 px-3 py-2 md:col-span-3">
+                            <Label htmlFor={`field-permission-${field.id}`}>Izin kolom</Label>
+                            <Select
+                              value={getPermissionMode(field.fillByHrd)}
+                              onValueChange={(value) => updateField(field.id, (current) => ({
                                 ...current,
-                                fillByHrd: checked === true,
+                                fillByHrd: value === "hrd-edit",
                               }))}
                               disabled={saving}
-                            />
-                            Khusus diisi HRD
-                          </label>
+                            >
+                              <SelectTrigger id={`field-permission-${field.id}`} className="w-full">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {TRACK_PERMISSION_MODES.map((mode) => (
+                                  <SelectItem key={mode.value} value={mode.value}>
+                                    {mode.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
                         ) : null}
 
                         {field.type === "category" ? (
