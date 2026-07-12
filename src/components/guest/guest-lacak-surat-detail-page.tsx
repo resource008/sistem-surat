@@ -4,7 +4,7 @@ import Link from "next/link"
 import { useParams, useSearchParams } from "next/navigation"
 import { useEffect, useMemo, useState, type FormEvent } from "react"
 import useSWR from "swr"
-import { ArrowLeft, Eye, Pencil, Save } from "lucide-react"
+import { ArrowLeft, CalendarIcon, Eye, Pencil, Save, X } from "lucide-react"
 import { toast } from "sonner"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -15,6 +15,8 @@ import { Label } from "@/components/ui/label"
 import { Skeleton } from "@/components/ui/skeleton"
 import { TrackRecordFieldControl } from "@/components/shared/track-record-field-control"
 import { routes } from "@/constants/routes"
+import { formatDateDisplay } from "@/lib/format-date-display"
+import { getTrackCategoryStyle } from "@/lib/track-category-color"
 import { getErrorMessage } from "@/lib/utils"
 import type { TrackCategory, TrackField, TrackRecord, TrackRecordResponse, TrackSheet, TrackTableResponse } from "@/types"
 
@@ -46,49 +48,19 @@ const recordsFetcher = async (url: string): Promise<TrackRecordResponse> => {
   return json
 }
 
-function getCategoryTextColor(backgroundColor: string) {
-  const hex = backgroundColor.replace("#", "")
-  if (!/^[0-9A-Fa-f]{6}$/.test(hex)) return "#1f2937"
-
-  const red = parseInt(hex.slice(0, 2), 16)
-  const green = parseInt(hex.slice(2, 4), 16)
-  const blue = parseInt(hex.slice(4, 6), 16)
-  const mix = 0.68
-
-  return `rgb(${Math.round(red * mix)}, ${Math.round(green * mix)}, ${Math.round(blue * mix)})`
-}
-
-function getSoftCategoryStyle(backgroundColor: string) {
-  const hex = backgroundColor.replace("#", "")
-  if (!/^[0-9A-Fa-f]{6}$/.test(hex)) {
-    return {
-      backgroundColor: "#f5f5f5",
-      color: "#374151",
-    }
-  }
-
-  const red = parseInt(hex.slice(0, 2), 16)
-  const green = parseInt(hex.slice(2, 4), 16)
-  const blue = parseInt(hex.slice(4, 6), 16)
-  const mix = 0.78
-  const softRed = Math.round(red + (255 - red) * mix)
-  const softGreen = Math.round(green + (255 - green) * mix)
-  const softBlue = Math.round(blue + (255 - blue) * mix)
-  const softColor = `rgb(${softRed}, ${softGreen}, ${softBlue})`
-
-  return {
-    backgroundColor: softColor,
-    color: getCategoryTextColor(backgroundColor),
-  }
-}
-
 function isDefaultIdField(field: TrackField) {
   return field.columnName.trim().toLowerCase() === "id"
 }
 
 function getRecordValue(record: TrackRecord, field: TrackField, index = 0) {
   if (isDefaultIdField(field)) return String(index + 1)
-  return record.values[field.id]?.trim() || "-"
+  const value = record.values[field.id]?.trim()
+  if (!value) return "-"
+  return field.type === "date" ? formatDateDisplay(value) : value
+}
+
+function getRecordRawValue(record: TrackRecord, field: TrackField) {
+  return record.values[field.id]?.trim() ?? ""
 }
 
 function isEditableField(field: TrackField, group: FieldGroup) {
@@ -253,7 +225,7 @@ export function GuestLacakSuratDetailPage() {
             asChild
             variant="ghost"
             size="icon-lg"
-            className="shrink-0 text-neutral-800 hover:bg-neutral-100 hover:text-neutral-900"
+            className="shrink-0 text-neutral-800 hover:!bg-neutral-100 hover:!text-black"
           >
             <Link href={routes.guest.lacakSurat} aria-label="Kembali">
               <ArrowLeft className="size-4" />
@@ -313,7 +285,7 @@ export function GuestLacakSuratDetailPage() {
                     <Badge
                       variant="secondary"
                       className="h-8 w-40 rounded-lg border-0 px-4 text-sm font-semibold"
-                      style={getSoftCategoryStyle(group.color)}
+                      style={getTrackCategoryStyle(group.color)}
                     >
                       {group.name}
                     </Badge>
@@ -326,18 +298,23 @@ export function GuestLacakSuratDetailPage() {
                           variant="outline"
                           onClick={cancelEditing}
                           disabled={saving}
-                          className="h-9 rounded-lg border-neutral-200 bg-white px-4 text-sm font-semibold text-neutral-700 hover:bg-neutral-100 hover:text-neutral-700 focus-visible:text-neutral-700"
+                          aria-label="Batal"
+                          title="Batal"
+                          className="h-9 rounded-lg border-neutral-200 bg-white px-4 text-sm font-semibold text-neutral-700 hover:bg-neutral-100 hover:text-neutral-700 focus-visible:text-neutral-700 max-sm:w-9 max-sm:px-0"
                         >
-                          Batal
+                          <X className="size-4 sm:hidden" />
+                          <span className="max-sm:sr-only">Batal</span>
                         </Button>
                         <Button
                           type="submit"
                           form={formId}
                           disabled={saving || editableFields.length === 0}
-                          className="h-9 rounded-lg bg-blue-600 px-4 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 hover:text-white"
+                          aria-label={saving ? "Menyimpan" : "Simpan"}
+                          title={saving ? "Menyimpan" : "Simpan"}
+                          className="h-9 rounded-lg bg-blue-600 px-4 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 hover:text-white max-sm:w-9 max-sm:px-0"
                         >
                           <Save className="size-4" />
-                          {saving ? "Menyimpan" : "Simpan Data"}
+                          <span className="max-sm:sr-only">{saving ? "Menyimpan" : "Simpan Data"}</span>
                         </Button>
                       </div>
                     ) : (
@@ -346,12 +323,14 @@ export function GuestLacakSuratDetailPage() {
                         variant="outline"
                         onClick={() => startEditingGroup(group)}
                         disabled={isEditButtonDisabled}
+                        aria-label={editButtonLabel}
+                        title={editButtonLabel}
                         className={`h-9 w-fit rounded-lg border-neutral-200 bg-white px-4 text-sm font-semibold text-neutral-700 shadow-sm hover:bg-neutral-100 hover:text-neutral-800 ${
                           lockedByActiveEdit ? "disabled:opacity-40" : "disabled:opacity-100"
-                        }`}
+                        } max-sm:w-9 max-sm:px-0`}
                       >
                         {isEditButtonDisabled ? <Eye className="size-4" /> : <Pencil className="size-4" />}
-                        {editButtonLabel}
+                        <span className="max-sm:sr-only">{editButtonLabel}</span>
                       </Button>
                     )}
                     </CardAction>
@@ -394,11 +373,27 @@ export function GuestLacakSuratDetailPage() {
                             <Label className="text-xs font-bold tracking-[0px] text-neutral-700">
                               {field.columnName}
                             </Label>
-                            <Input
-                              value={getRecordValue(record, field, recordIndex)}
-                              readOnly
-                              className="h-8 rounded-lg border-neutral-200 bg-neutral-100 text-xs font-medium text-neutral-900 shadow-none"
-                            />
+                            {field.type === "date" ? (
+                              <Button
+                                type="button"
+                                variant="outline"
+                                disabled
+                                className="h-8 w-full justify-start rounded-lg border-neutral-200 bg-neutral-100 px-3 text-xs font-medium text-neutral-900 shadow-none disabled:cursor-default disabled:opacity-100"
+                              >
+                                <CalendarIcon className="size-4 shrink-0 text-neutral-700" />
+                                <span className="min-w-0 truncate">
+                                  {getRecordRawValue(record, field)
+                                    ? formatDateDisplay(getRecordRawValue(record, field))
+                                    : "-"}
+                                </span>
+                              </Button>
+                            ) : (
+                              <Input
+                                value={getRecordValue(record, field, recordIndex)}
+                                readOnly
+                                className="h-8 rounded-lg border-neutral-200 bg-neutral-100 text-xs font-medium text-neutral-900 shadow-none"
+                              />
+                            )}
                           </div>
                         ))}
                       </div>

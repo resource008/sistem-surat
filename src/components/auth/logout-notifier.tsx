@@ -13,7 +13,13 @@ export function LogoutNotifier() {
     didRun.current = true
 
     if (searchParams.get("logout") === "true") {
-      toast.success("Berhasil keluar")
+      if (searchParams.get("reason") === "idle") {
+        toast.info("Sesi berakhir", {
+          description: "Tidak ada aktivitas selama 30 menit. Silakan login ulang.",
+        })
+      } else {
+        toast.success("Berhasil keluar")
+      }
       window.history.replaceState({}, "", "/login")
     }
   }, [searchParams])

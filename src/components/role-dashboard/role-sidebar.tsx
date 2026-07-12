@@ -11,6 +11,7 @@ import { ThemeToggle } from "@/components/ui/theme-toogle"
 import { routes } from "@/constants/routes"
 import type { DashboardRole, UserPermissions } from "@/domain/user/types"
 import { authClient } from "@/infrastructure/auth/auth-client"
+import { redirectToLoggedOutLogin } from "@/lib/logout-redirect"
 import { getRoleBasePath } from "@/lib/role-dashboard"
 import {
   ArrowLeftCircle, ArrowRightCircle,
@@ -109,7 +110,7 @@ export function RoleSidebar({
     const redirectToLogin = () => {
       if (redirected) return
       redirected = true
-      window.location.href = `${routes.login}?logout=true`
+      redirectToLoggedOutLogin()
     }
 
     try {

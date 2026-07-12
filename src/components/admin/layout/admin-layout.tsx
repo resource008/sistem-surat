@@ -3,12 +3,13 @@
 import { useEffect, useState } from "react"
 import { usePathname, useRouter } from "next/navigation"
 import styles from "@/app/layout.module.css"
+import { IdleSessionGuard } from "@/components/auth/idle-session-guard"
 import { AdminSidebar } from "@/components/admin/layout/admin-sidebar"
 import { AdminSearchContext } from "@/components/admin/layout/admin-search-context"
 import { AdminTopbar } from "@/components/admin/layout/admin-topbar"
 import { usePresenceHeartbeat } from "@/hooks/use-presence-heartbeat"
 import { useTopbarSearch } from "@/hooks/use-topbar-search"
-import { getAdminPageTitle, isAdminUsersPage } from "@/lib/admin-layout"
+import { getAdminPageSubtitle, getAdminPageTitle, isAdminUsersPage } from "@/lib/admin-layout"
 
 interface AdminLayoutProps {
   children: React.ReactNode
@@ -98,6 +99,8 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   if (!isMounted) return <div className="min-h-screen bg-background" />
 
   const currentPage = getAdminPageTitle(pathname)
+  const routeSubtitle = getAdminPageSubtitle(pathname)
+  const effectiveSubtitle = routeSubtitle ?? subtitle
   const topbarLeft = isMobile
     ? "0px"
     : collapsed
@@ -115,8 +118,8 @@ export function AdminLayout({ children }: AdminLayoutProps) {
       return
     }
 
-    if (pathname.includes("/kelola-tabel-lacak")) {
-      router.push("/admin/kelola-tabel-lacak")
+    if (pathname.includes("/lacak-surat")) {
+      router.push("/admin/lacak-surat")
       return
     }
 
@@ -125,6 +128,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
 
   return (
     <AdminSearchContext.Provider value={{ search, debouncedSearch, setSearch }}>
+      <IdleSessionGuard />
       <div className={styles.root}>
         {isMobile && mobileOpen && (
           <div className={styles.backdrop} onClick={() => setMobileOpen(false)} />
@@ -150,7 +154,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
         >
           <AdminTopbar
             currentPage={currentPage}
-            subtitle={subtitle}
+            subtitle={effectiveSubtitle}
             isMobile={isMobile}
             isUsersPage={usersPage}
             searchExpanded={searchExpanded}

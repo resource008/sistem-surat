@@ -171,7 +171,7 @@ model TrackCategory {
   sheetId   String     @map("sheet_id")
   sheet     TrackSheet @relation(fields: [sheetId], references: [id], onDelete: Cascade)
   name      String
-  color     String     @default("#2563eb")
+  color     String     @default("#ffffff")
   fillByHrd Boolean    @default(false) @map("fill_by_hrd")
   sortOrder Int        @default(0) @map("sort_order")
   createdAt DateTime   @default(now()) @map("created_at")
@@ -187,7 +187,7 @@ model TrackField {
   sheet           TrackSheet @relation(fields: [sheetId], references: [id], onDelete: Cascade)
   categoryId      String?    @map("category_id")
   category        String
-  categoryColor   String     @default("#2563eb") @map("category_color")
+  categoryColor   String     @default("#ffffff") @map("category_color")
   region          String
   columnName      String     @map("column_name")
   dataType        String     @map("data_type")

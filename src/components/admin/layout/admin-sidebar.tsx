@@ -10,6 +10,7 @@ import { UserAvatar }    from "@/components/shared/user-avatar"
 import { ThemeToggle }    from "@/components/ui/theme-toogle"
 import { routes }         from "@/constants/routes"
 import { authClient }     from "@/infrastructure/auth/auth-client"
+import { redirectToLoggedOutLogin } from "@/lib/logout-redirect"
 import type { Role }      from "@/types"
 import {
   ArrowLeftCircle, ArrowRightCircle,
@@ -28,7 +29,7 @@ const navItems = [
   { label: "Dashboard",       href: "/admin/dashboard",  icon: House },
   { label: "Kelola Pengguna", href: "/admin/users",      icon: UserRoundCog },
   { label: "Kelola Departemen", href: "/admin/departemen", icon: Building2 },
-  { label: "Kelola Sheet Lacak", href: "/admin/kelola-tabel-lacak", icon: TableProperties },
+  { label: "Kelola Sheet Lacak", href: "/admin/lacak-surat", icon: TableProperties },
 ]
 
 interface Props {
@@ -68,7 +69,7 @@ export function AdminSidebar({
     const redirectToLogin = () => {
       if (redirected) return
       redirected = true
-      window.location.href = `${routes.login}?logout=true`
+      redirectToLoggedOutLogin()
     }
 
     try {

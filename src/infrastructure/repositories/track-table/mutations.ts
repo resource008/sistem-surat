@@ -2,6 +2,7 @@ import type { TrackSheetInput, TrackSheetOrderInput } from "@/app/validation/tra
 import { prisma } from "@/infrastructure/databases/prisma-client"
 import { AppError } from "@/lib/errors"
 import { createRandomId } from "@/lib/random-id"
+import { DEFAULT_TRACK_CATEGORY_COLOR } from "@/lib/track-category-color"
 import { ensureTrackTableSchema } from "./schema"
 import type { DbClient } from "./types"
 
@@ -42,7 +43,7 @@ function createDefaultIdField(): TrackSheetInput["fields"][number] {
   return {
     categoryId: "",
     category: "",
-    categoryColor: "#2563eb",
+    categoryColor: DEFAULT_TRACK_CATEGORY_COLOR,
     region: "",
     columnName: DEFAULT_ID_COLUMN_NAME,
     type: "number",
@@ -59,7 +60,7 @@ function normalizeInput(input: TrackSheetInput): TrackSheetInput {
     ...category,
     id: category.id || createTrackCategoryId(),
     name: category.name.trim(),
-    color: category.color || "#2563eb",
+    color: category.color || DEFAULT_TRACK_CATEGORY_COLOR,
     fillByHrd: category.fillByHrd ?? false,
     sortOrder: index,
   }))
@@ -87,7 +88,7 @@ function normalizeInput(input: TrackSheetInput): TrackSheetInput {
         ...field,
         categoryId: category?.id ?? "",
         category: category?.name ?? field.category.trim(),
-        categoryColor: category?.color ?? field.categoryColor ?? "#2563eb",
+        categoryColor: category?.color ?? field.categoryColor ?? DEFAULT_TRACK_CATEGORY_COLOR,
         region: regionName || "Global",
         columnName: isDefaultId ? DEFAULT_ID_COLUMN_NAME : field.columnName.trim(),
         type: isDefaultId ? "number" : field.type,
