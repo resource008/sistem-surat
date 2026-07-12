@@ -36,7 +36,11 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { getErrorMessage } from "@/lib/utils"
+import {
+  DEFAULT_TRACK_CATEGORY_COLOR,
+  normalizeTrackCategoryColor,
+} from "@/lib/track-category-color"
+import { cn, getErrorMessage } from "@/lib/utils"
 import {
   EMPTY_TRACK_SHEET,
   TRACK_FIELD_TYPES,
@@ -73,17 +77,42 @@ type PendingFieldDelete = {
   valueCount: number
 } | null
 
-const CATEGORY_COLORS = [
-  "#2563eb",
-  "#16a34a",
-  "#dc2626",
-  "#9333ea",
-  "#ea580c",
-  "#0891b2",
-  "#4f46e5",
-  "#64748b",
-]
 const DEFAULT_ID_COLUMN_NAME = "ID"
+const sectionIconClass = [
+  "mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg",
+  "border border-border/50 bg-muted/40 text-muted-foreground",
+].join(" ")
+const categoryColorInputClass = [
+  "size-5 shrink-0 cursor-pointer overflow-hidden rounded-full",
+  "border border-border/60 bg-transparent p-0 transition hover:scale-110",
+  "focus-visible:ring-2 focus-visible:ring-ring/50",
+  "disabled:cursor-not-allowed disabled:opacity-50",
+  "[&::-webkit-color-swatch-wrapper]:p-0",
+  "[&::-webkit-color-swatch]:rounded-full",
+  "[&::-webkit-color-swatch]:border-0",
+].join(" ")
+const mobileDeleteCategoryClass = [
+  "w-full border border-red-100 bg-red-50/60 text-red-600",
+  "hover:bg-red-100 hover:text-red-700 sm:hidden",
+].join(" ")
+const activeGroupBadgeClass = [
+  "h-auto min-h-9 w-full max-w-full justify-center whitespace-normal",
+  "px-3 py-1.5 text-center leading-snug",
+  "sm:w-fit sm:justify-start sm:text-left",
+].join(" ")
+const floatingActionBarClass = [
+  "pointer-events-none fixed bottom-4 z-30 flex -translate-x-1/2 justify-center",
+  "px-2 pb-1 transition-[left,width] duration-300 ease-in-out",
+].join(" ")
+const floatingActionControlsClass = [
+  "pointer-events-auto flex w-max max-w-full flex-nowrap items-center gap-1",
+  "overflow-x-auto rounded-xl border bg-background/95 p-1.5 shadow-lg backdrop-blur",
+].join(" ")
+const dialogCloseButtonClass = [
+  "absolute right-3 top-3 inline-flex size-8 items-center justify-center rounded-lg",
+  "text-muted-foreground transition hover:bg-muted hover:text-foreground",
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+].join(" ")
 const TRACK_PERMISSION_MODES = [
   {
     value: "user-edit",
@@ -142,27 +171,11 @@ function createClientId(prefix: string) {
   return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
 }
 
-function getRandomCategoryColor() {
-  return CATEGORY_COLORS[Math.floor(Math.random() * CATEGORY_COLORS.length)] ?? CATEGORY_COLORS[0]
-}
-
-function getSoftCategoryColor(color: string) {
-  const hex = color.replace("#", "")
-  if (!/^[0-9A-Fa-f]{6}$/.test(hex)) return color
-
-  const red = parseInt(hex.slice(0, 2), 16)
-  const green = parseInt(hex.slice(2, 4), 16)
-  const blue = parseInt(hex.slice(4, 6), 16)
-  const mix = 0.72
-
-  return `rgb(${Math.round(red + (255 - red) * mix)}, ${Math.round(green + (255 - green) * mix)}, ${Math.round(blue + (255 - blue) * mix)})`
-}
-
 function createBlankCategory(sortOrder: number): TrackCategory {
   return {
     id: createClientId("category"),
     name: "",
-    color: getRandomCategoryColor(),
+    color: DEFAULT_TRACK_CATEGORY_COLOR,
     fillByHrd: false,
     sortOrder,
   }
@@ -180,7 +193,7 @@ function createBlankField(sortOrder: number, category?: TrackCategory): TrackFie
     id: createClientId("field"),
     categoryId: category?.id ?? "",
     category: category?.name ?? "",
-    categoryColor: category?.color ?? CATEGORY_COLORS[0],
+    categoryColor: category?.color ?? DEFAULT_TRACK_CATEGORY_COLOR,
     region: category?.name ?? "",
     columnName: "",
     type: "text",
@@ -201,7 +214,7 @@ function applyFieldCategory(field: TrackField, category?: TrackCategory): TrackF
     ...field,
     categoryId: category?.id ?? "",
     category: category?.name ?? "",
-    categoryColor: category?.color ?? CATEGORY_COLORS[0],
+    categoryColor: category?.color ?? DEFAULT_TRACK_CATEGORY_COLOR,
     region: category?.name ?? "",
     fillByHrd: isDefaultIdField(field) ? false : category?.fillByHrd ?? field.fillByHrd ?? false,
   }
@@ -212,7 +225,7 @@ function createDefaultIdField(sortOrder: number, category?: TrackCategory): Trac
     id: createClientId("field"),
     categoryId: "",
     category: "",
-    categoryColor: CATEGORY_COLORS[0],
+    categoryColor: DEFAULT_TRACK_CATEGORY_COLOR,
     region: "",
     columnName: DEFAULT_ID_COLUMN_NAME,
     type: "number",
@@ -307,6 +320,7 @@ function normalizeSheetForForm(sheet: TrackSheet): TrackSheet {
   const categories = sheet.categories.length > 0
     ? sheet.categories.map((category, index) => ({
         ...category,
+        color: normalizeTrackCategoryColor(category.color),
         fillByHrd: category.fillByHrd ?? false,
         sortOrder: index,
       }))
@@ -321,7 +335,7 @@ function normalizeSheetForForm(sheet: TrackSheet): TrackSheet {
           ...field,
           categoryId: category && categoryIds.has(category.id) ? category.id : "",
           category: category?.name ?? "",
-          categoryColor: category?.color ?? field.categoryColor,
+          categoryColor: category?.color ?? normalizeTrackCategoryColor(field.categoryColor),
           region: category?.name ?? "",
           fillByHrd: isDefaultIdField(field) ? false : category?.fillByHrd ?? field.fillByHrd ?? false,
           hiddenAt: isDefaultIdField(field) ? null : field.hiddenAt ?? null,
@@ -381,10 +395,10 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
 
   function cancel() {
     if (isEdit && sheetId) {
-      router.push(`/admin/kelola-tabel-lacak/${encodeURIComponent(sheetId)}`)
+      router.push(`/admin/lacak-surat/${encodeURIComponent(sheetId)}`)
       return
     }
-    router.push("/admin/kelola-tabel-lacak")
+    router.push("/admin/lacak-surat")
   }
 
   function resetForm() {
@@ -472,7 +486,7 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
               ...field,
               categoryId: "",
               category: "",
-              categoryColor: CATEGORY_COLORS[0],
+              categoryColor: DEFAULT_TRACK_CATEGORY_COLOR,
               region: "",
               fillByHrd: false,
             }
@@ -698,7 +712,7 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
     const categories = form.categories.map((category, index) => ({
       id: category.id,
       name: category.name,
-      color: category.color,
+      color: normalizeTrackCategoryColor(category.color),
       fillByHrd: category.fillByHrd ?? false,
       sortOrder: index,
     }))
@@ -732,7 +746,7 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
             id: field.id,
             categoryId: category?.id ?? "",
             category: category?.name ?? "",
-            categoryColor: category?.color ?? CATEGORY_COLORS[0],
+            categoryColor: category?.color ?? DEFAULT_TRACK_CATEGORY_COLOR,
             region: category?.name ?? "Global",
             columnName: field.columnName,
             type: field.type,
@@ -762,7 +776,7 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
 
       toast.success(json?.message ?? "Sheet lacak berhasil disimpan")
       const nextId = json?.sheet?.id ?? sheetId
-      router.push(nextId ? `/admin/kelola-tabel-lacak/${encodeURIComponent(nextId)}` : "/admin/kelola-tabel-lacak")
+      router.push(nextId ? `/admin/lacak-surat/${encodeURIComponent(nextId)}` : "/admin/lacak-surat")
     } catch (err) {
       toast.error(getErrorMessage(err, "Gagal menyimpan sheet lacak"))
     } finally {
@@ -816,7 +830,7 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
   const uncategorizedGroup: TrackCategory = {
     id: "",
     name: "Tanpa kategori",
-    color: CATEGORY_COLORS[0],
+    color: DEFAULT_TRACK_CATEGORY_COLOR,
     fillByHrd: false,
     sortOrder: form.categories.length,
   }
@@ -841,7 +855,7 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
       <div className="rounded-xl border border-border/40 bg-background">
         <div className="border-b border-border/40 px-4 py-4">
           <div className="flex items-start gap-3">
-            <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg border border-border/50 bg-muted/40 text-muted-foreground">
+            <span className={sectionIconClass}>
               <FileSpreadsheet className="size-4" />
             </span>
             <div>
@@ -876,9 +890,9 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
       </div>
 
       <div className="rounded-xl border border-border/40 bg-background">
-        <div className="flex items-center justify-between gap-3 border-b border-border/40 px-4 py-4">
+        <div className="flex flex-col gap-3 border-b border-border/40 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-start gap-3">
-            <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg border border-border/50 bg-muted/40 text-muted-foreground">
+            <span className={sectionIconClass}>
               <Tags className="size-4" />
             </span>
             <div>
@@ -888,7 +902,7 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
               </p>
             </div>
           </div>
-          <Button type="button" variant="outline" onClick={addCategory} disabled={saving}>
+          <Button type="button" variant="outline" onClick={addCategory} disabled={saving} className="w-full sm:w-auto">
             <Plus /> Tambah Kategori
           </Button>
         </div>
@@ -901,24 +915,35 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
           ) : (
             form.categories.map((category, index) => (
               <div key={category.id} className="rounded-lg border border-border/40 bg-muted/20 p-3">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                  <span
-                    className="size-4 shrink-0 rounded-full border border-border/60"
-                    style={{ backgroundColor: getSoftCategoryColor(category.color) }}
-                  />
-                  <Input
-                    id={`category-name-${category.id}`}
-                    aria-label="Nama kategori"
-                    value={category.name}
-                    onChange={(event) => updateCategory(category.id, (current) => ({
-                      ...current,
-                      name: event.target.value,
-                    }))}
-                    placeholder={`Kategori ${index + 1}`}
-                    disabled={saving}
-                    className="min-w-0 flex-1"
-                  />
-                  <div className="grid w-full sm:w-[230px]">
+                <div className="grid gap-3 sm:flex sm:items-center">
+                  <div className="flex min-w-0 items-center gap-3 sm:flex-1">
+                    <Input
+                      id={`category-color-${category.id}`}
+                      type="color"
+                      aria-label="Pilih warna kategori"
+                      title="Pilih warna kategori"
+                      value={normalizeTrackCategoryColor(category.color)}
+                      onChange={(event) => updateCategory(category.id, (current) => ({
+                        ...current,
+                        color: event.target.value,
+                      }))}
+                      disabled={saving}
+                      className={categoryColorInputClass}
+                    />
+                    <Input
+                      id={`category-name-${category.id}`}
+                      aria-label="Nama kategori"
+                      value={category.name}
+                      onChange={(event) => updateCategory(category.id, (current) => ({
+                        ...current,
+                        name: event.target.value,
+                      }))}
+                      placeholder={`Kategori ${index + 1}`}
+                      disabled={saving}
+                      className="min-w-0 flex-1"
+                    />
+                  </div>
+                  <div className="grid gap-2 sm:w-[330px] sm:grid-cols-[minmax(0,1fr)_auto]">
                     <Select
                       value={getPermissionMode(category.fillByHrd)}
                       onValueChange={(value) => updateCategory(category.id, (current) => ({
@@ -942,18 +967,28 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
                         ))}
                       </SelectContent>
                     </Select>
+                    <Button
+                      type="button"
+                      variant="action-danger-soft"
+                      aria-label="Hapus kategori"
+                      onClick={() => removeCategory(category.id)}
+                      disabled={saving}
+                      className={mobileDeleteCategoryClass}
+                    >
+                      <Trash2 /> Hapus
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="action-danger-soft"
+                      size="icon"
+                      aria-label="Hapus kategori"
+                      onClick={() => removeCategory(category.id)}
+                      disabled={saving}
+                      className="hidden shrink-0 sm:inline-flex"
+                    >
+                      <Trash2 />
+                    </Button>
                   </div>
-                  <Button
-                    type="button"
-                    variant="action-danger-soft"
-                    size="icon"
-                    aria-label="Hapus kategori"
-                    onClick={() => removeCategory(category.id)}
-                    disabled={saving}
-                    className="shrink-0"
-                  >
-                    <Trash2 />
-                  </Button>
                 </div>
               </div>
             ))
@@ -964,7 +999,7 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
       <div className="rounded-xl border border-border/40 bg-background">
         <div className="flex items-center justify-between gap-3 border-b border-border/40 px-4 py-4">
           <div className="flex items-start gap-3">
-            <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-lg border border-border/50 bg-muted/40 text-muted-foreground">
+            <span className={sectionIconClass}>
               <Columns3 className="size-4" />
             </span>
             <div>
@@ -978,66 +1013,41 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
 
         <div className="grid gap-4 p-4">
           <div className="rounded-xl border border-border/40 bg-muted/10">
-            <div className="flex flex-col gap-3 border-b border-border/40 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex min-w-0 items-center gap-2">
-                {activeGroup.id ? (
+            <div className="border-b border-border/40 px-4 py-3">
+              <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+                <div className="flex min-w-0 items-center gap-2">
                   <span
                     className="size-3 shrink-0 rounded-full border border-border/60"
-                    style={{ backgroundColor: getSoftCategoryColor(activeGroup.color) }}
+                    style={{ backgroundColor: normalizeTrackCategoryColor(activeGroup.color) }}
                   />
-                ) : null}
-                <div className="min-w-0">
-                  <div className="truncate text-sm font-semibold">
-                    {activeGroup.name || "Kategori tanpa nama"}
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    {activeFields.length} kolom
+                  <div className="min-w-0">
+                    <div className="truncate text-sm font-semibold">
+                      {activeGroup.name || "Kategori tanpa nama"}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {activeFields.length} kolom
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
-                {activeGroup.id ? (
-                  <Badge
-                    variant="secondary"
-                    className="h-auto min-h-8 w-full max-w-full justify-center whitespace-normal px-3 py-1.5 text-center leading-snug sm:w-auto sm:max-w-[min(42vw,360px)] sm:justify-start sm:text-left lg:max-w-[420px]"
-                  >
-                    {getPermissionSummary(activeGroup.fillByHrd)}
-                  </Badge>
-                ) : null}
-                <div className="flex items-center justify-between gap-2 rounded-lg border border-border/50 bg-background p-1 sm:justify-start">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
+                  {activeGroup.id ? (
+                    <Badge
+                      variant="secondary"
+                      className={activeGroupBadgeClass}
+                    >
+                      {getPermissionSummary(activeGroup.fillByHrd)}
+                    </Badge>
+                  ) : null}
                   <Button
                     type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => goToColumnGroup(-1)}
-                    disabled={saving || activeGroupIndex === 0}
-                    className="h-8"
+                    variant="outline"
+                    onClick={() => addField(activeGroup.id ? activeGroup : undefined)}
+                    disabled={saving}
+                    className="w-full sm:w-auto"
                   >
-                    <ChevronLeft /> Previous
-                  </Button>
-                  <span className="min-w-12 text-center text-xs font-medium text-muted-foreground">
-                    {activeGroupIndex + 1}/{columnGroups.length}
-                  </span>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => goToColumnGroup(1)}
-                    disabled={saving || activeGroupIndex === columnGroups.length - 1}
-                    className="h-8"
-                  >
-                    Next <ChevronRight />
+                    <Plus /> Tambah Kolom
                   </Button>
                 </div>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => addField(activeGroup.id ? activeGroup : undefined)}
-                  disabled={saving}
-                  className="w-full sm:w-auto"
-                >
-                  <Plus /> Tambah Kolom
-                </Button>
               </div>
             </div>
 
@@ -1062,13 +1072,18 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
                       onOpenChange={(open) => setOpenFieldId(open ? field.id : null)}
                       className="rounded-lg border border-border/40 bg-background"
                     >
-                    <div className="flex items-center justify-between gap-3 px-3 py-3">
+                    <div className="grid gap-3 px-3 py-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
                       <CollapsibleTrigger asChild>
                         <button
                           type="button"
                           className="flex min-w-0 flex-1 items-center gap-3 text-left outline-none"
                         >
-                          <ChevronDown className={`size-4 shrink-0 text-muted-foreground transition-transform ${openFieldId === field.id ? "rotate-0" : "-rotate-90"}`} />
+                          <ChevronDown
+                            className={cn(
+                              "size-4 shrink-0 text-muted-foreground transition-transform",
+                              openFieldId === field.id ? "rotate-0" : "-rotate-90"
+                            )}
+                          />
                           <div className="min-w-0">
                             <div className="flex min-w-0 flex-wrap items-center gap-2">
                               <span className="truncate text-sm font-medium">
@@ -1078,12 +1093,11 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
                             </div>
                             <div className="mt-1 text-xs text-muted-foreground">
                               {TRACK_FIELD_TYPES.find((type) => type.value === field.type)?.label ?? "Teks"}
-                              {!isDefaultId ? ` - ${getPermissionSummary(field.fillByHrd)}` : ""}
                             </div>
                           </div>
                         </button>
                       </CollapsibleTrigger>
-                      <div className="flex shrink-0 items-center gap-1">
+                      <div className="grid grid-cols-4 gap-1 sm:flex sm:shrink-0 sm:items-center">
                         <Button
                           type="button"
                           variant="action-neutral"
@@ -1091,6 +1105,7 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
                           aria-label="Pindah kolom ke atas"
                           onClick={() => moveField(field.id, activeGroup.id, -1)}
                           disabled={saving || isDefaultId || movableIndex <= 0}
+                          className="w-full sm:w-7"
                         >
                           <ArrowUp />
                         </Button>
@@ -1101,6 +1116,7 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
                           aria-label="Pindah kolom ke bawah"
                           onClick={() => moveField(field.id, activeGroup.id, 1)}
                           disabled={saving || isDefaultId || movableIndex === movableFields.length - 1}
+                          className="w-full sm:w-7"
                         >
                           <ArrowDown />
                         </Button>
@@ -1111,6 +1127,7 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
                           aria-label={isHidden ? "Tampilkan kolom" : "Sembunyikan kolom"}
                           onClick={() => toggleFieldHidden(field.id, !isHidden)}
                           disabled={saving || isDefaultId}
+                          className="w-full sm:w-7"
                         >
                           {isHidden ? <Eye /> : <EyeOff />}
                         </Button>
@@ -1121,6 +1138,7 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
                           aria-label="Hapus kolom"
                           onClick={() => requestRemoveField(field)}
                           disabled={saving || isDefaultId}
+                          className="w-full sm:w-7"
                         >
                           <Trash2 />
                         </Button>
@@ -1286,56 +1304,85 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
       </div>
 
       <div
-        className="pointer-events-none fixed bottom-4 z-30 flex -translate-x-1/2 justify-center px-2 pb-1 transition-[left,width] duration-300 ease-in-out"
+        className={floatingActionBarClass}
         style={{
           left: "calc(var(--topbar-left, 0px) + ((100vw - var(--topbar-left, 0px)) / 2))",
           width: "calc(100vw - var(--topbar-left, 0px) - 1rem)",
         }}
       >
-        <div className="pointer-events-auto flex w-max max-w-full flex-nowrap justify-start gap-1 overflow-x-auto rounded-xl border bg-background/95 p-1.5 shadow-lg backdrop-blur sm:justify-center">
-          <Button
-            type="button"
-            variant="action-neutral"
-            size="fab-action"
-            onClick={cancel}
-            disabled={saving}
-            className="shrink-0"
-          >
-            <X size={14} /> Batal
-          </Button>
-          {!isEdit ? (
+        <div className={floatingActionControlsClass}>
+          <div className="flex shrink-0 items-center justify-start gap-1 justify-self-start">
             <Button
               type="button"
-              variant="action-secondary"
+              variant="action-neutral"
               size="fab-action"
-              onClick={resetForm}
+              onClick={cancel}
               disabled={saving}
               className="shrink-0"
             >
-              <RotateCcw /> Reset
+              <X size={14} /> Batal
             </Button>
-          ) : null}
-          {isEdit && form.hiddenAt ? (
+            {!isEdit ? (
+              <Button
+                type="button"
+                variant="action-secondary"
+                size="fab-action"
+                onClick={resetForm}
+                disabled={saving}
+                className="shrink-0"
+              >
+                <RotateCcw /> Reset
+              </Button>
+            ) : null}
+            {isEdit && form.hiddenAt ? (
+              <Button
+                type="button"
+                variant="action-primary"
+                size="fab-action"
+                onClick={showSheet}
+                disabled={saving || showing}
+                className="shrink-0"
+              >
+                <Eye /> {showing ? "Menampilkan" : "Tampilkan"}
+              </Button>
+            ) : null}
+          </div>
+          <div className="flex shrink-0 items-center justify-center gap-1 justify-self-center">
             <Button
               type="button"
-              variant="action-primary"
+              variant="action-neutral"
               size="fab-action"
-              onClick={showSheet}
-              disabled={saving || showing}
+              onClick={() => goToColumnGroup(-1)}
+              disabled={saving || activeGroupIndex === 0}
               className="shrink-0"
             >
-              <Eye /> {showing ? "Menampilkan" : "Tampilkan"}
+              <ChevronLeft size={14} /> Previous
             </Button>
-          ) : null}
-          <Button
-            type="submit"
-            variant="action-primary"
-            size="fab-action"
-            disabled={saving}
-            className="shrink-0"
-          >
-            <Save /> {saving ? "Menyimpan" : "Simpan"}
-          </Button>
+            <span className="flex h-9 shrink-0 items-center rounded-lg px-2 text-sm font-medium text-muted-foreground">
+              {activeGroupIndex + 1}/{columnGroups.length}
+            </span>
+            <Button
+              type="button"
+              variant="action-neutral"
+              size="fab-action"
+              onClick={() => goToColumnGroup(1)}
+              disabled={saving || activeGroupIndex === columnGroups.length - 1}
+              className="shrink-0"
+            >
+              Next <ChevronRight size={14} />
+            </Button>
+          </div>
+          <div className="flex shrink-0 items-center justify-end gap-1 justify-self-end">
+            <Button
+              type="submit"
+              variant="action-primary"
+              size="fab-action"
+              disabled={saving}
+              className="shrink-0"
+            >
+              <Save /> {saving ? "Menyimpan" : "Simpan"}
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -1350,7 +1397,7 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
             type="button"
             aria-label="Batal"
             onClick={() => setPendingFieldDelete(null)}
-            className="absolute right-3 top-3 inline-flex size-8 items-center justify-center rounded-lg text-muted-foreground transition hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className={dialogCloseButtonClass}
           >
             <X className="size-4" />
           </button>
@@ -1358,7 +1405,10 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
             <AlertDialogTitle>Kolom sudah memiliki data</AlertDialogTitle>
             <AlertDialogDescription className="text-left leading-relaxed">
               Kolom "{pendingFieldDelete?.field.columnName || "ini"}" sudah dipakai pada {pendingFieldDelete?.valueCount ?? 0} data.
-              Jika dihapus, kolom tidak tampil lagi di admin. Sebaiknya sembunyikan kolom agar data lama tetap aman dan bisa ditampilkan kembali.
+              {" "}
+              Jika dihapus, kolom tidak tampil lagi di admin.
+              {" "}
+              Sebaiknya sembunyikan kolom agar data lama tetap aman dan bisa ditampilkan kembali.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="mx-0 mb-0 justify-end gap-2 rounded-none px-5 py-4 sm:flex-row sm:flex-wrap">

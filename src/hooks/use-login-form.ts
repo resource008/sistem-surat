@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { getRouteByRole } from "@/constants/routes"
+import { SESSION_IDLE_LOGOUT_KEY, SESSION_LAST_ACTIVITY_KEY } from "@/constants/session"
 import { authClient } from "@/infrastructure/auth/auth-client"
 import type { Role } from "@/types"
 
@@ -44,6 +45,10 @@ export function useLoginForm() {
         id: toastId,
         description: `Selamat datang, ${data?.user?.name}`,
       })
+
+      const now = String(Date.now())
+      window.localStorage.setItem(SESSION_LAST_ACTIVITY_KEY, now)
+      window.localStorage.removeItem(SESSION_IDLE_LOGOUT_KEY)
 
       try {
         await fetch("/api/admin/login-activity", { method: "POST" })

@@ -1,10 +1,11 @@
 "use client"
 
-import { Suspense, useEffect, useMemo, useState } from "react"
+import { Suspense, useEffect, useMemo, useRef, useState, type FormEvent, type PointerEvent } from "react"
 import { useSearchParams } from "next/navigation"
 import useSWR from "swr"
 import { toast } from "sonner"
-import { Eye, FileSpreadsheet, Pencil, Rows3, Save, X } from "lucide-react"
+import { CalendarIcon, ChevronLeft, ChevronRight, Eye, FileSpreadsheet, Pencil, Rows3, Save, X } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { EmptyState } from "@/components/ui/empty-state"
 import { Label } from "@/components/ui/label"
@@ -17,6 +18,8 @@ import {
 import { Skeleton } from "@/components/ui/skeleton"
 import { TrackRecordFieldControl } from "@/components/shared/track-record-field-control"
 import { useIsMobile } from "@/hooks/use-mobile"
+import { formatDateDisplay } from "@/lib/format-date-display"
+import { getTrackCategoryStyle } from "@/lib/track-category-color"
 import { getErrorMessage } from "@/lib/utils"
 import type { TrackCategory, TrackField, TrackRecord, TrackRecordResponse, TrackSheet, TrackTableResponse } from "@/types"
 
@@ -28,6 +31,8 @@ type FieldGroup = {
 }
 
 const TRACK_RECORD_VALUE_MAX_LENGTH = 50
+const TRACK_RECORDS_PER_PAGE = 10
+const TRACK_SHEET_DISMISS_ANIMATION_MS = 280
 
 const sheetsFetcher = async (url: string): Promise<TrackTableResponse> => {
   const res = await fetch(url)
@@ -49,35 +54,47 @@ function isDefaultIdField(field: TrackField) {
 
 function getFieldValue(record: TrackRecord, field: TrackField, index: number) {
   if (isDefaultIdField(field)) return String(index + 1)
-  return record.values[field.id]?.trim() || "Belum diisi"
+  const value = record.values[field.id]?.trim()
+  if (!value) return "Belum diisi"
+  return field.type === "date" ? formatDateDisplay(value) : value
 }
 
 function isEditableTrackField(field: TrackField) {
   return field.fillByHrd && !isDefaultIdField(field)
 }
 
-function getSoftCategoryColor(color: string) {
-  const hex = color.replace("#", "")
-  if (!/^[0-9A-Fa-f]{6}$/.test(hex)) return "#e5e7eb"
+function getTrackFillStatus(record: TrackRecord, fields: TrackField[]) {
+  const editableFields = fields.filter(isEditableTrackField)
+  const filledCount = editableFields.filter((field) => Boolean(record.values[field.id]?.trim())).length
+  const totalCount = editableFields.length
 
-  const red = parseInt(hex.slice(0, 2), 16)
-  const green = parseInt(hex.slice(2, 4), 16)
-  const blue = parseInt(hex.slice(4, 6), 16)
-  const mix = 0.72
+  if (totalCount === 0) {
+    return {
+      complete: true,
+      label: "Sudah diisi",
+    }
+  }
 
-  return `rgb(${Math.round(red + (255 - red) * mix)}, ${Math.round(green + (255 - green) * mix)}, ${Math.round(blue + (255 - blue) * mix)})`
+  return {
+    complete: filledCount === totalCount,
+    label: filledCount === totalCount ? "Sudah diisi" : "Belum diisi",
+  }
 }
 
-function getCategoryTextColor(color: string) {
-  const hex = color.replace("#", "")
-  if (!/^[0-9A-Fa-f]{6}$/.test(hex)) return "#374151"
+function TrackFillStatusBadge({ record, fields }: { record: TrackRecord; fields: TrackField[] }) {
+  const status = getTrackFillStatus(record, fields)
 
-  const red = parseInt(hex.slice(0, 2), 16)
-  const green = parseInt(hex.slice(2, 4), 16)
-  const blue = parseInt(hex.slice(4, 6), 16)
-  const mix = 0.72
-
-  return `rgb(${Math.round(red * mix)}, ${Math.round(green * mix)}, ${Math.round(blue * mix)})`
+  return (
+    <Badge
+      variant={status.complete ? "secondary" : "outline"}
+      className={status.complete
+        ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300"
+        : "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900/70 dark:bg-amber-950/40 dark:text-amber-300"
+      }
+    >
+      {status.label}
+    </Badge>
+  )
 }
 
 function buildFieldGroups(sheet: TrackSheet, fields: TrackField[]): FieldGroup[] {
@@ -119,6 +136,32 @@ function getGroupKey(group: FieldGroup) {
   return group.category?.id ?? "uncategorized"
 }
 
+function TrackReadonlyFieldValue({
+  field,
+  inputId,
+  value,
+  variant = "default",
+}: {
+  field: TrackField
+  inputId: string
+  value: string
+  variant?: "default" | "mobile"
+}) {
+  const isDate = field.type === "date"
+  const className = variant === "mobile"
+    ? "min-h-10 break-words rounded-lg border-2 border-border/60 bg-muted/30 px-3 py-2 text-sm font-normal leading-relaxed text-foreground"
+    : "min-h-10 break-words rounded-lg border border-border/40 bg-muted/40 px-3 py-2 text-sm font-normal text-foreground"
+
+  return (
+    <span id={inputId} className={className}>
+      <span className="flex min-w-0 items-center gap-2">
+        {isDate ? <CalendarIcon className="size-4 shrink-0 text-muted-foreground" /> : null}
+        <span className="min-w-0 break-words">{value}</span>
+      </span>
+    </span>
+  )
+}
+
 function TrackFormSidebar({
   groups,
   open,
@@ -134,13 +177,18 @@ function TrackFormSidebar({
   recordIndex: number
   sheet: TrackSheet
   onOpenChange: (open: boolean) => void
-  onSaved: () => void
+  onSaved: (record?: TrackRecord) => void
 }) {
   const isMobile = useIsMobile()
   const [values, setValues] = useState<Record<string, string>>({})
   const [editing, setEditing] = useState(false)
   const [editingGroupKey, setEditingGroupKey] = useState("")
   const [saving, setSaving] = useState(false)
+  const dragStartYRef = useRef(0)
+  const dragPointerIdRef = useRef<number | null>(null)
+  const dragLatestOffsetRef = useRef(0)
+  const dragSheetElementRef = useRef<HTMLElement | null>(null)
+  const dragCloseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const editingGroup = editingGroupKey
     ? groups.find((group) => getGroupKey(group) === editingGroupKey)
     : undefined
@@ -154,6 +202,17 @@ function TrackFormSidebar({
       setEditing(false)
       setEditingGroupKey("")
       setValues({})
+      dragPointerIdRef.current = null
+      dragLatestOffsetRef.current = 0
+      if (dragCloseTimeoutRef.current) {
+        clearTimeout(dragCloseTimeoutRef.current)
+        dragCloseTimeoutRef.current = null
+      }
+      if (dragSheetElementRef.current) {
+        dragSheetElementRef.current.style.transition = ""
+        dragSheetElementRef.current.style.transform = ""
+      }
+      dragSheetElementRef.current = null
       return
     }
 
@@ -183,7 +242,72 @@ function TrackFormSidebar({
     setValues((current) => ({ ...current, [fieldId]: value.slice(0, TRACK_RECORD_VALUE_MAX_LENGTH) }))
   }
 
-  async function submit(event: React.FormEvent<HTMLFormElement>) {
+  function getDragSheetElement(event: PointerEvent<HTMLDivElement>) {
+    return event.currentTarget.parentElement as HTMLElement | null
+  }
+
+  function startDragging(event: PointerEvent<HTMLDivElement>) {
+    if (!isMobile || saving || !event.isPrimary) return
+    const sheetElement = getDragSheetElement(event)
+    if (!sheetElement) return
+
+    dragStartYRef.current = event.clientY
+    dragPointerIdRef.current = event.pointerId
+    dragLatestOffsetRef.current = 0
+    dragSheetElementRef.current = sheetElement
+    if (dragCloseTimeoutRef.current) {
+      clearTimeout(dragCloseTimeoutRef.current)
+      dragCloseTimeoutRef.current = null
+    }
+    sheetElement.style.transition = "none"
+    event.currentTarget.setPointerCapture(event.pointerId)
+  }
+
+  function dragSheet(event: PointerEvent<HTMLDivElement>) {
+    if (dragPointerIdRef.current !== event.pointerId) return
+    const sheetElement = dragSheetElementRef.current
+    if (!sheetElement) return
+
+    const nextOffset = Math.max(0, event.clientY - dragStartYRef.current)
+    dragLatestOffsetRef.current = nextOffset
+    sheetElement.style.transform = `translateY(${nextOffset}px)`
+    event.preventDefault()
+  }
+
+  function stopDragging(event: PointerEvent<HTMLDivElement>) {
+    if (dragPointerIdRef.current !== event.pointerId) return
+    const sheetElement = dragSheetElementRef.current
+
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId)
+    }
+
+    const shouldClose = dragLatestOffsetRef.current > 96
+    dragPointerIdRef.current = null
+    dragLatestOffsetRef.current = 0
+    dragSheetElementRef.current = null
+
+    if (sheetElement) {
+      sheetElement.style.transition = "transform 0.35s cubic-bezier(0.32, 0.72, 0, 1)"
+
+      if (shouldClose) {
+        sheetElement.style.transform = "translateY(100%)"
+        dragCloseTimeoutRef.current = setTimeout(() => {
+          dragCloseTimeoutRef.current = null
+          onOpenChange(false)
+        }, TRACK_SHEET_DISMISS_ANIMATION_MS)
+        return
+      }
+
+      sheetElement.style.transform = ""
+    }
+
+    if (shouldClose) {
+      onOpenChange(false)
+    }
+  }
+
+  async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (!editing || editableFields.length === 0) return
     setSaving(true)
@@ -213,7 +337,7 @@ function TrackFormSidebar({
       setValues({})
       setEditing(false)
       setEditingGroupKey("")
-      onSaved()
+      onSaved(json?.record)
     } catch (err) {
       toast.error(getErrorMessage(err, "Gagal menyimpan data track surat"))
     } finally {
@@ -229,28 +353,39 @@ function TrackFormSidebar({
           showCloseButton={false}
           className="h-[88svh] max-h-[88svh] w-full gap-0 overflow-hidden rounded-t-[22px] border-x-0 border-b-0 bg-background p-0 shadow-2xl"
         >
-          <div className="flex justify-center px-4 pb-2 pt-3">
-            <span className="h-1 w-10 rounded-full bg-muted-foreground/20" />
-          </div>
-          <SheetHeader className="gap-0 border-b-2 border-border/70 px-4 pb-4 pt-2">
-            <div className="flex min-w-0 items-center justify-between gap-3">
-              <div className="min-w-0 flex-1">
-                <SheetTitle className="truncate text-base font-semibold">
-                  {editing ? "Edit Data" : "Detail Surat"}
-                </SheetTitle>
+          <div
+            className="touch-none cursor-grab active:cursor-grabbing"
+            onPointerDown={startDragging}
+            onPointerMove={dragSheet}
+            onPointerUp={stopDragging}
+            onPointerCancel={stopDragging}
+          >
+            <div className="px-4 pb-2 pt-3">
+              <div className="flex justify-center">
+                <span className="h-1 w-10 rounded-full bg-muted-foreground/20" />
               </div>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon-lg"
-                aria-label="Tutup"
-                onClick={() => onOpenChange(false)}
-                className="-mr-2 text-muted-foreground"
-              >
-                <X className="size-4" />
-              </Button>
             </div>
-          </SheetHeader>
+            <SheetHeader className="gap-0 border-b-2 border-border/70 px-4 pb-4 pt-2">
+              <div className="flex min-w-0 items-center justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                  <SheetTitle className="truncate text-base font-semibold">
+                    {editing ? "Edit Data" : "Detail Surat"}
+                  </SheetTitle>
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-lg"
+                  aria-label="Tutup"
+                  onPointerDown={(event) => event.stopPropagation()}
+                  onClick={() => onOpenChange(false)}
+                  className="-mr-2 text-muted-foreground"
+                >
+                  <X className="size-4" />
+                </Button>
+              </div>
+            </SheetHeader>
+          </div>
 
           <form onSubmit={submit} className="flex min-h-0 flex-1 flex-col">
             <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
@@ -269,44 +404,50 @@ function TrackFormSidebar({
                     key={groupKey}
                     className="overflow-hidden rounded-xl border-2 border-border/70 bg-background"
                   >
-                    <div className="flex flex-col gap-3 border-b-2 border-border/60 px-3 py-3">
+                    <div className="flex items-center justify-between gap-2 border-b-2 border-border/60 px-3 py-3">
                       <span
-                        className="inline-flex max-w-full rounded-md px-3 py-1 text-xs font-semibold"
-                        style={{
-                          backgroundColor: getSoftCategoryColor(group.color),
-                          color: getCategoryTextColor(group.color),
-                        }}
+                        className="inline-flex min-w-0 flex-1 rounded-md px-3 py-1 text-xs font-medium"
+                        style={getTrackCategoryStyle(group.color)}
                       >
                         <span className="truncate">{group.name}</span>
                       </span>
                       {isEditingGroup ? (
-                        <div className="flex flex-wrap gap-2">
+                        <div className="flex shrink-0 gap-2">
                           <Button
                             type="button"
                             variant="outline"
-                            size="sm"
+                            size="icon-lg"
                             onClick={cancelEditing}
                             disabled={saving}
+                            aria-label="Batal"
+                            title="Batal"
                             className="bg-background text-foreground hover:bg-muted hover:text-foreground focus-visible:text-foreground"
                           >
-                            Batal
+                            <X className="size-4" />
                           </Button>
-                          <Button type="submit" variant="action-primary" size="sm" disabled={saving || editableFields.length === 0}>
+                          <Button
+                            type="submit"
+                            variant="action-primary"
+                            size="icon-lg"
+                            disabled={saving || editableFields.length === 0}
+                            aria-label={saving ? "Menyimpan" : "Simpan"}
+                            title={saving ? "Menyimpan" : "Simpan"}
+                          >
                             <Save className="size-4" />
-                            {saving ? "Menyimpan" : "Simpan Data"}
                           </Button>
                         </div>
                       ) : (
                         <Button
                           type="button"
                           variant="outline"
-                          size="sm"
+                          size="icon-lg"
                           onClick={() => startEditingGroup(group)}
                           disabled={isEditButtonDisabled}
-                          className={`w-fit ${lockedByActiveEdit ? "disabled:opacity-40" : "disabled:opacity-100"}`}
+                          aria-label={editButtonLabel}
+                          title={editButtonLabel}
+                          className={`shrink-0 ${lockedByActiveEdit ? "disabled:opacity-40" : "disabled:opacity-100"}`}
                         >
                           {isEditButtonDisabled ? <Eye className="size-4" /> : <Pencil className="size-4" />}
-                          {editButtonLabel}
                         </Button>
                       )}
                     </div>
@@ -323,7 +464,7 @@ function TrackFormSidebar({
                           >
                             <Label
                               htmlFor={inputId}
-                              className="text-sm font-medium text-foreground"
+                              className="text-sm font-normal text-foreground"
                             >
                               {field.columnName}
                             </Label>
@@ -337,12 +478,12 @@ function TrackFormSidebar({
                                 maxLength={TRACK_RECORD_VALUE_MAX_LENGTH}
                               />
                             ) : (
-                              <span
-                                id={inputId}
-                                className="min-h-10 break-words rounded-lg border-2 border-border/60 bg-muted/30 px-3 py-2 text-sm font-medium leading-relaxed text-foreground"
-                              >
-                                {record ? getFieldValue(record, field, recordIndex) : "Belum diisi"}
-                              </span>
+                              <TrackReadonlyFieldValue
+                                field={field}
+                                inputId={inputId}
+                                value={record ? getFieldValue(record, field, recordIndex) : "Belum diisi"}
+                                variant="mobile"
+                              />
                             )}
                           </div>
                         )
@@ -389,10 +530,7 @@ function TrackFormSidebar({
                 <div className="flex flex-col gap-3 border-b border-border/40 px-3 py-3 sm:flex-row sm:items-center sm:justify-between">
                   <span
                     className="inline-flex max-w-full rounded-md px-3 py-1 text-xs font-semibold"
-                    style={{
-                      backgroundColor: getSoftCategoryColor(group.color),
-                      color: getCategoryTextColor(group.color),
-                    }}
+                    style={getTrackCategoryStyle(group.color)}
                   >
                     <span className="truncate">{group.name}</span>
                   </span>
@@ -434,7 +572,7 @@ function TrackFormSidebar({
 
                     return (
                       <div key={field.id} className="grid gap-2">
-                        <Label htmlFor={inputId}>{field.columnName}</Label>
+                        <Label htmlFor={inputId} className="font-normal">{field.columnName}</Label>
                         {editable ? (
                           <TrackRecordFieldControl
                             field={field}
@@ -445,12 +583,11 @@ function TrackFormSidebar({
                             maxLength={TRACK_RECORD_VALUE_MAX_LENGTH}
                           />
                         ) : (
-                          <span
-                            id={inputId}
-                            className="min-h-10 break-words rounded-lg border border-border/40 bg-muted/40 px-3 py-2 text-sm font-medium text-foreground"
-                          >
-                            {record ? getFieldValue(record, field, recordIndex) : "Belum diisi"}
-                          </span>
+                          <TrackReadonlyFieldValue
+                            field={field}
+                            inputId={inputId}
+                            value={record ? getFieldValue(record, field, recordIndex) : "Belum diisi"}
+                          />
                         )}
                       </div>
                     )
@@ -470,6 +607,7 @@ function TrackSuratInner() {
   const searchParams = useSearchParams()
   const selectedSheetId = searchParams.get("sheet")
   const [formOpen, setFormOpen] = useState(false)
+  const [currentPage, setCurrentPage] = useState(1)
   const [selectedRecord, setSelectedRecord] = useState<TrackRecord | null>(null)
   const [selectedRecordIndex, setSelectedRecordIndex] = useState(0)
   const {
@@ -482,7 +620,8 @@ function TrackSuratInner() {
     () => (tableData?.sheets ?? []).filter((sheet) => !sheet.hiddenAt),
     [tableData?.sheets]
   )
-  const sheet = selectedSheetId ? sheets.find((item) => item.id === selectedSheetId) : undefined
+  const effectiveSelectedSheetId = selectedSheetId || sheets[0]?.id || ""
+  const sheet = effectiveSelectedSheetId ? sheets.find((item) => item.id === effectiveSelectedSheetId) : undefined
   const allFields = useMemo(
     () => sheet?.fields ?? [],
     [sheet]
@@ -495,6 +634,7 @@ function TrackSuratInner() {
     if (!sheet) return []
     return getFirstCategoryFields(sheet)
   }, [sheet])
+  const tableColumnCount = displayFields.length + 1
 
   const recordsKey = sheet ? `/api/track-records?sheetId=${encodeURIComponent(sheet.id)}` : null
   const {
@@ -504,6 +644,21 @@ function TrackSuratInner() {
     mutate: mutateRecords,
   } = useSWR<TrackRecordResponse>(recordsKey, recordsFetcher)
   const records = recordData?.records ?? []
+  const totalPages = Math.max(1, Math.ceil(records.length / TRACK_RECORDS_PER_PAGE))
+  const pageStartIndex = (currentPage - 1) * TRACK_RECORDS_PER_PAGE
+  const pageEndIndex = Math.min(records.length, pageStartIndex + TRACK_RECORDS_PER_PAGE)
+  const paginatedRecords = records.slice(pageStartIndex, pageEndIndex)
+  const showPagination = records.length > TRACK_RECORDS_PER_PAGE
+
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [selectedSheetId])
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages)
+    }
+  }, [currentPage, totalPages])
 
   if (sheetsLoading) {
     return (
@@ -534,16 +689,6 @@ function TrackSuratInner() {
     )
   }
 
-  if (!selectedSheetId) {
-    return (
-      <EmptyState
-        icon={<FileSpreadsheet size={96} strokeWidth={1.25} />}
-        title="Pilih sheet terlebih dahulu"
-        description="Klik pilihan sheet di kanan atas untuk menampilkan data track surat."
-      />
-    )
-  }
-
   if (!sheet) {
     return (
       <EmptyState
@@ -566,6 +711,23 @@ function TrackSuratInner() {
       setSelectedRecord(null)
       setSelectedRecordIndex(0)
     }
+  }
+
+  function handleRecordSaved(record?: TrackRecord) {
+    if (record) {
+      setSelectedRecord(record)
+    }
+
+    void mutateRecords((current) => {
+      if (!current || !record) return current
+
+      const recordExists = current.records.some((item) => item.id === record.id)
+      const nextRecords = recordExists
+        ? current.records.map((item) => item.id === record.id ? record : item)
+        : [record, ...current.records]
+
+      return { ...current, records: nextRecords }
+    }, { revalidate: true })
   }
 
   return (
@@ -591,67 +753,85 @@ function TrackSuratInner() {
             className="min-h-[360px]"
           />
         ) : (
-          <>
-            <div className="hidden overflow-x-auto md:block">
+          <div className="overflow-x-auto">
+            <div className="min-w-[640px]">
               <div
-                className="grid min-w-full border-b border-border/40 bg-muted/40 px-4 py-3 text-[12px] font-medium text-muted-foreground"
-                style={{ gridTemplateColumns: `repeat(${displayFields.length}, minmax(clamp(120px, 22vw, 170px), 1fr))` }}
+                className="grid border-b border-border/40 bg-muted/40 px-4 py-3 text-[12px] font-medium text-muted-foreground"
+                style={{ gridTemplateColumns: `repeat(${tableColumnCount}, minmax(140px, 1fr))` }}
               >
                 {displayFields.map((field) => (
                   <div key={field.id} className="truncate pr-4">{field.columnName}</div>
                 ))}
+                <div className="truncate pr-4">Status</div>
               </div>
-              {records.map((record, recordIndex) => (
-                <div
-                  key={record.id}
-                  role="button"
-                  tabIndex={0}
-                  className="grid min-w-full cursor-pointer border-b border-border/40 px-4 py-3 text-sm outline-none transition-colors last:border-b-0 hover:bg-muted/25 focus-visible:bg-muted/30"
-                  style={{ gridTemplateColumns: `repeat(${displayFields.length}, minmax(clamp(120px, 22vw, 170px), 1fr))` }}
-                  onClick={() => openRecord(record, recordIndex)}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter" || event.key === " ") {
-                      event.preventDefault()
-                      openRecord(record, recordIndex)
-                    }
-                  }}
-                >
-                  {displayFields.map((field) => (
-                    <div key={`${record.id}-${field.id}`} className="truncate pr-4">
-                      {getFieldValue(record, field, recordIndex)}
-                    </div>
-                  ))}
-                </div>
-              ))}
-            </div>
+              {paginatedRecords.map((record, pageRecordIndex) => {
+                const recordIndex = pageStartIndex + pageRecordIndex
 
-            <div className="grid gap-3 p-4 md:hidden">
-              {records.map((record, recordIndex) => (
-                <Button
-                  key={record.id}
-                  type="button"
-                  variant="outline"
-                  className="h-auto w-full justify-start rounded-xl border-border/50 px-4 py-3 text-left hover:bg-muted/25 hover:text-foreground focus-visible:bg-muted/30"
-                  onClick={() => openRecord(record, recordIndex)}
-                >
-                  <div className="grid gap-2">
+                return (
+                  <div
+                    key={record.id}
+                    role="button"
+                    tabIndex={0}
+                    className="grid cursor-pointer border-b border-border/40 px-4 py-3 text-sm outline-none transition-colors last:border-b-0 hover:bg-muted/25 focus-visible:bg-muted/30"
+                    style={{ gridTemplateColumns: `repeat(${tableColumnCount}, minmax(140px, 1fr))` }}
+                    onClick={() => openRecord(record, recordIndex)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault()
+                        openRecord(record, recordIndex)
+                      }
+                    }}
+                  >
                     {displayFields.map((field) => (
-                      <div key={`${record.id}-${field.id}`} className="grid gap-1">
-                        <span className="text-xs font-medium text-muted-foreground">
-                          {field.columnName}
-                        </span>
-                        <span className="break-words text-sm font-semibold text-foreground">
-                          {getFieldValue(record, field, recordIndex)}
-                        </span>
+                      <div key={`${record.id}-${field.id}`} className="truncate pr-4">
+                        {getFieldValue(record, field, recordIndex)}
                       </div>
                     ))}
+                    <div className="pr-4">
+                      <TrackFillStatusBadge record={record} fields={allFields} />
+                    </div>
                   </div>
-                </Button>
-              ))}
+                )
+              })}
             </div>
-          </>
+          </div>
         )}
       </div>
+
+      {showPagination ? (
+        <div className="flex flex-col gap-3 rounded-xl border border-border/40 bg-background px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-muted-foreground">
+            Menampilkan {pageStartIndex + 1}-{pageEndIndex} dari {records.length} data
+          </p>
+          <div className="flex items-center justify-between gap-3 sm:justify-end">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+              disabled={currentPage === 1}
+              aria-label="Halaman sebelumnya"
+            >
+              <ChevronLeft className="size-4" />
+              Sebelumnya
+            </Button>
+            <span className="shrink-0 text-sm text-muted-foreground">
+              {currentPage}/{totalPages}
+            </span>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+              disabled={currentPage === totalPages}
+              aria-label="Halaman selanjutnya"
+            >
+              Berikutnya
+              <ChevronRight className="size-4" />
+            </Button>
+          </div>
+        </div>
+      ) : null}
 
       <TrackFormSidebar
         groups={allGroups}
@@ -660,7 +840,7 @@ function TrackSuratInner() {
         recordIndex={selectedRecordIndex}
         sheet={sheet}
         onOpenChange={handleFormOpenChange}
-        onSaved={() => mutateRecords()}
+        onSaved={handleRecordSaved}
       />
     </div>
   )

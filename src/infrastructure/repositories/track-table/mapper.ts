@@ -1,4 +1,5 @@
 import type { TrackCategory, TrackField, TrackFieldType, TrackSheet } from "@/types"
+import { DEFAULT_TRACK_CATEGORY_COLOR } from "@/lib/track-category-color"
 import type { TrackCategoryRow, TrackFieldRow, TrackSheetRow } from "./types"
 
 const FIELD_TYPES = new Set<TrackFieldType>(["text", "date", "number", "category"])
@@ -65,13 +66,38 @@ function deriveCategoriesFromFields(fields: TrackField[]) {
     categories.push({
       id: field.categoryId || `derived_${key.replace(/[^a-z0-9]+/g, "_")}`,
       name,
-      color: field.categoryColor || "#2563eb",
+      color: field.categoryColor || DEFAULT_TRACK_CATEGORY_COLOR,
       fillByHrd: field.fillByHrd,
       sortOrder: categories.length,
     })
   })
 
   return categories
+}
+
+function syncFieldsWithCategories(fields: TrackField[], categories: TrackCategory[]) {
+  if (categories.length === 0) return fields
+
+  const categoryById = new Map(categories.map((category) => [category.id, category]))
+  const categoryByName = new Map(categories.map((category) => [category.name.trim().toLowerCase(), category]))
+
+  return fields.map((field) => {
+    const category = categoryById.get(field.categoryId)
+      ?? categoryByName.get(field.category.trim().toLowerCase())
+
+    if (!category) return field
+
+    const isDefaultId = field.columnName.trim().toLowerCase() === DEFAULT_ID_COLUMN_NAME.toLowerCase()
+
+    return {
+      ...field,
+      categoryId: category.id,
+      category: category.name,
+      categoryColor: category.color,
+      region: category.name,
+      fillByHrd: isDefaultId ? false : category.fillByHrd,
+    }
+  })
 }
 
 export function attachTrackData(
@@ -96,6 +122,7 @@ export function attachTrackData(
 
   return sheets.map((sheet) => {
     const sheetFields = groupedFields.get(sheet.id) ?? []
+    const sheetCategories = groupedCategories.get(sheet.id) ?? deriveCategoriesFromFields(sheetFields)
 
     return {
       id: sheet.id,
@@ -103,8 +130,8 @@ export function attachTrackData(
       description: sheet.description,
       sortOrder: sheet.sortOrder,
       hiddenAt: sheet.hiddenAt,
-      categories: groupedCategories.get(sheet.id) ?? deriveCategoriesFromFields(sheetFields),
-      fields: sheetFields,
+      categories: sheetCategories,
+      fields: syncFieldsWithCategories(sheetFields, sheetCategories),
     }
   })
 }

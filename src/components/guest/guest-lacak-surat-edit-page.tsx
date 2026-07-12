@@ -4,7 +4,7 @@ import Link from "next/link"
 import { useParams, useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useMemo, useState, type FormEvent } from "react"
 import useSWR from "swr"
-import { ArrowLeft, Save } from "lucide-react"
+import { ArrowLeft, CalendarIcon, Save } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { EmptyState } from "@/components/ui/empty-state"
@@ -12,6 +12,8 @@ import { Label } from "@/components/ui/label"
 import { Skeleton } from "@/components/ui/skeleton"
 import { TrackRecordFieldControl } from "@/components/shared/track-record-field-control"
 import { routes } from "@/constants/routes"
+import { formatDateDisplay } from "@/lib/format-date-display"
+import { getTrackCategoryStyle } from "@/lib/track-category-color"
 import { getErrorMessage } from "@/lib/utils"
 import type { TrackCategory, TrackField, TrackRecord, TrackRecordResponse, TrackSheet, TrackTableResponse } from "@/types"
 
@@ -44,48 +46,18 @@ const recordsFetcher = async (url: string): Promise<TrackRecordResponse> => {
   return json
 }
 
-function getCategoryTextColor(backgroundColor: string) {
-  const hex = backgroundColor.replace("#", "")
-  if (!/^[0-9A-Fa-f]{6}$/.test(hex)) return "#1f2937"
-
-  const red = parseInt(hex.slice(0, 2), 16)
-  const green = parseInt(hex.slice(2, 4), 16)
-  const blue = parseInt(hex.slice(4, 6), 16)
-  const mix = 0.68
-
-  return `rgb(${Math.round(red * mix)}, ${Math.round(green * mix)}, ${Math.round(blue * mix)})`
-}
-
-function getSoftCategoryStyle(backgroundColor: string) {
-  const hex = backgroundColor.replace("#", "")
-  if (!/^[0-9A-Fa-f]{6}$/.test(hex)) {
-    return {
-      backgroundColor: "#f5f5f5",
-      color: "#374151",
-    }
-  }
-
-  const red = parseInt(hex.slice(0, 2), 16)
-  const green = parseInt(hex.slice(2, 4), 16)
-  const blue = parseInt(hex.slice(4, 6), 16)
-  const mix = 0.78
-  const softRed = Math.round(red + (255 - red) * mix)
-  const softGreen = Math.round(green + (255 - green) * mix)
-  const softBlue = Math.round(blue + (255 - blue) * mix)
-  const softColor = `rgb(${softRed}, ${softGreen}, ${softBlue})`
-
-  return {
-    backgroundColor: softColor,
-    color: getCategoryTextColor(backgroundColor),
-  }
-}
-
 function isDefaultIdField(field: TrackField) {
   return field.columnName.trim().toLowerCase() === "id"
 }
 
 function getRecordValue(record: TrackRecord, field: TrackField) {
-  return record.values[field.id]?.trim() || "-"
+  const value = record.values[field.id]?.trim()
+  if (!value) return "-"
+  return field.type === "date" ? formatDateDisplay(value) : value
+}
+
+function getRecordRawValue(record: TrackRecord, field: TrackField) {
+  return record.values[field.id]?.trim() ?? ""
 }
 
 function isEditableField(field: TrackField, group: FieldGroup) {
@@ -329,7 +301,7 @@ export function GuestLacakSuratEditPage() {
               <section className="grid gap-4 rounded-xl border border-neutral-200 bg-white p-4 shadow-sm">
                 <div
                   className="inline-flex w-fit min-w-36 items-center justify-center rounded-lg px-5 py-2 text-sm font-medium max-sm:w-full max-sm:min-w-0"
-                  style={getSoftCategoryStyle(readonlyFirstGroup.color)}
+                  style={getTrackCategoryStyle(readonlyFirstGroup.color)}
                 >
                   {readonlyFirstGroup.name}
                 </div>
@@ -340,9 +312,25 @@ export function GuestLacakSuratEditPage() {
                       <span className="text-sm font-medium tracking-[0px] text-neutral-700">
                         {field.columnName}
                       </span>
-                      <span className="min-h-10 break-words rounded-lg border border-neutral-200 bg-neutral-100 px-4 py-3 text-xs font-medium text-neutral-900">
-                        {getRecordValue(record, field)}
-                      </span>
+                      {field.type === "date" ? (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          disabled
+                          className="min-h-10 w-full justify-start rounded-lg border-neutral-200 bg-neutral-100 px-3 text-xs font-medium text-neutral-900 shadow-none disabled:cursor-default disabled:opacity-100"
+                        >
+                          <CalendarIcon className="size-4 shrink-0 text-neutral-700" />
+                          <span className="min-w-0 truncate">
+                            {getRecordRawValue(record, field)
+                              ? formatDateDisplay(getRecordRawValue(record, field))
+                              : "-"}
+                          </span>
+                        </Button>
+                      ) : (
+                        <span className="min-h-10 break-words rounded-lg border border-neutral-200 bg-neutral-100 px-4 py-3 text-xs font-medium text-neutral-900">
+                          {getRecordValue(record, field)}
+                        </span>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -352,7 +340,7 @@ export function GuestLacakSuratEditPage() {
             <form id="guest-track-category-edit-form" onSubmit={submit} className="grid gap-4 rounded-xl border border-neutral-200 bg-white p-4 shadow-sm">
               <div
                 className="inline-flex w-fit min-w-36 items-center justify-center rounded-lg px-5 py-2 text-sm font-medium max-sm:w-full max-sm:min-w-0"
-                style={getSoftCategoryStyle(selectedGroup.color)}
+                style={getTrackCategoryStyle(selectedGroup.color)}
               >
                 {selectedGroup.name}
               </div>

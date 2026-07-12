@@ -1,5 +1,6 @@
 import { betterFetch } from "@better-fetch/fetch"
 import { NextRequest, NextResponse } from "next/server"
+import { SESSION_LOGOUT_REDIRECT_COOKIE } from "@/constants/session"
 import { type ExtendedSession } from "@/types/auth"
 
 // ── Protected paths (Harus Login) ─────────────────────────────────
@@ -48,8 +49,21 @@ export default async function middleware(request: NextRequest) {
   // 3. Redirect ke login jika tidak ada sesi
   if (!session) {
     const loginUrl = new URL("/login", request.url)
-    loginUrl.searchParams.set("callbackUrl", pathname)
-    return NextResponse.redirect(loginUrl)
+    const isLogoutRedirect = request.cookies.get(SESSION_LOGOUT_REDIRECT_COOKIE)?.value === "1"
+
+    if (!isLogoutRedirect) {
+      loginUrl.searchParams.set("callbackUrl", pathname)
+    }
+
+    const response = NextResponse.redirect(loginUrl)
+    if (isLogoutRedirect) {
+      response.cookies.set(SESSION_LOGOUT_REDIRECT_COOKIE, "", {
+        maxAge: 0,
+        path: "/",
+      })
+    }
+
+    return response
   }
 
   // Ambil Role User

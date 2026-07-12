@@ -62,7 +62,7 @@ export const EMPTY_TRACK_FIELD: TrackField = {
   id: "",
   categoryId: "",
   category: "",
-  categoryColor: "#2563eb",
+  categoryColor: "#ffffff",
   region: "",
   columnName: "",
   type: "text",

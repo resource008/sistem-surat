@@ -2,7 +2,7 @@ import { prisma } from "@/infrastructure/databases/prisma-client"
 import { formatRegisterNumber } from "@/lib/format-register-number"
 
 // Increment counter dan kembalikan nomor baru
-// Dipanggil saat CREATE surat — counter langsung naik
+// Dipanggil saat CREATE surat - counter langsung naik
 export async function generateNomor(deptId: string): Promise<string> {
   const counter = await prisma.nomorCounter.upsert({
     where:  { deptId },          // ← field sesuai schema: deptId bukan dept

@@ -1,6 +1,7 @@
 "use client"
 
 import styles from "@/app/layout.module.css"
+import { IdleSessionGuard } from "@/components/auth/idle-session-guard"
 import TopbarFilter from "@/components/filters/index"
 import type { Filters } from "@/hooks/use-filter"
 import { PermissionDenied } from "@/components/shared/permission"
@@ -158,6 +159,8 @@ function RoleLayoutInner({ role, children }: Props) {
   )
   const trackSheets = (trackTableData?.sheets ?? []).filter((sheet) => !sheet.hiddenAt)
   const selectedTrackSheetId = searchParams.get("sheet") ?? ""
+  const firstTrackSheetId = trackSheets[0]?.id ?? ""
+  const effectiveSelectedTrackSheetId = selectedTrackSheetId || firstTrackSheetId
 
   useEffect(() => {
     const saved = localStorage.getItem("sidebar_collapsed")
@@ -260,6 +263,17 @@ function RoleLayoutInner({ role, children }: Props) {
     if (!isDataSuratPage) setDataSuratSearchColumns([])
   }, [isDataSuratPage])
 
+  useEffect(() => {
+    if (!isTrackPage || trackSheetsLoading || trackSheets.length === 0) return
+
+    const selectedExists = trackSheets.some((sheet) => sheet.id === selectedTrackSheetId)
+    if (selectedTrackSheetId && selectedExists) return
+
+    const params = new URLSearchParams(searchParams.toString())
+    params.set("sheet", trackSheets[0].id)
+    router.replace(`${base}/track?${params.toString()}`)
+  }, [base, isTrackPage, router, searchParams, selectedTrackSheetId, trackSheets, trackSheetsLoading])
+
   function handleClearFilters() {
     const next: Filters = { date: null, departments: [] }
     setFilters(next)
@@ -312,10 +326,12 @@ function RoleLayoutInner({ role, children }: Props) {
     : collapsed ? "var(--sidebar-w-collapsed)" : "var(--sidebar-w)"
 
   return (
-    <div className={styles.root}>
-      {isMobile && mobileOpen && (
-        <div className={styles.backdrop} onClick={() => setMobileOpen(false)} />
-      )}
+    <>
+      <IdleSessionGuard />
+      <div className={styles.root}>
+        {isMobile && mobileOpen && (
+          <div className={styles.backdrop} onClick={() => setMobileOpen(false)} />
+        )}
 
       <RoleSidebar
         role={role}
@@ -489,11 +505,11 @@ function RoleLayoutInner({ role, children }: Props) {
           {isTrackPage && !isDenied && (
             <div className={`${styles.topbarRight} ${styles.topbarRightTrack}`}>
               <Select
-                value={selectedTrackSheetId}
+                value={effectiveSelectedTrackSheetId}
                 onValueChange={handleTrackSheetChange}
                 disabled={trackSheetsLoading || trackSheets.length === 0}
               >
-                <SelectTrigger className="h-9 w-[clamp(132px,42vw,180px)] rounded-xl text-[13px] sm:w-[220px]">
+                <SelectTrigger className="h-9 w-[clamp(132px,42vw,180px)] text-[13px] sm:w-[220px]">
                   <SelectValue placeholder="Pilih Sheet" />
                 </SelectTrigger>
                 <SelectContent>
@@ -534,7 +550,8 @@ function RoleLayoutInner({ role, children }: Props) {
           </button>
         )}
       </main>
-    </div>
+      </div>
+    </>
   )
 }
 

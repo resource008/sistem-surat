@@ -1,6 +1,7 @@
 import { betterAuth } from "better-auth"
 import { prismaAdapter } from "better-auth/adapters/prisma"
 import { bearer, username } from "better-auth/plugins"
+import { SESSION_IDLE_TIMEOUT_MS } from "@/constants/session"
 import { prisma } from "../databases/prisma-client"
 
 const splitOrigins = (value?: string) =>
@@ -22,6 +23,10 @@ export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
+  session: {
+    expiresIn: SESSION_IDLE_TIMEOUT_MS / 1000,
+    updateAge: 0,
+  },
   trustedOrigins,
   emailAndPassword: {
     enabled: true,
