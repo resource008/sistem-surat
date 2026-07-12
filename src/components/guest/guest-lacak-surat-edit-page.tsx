@@ -275,13 +275,16 @@ export function GuestLacakSuratEditPage() {
     <main className="min-h-svh bg-[#fbfbfb] text-black">
       <header className="sticky top-0 z-30 flex min-h-16 items-center justify-between gap-3 border-b border-neutral-200 bg-white px-6 py-3 max-sm:px-4">
         <div className="flex min-w-0 items-center gap-2">
-          <Link
-            href={detailHref}
-            aria-label="Kembali"
-            className="inline-flex size-9 shrink-0 items-center justify-center rounded-lg text-neutral-700 transition hover:bg-neutral-100"
+          <Button
+            asChild
+            variant="ghost"
+            size="icon-lg"
+            className="shrink-0 text-neutral-700 hover:bg-neutral-100 hover:text-neutral-700"
           >
-            <ArrowLeft className="size-4" />
-          </Link>
+            <Link href={detailHref} aria-label="Kembali">
+              <ArrowLeft className="size-4" />
+            </Link>
+          </Button>
           <h1 className="truncate text-sm font-semibold">{title}</h1>
         </div>
       </header>
