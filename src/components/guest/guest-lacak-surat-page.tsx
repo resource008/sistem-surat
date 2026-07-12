@@ -4,12 +4,14 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useEffect, useMemo, useRef, useState } from "react"
 import useSWR from "swr"
-import { LogIn, Plus, Search, X } from "lucide-react"
+import { LogIn, Plus, Search, SearchX, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { EmptyState } from "@/components/ui/empty-state"
 import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
 import { routes } from "@/constants/routes"
+import { formatDateDisplay } from "@/lib/format-date-display"
+import { getTrackCategoryStyle } from "@/lib/track-category-color"
 import type { TrackCategory, TrackField, TrackRecord, TrackRecordResponse, TrackSheet, TrackTableResponse } from "@/types"
 
 type FieldGroup = {
@@ -24,42 +26,6 @@ const GUEST_EMPTY_STATE_COLORS = {
   iconClassName: "text-[#1f2f46] dark:text-[#1f2f46]",
   titleClassName: "text-[#1f2f46] dark:text-[#1f2f46]",
   descriptionClassName: "text-[#546783] dark:text-[#546783]",
-}
-
-function getCategoryTextColor(backgroundColor: string) {
-  const hex = backgroundColor.replace("#", "")
-  if (!/^[0-9A-Fa-f]{6}$/.test(hex)) return "#1f2937"
-
-  const red = parseInt(hex.slice(0, 2), 16)
-  const green = parseInt(hex.slice(2, 4), 16)
-  const blue = parseInt(hex.slice(4, 6), 16)
-  const mix = 0.68
-
-  return `rgb(${Math.round(red * mix)}, ${Math.round(green * mix)}, ${Math.round(blue * mix)})`
-}
-
-function getSoftCategoryStyle(backgroundColor: string) {
-  const hex = backgroundColor.replace("#", "")
-  if (!/^[0-9A-Fa-f]{6}$/.test(hex)) {
-    return {
-      backgroundColor: "#f5f5f5",
-      color: "#374151",
-    }
-  }
-
-  const red = parseInt(hex.slice(0, 2), 16)
-  const green = parseInt(hex.slice(2, 4), 16)
-  const blue = parseInt(hex.slice(4, 6), 16)
-  const mix = 0.78
-  const softRed = Math.round(red + (255 - red) * mix)
-  const softGreen = Math.round(green + (255 - green) * mix)
-  const softBlue = Math.round(blue + (255 - blue) * mix)
-  const softColor = `rgb(${softRed}, ${softGreen}, ${softBlue})`
-
-  return {
-    backgroundColor: softColor,
-    color: getCategoryTextColor(backgroundColor),
-  }
 }
 
 const sheetsFetcher = async (url: string): Promise<TrackTableResponse> => {
@@ -82,7 +48,9 @@ function isDefaultIdField(field: TrackField) {
 
 function getRecordValue(record: TrackRecord, field: TrackField, index: number) {
   if (isDefaultIdField(field)) return String(index + 1)
-  return record.values[field.id]?.trim() || "-"
+  const value = record.values[field.id]?.trim()
+  if (!value) return "-"
+  return field.type === "date" ? formatDateDisplay(value) : value
 }
 
 function buildDisplayGroups(sheet: TrackSheet): FieldGroup[] {
@@ -303,6 +271,7 @@ export function GuestLacakSuratPage({ initialSheetId = "" }: GuestLacakSuratPage
           <EmptyState
             title={query.trim() ? "Tidak ada data yang dicari" : "Tidak ada data terbaru"}
             description={query.trim() ? "Data yang dicari tidak ditemukan." : "Tidak ada data terbaru untuk saat ini."}
+            icon={query.trim() ? <SearchX size={120} strokeWidth={1} /> : undefined}
             className="min-h-[min(360px,calc(100svh-180px))]"
             {...GUEST_EMPTY_STATE_COLORS}
           />
@@ -313,7 +282,7 @@ export function GuestLacakSuratPage({ initialSheetId = "" }: GuestLacakSuratPage
                 {group.category ? (
                   <div
                     className="rounded-lg px-4 py-2 text-center text-xs font-bold tracking-[0px]"
-                    style={getSoftCategoryStyle(group.color)}
+                    style={getTrackCategoryStyle(group.color)}
                   >
                     {group.name}
                   </div>
@@ -376,12 +345,12 @@ export function GuestLacakSuratPage({ initialSheetId = "" }: GuestLacakSuratPage
                 <Button
                   key={sheet.id}
                   type="button"
-                  variant={active ? "action-primary" : "ghost"}
+                  variant="ghost"
                   onClick={() => selectSheet(sheet.id)}
                   className={`h-9 rounded-full px-4 text-[13px] font-medium ${
                     active
-                      ? "bg-blue-600 text-white hover:bg-blue-700 hover:text-white"
-                      : "text-neutral-500 hover:bg-neutral-100 hover:text-neutral-900"
+                      ? "bg-blue-600 text-white hover:!bg-neutral-100 hover:!text-black"
+                      : "text-neutral-500 hover:!bg-neutral-100 hover:!text-black"
                   }`}
                 >
                   {sheet.name}

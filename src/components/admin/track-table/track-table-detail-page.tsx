@@ -16,6 +16,7 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { EmptyState } from "@/components/ui/empty-state"
+import { getTrackCategoryStyle } from "@/lib/track-category-color"
 import { getErrorMessage } from "@/lib/utils"
 import { TRACK_FIELD_TYPES, type TrackField, type TrackFieldType, type TrackSheet } from "@/types"
 import { TrackTableDetailSkeleton } from "./track-table-skeletons"
@@ -104,7 +105,7 @@ export default function TrackTableDetailPage() {
       ))
 
       if (mode === "hard") {
-        router.push("/admin/kelola-tabel-lacak")
+        router.push("/admin/lacak-surat")
         return
       }
 
@@ -147,7 +148,7 @@ export default function TrackTableDetailPage() {
     return (
       <div className="flex min-h-[360px] flex-col items-center justify-center gap-3">
         <p className="text-sm text-muted-foreground">{error?.message ?? "Sheet lacak tidak ditemukan"}</p>
-        <Button variant="outline" onClick={() => router.push("/admin/kelola-tabel-lacak")}>
+        <Button variant="outline" onClick={() => router.push("/admin/lacak-surat")}>
           Kembali
         </Button>
       </div>
@@ -203,16 +204,12 @@ export default function TrackTableDetailPage() {
       </div>
 
       <div className="rounded-xl border border-border/40 bg-background">
-        <div className="flex flex-col gap-2 border-b border-border/40 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="border-b border-border/40 px-4 py-4">
           <div>
             <h2 className="text-base font-semibold">Seluruh Kolom</h2>
             <p className="mt-1 text-sm text-muted-foreground">
               Daftar kolom, kategori, tipe data, dan mode izin pengisian.
             </p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Badge variant="secondary">{sheet.fields.length} kolom</Badge>
-            <Badge variant={hrdFieldsCount > 0 ? "secondary" : "outline"}>{hrdFieldsCount} HRD</Badge>
           </div>
         </div>
 
@@ -224,7 +221,7 @@ export default function TrackTableDetailPage() {
           />
         ) : (
           <>
-            <div className="hidden overflow-x-auto md:block">
+            <div className="overflow-x-auto">
               <div className="grid min-w-[1080px] grid-cols-[56px_minmax(180px,1.2fr)_200px_120px_minmax(190px,0.9fr)_minmax(180px,1fr)] items-center bg-muted/40 px-4 py-3 text-[12px] font-medium text-muted-foreground">
                 <div>No</div>
                 <div>Nama Kolom</div>
@@ -247,14 +244,17 @@ export default function TrackTableDetailPage() {
                     </div>
                     <div className="mt-0.5 truncate text-xs text-muted-foreground">{field.region || "Global"}</div>
                   </div>
-                  <div className="flex min-w-0 items-center gap-2 pr-4">
+                  <div className="min-w-0 pr-4">
                     {field.category ? (
                       <span
-                        className="size-3 shrink-0 rounded-full"
-                        style={{ backgroundColor: field.categoryColor }}
-                      />
-                    ) : null}
-                    <span className="truncate">{field.category || "Tanpa kategori"}</span>
+                        className="inline-flex max-w-full items-center rounded-md border px-2 py-1 text-xs font-semibold"
+                        style={getTrackCategoryStyle(field.categoryColor)}
+                      >
+                        <span className="truncate">{field.category}</span>
+                      </span>
+                    ) : (
+                      <span className="truncate text-muted-foreground">Tanpa kategori</span>
+                    )}
                   </div>
                   <div>
                     <Badge variant="outline">{getTypeLabel(field.type)}</Badge>
@@ -268,46 +268,6 @@ export default function TrackTableDetailPage() {
                     </Badge>
                   </div>
                   <FieldExtraBadges field={field} className="pr-2" />
-                </div>
-              ))}
-            </div>
-
-            <div className="grid gap-3 p-4 md:hidden">
-              {sheet.fields.map((field, index) => (
-                <div key={field.id} className="rounded-lg border border-border/40 bg-muted/10 p-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <div className="flex min-w-0 flex-wrap items-center gap-2">
-                        <span className="truncate text-sm font-semibold">{field.columnName}</span>
-                        {field.hiddenAt ? <Badge variant="outline">Disembunyikan</Badge> : null}
-                      </div>
-                      <div className="mt-1 text-xs text-muted-foreground">{field.region || "Global"}</div>
-                    </div>
-                    <span className="inline-flex size-7 shrink-0 items-center justify-center rounded-md bg-background text-xs font-semibold text-muted-foreground ring-1 ring-border/60">
-                      {index + 1}
-                    </span>
-                  </div>
-                  <div className="mt-3 flex flex-wrap items-center gap-2">
-                    <span
-                      className="inline-flex h-6 items-center gap-1.5 rounded-4xl border border-border bg-background px-2 text-xs font-medium"
-                    >
-                      {field.category ? (
-                        <span
-                          className="size-2 rounded-full"
-                          style={{ backgroundColor: field.categoryColor }}
-                        />
-                      ) : null}
-                      {field.category || "Tanpa kategori"}
-                    </span>
-                    <Badge
-                      variant={field.fillByHrd ? "secondary" : "outline"}
-                      className={field.fillByHrd ? "bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300" : "text-muted-foreground"}
-                    >
-                      {getPermissionLabel(field)}
-                    </Badge>
-                    <Badge variant="outline">{getTypeLabel(field.type)}</Badge>
-                  </div>
-                  <FieldExtraBadges field={field} className="mt-3" />
                 </div>
               ))}
             </div>
@@ -327,7 +287,7 @@ export default function TrackTableDetailPage() {
             type="button"
             variant="action-neutral"
             size="fab-action"
-            onClick={() => router.push("/admin/kelola-tabel-lacak")}
+            onClick={() => router.push("/admin/lacak-surat")}
             className="shrink-0"
           >
             <ArrowLeft /> Kembali
@@ -336,7 +296,7 @@ export default function TrackTableDetailPage() {
             type="button"
             variant="action-secondary"
             size="fab-action"
-            onClick={() => router.push(`/admin/kelola-tabel-lacak/${encodeURIComponent(sheet.id)}/edit`)}
+            onClick={() => router.push(`/admin/lacak-surat/${encodeURIComponent(sheet.id)}/edit`)}
             className="shrink-0"
           >
             <Pencil /> Edit

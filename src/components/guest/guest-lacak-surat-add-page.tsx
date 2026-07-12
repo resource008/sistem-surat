@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton"
 import { TrackRecordFieldControl } from "@/components/shared/track-record-field-control"
 import { routes } from "@/constants/routes"
+import { getTrackCategoryStyle } from "@/lib/track-category-color"
 import { getErrorMessage } from "@/lib/utils"
 import type { TrackCategory, TrackField, TrackTableResponse, TrackSheet } from "@/types"
 
@@ -29,42 +30,6 @@ const GUEST_EMPTY_STATE_COLORS = {
   descriptionClassName: "text-[#546783] dark:text-[#546783]",
 }
 const TRACK_RECORD_VALUE_MAX_LENGTH = 50
-
-function getCategoryTextColor(backgroundColor: string) {
-  const hex = backgroundColor.replace("#", "")
-  if (!/^[0-9A-Fa-f]{6}$/.test(hex)) return "#1f2937"
-
-  const red = parseInt(hex.slice(0, 2), 16)
-  const green = parseInt(hex.slice(2, 4), 16)
-  const blue = parseInt(hex.slice(4, 6), 16)
-  const mix = 0.68
-
-  return `rgb(${Math.round(red * mix)}, ${Math.round(green * mix)}, ${Math.round(blue * mix)})`
-}
-
-function getSoftCategoryStyle(backgroundColor: string) {
-  const hex = backgroundColor.replace("#", "")
-  if (!/^[0-9A-Fa-f]{6}$/.test(hex)) {
-    return {
-      backgroundColor: "#f5f5f5",
-      color: "#374151",
-    }
-  }
-
-  const red = parseInt(hex.slice(0, 2), 16)
-  const green = parseInt(hex.slice(2, 4), 16)
-  const blue = parseInt(hex.slice(4, 6), 16)
-  const mix = 0.78
-  const softRed = Math.round(red + (255 - red) * mix)
-  const softGreen = Math.round(green + (255 - green) * mix)
-  const softBlue = Math.round(blue + (255 - blue) * mix)
-  const softColor = `rgb(${softRed}, ${softGreen}, ${softBlue})`
-
-  return {
-    backgroundColor: softColor,
-    color: getCategoryTextColor(backgroundColor),
-  }
-}
 
 const sheetsFetcher = async (url: string): Promise<TrackTableResponse> => {
   const res = await fetch(url)
@@ -185,13 +150,13 @@ function GuestLacakSuratAddContent() {
 
   return (
     <main className="min-h-svh bg-[#fbfbfb] text-black">
-      <header className="sticky top-0 z-30 flex min-h-20 items-center justify-between gap-3 border-b border-neutral-200 bg-white px-10 py-4 max-md:px-6 max-sm:min-h-16 max-sm:px-4">
+      <header className="sticky top-0 z-30 flex min-h-16 items-center justify-between gap-3 border-b border-neutral-200 bg-white px-10 py-3 max-md:px-6 max-sm:px-4">
         <div className="flex min-w-0 items-center gap-3">
           <Button
             asChild
             variant="ghost"
             size="icon-lg"
-            className="shrink-0 text-neutral-800 hover:bg-neutral-100 hover:text-neutral-900"
+            className="shrink-0 text-neutral-800 hover:!bg-neutral-100 hover:!text-black"
           >
             <Link href={routes.guest.lacakSurat} aria-label="Kembali">
               <ArrowLeft className="size-4" />
@@ -200,14 +165,14 @@ function GuestLacakSuratAddContent() {
           <h1 className="truncate text-base font-semibold">Tambah data</h1>
         </div>
 
-        <div className="w-44 shrink-0 max-sm:w-36">
+        <div className="w-56 shrink-0 max-sm:w-40">
           <Select value={selectedSheet?.id ?? ""} onValueChange={changeSheet} disabled={saving || sheets.length === 0}>
-            <SelectTrigger className="h-10 w-full rounded-full border-neutral-200 bg-white px-5 text-sm text-neutral-700 shadow-sm">
+            <SelectTrigger className="h-10 w-full rounded-lg border-neutral-200 bg-white px-3 text-sm font-medium text-neutral-900 shadow-none hover:bg-white focus-visible:ring-blue-200">
               <SelectValue placeholder="Pilih Sheet" />
             </SelectTrigger>
-            <SelectContent className="bg-white text-black">
+            <SelectContent align="end" position="popper" className="rounded-lg bg-white p-1 text-black">
               {sheets.map((sheet) => (
-                <SelectItem key={sheet.id} value={sheet.id}>
+                <SelectItem key={sheet.id} value={sheet.id} className="rounded-md px-3 py-2 text-sm">
                   {sheet.name}
                 </SelectItem>
               ))}
@@ -216,7 +181,7 @@ function GuestLacakSuratAddContent() {
         </div>
       </header>
 
-      <section className="w-full px-10 py-8 pb-[calc(7rem+env(safe-area-inset-bottom))] max-md:px-6 max-sm:px-4">
+      <section className="w-full px-10 py-8 pb-[calc(8rem+env(safe-area-inset-bottom))] max-md:px-6 max-sm:px-4">
         {isLoading ? (
           <div className="grid gap-4">
             <Skeleton className="h-12 w-full rounded-xl bg-neutral-200" />
@@ -251,23 +216,25 @@ function GuestLacakSuratAddContent() {
             {...GUEST_EMPTY_STATE_COLORS}
           />
         ) : (
-          <form id="guest-track-add-form" onSubmit={submit} className="grid gap-6">
-            <section className="grid gap-6">
-              {firstGroup ? (
-                <div
-                  className="inline-flex h-8 w-40 items-center justify-center rounded-lg px-4 text-sm font-medium"
-                  style={getSoftCategoryStyle(firstGroup.color)}
-                >
-                  {firstGroup.name}
-                </div>
-              ) : null}
+          <form id="guest-track-add-form" onSubmit={submit} className="mx-auto grid w-full max-w-6xl gap-5">
+            <section className="grid gap-6 rounded-xl border border-neutral-200 bg-white p-6 shadow-sm max-sm:p-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                {firstGroup ? (
+                  <div
+                    className="inline-flex h-10 min-w-40 items-center justify-center rounded-lg px-5 text-sm font-semibold max-sm:w-full"
+                    style={getTrackCategoryStyle(firstGroup.color)}
+                  >
+                    {firstGroup.name}
+                  </div>
+                ) : null}
+              </div>
 
-              <div className="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+              <div className="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {fields.map((field) => {
                   const inputId = `guest-track-add-${field.id}`
                   return (
                     <div key={field.id} className="grid gap-2">
-                      <Label htmlFor={inputId} className="text-xs font-bold uppercase tracking-[0px] text-neutral-600">
+                      <Label htmlFor={inputId} className="text-xs font-semibold normal-case tracking-[0px] text-neutral-700">
                         {field.columnName}
                       </Label>
                       <TrackRecordFieldControl
@@ -277,7 +244,7 @@ function GuestLacakSuratAddContent() {
                         onChange={(value) => updateValue(field.id, value)}
                         disabled={saving}
                         maxLength={TRACK_RECORD_VALUE_MAX_LENGTH}
-                        className="h-8 rounded-lg border-neutral-200 bg-neutral-100 text-xs font-medium shadow-none placeholder:text-neutral-500 hover:bg-neutral-100"
+                        className="h-10 rounded-lg border-neutral-200 bg-white text-sm font-medium text-neutral-900 shadow-none placeholder:text-neutral-400 hover:bg-white focus-visible:ring-blue-200"
                       />
                     </div>
                   )
@@ -295,7 +262,7 @@ function GuestLacakSuratAddContent() {
           if (!selectedSheet || fields.length === 0) validateBeforeSave()
         }}
         disabled={saving || isLoading || Boolean(error)}
-        className="fixed bottom-[calc(3rem+env(safe-area-inset-bottom))] right-10 z-40 h-12 rounded-xl bg-blue-600 px-6 text-sm font-semibold text-white shadow-lg hover:bg-blue-700 hover:text-white disabled:bg-blue-400 max-sm:left-4 max-sm:right-4 max-sm:w-auto"
+        className="fixed bottom-[calc(2rem+env(safe-area-inset-bottom))] right-10 z-40 h-12 rounded-xl bg-blue-600 px-6 text-sm font-semibold text-white shadow-none hover:bg-blue-700 hover:text-white disabled:bg-blue-400 max-sm:left-4 max-sm:right-4 max-sm:w-auto"
       >
         <Save className="size-4" />
         {saving ? "Menyimpan" : "Simpan"}

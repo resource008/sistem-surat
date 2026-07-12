@@ -46,7 +46,7 @@ export async function ensureTrackTableSchema() {
       id TEXT PRIMARY KEY,
       sheet_id TEXT NOT NULL REFERENCES track_sheets(id) ON DELETE CASCADE,
       name TEXT NOT NULL,
-      color TEXT NOT NULL DEFAULT '#2563eb',
+      color TEXT NOT NULL DEFAULT '#ffffff',
       fill_by_hrd BOOLEAN NOT NULL DEFAULT false,
       sort_order INTEGER NOT NULL DEFAULT 0,
       created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -75,7 +75,7 @@ export async function ensureTrackTableSchema() {
       sheet_id TEXT NOT NULL REFERENCES track_sheets(id) ON DELETE CASCADE,
       category_id TEXT,
       category TEXT NOT NULL,
-      category_color TEXT NOT NULL DEFAULT '#2563eb',
+      category_color TEXT NOT NULL DEFAULT '#ffffff',
       region TEXT NOT NULL,
       column_name TEXT NOT NULL,
       data_type TEXT NOT NULL CHECK (data_type IN ('text', 'date', 'number', 'category')),
@@ -91,7 +91,7 @@ export async function ensureTrackTableSchema() {
 
   await prisma.$executeRaw`
     ALTER TABLE track_fields
-    ADD COLUMN IF NOT EXISTS category_color TEXT NOT NULL DEFAULT '#2563eb'
+    ADD COLUMN IF NOT EXISTS category_color TEXT NOT NULL DEFAULT '#ffffff'
   `
 
   await prisma.$executeRaw`

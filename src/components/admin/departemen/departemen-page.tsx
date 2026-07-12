@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation"
 import { useDepartemenList } from "@/hooks/use-departemen-list"
 import type { Departemen } from "@/types"
 import { DepartemenAddFab } from "./departemen-add-fab"
-import { DepartemenMobileList } from "./departemen-mobile-list"
 import { DepartemenTable } from "./departemen-table"
 
 export default function DepartemenPage() {
@@ -18,13 +17,6 @@ export default function DepartemenPage() {
   return (
     <div className="flex flex-col gap-4 pb-24">
       <DepartemenTable
-        departments={state.departments}
-        error={state.error}
-        isLoading={state.isLoading}
-        onOpenDetail={openDetail}
-      />
-
-      <DepartemenMobileList
         departments={state.departments}
         error={state.error}
         isLoading={state.isLoading}

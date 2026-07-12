@@ -4,45 +4,47 @@ export function TrackTableListSkeleton() {
   return (
     <div className="flex flex-col gap-4 pb-24">
       <div className="hidden overflow-hidden rounded-xl border border-border/40 bg-background md:block">
-        <div className="grid grid-cols-[minmax(0,1fr)_140px_140px_120px] border-b border-border/40 bg-muted/40 px-4 py-3">
-          <Skeleton className="h-3 w-20" />
-          <Skeleton className="h-3 w-12" />
-          <Skeleton className="h-3 w-12" />
-          <Skeleton className="h-3 w-10" />
-        </div>
-        {Array.from({ length: 5 }).map((_, index) => (
-          <div
-            key={index}
-            className="grid grid-cols-[minmax(0,1fr)_140px_140px_120px] items-center border-b border-border/40 px-4 py-3 last:border-b-0"
-          >
-            <Skeleton className="h-4 w-52 max-w-full" />
-            <Skeleton className="h-5 w-24 rounded-full" />
-            <Skeleton className="h-5 w-16 rounded-full" />
-            <div className="flex items-center gap-1">
-              <Skeleton className="size-7 rounded-lg" />
-              <Skeleton className="size-7 rounded-lg" />
-            </div>
+        <div className="overflow-x-auto">
+          <div className="grid min-w-[640px] grid-cols-[minmax(220px,1fr)_140px_140px_120px] border-b border-border/40 bg-muted/40 px-4 py-3">
+            <Skeleton className="h-3 w-20" />
+            <Skeleton className="h-3 w-12" />
+            <Skeleton className="h-3 w-12" />
+            <Skeleton className="h-3 w-10" />
           </div>
-        ))}
-      </div>
-
-      <div className="grid gap-3 md:hidden">
-        {Array.from({ length: 4 }).map((_, index) => (
-          <div key={index} className="rounded-xl border border-border/40 bg-background p-4">
-            <div className="flex items-start justify-between gap-3">
-              <Skeleton className="h-4 w-40" />
-              <Skeleton className="h-5 w-16 rounded-full" />
-            </div>
-            <div className="mt-4 flex items-center justify-between gap-3">
-              <Skeleton className="h-3 w-12" />
+          {Array.from({ length: 5 }).map((_, index) => (
+            <div
+              key={index}
+              className="grid min-w-[640px] grid-cols-[minmax(220px,1fr)_140px_140px_120px] items-center border-b border-border/40 px-4 py-3 last:border-b-0"
+            >
+              <Skeleton className="h-4 w-52 max-w-full" />
               <Skeleton className="h-5 w-24 rounded-full" />
-            </div>
-            <div className="mt-4 flex items-center justify-between gap-3">
-              <Skeleton className="h-3 w-10" />
+              <Skeleton className="h-5 w-16 rounded-full" />
               <div className="flex items-center gap-1">
                 <Skeleton className="size-7 rounded-lg" />
                 <Skeleton className="size-7 rounded-lg" />
               </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="grid gap-3 md:hidden">
+        {Array.from({ length: 4 }).map((_, index) => (
+          <div key={index} className="overflow-hidden rounded-xl border border-border/40 bg-background">
+            <div className="grid gap-3 p-4">
+              <Skeleton className="h-4 w-40" />
+              <div className="flex items-center justify-between gap-3">
+                <Skeleton className="h-3 w-12" />
+                <Skeleton className="h-5 w-24 rounded-full" />
+              </div>
+              <div className="flex items-center justify-between gap-3">
+                <Skeleton className="h-3 w-20" />
+                <Skeleton className="h-5 w-16 rounded-full" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 border-t border-border/40">
+              <Skeleton className="h-10 rounded-none" />
+              <Skeleton className="h-10 rounded-none" />
             </div>
           </div>
         ))}
@@ -75,8 +77,8 @@ export function TrackTableDetailSkeleton() {
         <div className="border-b border-border/40 px-4 py-4">
           <Skeleton className="h-4 w-28" />
         </div>
-        <div className="hidden overflow-hidden md:block">
-          <div className="grid grid-cols-[80px_220px_minmax(0,1fr)_140px_160px] items-center bg-muted/40 px-4 py-3">
+        <div className="overflow-x-auto">
+          <div className="grid min-w-[900px] grid-cols-[80px_220px_minmax(220px,1fr)_140px_160px] items-center bg-muted/40 px-4 py-3">
             <Skeleton className="h-3 w-6" />
             <Skeleton className="h-3 w-16" />
             <Skeleton className="h-3 w-20" />
@@ -86,7 +88,7 @@ export function TrackTableDetailSkeleton() {
           {Array.from({ length: 4 }).map((_, index) => (
             <div
               key={index}
-              className="grid grid-cols-[80px_220px_minmax(0,1fr)_140px_160px] items-center border-t border-border/40 px-4 py-3"
+              className="grid min-w-[900px] grid-cols-[80px_220px_minmax(220px,1fr)_140px_160px] items-center border-t border-border/40 px-4 py-3"
             >
               <Skeleton className="h-4 w-5" />
               <div className="flex items-center gap-2">
@@ -98,22 +100,6 @@ export function TrackTableDetailSkeleton() {
               <div className="flex flex-col items-start gap-1">
                 <Skeleton className="h-5 w-14 rounded-full" />
                 {index % 2 === 0 ? <Skeleton className="h-5 w-16 rounded-full" /> : null}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="grid gap-2 p-4 md:hidden">
-          {Array.from({ length: 3 }).map((_, index) => (
-            <div key={index} className="rounded-lg border border-border/40 p-3">
-              <div className="flex items-center justify-between gap-3">
-                <Skeleton className="h-4 w-28" />
-                <Skeleton className="h-5 w-8 rounded-full" />
-              </div>
-              <div className="mt-3 flex flex-wrap gap-2">
-                <Skeleton className="h-5 w-16 rounded-full" />
-                <Skeleton className="h-5 w-14 rounded-full" />
-                <Skeleton className="h-5 w-20 rounded-full" />
               </div>
             </div>
           ))}

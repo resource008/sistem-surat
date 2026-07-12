@@ -1,10 +1,18 @@
 import { z } from "zod"
+import {
+  DEFAULT_TRACK_CATEGORY_COLOR,
+  normalizeTrackCategoryColor,
+} from "@/lib/track-category-color"
+
+const TrackCategoryColorSchema = z.string()
+  .regex(/^#[0-9A-Fa-f]{6}$/, "Warna kategori tidak valid")
+  .transform((color) => normalizeTrackCategoryColor(color))
 
 const TrackFieldSchema = z.object({
   id: z.string().optional(),
   categoryId: z.string().optional().default(""),
   category: z.string().max(80, "Kategori field maksimal 80 karakter").optional().default(""),
-  categoryColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/, "Warna kategori tidak valid").optional().default("#2563eb"),
+  categoryColor: TrackCategoryColorSchema.optional().default(DEFAULT_TRACK_CATEGORY_COLOR),
   region: z.string().max(80, "Region maksimal 80 karakter").optional().default(""),
   columnName: z.string().min(1, "Nama kolom wajib diisi").max(80, "Nama kolom maksimal 80 karakter").trim(),
   type: z.enum(["text", "date", "number", "category"]),
@@ -18,7 +26,7 @@ const TrackFieldSchema = z.object({
 const TrackCategorySchema = z.object({
   id: z.string().optional(),
   name: z.string().min(1, "Nama kategori wajib diisi").max(80, "Nama kategori maksimal 80 karakter").trim(),
-  color: z.string().regex(/^#[0-9A-Fa-f]{6}$/, "Warna kategori tidak valid").optional().default("#2563eb"),
+  color: TrackCategoryColorSchema.optional().default(DEFAULT_TRACK_CATEGORY_COLOR),
   fillByHrd: z.boolean().optional().default(false),
   sortOrder: z.number().int().nonnegative().optional().default(0),
 })

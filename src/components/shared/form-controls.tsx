@@ -77,7 +77,7 @@ export function DatePicker({
         >
           <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
           {selected
-            ? format(selected, "dd MMMM yyyy", { locale: localeID })
+            ? format(selected, "dd-MM-yyyy", { locale: localeID })
             : placeholder}
         </Button>
       </PopoverTrigger>

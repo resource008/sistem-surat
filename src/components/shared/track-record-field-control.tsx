@@ -47,13 +47,17 @@ export function TrackRecordFieldControl({
       <Select value={value || undefined} onValueChange={onChange} disabled={disabled}>
         <SelectTrigger
           id={inputId}
-          className={cn("h-10 w-full rounded-lg border-input bg-background text-sm text-foreground shadow-sm", className)}
+          className={cn("h-10 w-full rounded-lg border-neutral-200 bg-white text-sm text-neutral-900 shadow-none hover:bg-white focus-visible:ring-blue-200", className)}
         >
           <SelectValue placeholder={field.defaultValue || "Pilih kategori"} />
         </SelectTrigger>
-        <SelectContent align="start" position="popper">
+        <SelectContent align="start" position="popper" className="rounded-lg bg-white p-1 text-black">
           {field.categoryOptions.map((option) => (
-            <SelectItem key={`${field.id}-${option}`} value={option}>
+            <SelectItem
+              key={`${field.id}-${option}`}
+              value={option}
+              className="rounded-md px-3 py-2 text-sm"
+            >
               {option}
             </SelectItem>
           ))}
