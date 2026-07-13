@@ -152,16 +152,15 @@ model NomorCounter {
 }
 
 model TrackSheet {
-  id          String          @id
-  name        String
-  description String          @default("")
-  sortOrder   Int             @default(0) @map("sort_order")
-  createdAt   DateTime        @default(now()) @map("created_at")
-  updatedAt   DateTime        @updatedAt @map("updated_at")
-  hiddenAt    DateTime?       @map("hidden_at")
-  categories  TrackCategory[]
-  fields      TrackField[]
-  records     TrackRecord[]
+  id         String          @id
+  name       String
+  sortOrder  Int             @default(0) @map("sort_order")
+  createdAt  DateTime        @default(now()) @map("created_at")
+  updatedAt  DateTime        @updatedAt @map("updated_at")
+  hiddenAt   DateTime?       @map("hidden_at")
+  categories TrackCategory[]
+  fields     TrackField[]
+  records    TrackRecord[]
 
   @@map("track_sheets")
 }

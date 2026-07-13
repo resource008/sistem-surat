@@ -5,7 +5,6 @@ export async function ensureTrackTableSchema() {
     CREATE TABLE IF NOT EXISTS track_sheets (
       id TEXT PRIMARY KEY,
       name TEXT NOT NULL,
-      description TEXT NOT NULL DEFAULT '',
       sort_order INTEGER NOT NULL DEFAULT 0,
       hidden_at TIMESTAMP(3),
       created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -35,6 +34,11 @@ export async function ensureTrackTableSchema() {
   await prisma.$executeRaw`
     ALTER TABLE track_sheets
     ADD COLUMN IF NOT EXISTS hidden_at TIMESTAMP(3)
+  `
+
+  await prisma.$executeRaw`
+    ALTER TABLE track_sheets
+    DROP COLUMN IF EXISTS description
   `
 
   await prisma.$executeRaw`

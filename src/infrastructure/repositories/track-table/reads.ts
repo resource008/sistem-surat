@@ -10,7 +10,6 @@ async function findTrackSheetRows() {
     SELECT
       id,
       name,
-      description,
       sort_order AS "sortOrder",
       hidden_at AS "hiddenAt"
     FROM track_sheets
@@ -83,7 +82,6 @@ export async function findTrackSheetByIdOrThrow(id: string) {
     SELECT
       id,
       name,
-      description,
       sort_order AS "sortOrder",
       hidden_at AS "hiddenAt"
     FROM track_sheets

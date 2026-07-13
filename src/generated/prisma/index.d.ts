@@ -12407,7 +12407,6 @@ export namespace Prisma {
   export type TrackSheetMinAggregateOutputType = {
     id: string | null
     name: string | null
-    description: string | null
     sortOrder: number | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -12417,7 +12416,6 @@ export namespace Prisma {
   export type TrackSheetMaxAggregateOutputType = {
     id: string | null
     name: string | null
-    description: string | null
     sortOrder: number | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -12427,7 +12425,6 @@ export namespace Prisma {
   export type TrackSheetCountAggregateOutputType = {
     id: number
     name: number
-    description: number
     sortOrder: number
     createdAt: number
     updatedAt: number
@@ -12447,7 +12444,6 @@ export namespace Prisma {
   export type TrackSheetMinAggregateInputType = {
     id?: true
     name?: true
-    description?: true
     sortOrder?: true
     createdAt?: true
     updatedAt?: true
@@ -12457,7 +12453,6 @@ export namespace Prisma {
   export type TrackSheetMaxAggregateInputType = {
     id?: true
     name?: true
-    description?: true
     sortOrder?: true
     createdAt?: true
     updatedAt?: true
@@ -12467,7 +12462,6 @@ export namespace Prisma {
   export type TrackSheetCountAggregateInputType = {
     id?: true
     name?: true
-    description?: true
     sortOrder?: true
     createdAt?: true
     updatedAt?: true
@@ -12564,7 +12558,6 @@ export namespace Prisma {
   export type TrackSheetGroupByOutputType = {
     id: string
     name: string
-    description: string
     sortOrder: number
     createdAt: Date
     updatedAt: Date
@@ -12593,7 +12586,6 @@ export namespace Prisma {
   export type TrackSheetSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     name?: boolean
-    description?: boolean
     sortOrder?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -12607,7 +12599,6 @@ export namespace Prisma {
   export type TrackSheetSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     name?: boolean
-    description?: boolean
     sortOrder?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -12617,7 +12608,6 @@ export namespace Prisma {
   export type TrackSheetSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     name?: boolean
-    description?: boolean
     sortOrder?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -12627,14 +12617,13 @@ export namespace Prisma {
   export type TrackSheetSelectScalar = {
     id?: boolean
     name?: boolean
-    description?: boolean
     sortOrder?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     hiddenAt?: boolean
   }
 
-  export type TrackSheetOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description" | "sortOrder" | "createdAt" | "updatedAt" | "hiddenAt", ExtArgs["result"]["trackSheet"]>
+  export type TrackSheetOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "sortOrder" | "createdAt" | "updatedAt" | "hiddenAt", ExtArgs["result"]["trackSheet"]>
   export type TrackSheetInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     categories?: boolean | TrackSheet$categoriesArgs<ExtArgs>
     fields?: boolean | TrackSheet$fieldsArgs<ExtArgs>
@@ -12654,7 +12643,6 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: string
       name: string
-      description: string
       sortOrder: number
       createdAt: Date
       updatedAt: Date
@@ -13087,7 +13075,6 @@ export namespace Prisma {
   interface TrackSheetFieldRefs {
     readonly id: FieldRef<"TrackSheet", 'String'>
     readonly name: FieldRef<"TrackSheet", 'String'>
-    readonly description: FieldRef<"TrackSheet", 'String'>
     readonly sortOrder: FieldRef<"TrackSheet", 'Int'>
     readonly createdAt: FieldRef<"TrackSheet", 'DateTime'>
     readonly updatedAt: FieldRef<"TrackSheet", 'DateTime'>
@@ -17143,7 +17130,6 @@ export namespace Prisma {
   export const TrackSheetScalarFieldEnum: {
     id: 'id',
     name: 'name',
-    description: 'description',
     sortOrder: 'sortOrder',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
@@ -18012,7 +17998,6 @@ export namespace Prisma {
     NOT?: TrackSheetWhereInput | TrackSheetWhereInput[]
     id?: StringFilter<"TrackSheet"> | string
     name?: StringFilter<"TrackSheet"> | string
-    description?: StringFilter<"TrackSheet"> | string
     sortOrder?: IntFilter<"TrackSheet"> | number
     createdAt?: DateTimeFilter<"TrackSheet"> | Date | string
     updatedAt?: DateTimeFilter<"TrackSheet"> | Date | string
@@ -18025,7 +18010,6 @@ export namespace Prisma {
   export type TrackSheetOrderByWithRelationInput = {
     id?: SortOrder
     name?: SortOrder
-    description?: SortOrder
     sortOrder?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -18041,7 +18025,6 @@ export namespace Prisma {
     OR?: TrackSheetWhereInput[]
     NOT?: TrackSheetWhereInput | TrackSheetWhereInput[]
     name?: StringFilter<"TrackSheet"> | string
-    description?: StringFilter<"TrackSheet"> | string
     sortOrder?: IntFilter<"TrackSheet"> | number
     createdAt?: DateTimeFilter<"TrackSheet"> | Date | string
     updatedAt?: DateTimeFilter<"TrackSheet"> | Date | string
@@ -18054,7 +18037,6 @@ export namespace Prisma {
   export type TrackSheetOrderByWithAggregationInput = {
     id?: SortOrder
     name?: SortOrder
-    description?: SortOrder
     sortOrder?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -18072,7 +18054,6 @@ export namespace Prisma {
     NOT?: TrackSheetScalarWhereWithAggregatesInput | TrackSheetScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"TrackSheet"> | string
     name?: StringWithAggregatesFilter<"TrackSheet"> | string
-    description?: StringWithAggregatesFilter<"TrackSheet"> | string
     sortOrder?: IntWithAggregatesFilter<"TrackSheet"> | number
     createdAt?: DateTimeWithAggregatesFilter<"TrackSheet"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"TrackSheet"> | Date | string
@@ -19045,7 +19026,6 @@ export namespace Prisma {
   export type TrackSheetCreateInput = {
     id: string
     name: string
-    description?: string
     sortOrder?: number
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -19058,7 +19038,6 @@ export namespace Prisma {
   export type TrackSheetUncheckedCreateInput = {
     id: string
     name: string
-    description?: string
     sortOrder?: number
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -19071,7 +19050,6 @@ export namespace Prisma {
   export type TrackSheetUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
     sortOrder?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -19084,7 +19062,6 @@ export namespace Prisma {
   export type TrackSheetUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
     sortOrder?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -19097,7 +19074,6 @@ export namespace Prisma {
   export type TrackSheetCreateManyInput = {
     id: string
     name: string
-    description?: string
     sortOrder?: number
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -19107,7 +19083,6 @@ export namespace Prisma {
   export type TrackSheetUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
     sortOrder?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -19117,7 +19092,6 @@ export namespace Prisma {
   export type TrackSheetUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
     sortOrder?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -20053,7 +20027,6 @@ export namespace Prisma {
   export type TrackSheetCountOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
-    description?: SortOrder
     sortOrder?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -20067,7 +20040,6 @@ export namespace Prisma {
   export type TrackSheetMaxOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
-    description?: SortOrder
     sortOrder?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -20077,7 +20049,6 @@ export namespace Prisma {
   export type TrackSheetMinOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
-    description?: SortOrder
     sortOrder?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -22070,7 +22041,6 @@ export namespace Prisma {
   export type TrackSheetCreateWithoutCategoriesInput = {
     id: string
     name: string
-    description?: string
     sortOrder?: number
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -22082,7 +22052,6 @@ export namespace Prisma {
   export type TrackSheetUncheckedCreateWithoutCategoriesInput = {
     id: string
     name: string
-    description?: string
     sortOrder?: number
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -22110,7 +22079,6 @@ export namespace Prisma {
   export type TrackSheetUpdateWithoutCategoriesInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
     sortOrder?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -22122,7 +22090,6 @@ export namespace Prisma {
   export type TrackSheetUncheckedUpdateWithoutCategoriesInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
     sortOrder?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -22134,7 +22101,6 @@ export namespace Prisma {
   export type TrackSheetCreateWithoutFieldsInput = {
     id: string
     name: string
-    description?: string
     sortOrder?: number
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -22146,7 +22112,6 @@ export namespace Prisma {
   export type TrackSheetUncheckedCreateWithoutFieldsInput = {
     id: string
     name: string
-    description?: string
     sortOrder?: number
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -22174,7 +22139,6 @@ export namespace Prisma {
   export type TrackSheetUpdateWithoutFieldsInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
     sortOrder?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -22186,7 +22150,6 @@ export namespace Prisma {
   export type TrackSheetUncheckedUpdateWithoutFieldsInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
     sortOrder?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -22198,7 +22161,6 @@ export namespace Prisma {
   export type TrackSheetCreateWithoutRecordsInput = {
     id: string
     name: string
-    description?: string
     sortOrder?: number
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -22210,7 +22172,6 @@ export namespace Prisma {
   export type TrackSheetUncheckedCreateWithoutRecordsInput = {
     id: string
     name: string
-    description?: string
     sortOrder?: number
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -22238,7 +22199,6 @@ export namespace Prisma {
   export type TrackSheetUpdateWithoutRecordsInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
     sortOrder?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -22250,7 +22210,6 @@ export namespace Prisma {
   export type TrackSheetUncheckedUpdateWithoutRecordsInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
-    description?: StringFieldUpdateOperationsInput | string
     sortOrder?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string

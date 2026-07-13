@@ -127,7 +127,6 @@ export function attachTrackData(
     return {
       id: sheet.id,
       name: sheet.name,
-      description: sheet.description,
       sortOrder: sheet.sortOrder,
       hiddenAt: sheet.hiddenAt,
       categories: sheetCategories,

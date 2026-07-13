@@ -154,7 +154,6 @@ model NomorCounter {
 model TrackSheet {
   id          String       @id
   name        String
-  description String       @default("")
   sortOrder   Int          @default(0) @map("sort_order")
   createdAt   DateTime     @default(now()) @map("created_at")
   updatedAt   DateTime     @updatedAt @map("updated_at")
