@@ -225,7 +225,6 @@ exports.Prisma.NomorCounterScalarFieldEnum = {
 exports.Prisma.TrackSheetScalarFieldEnum = {
   id: 'id',
   name: 'name',
-  description: 'description',
   sortOrder: 'sortOrder',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',

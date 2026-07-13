@@ -736,7 +736,6 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
     try {
       const payload = {
         name: preparedForm.name,
-        description: "",
         sortOrder: isEdit ? preparedForm.sortOrder : tableData?.sheets.length ?? preparedForm.sortOrder,
         categories: preparedForm.categories,
         fields: preparedForm.fields.map((field, index) => {

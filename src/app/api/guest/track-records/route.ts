@@ -15,9 +15,15 @@ type TrackRecordRow = {
   updatedAt: Date
 }
 
+type TrackFieldMeta = {
+  id: string
+  type: string
+  defaultValue: string
+}
+
 const TrackRecordSchema = z.object({
   sheetId: z.string().min(1, "Sheet wajib dipilih"),
-  values: z.record(z.string(), z.string().max(50, "Isian maksimal 50 karakter")).default({}),
+  values: z.record(z.string(), z.string().max(200, "Isian maksimal 200 karakter")).default({}),
 })
 
 const TrackRecordUpdateSchema = TrackRecordSchema.extend({
@@ -97,9 +103,12 @@ async function findVisibleRecordById(id: string) {
   return rows[0] ?? null
 }
 
-async function getGuestEditableFieldIds(sheetId: string) {
-  const rows = await prisma.$queryRaw<Array<{ id: string }>>`
-    SELECT f.id
+async function getGuestEditableFields(sheetId: string) {
+  return prisma.$queryRaw<TrackFieldMeta[]>`
+    SELECT
+      f.id,
+      f.data_type AS "type",
+      f.default_value AS "defaultValue"
     FROM track_fields f
     LEFT JOIN track_categories c ON c.id = f.category_id
     WHERE f.sheet_id = ${sheetId}
@@ -108,8 +117,35 @@ async function getGuestEditableFieldIds(sheetId: string) {
       AND f.fill_by_hrd = false
       AND COALESCE(c.fill_by_hrd, false) = false
   `
+}
 
-  return new Set(rows.map((row) => row.id))
+function appendDefaultValue(value: string, field: TrackFieldMeta) {
+  const trimmedValue = value.trim()
+  const suffix = field.defaultValue.trim()
+
+  if (!trimmedValue || !suffix || field.type === "date" || field.type === "category") {
+    return trimmedValue
+  }
+
+  if (trimmedValue.toLowerCase().endsWith(suffix.toLowerCase())) {
+    return trimmedValue
+  }
+
+  return `${trimmedValue} ${suffix}`
+}
+
+function normalizeTrackValues(inputValues: Record<string, string>, fields: TrackFieldMeta[]) {
+  const fieldById = new Map(fields.map((field) => [field.id, field]))
+  const nextValues: Record<string, string> = {}
+
+  Object.entries(inputValues).forEach(([fieldId, value]) => {
+    const field = fieldById.get(fieldId)
+    if (!field) return
+
+    nextValues[fieldId] = appendDefaultValue(value, field)
+  })
+
+  return nextValues
 }
 
 function mapTrackRecord(row: TrackRecordRow) {
@@ -193,7 +229,9 @@ export async function POST(req: NextRequest) {
     }
 
     const id = createTrackRecordId()
-    const values = JSON.stringify(parsed.data.values)
+    const editableFields = await getGuestEditableFields(parsed.data.sheetId)
+    const payloadValues = normalizeTrackValues(parsed.data.values, editableFields)
+    const values = JSON.stringify(payloadValues)
     const rows = await prisma.$queryRaw<TrackRecordRow[]>`
       INSERT INTO track_records (
         id,
@@ -253,12 +291,15 @@ export async function PATCH(req: NextRequest) {
     }
 
     const currentValues = mapTrackRecord(current).values
-    const editableFieldIds = await getGuestEditableFieldIds(parsed.data.sheetId)
+    const editableFields = await getGuestEditableFields(parsed.data.sheetId)
+    const editableFieldIds = new Set(editableFields.map((field) => field.id))
+    const editableFieldById = new Map(editableFields.map((field) => [field.id, field]))
     const nextValues = { ...currentValues }
 
     Object.entries(parsed.data.values).forEach(([fieldId, value]) => {
       if (!editableFieldIds.has(fieldId)) return
-      nextValues[fieldId] = value.trim()
+      const field = editableFieldById.get(fieldId)
+      nextValues[fieldId] = field ? appendDefaultValue(value, field) : value.trim()
     })
 
     const values = JSON.stringify(nextValues)

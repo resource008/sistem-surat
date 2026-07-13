@@ -26,7 +26,6 @@ export interface TrackField {
 export interface TrackSheet {
   id: string
   name: string
-  description: string
   sortOrder: number
   hiddenAt?: string | Date | null
   categories: TrackCategory[]
@@ -76,7 +75,6 @@ export const EMPTY_TRACK_FIELD: TrackField = {
 export const EMPTY_TRACK_SHEET: TrackSheet = {
   id: "",
   name: "",
-  description: "",
   sortOrder: 0,
   categories: [],
   fields: [],

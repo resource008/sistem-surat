@@ -98,11 +98,7 @@ export default function TrackTableDetailPage() {
         throw new Error(json?.error ?? "Gagal memproses sheet lacak")
       }
 
-      toast.success(json?.message ?? (
-        mode === "hard"
-          ? "Sheet lacak berhasil dihapus permanen"
-          : "Sheet lacak berhasil disembunyikan"
-      ))
+      toast.success(json?.message ?? "Data sheet lacak berhasil dihapus")
 
       if (mode === "hard") {
         router.push("/admin/lacak-surat")

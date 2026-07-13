@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
     const sheet = await createTrackSheet(parsed.data)
     return NextResponse.json(
       {
-        message: "Sheet lacak berhasil ditambahkan",
+        message: "Data sheet lacak berhasil ditambahkan",
         sheet,
       },
       { status: 201 }

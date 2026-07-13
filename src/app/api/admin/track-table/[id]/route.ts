@@ -16,6 +16,24 @@ function validationResponse(fieldErrors: Record<string, string[] | undefined>) {
   )
 }
 
+async function updateTrackSheetResponse(req: NextRequest, id: string) {
+  const body = await req.json().catch(() => null)
+  if (!body) {
+    return NextResponse.json({ error: "Body tidak valid" }, { status: 400 })
+  }
+
+  const parsed = TrackSheetSchema.safeParse(body)
+  if (!parsed.success) {
+    return validationResponse(parsed.error.flatten().fieldErrors)
+  }
+
+  const sheet = await updateTrackSheet(decodeURIComponent(id), parsed.data)
+  return NextResponse.json({
+    message: "Data sheet lacak berhasil diubah",
+    sheet,
+  })
+}
+
 export async function GET(_req: NextRequest, { params }: RouteContext) {
   try {
     await requireAdmin()
@@ -46,26 +64,27 @@ export async function PATCH(req: NextRequest, { params }: RouteContext) {
       })
     }
 
-    const body = await req.json().catch(() => null)
-    if (!body) {
-      return NextResponse.json({ error: "Body tidak valid" }, { status: 400 })
-    }
-
-    const parsed = TrackSheetSchema.safeParse(body)
-    if (!parsed.success) {
-      return validationResponse(parsed.error.flatten().fieldErrors)
-    }
-
-    const sheet = await updateTrackSheet(decodeURIComponent(id), parsed.data)
-    return NextResponse.json({
-      message: "Sheet lacak berhasil diubah",
-      sheet,
-    })
+    return updateTrackSheetResponse(req, id)
   } catch (error) {
     if (error instanceof AppError) {
       return NextResponse.json({ error: error.message }, { status: error.status })
     }
     if (error instanceof Error) console.error("PATCH /api/admin/track-table/[id]:", error.message)
+    return NextResponse.json({ error: "Gagal mengubah sheet lacak" }, { status: 500 })
+  }
+}
+
+export async function PUT(req: NextRequest, { params }: RouteContext) {
+  try {
+    await requireAdmin()
+    const { id } = await params
+
+    return updateTrackSheetResponse(req, id)
+  } catch (error) {
+    if (error instanceof AppError) {
+      return NextResponse.json({ error: error.message }, { status: error.status })
+    }
+    if (error instanceof Error) console.error("PUT /api/admin/track-table/[id]:", error.message)
     return NextResponse.json({ error: "Gagal mengubah sheet lacak" }, { status: 500 })
   }
 }
@@ -78,9 +97,7 @@ export async function DELETE(req: NextRequest, { params }: RouteContext) {
 
     await deleteTrackSheet(decodeURIComponent(id), mode)
     return NextResponse.json({
-      message: mode === "hard"
-        ? "Sheet lacak berhasil dihapus permanen"
-        : "Sheet lacak berhasil disembunyikan",
+      message: "Data sheet lacak berhasil dihapus",
     })
   } catch (error) {
     if (error instanceof AppError) {
