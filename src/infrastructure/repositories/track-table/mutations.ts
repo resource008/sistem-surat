@@ -75,7 +75,6 @@ function normalizeInput(input: TrackSheetInput): TrackSheetInput {
   return {
     ...input,
     name: input.name.trim(),
-    description: (input.description ?? "").trim(),
     categories,
     fields: inputFields.map((field, index) => {
       const isDefaultId = isDefaultIdField(field)
@@ -220,13 +219,11 @@ export async function createTrackSheetMutation(input: TrackSheetInput) {
       INSERT INTO track_sheets (
         id,
         name,
-        description,
         sort_order
       )
       VALUES (
         ${sheetId},
         ${normalized.name},
-        ${normalized.description},
         ${normalized.sortOrder}
       )
     `
@@ -250,7 +247,6 @@ export async function updateTrackSheetMutation(id: string, input: TrackSheetInpu
       UPDATE track_sheets
       SET
         name = ${normalized.name},
-        description = ${normalized.description},
         sort_order = ${normalized.sortOrder},
         updated_at = CURRENT_TIMESTAMP
       WHERE id = ${id}

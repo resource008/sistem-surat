@@ -15,9 +15,15 @@ type TrackRecordRow = {
   updatedAt: Date
 }
 
+type TrackFieldMeta = {
+  id: string
+  type: string
+  defaultValue: string
+}
+
 const TrackRecordSchema = z.object({
   sheetId: z.string().min(1, "Sheet wajib dipilih"),
-  values: z.record(z.string(), z.string().max(50, "Isian maksimal 50 karakter")).default({}),
+  values: z.record(z.string(), z.string().max(200, "Isian maksimal 200 karakter")).default({}),
 })
 
 const TrackRecordUpdateSchema = TrackRecordSchema.extend({
@@ -60,15 +66,45 @@ async function ensureSheetExists(sheetId: string) {
   if (!rows[0]) throw new AppError(404, "Sheet lacak tidak ditemukan")
 }
 
-async function getVisibleFieldIds(sheetId: string) {
-  const rows = await prisma.$queryRaw<Array<{ id: string }>>`
-    SELECT id
+async function getVisibleFields(sheetId: string) {
+  return prisma.$queryRaw<TrackFieldMeta[]>`
+    SELECT
+      id,
+      data_type AS "type",
+      default_value AS "defaultValue"
     FROM track_fields
     WHERE sheet_id = ${sheetId}
       AND hidden_at IS NULL
   `
+}
 
-  return new Set(rows.map((row) => row.id))
+function appendDefaultValue(value: string, field: TrackFieldMeta) {
+  const trimmedValue = value.trim()
+  const suffix = field.defaultValue.trim()
+
+  if (!trimmedValue || !suffix || field.type === "date" || field.type === "category") {
+    return trimmedValue
+  }
+
+  if (trimmedValue.toLowerCase().endsWith(suffix.toLowerCase())) {
+    return trimmedValue
+  }
+
+  return `${trimmedValue} ${suffix}`
+}
+
+function normalizeTrackValues(inputValues: Record<string, string>, fields: TrackFieldMeta[]) {
+  const fieldById = new Map(fields.map((field) => [field.id, field]))
+  const nextValues: Record<string, string> = {}
+
+  Object.entries(inputValues).forEach(([fieldId, value]) => {
+    const field = fieldById.get(fieldId)
+    if (!field) return
+
+    nextValues[fieldId] = appendDefaultValue(value, field)
+  })
+
+  return nextValues
 }
 
 function mapTrackRecord(row: TrackRecordRow) {
@@ -140,10 +176,8 @@ export async function POST(req: NextRequest) {
     await ensureSheetExists(parsed.data.sheetId)
 
     const id = createTrackRecordId()
-    const visibleFieldIds = await getVisibleFieldIds(parsed.data.sheetId)
-    const payloadValues = Object.fromEntries(
-      Object.entries(parsed.data.values).filter(([fieldId]) => visibleFieldIds.has(fieldId))
-    )
+    const visibleFields = await getVisibleFields(parsed.data.sheetId)
+    const payloadValues = normalizeTrackValues(parsed.data.values, visibleFields)
     const values = JSON.stringify(payloadValues)
     const userId = (session.user as { id?: string }).id ?? null
 
@@ -219,11 +253,14 @@ export async function PATCH(req: NextRequest) {
     const current = currentRows[0]
     if (!current) throw new AppError(404, "Data track surat tidak ditemukan")
 
-    const visibleFieldIds = await getVisibleFieldIds(parsed.data.sheetId)
+    const visibleFields = await getVisibleFields(parsed.data.sheetId)
+    const visibleFieldIds = new Set(visibleFields.map((field) => field.id))
+    const visibleFieldById = new Map(visibleFields.map((field) => [field.id, field]))
     const nextValues = { ...mapTrackRecord(current).values }
     Object.entries(parsed.data.values).forEach(([fieldId, value]) => {
       if (!visibleFieldIds.has(fieldId)) return
-      nextValues[fieldId] = value
+      const field = visibleFieldById.get(fieldId)
+      nextValues[fieldId] = field ? appendDefaultValue(value, field) : value.trim()
     })
     const values = JSON.stringify(nextValues)
     const rows = await prisma.$queryRaw<TrackRecordRow[]>`

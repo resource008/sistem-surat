@@ -7,7 +7,6 @@ export type DbClient = Prisma.TransactionClient | typeof prisma
 export type TrackSheetRow = {
   id: string
   name: string
-  description: string
   sortOrder: number
   hiddenAt: Date | null
 }

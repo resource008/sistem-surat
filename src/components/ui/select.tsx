@@ -115,8 +115,8 @@ function SelectItem({
         // Pengaturan layout bawaan (jangan diubah)
         "relative flex w-full cursor-default items-center gap-1.5 rounded-md py-1 pr-8 pl-1.5 text-sm outline-hidden select-none",
         
-        // Hover/focus cukup netral; pilihan aktif ditandai oleh centang.
-        "focus:bg-neutral-100 focus:text-black data-[state=checked]:bg-transparent data-[state=checked]:text-black data-[state=checked]:focus:bg-transparent data-[state=checked]:focus:text-black dark:focus:bg-neutral-800 dark:focus:text-white dark:data-[state=checked]:bg-transparent dark:data-[state=checked]:text-black dark:data-[state=checked]:focus:bg-transparent dark:data-[state=checked]:focus:text-black",
+        // Selected cukup teks dan centang; hover/focus memakai warna kontras theme.
+        "focus:bg-black focus:text-white data-[state=checked]:bg-transparent data-[state=checked]:text-popover-foreground data-[state=checked]:focus:bg-black data-[state=checked]:focus:text-white dark:focus:bg-white dark:focus:text-black dark:data-[state=checked]:focus:bg-white dark:data-[state=checked]:focus:text-black",
         
         // State disabled & icon (jangan diubah)
         "data-disabled:pointer-events-none data-disabled:opacity-50",

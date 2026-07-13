@@ -33,7 +33,6 @@ const TrackCategorySchema = z.object({
 
 export const TrackSheetSchema = z.object({
   name: z.string().min(1, "Nama sheet wajib diisi").max(100, "Nama sheet maksimal 100 karakter").trim(),
-  description: z.string().max(160, "Deskripsi maksimal 160 karakter").optional().default(""),
   sortOrder: z.number().int().nonnegative().optional().default(0),
   categories: z.array(TrackCategorySchema).optional().default([]),
   fields: z.array(TrackFieldSchema).min(1, "Tambahkan minimal satu field"),
