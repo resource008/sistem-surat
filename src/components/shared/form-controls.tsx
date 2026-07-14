@@ -34,12 +34,14 @@ export const readonlyClass = cn(
 )
 
 interface DatePickerProps {
+  id?: string
   value: string
   onChange: (value: string) => void
   className?: string
   placeholder?: string
   hasError?: boolean
   disabled?: boolean
+  surface?: "default" | "light"
 }
 
 function parseDateValue(value: string) {
@@ -50,38 +52,55 @@ function parseDateValue(value: string) {
 }
 
 export function DatePicker({
+  id,
   value,
   onChange,
   className,
   placeholder = "Pilih tanggal",
   hasError = false,
   disabled = false,
+  surface = "default",
 }: DatePickerProps) {
   const [open, setOpen] = useState(false)
   const selected = parseDateValue(value)
+  const lightSurface = surface === "light"
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
+          id={id}
           type="button"
           variant="outline"
           disabled={disabled}
           className={cn(
-            "h-10 w-full justify-start border border-input bg-background px-3 text-left font-normal shadow-sm hover:bg-background",
-            !selected && "text-muted-foreground",
+            "h-10 w-full justify-start border border-input bg-background px-3 text-left font-normal text-foreground shadow-sm hover:bg-background hover:text-foreground aria-expanded:bg-background aria-expanded:text-foreground",
+            lightSurface &&
+              "border-neutral-200 bg-white text-neutral-900 ring-1 ring-neutral-200 hover:bg-white hover:text-neutral-900 aria-expanded:bg-white aria-expanded:text-neutral-900",
             hasError &&
               "border-red-500 focus-visible:ring-red-500",
             className
           )}
         >
-          <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
-          {selected
-            ? format(selected, "dd-MM-yyyy", { locale: localeID })
-            : placeholder}
+          <CalendarIcon className={cn("mr-2 h-4 w-4 shrink-0 text-muted-foreground", lightSurface && "text-neutral-500")} />
+          <span className={cn(
+            "truncate",
+            selected ? "text-foreground" : "text-muted-foreground",
+            lightSurface && (selected ? "text-neutral-900" : "text-neutral-400")
+          )}>
+            {selected
+              ? format(selected, "dd-MM-yyyy", { locale: localeID })
+              : placeholder}
+          </span>
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-0" align="start">
+      <PopoverContent
+        className={cn(
+          "w-auto p-0 text-foreground",
+          lightSurface && "border-neutral-200 bg-white text-neutral-900 shadow-lg"
+        )}
+        align="start"
+      >
         <Calendar
           mode="single"
           selected={selected}
@@ -92,6 +111,10 @@ export function DatePicker({
             setOpen(false)
           }}
           locale={localeID}
+          className={cn(
+            lightSurface &&
+              "bg-white text-neutral-900 [--background:#ffffff] [--foreground:#111827] [--muted:#f3f4f6] [--muted-foreground:#6b7280] [--primary:#2563eb] [--primary-foreground:#ffffff]"
+          )}
           initialFocus
         />
       </PopoverContent>

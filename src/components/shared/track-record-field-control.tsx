@@ -16,9 +16,13 @@ type TrackRecordFieldControlProps = {
   value: string
 }
 
-function getInputType(field: TrackField) {
-  if (field.type === "number") return "number"
-  return "text"
+function getDefaultSuffix(field: TrackField) {
+  if (field.type === "date" || field.type === "category") return ""
+  return field.defaultValue.trim()
+}
+
+function valueEndsWithSuffix(value: string, suffix: string) {
+  return value.trim().toLowerCase().endsWith(suffix.toLowerCase())
 }
 
 export function TrackRecordFieldControl({
@@ -33,11 +37,13 @@ export function TrackRecordFieldControl({
   if (field.type === "date") {
     return (
       <DatePicker
+        id={inputId}
         value={value}
         onChange={onChange}
         className={className}
         placeholder={field.defaultValue || "Pilih tanggal"}
         disabled={disabled}
+        surface="light"
       />
     )
   }
@@ -66,16 +72,35 @@ export function TrackRecordFieldControl({
     )
   }
 
+  const defaultSuffix = getDefaultSuffix(field)
+  const showDefaultSuffix = Boolean(
+    defaultSuffix
+    && value.trim()
+    && !valueEndsWithSuffix(value, defaultSuffix)
+  )
+
   return (
-    <Input
-      id={inputId}
-      type={getInputType(field)}
-      value={value}
-      onChange={(event) => onChange(event.target.value)}
-      placeholder={field.defaultValue || "Isi data"}
-      disabled={disabled}
-      maxLength={maxLength}
-      className={cn("h-10 rounded-lg border-input bg-background text-sm text-foreground shadow-sm placeholder:text-muted-foreground", className)}
-    />
+    <div className="relative">
+      <Input
+        id={inputId}
+        type="text"
+        inputMode={field.type === "number" ? "decimal" : "text"}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        placeholder="Isi data"
+        disabled={disabled}
+        maxLength={maxLength}
+        className={cn(
+          "h-10 rounded-lg border-input bg-background text-sm text-foreground shadow-sm placeholder:text-muted-foreground",
+          showDefaultSuffix ? "pr-24" : "",
+          className
+        )}
+      />
+      {showDefaultSuffix ? (
+        <span className="pointer-events-none absolute right-3 top-1/2 max-w-[40%] -translate-y-1/2 truncate text-sm font-medium text-muted-foreground">
+          {defaultSuffix}
+        </span>
+      ) : null}
+    </div>
   )
 }
