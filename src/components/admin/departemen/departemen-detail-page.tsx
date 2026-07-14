@@ -17,18 +17,17 @@ export default function DepartemenDetailPage() {
   const router = useRouter()
   const { state, actions } = useEditDepartemen(id, "Detail Departemen")
   const [deleteOpen, setDeleteOpen] = useState(false)
-  const [deletingAction, setDeletingAction] = useState<"soft" | "permanent" | null>(null)
+  const [deletingAction, setDeletingAction] = useState<"permanent" | null>(null)
   const [visibilityAction, setVisibilityAction] = useState<"show" | "hide" | null>(null)
 
-  async function deleteDepartemen(permanent = false) {
+  async function deleteDepartemen() {
     if (!state.departemen) return
-    setDeletingAction(permanent ? "permanent" : "soft")
+    setDeletingAction("permanent")
 
     try {
-      const endpoint = permanent
-        ? `/api/admin/dept/${encodeURIComponent(state.departemen.id)}/permanent`
-        : `/api/admin/dept/${encodeURIComponent(state.departemen.id)}`
-      const res = await fetch(endpoint, { method: "DELETE" })
+      const res = await fetch(`/api/admin/dept/${encodeURIComponent(state.departemen.id)}`, {
+        method: "DELETE",
+      })
       const json = await res.json().catch(() => null)
 
       if (!res.ok) {
@@ -36,12 +35,7 @@ export default function DepartemenDetailPage() {
       }
 
       toast.success(json?.message ?? "Departemen berhasil dihapus")
-      if (permanent) {
-        router.push("/admin/departemen")
-        return
-      }
-      setDeleteOpen(false)
-      actions.reload()
+      router.push("/admin/departemen")
     } catch (error) {
       toast.error(getErrorMessage(error, "Gagal menghapus departemen"))
     } finally {
@@ -55,10 +49,11 @@ export default function DepartemenDetailPage() {
     setVisibilityAction(action)
 
     try {
-      const res = await fetch(
-        `/api/admin/dept/${encodeURIComponent(state.departemen.id)}?action=${action}`,
-        { method: "PATCH" }
-      )
+      const res = await fetch(`/api/admin/dept/${encodeURIComponent(state.departemen.id)}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action }),
+      })
       const json = await res.json().catch(() => null)
 
       if (!res.ok) {
@@ -144,8 +139,8 @@ export default function DepartemenDetailPage() {
         deletingAction={deletingAction}
         allowSoftDelete={false}
         onOpenChange={setDeleteOpen}
-        onSoftDelete={() => deleteDepartemen(false)}
-        onPermanentDelete={() => deleteDepartemen(true)}
+        onSoftDelete={() => setDepartemenVisibility(false)}
+        onPermanentDelete={deleteDepartemen}
       />
     </div>
   )

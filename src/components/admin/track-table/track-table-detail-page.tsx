@@ -73,8 +73,8 @@ export default function TrackTableDetailPage() {
     fetcher,
   )
   const [deleteOpen, setDeleteOpen] = useState(false)
-  const [deletingMode, setDeletingMode] = useState<"hide" | "hard" | null>(null)
-  const [showing, setShowing] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const [visibilityAction, setVisibilityAction] = useState<"show" | "hide" | null>(null)
 
   useEffect(() => {
     window.dispatchEvent(new CustomEvent("breadcrumb:sub", { detail: "Detail Sheet Lacak" }))
@@ -83,13 +83,12 @@ export default function TrackTableDetailPage() {
     }
   }, [])
 
-  async function deleteSheet(mode: "hide" | "hard") {
+  async function deleteSheet() {
     if (!sheet) return
-    setDeletingMode(mode)
+    setDeleting(true)
 
     try {
-      const query = mode === "hard" ? "?mode=hard" : ""
-      const res = await fetch(`/api/admin/track-table/${encodeURIComponent(sheet.id)}${query}`, {
+      const res = await fetch(`/api/admin/track-table/${encodeURIComponent(sheet.id)}`, {
         method: "DELETE",
       })
       const json = await res.json().catch(() => null)
@@ -98,18 +97,12 @@ export default function TrackTableDetailPage() {
         throw new Error(json?.error ?? "Gagal memproses sheet lacak")
       }
 
-      toast.success(json?.message ?? "Data sheet lacak berhasil dihapus")
-
-      if (mode === "hard") {
-        router.push("/admin/lacak-surat")
-        return
-      }
-
-      await mutate()
+      toast.success(json?.message ?? "Data sheet lacak berhasil dihapus permanen")
+      router.push("/admin/lacak-surat")
     } catch (err) {
       toast.error(getErrorMessage(err, "Gagal memproses sheet lacak"))
     } finally {
-      setDeletingMode(null)
+      setDeleting(false)
     }
   }
 
@@ -117,26 +110,30 @@ export default function TrackTableDetailPage() {
     return <TrackTableDetailSkeleton />
   }
 
-  async function showSheet() {
+  async function setSheetVisibility(action: "show" | "hide") {
     if (!sheet) return
-    setShowing(true)
+    setVisibilityAction(action)
 
     try {
-      const res = await fetch(`/api/admin/track-table/${encodeURIComponent(sheet.id)}?action=show`, {
+      const res = await fetch(`/api/admin/track-table/${encodeURIComponent(sheet.id)}`, {
         method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action }),
       })
       const json = await res.json().catch(() => null)
 
       if (!res.ok) {
-        throw new Error(json?.error ?? json?.message ?? "Gagal menampilkan sheet lacak")
+        throw new Error(json?.error ?? json?.message ?? "Gagal mengubah status sheet lacak")
       }
 
-      toast.success(json?.message ?? "Sheet lacak berhasil ditampilkan")
-      await mutate(json?.sheet ?? undefined, { revalidate: true })
+      toast.success(json?.message ?? (
+        action === "show" ? "Sheet lacak berhasil ditampilkan" : "Data sheet lacak berhasil disembunyikan"
+      ))
+      await mutate()
     } catch (err) {
-      toast.error(getErrorMessage(err, "Gagal menampilkan sheet lacak"))
+      toast.error(getErrorMessage(err, "Gagal mengubah status sheet lacak"))
     } finally {
-      setShowing(false)
+      setVisibilityAction(null)
     }
   }
 
@@ -302,11 +299,11 @@ export default function TrackTableDetailPage() {
               type="button"
               variant="action-primary"
               size="fab-action"
-              onClick={showSheet}
-              disabled={showing}
+              onClick={() => setSheetVisibility("show")}
+              disabled={Boolean(visibilityAction)}
               className="shrink-0"
             >
-              <Eye /> {showing ? "Menampilkan" : "Tampilkan"}
+              <Eye /> {visibilityAction === "show" ? "Menampilkan" : "Tampilkan"}
             </Button>
           ) : null}
           {!sheet.hiddenAt ? (
@@ -315,10 +312,11 @@ export default function TrackTableDetailPage() {
                 type="button"
                 variant="action-secondary"
                 size="fab-action"
-                onClick={() => deleteSheet("hide")}
+                onClick={() => setSheetVisibility("hide")}
+                disabled={Boolean(visibilityAction)}
                 className="shrink-0"
               >
-                <EyeOff /> Sembunyikan
+                <EyeOff /> {visibilityAction === "hide" ? "Menyembunyikan" : "Sembunyikan"}
               </Button>
               <Button
                 type="button"
@@ -347,17 +345,17 @@ export default function TrackTableDetailPage() {
               type="button"
               variant="secondary"
               onClick={() => setDeleteOpen(false)}
-              disabled={Boolean(deletingMode)}
+              disabled={deleting}
             >
               Batal
             </Button>
             <Button
               type="button"
               variant="destructive"
-              onClick={() => deleteSheet("hard")}
-              disabled={Boolean(deletingMode)}
+              onClick={deleteSheet}
+              disabled={deleting}
             >
-              {deletingMode === "hard" ? "Menghapus" : "Hapus Permanen"}
+              {deleting ? "Menghapus" : "Hapus Permanen"}
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>

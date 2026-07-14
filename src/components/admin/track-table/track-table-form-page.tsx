@@ -63,8 +63,13 @@ type TrackFieldErrors = {
   optionErrors?: Record<number, string>
 }
 
+type TrackCategoryErrors = {
+  name?: string
+}
+
 type TrackFormErrors = {
   sheetName?: string
+  categories: Record<string, TrackCategoryErrors>
   fields: Record<string, TrackFieldErrors>
 }
 
@@ -138,7 +143,12 @@ function getPermissionSummary(fillByHrd: boolean) {
 }
 
 function createEmptyFormErrors(): TrackFormErrors {
-  return { fields: {} }
+  return { categories: {}, fields: {} }
+}
+
+function hasTrackCategoryErrors(error?: TrackCategoryErrors) {
+  if (!error) return false
+  return Boolean(error.name)
 }
 
 function hasTrackFieldErrors(error?: TrackFieldErrors) {
@@ -263,18 +273,44 @@ function ensureDefaultIdField(sheet: TrackSheet): TrackSheet {
 
 function validateTrackForm(sheet: TrackSheet) {
   const errors = createEmptyFormErrors()
+  const categoryNameMap = new Map<string, TrackCategory>()
+  let firstInvalidCategory: TrackCategory | undefined
   let firstInvalidField: TrackField | undefined
 
   if (!sheet.name.trim()) {
     errors.sheetName = "Nama sheet wajib diisi"
   }
 
+  sheet.categories.forEach((category) => {
+    const categoryErrors: TrackCategoryErrors = {}
+    const categoryName = category.name.trim()
+
+    if (!categoryName) {
+      categoryErrors.name = "Nama kategori wajib diisi"
+    } else {
+      const key = categoryName.toLowerCase()
+      const previous = categoryNameMap.get(key)
+
+      if (previous) {
+        categoryErrors.name = "Nama kategori tidak boleh duplikat"
+      } else {
+        categoryNameMap.set(key, category)
+      }
+    }
+
+    if (hasTrackCategoryErrors(categoryErrors)) {
+      errors.categories[category.id] = categoryErrors
+      firstInvalidCategory ??= category
+    }
+  })
+
   sheet.fields.forEach((field) => {
     if (isDefaultIdField(field)) return
 
     const fieldErrors: TrackFieldErrors = {}
+    const columnName = field.columnName.trim()
 
-    if (!field.columnName.trim()) {
+    if (!columnName) {
       fieldErrors.columnName = "Nama kolom wajib diisi"
     }
 
@@ -303,8 +339,11 @@ function validateTrackForm(sheet: TrackSheet) {
 
   return {
     errors,
+    firstInvalidCategory,
     firstInvalidField,
-    isValid: !errors.sheetName && Object.keys(errors.fields).length === 0,
+    isValid: !errors.sheetName
+      && Object.keys(errors.categories).length === 0
+      && Object.keys(errors.fields).length === 0,
   }
 }
 
@@ -502,6 +541,7 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
         }),
       }
     })
+    clearCategoryError(categoryId)
     if (activeColumnGroupId === categoryId) {
       const nextCategory = form.categories.find((category) => category.id !== categoryId)
       setActiveColumnGroupId(nextCategory?.id ?? "")
@@ -521,6 +561,14 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
 
   function clearSheetNameError() {
     setFormErrors((current) => ({ ...current, sheetName: undefined }))
+  }
+
+  function clearCategoryError(categoryId: string) {
+    setFormErrors((current) => {
+      const categoryErrors = { ...current.categories }
+      delete categoryErrors[categoryId]
+      return { ...current, categories: categoryErrors }
+    })
   }
 
   function clearFieldError(fieldId: string, key: keyof Omit<TrackFieldErrors, "optionErrors">) {
@@ -721,6 +769,9 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
 
     if (!validation.isValid) {
       setFormErrors(validation.errors)
+      if (validation.firstInvalidCategory) {
+        setActiveColumnGroupId(validation.firstInvalidCategory.id)
+      }
       if (validation.firstInvalidField) {
         setActiveColumnGroupId(validation.firstInvalidField.categoryId)
         setOpenFieldId(validation.firstInvalidField.id)
@@ -774,7 +825,7 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
       }
 
       toast.success(json?.message ?? "Sheet lacak berhasil disimpan")
-      const nextId = json?.sheet?.id ?? sheetId
+      const nextId = json?.id ?? sheetId
       router.push(nextId ? `/admin/lacak-surat/${encodeURIComponent(nextId)}` : "/admin/lacak-surat")
     } catch (err) {
       toast.error(getErrorMessage(err, "Gagal menyimpan sheet lacak"))
@@ -788,8 +839,10 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
     setShowing(true)
 
     try {
-      const res = await fetch(`/api/admin/track-table/${encodeURIComponent(sheetId)}?action=show`, {
+      const res = await fetch(`/api/admin/track-table/${encodeURIComponent(sheetId)}`, {
         method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "show" }),
       })
       const json = await res.json().catch(() => null)
 
@@ -798,14 +851,7 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
       }
 
       toast.success(json?.message ?? "Sheet lacak berhasil ditampilkan")
-      const nextSheet = json?.sheet as TrackSheet | undefined
-      if (nextSheet) {
-        const normalized = normalizeSheetForForm(nextSheet)
-        setForm(normalized)
-        await mutateSheet(nextSheet, { revalidate: true })
-      } else {
-        await mutateSheet()
-      }
+      await mutateSheet()
     } catch (err) {
       toast.error(getErrorMessage(err, "Gagal menampilkan sheet lacak"))
     } finally {
@@ -933,11 +979,15 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
                       id={`category-name-${category.id}`}
                       aria-label="Nama kategori"
                       value={category.name}
-                      onChange={(event) => updateCategory(category.id, (current) => ({
-                        ...current,
-                        name: event.target.value,
-                      }))}
+                      onChange={(event) => {
+                        updateCategory(category.id, (current) => ({
+                          ...current,
+                          name: event.target.value,
+                        }))
+                        clearCategoryError(category.id)
+                      }}
                       placeholder={`Kategori ${index + 1}`}
+                      aria-invalid={Boolean(formErrors.categories[category.id]?.name)}
                       disabled={saving}
                       className="min-w-0 flex-1"
                     />
@@ -989,6 +1039,11 @@ export function TrackTableFormPage({ mode, sheetId }: TrackTableFormPageProps) {
                     </Button>
                   </div>
                 </div>
+                {formErrors.categories[category.id]?.name ? (
+                  <p className="mt-2 text-xs font-medium text-destructive">
+                    {formErrors.categories[category.id]?.name}
+                  </p>
+                ) : null}
               </div>
             ))
           )}

@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         message: "Data sheet lacak berhasil ditambahkan",
-        sheet,
+        id: sheet.id,
       },
       { status: 201 }
     )
