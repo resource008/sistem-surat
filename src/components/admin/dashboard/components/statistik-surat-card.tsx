@@ -41,6 +41,7 @@ export function StatistikSuratCard({
 }: StatistikSuratCardProps) {
   const hasDepartments = departments.length > 0
   const selectedDepartment = departments.find((item) => item.departemenId === selectedDeptId)
+  const hasSelectedFilters = Boolean(selectedDeptId && selectedTipeWaktu)
   const chartData = useMemo(
     () =>
       statistik.labels.map((label: string, index: number) => ({
@@ -109,58 +110,64 @@ export function StatistikSuratCard({
 
       <Card className="overflow-hidden rounded-xl">
         <CardContent className="p-4 sm:p-5">
-          <ChartContainer
-            config={{
-              jumlah: {
-                label: "Jumlah surat",
-                color: "hsl(246, 100%, 70%)",
-              },
-            }}
-            className="h-64 w-full sm:h-80"
-          >
-            <AreaChart
-              data={chartData}
-              margin={{ top: 16, right: 8, left: -20, bottom: 0 }}
+          {!hasSelectedFilters ? (
+            <div className="flex h-64 w-full items-center justify-center rounded-lg border border-dashed border-border/70 text-center text-sm text-muted-foreground sm:h-80">
+              Pilih departemen dan tipe waktu untuk melihat statistik.
+            </div>
+          ) : (
+            <ChartContainer
+              config={{
+                jumlah: {
+                  label: "Jumlah surat",
+                  color: "hsl(246, 100%, 70%)",
+                },
+              }}
+              className="h-64 w-full sm:h-80"
             >
-              <defs>
-                <linearGradient id="fillJumlah" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%"  stopColor="var(--color-jumlah)" stopOpacity={0.35} />
-                  <stop offset="95%" stopColor="var(--color-jumlah)" stopOpacity={0.02} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid
-                stroke="#888888"
-                strokeDasharray="3 3"
-                strokeOpacity={0.25}
-                vertical={false}
-              />
-              <XAxis
-                dataKey="label"
-                axisLine={false}
-                tickLine={false}
-                tick={{ fontSize: 11, fill: "#666666" }}
-                tickMargin={10}
-              />
-              <YAxis
-                allowDecimals={false}
-                axisLine={false}
-                tickLine={false}
-                tick={{ fontSize: 11, fill: "#666666" }}
-              />
-              <ChartTooltip
-                cursor={{ stroke: "#888888", strokeDasharray: "3 3", strokeOpacity: 0.5 }}
-                content={<ChartTooltipContent />}
-              />
-              <Area
-                type="monotone"
-                dataKey="jumlah"
-                stroke="var(--color-jumlah)"
-                strokeWidth={2.5}
-                fill="url(#fillJumlah)"
-                activeDot={{ r: 5, strokeWidth: 0 }}
-              />
-            </AreaChart>
-          </ChartContainer>
+              <AreaChart
+                data={chartData}
+                margin={{ top: 16, right: 8, left: -20, bottom: 0 }}
+              >
+                <defs>
+                  <linearGradient id="fillJumlah" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%"  stopColor="var(--color-jumlah)" stopOpacity={0.35} />
+                    <stop offset="95%" stopColor="var(--color-jumlah)" stopOpacity={0.02} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid
+                  stroke="#888888"
+                  strokeDasharray="3 3"
+                  strokeOpacity={0.25}
+                  vertical={false}
+                />
+                <XAxis
+                  dataKey="label"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 11, fill: "#666666" }}
+                  tickMargin={10}
+                />
+                <YAxis
+                  allowDecimals={false}
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 11, fill: "#666666" }}
+                />
+                <ChartTooltip
+                  cursor={{ stroke: "#888888", strokeDasharray: "3 3", strokeOpacity: 0.5 }}
+                  content={<ChartTooltipContent />}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="jumlah"
+                  stroke="var(--color-jumlah)"
+                  strokeWidth={2.5}
+                  fill="url(#fillJumlah)"
+                  activeDot={{ r: 5, strokeWidth: 0 }}
+                />
+              </AreaChart>
+            </ChartContainer>
+          )}
         </CardContent>
       </Card>
     </section>

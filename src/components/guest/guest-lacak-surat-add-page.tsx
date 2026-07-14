@@ -181,7 +181,7 @@ function GuestLacakSuratAddContent() {
         </div>
       </header>
 
-      <section className="w-full px-10 py-8 pb-[calc(8rem+env(safe-area-inset-bottom))] max-md:px-6 max-sm:px-4">
+      <section className="w-full px-10 py-6 pb-[calc(6.5rem+env(safe-area-inset-bottom))] max-md:px-6 max-sm:px-4">
         {isLoading ? (
           <div className="grid gap-4">
             <Skeleton className="h-12 w-full rounded-xl bg-neutral-200" />
@@ -216,12 +216,12 @@ function GuestLacakSuratAddContent() {
             {...GUEST_EMPTY_STATE_COLORS}
           />
         ) : (
-          <form id="guest-track-add-form" onSubmit={submit} className="mx-auto grid w-full max-w-6xl gap-5">
-            <section className="grid gap-6 rounded-xl border border-neutral-200 bg-white p-6 shadow-sm max-sm:p-4">
+          <form id="guest-track-add-form" onSubmit={submit} className="mx-auto grid w-full max-w-5xl gap-4">
+            <section className="grid gap-5 rounded-xl border border-neutral-200 bg-white p-5 shadow-sm max-sm:p-4">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 {firstGroup ? (
                   <div
-                    className="inline-flex h-10 min-w-40 items-center justify-center rounded-lg px-5 text-sm font-semibold max-sm:w-full"
+                    className="inline-flex h-8 min-w-40 items-center justify-center rounded-lg px-4 text-sm font-semibold max-sm:w-full"
                     style={getTrackCategoryStyle(firstGroup.color)}
                   >
                     {firstGroup.name}
@@ -229,7 +229,7 @@ function GuestLacakSuratAddContent() {
                 ) : null}
               </div>
 
-              <div className="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              <div className="grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2 lg:grid-cols-3">
                 {fields.map((field) => {
                   const inputId = `guest-track-add-${field.id}`
                   return (
@@ -244,7 +244,7 @@ function GuestLacakSuratAddContent() {
                         onChange={(value) => updateValue(field.id, value)}
                         disabled={saving}
                         maxLength={TRACK_RECORD_VALUE_MAX_LENGTH}
-                        className="h-10 rounded-lg border-neutral-200 bg-white text-sm font-medium text-neutral-900 shadow-none placeholder:text-neutral-400 hover:bg-white focus-visible:ring-blue-200"
+                        className="h-9 rounded-lg border-neutral-200 bg-white text-sm font-medium text-neutral-900 shadow-none placeholder:text-neutral-400 hover:bg-white focus-visible:ring-blue-200"
                       />
                     </div>
                   )
@@ -262,7 +262,7 @@ function GuestLacakSuratAddContent() {
           if (!selectedSheet || fields.length === 0) validateBeforeSave()
         }}
         disabled={saving || isLoading || Boolean(error)}
-        className="fixed bottom-[calc(2rem+env(safe-area-inset-bottom))] right-10 z-40 h-12 rounded-xl bg-blue-600 px-6 text-sm font-semibold text-white shadow-none hover:bg-blue-700 hover:text-white disabled:bg-blue-400 max-sm:left-4 max-sm:right-4 max-sm:w-auto"
+        className="fixed bottom-[calc(1.5rem+env(safe-area-inset-bottom))] right-10 z-40 h-10 rounded-xl bg-blue-600 px-5 text-sm font-semibold text-white shadow-none hover:bg-blue-700 hover:text-white disabled:bg-blue-400 max-sm:left-4 max-sm:right-4 max-sm:w-auto"
       >
         <Save className="size-4" />
         {saving ? "Menyimpan" : "Simpan"}

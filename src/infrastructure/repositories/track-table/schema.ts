@@ -163,7 +163,6 @@ export async function ensureTrackTableSchema() {
   `
 
   await prisma.$executeRaw`
-    CREATE UNIQUE INDEX IF NOT EXISTS track_fields_sheet_column_key
-    ON track_fields(sheet_id, LOWER(column_name))
+    DROP INDEX IF EXISTS track_fields_sheet_column_key
   `
 }

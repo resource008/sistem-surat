@@ -71,12 +71,14 @@ function getTrackFillStatus(record: TrackRecord, fields: TrackField[]) {
   if (totalCount === 0) {
     return {
       complete: true,
-      label: "Sudah diisi",
+      empty: true,
+      label: "-",
     }
   }
 
   return {
     complete: filledCount === totalCount,
+    empty: false,
     label: filledCount === totalCount ? "Sudah diisi" : "Belum diisi",
   }
 }
@@ -86,10 +88,13 @@ function TrackFillStatusBadge({ record, fields }: { record: TrackRecord; fields:
 
   return (
     <Badge
-      variant={status.complete ? "secondary" : "outline"}
-      className={status.complete
-        ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300"
-        : "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900/70 dark:bg-amber-950/40 dark:text-amber-300"
+      variant={status.empty ? "outline" : status.complete ? "secondary" : "outline"}
+      className={
+        status.empty
+          ? "border-border bg-background text-muted-foreground"
+          : status.complete
+            ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300"
+            : "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900/70 dark:bg-amber-950/40 dark:text-amber-300"
       }
     >
       {status.label}

@@ -99,7 +99,7 @@ export default function TrackTablePage() {
 
   return (
     <div className="flex flex-col gap-4 pb-24">
-      <div className={`${sheets.length > 0 ? "hidden md:block" : ""} overflow-hidden rounded-xl border border-border/40 bg-background`}>
+      <div className={`${sheets.length > 0 ? "hidden md:block" : ""} max-h-[calc(100svh-180px)] overflow-hidden rounded-xl border border-border/40 bg-background`}>
         {sheets.length === 0 ? (
           <EmptyState
             icon={<FileSpreadsheet size={64} strokeWidth={1.25} />}
@@ -107,8 +107,8 @@ export default function TrackTablePage() {
             description={error?.message ?? "Tambahkan sheet pertama untuk mulai mengelola tabel lacak."}
           />
         ) : (
-          <div className="overflow-x-auto">
-            <div className="grid min-w-[640px] grid-cols-[minmax(220px,1fr)_140px_140px_120px] border-b border-border/40 bg-muted/40 px-4 py-3 text-[12px] font-medium text-muted-foreground">
+          <div className="max-h-[calc(100svh-180px)] overflow-auto">
+            <div className="sticky top-0 z-10 grid min-w-[640px] grid-cols-[minmax(220px,1fr)_140px_140px_120px] border-b border-border/40 bg-muted/40 px-4 py-3 text-[12px] font-medium text-muted-foreground">
               <div>Nama Sheet</div>
               <div>Status</div>
               <div>Kolom</div>
@@ -171,7 +171,7 @@ export default function TrackTablePage() {
       </div>
 
       {sheets.length > 0 ? (
-        <div className="grid gap-3 md:hidden">
+        <div className="grid max-h-[calc(100svh-170px)] gap-3 overflow-y-auto pr-1 md:hidden">
           {paginatedSheets.map((sheet, pageIndex) => {
             const sheetIndex = pageStartIndex + pageIndex
 
