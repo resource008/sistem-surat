@@ -8,7 +8,7 @@ export function markLogoutRedirect() {
   document.cookie = `${SESSION_LOGOUT_REDIRECT_COOKIE}=1; Max-Age=${SESSION_LOGOUT_REDIRECT_MAX_AGE_SECONDS}; Path=/; SameSite=Lax`
 }
 
-export function redirectToLoggedOutLogin(reason?: "idle") {
+export function redirectToLoggedOutLogin(reason?: "idle" | "browser") {
   markLogoutRedirect()
   const searchParams = new URLSearchParams({ logout: "true" })
   if (reason) searchParams.set("reason", reason)

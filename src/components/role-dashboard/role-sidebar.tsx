@@ -9,6 +9,7 @@ import {
 import { UserAvatar } from "@/components/shared/user-avatar"
 import { ThemeToggle } from "@/components/ui/theme-toogle"
 import { routes } from "@/constants/routes"
+import { SESSION_BROWSER_ACTIVE_KEY } from "@/constants/session"
 import type { DashboardRole, UserPermissions } from "@/domain/user/types"
 import { authClient } from "@/infrastructure/auth/auth-client"
 import { redirectToLoggedOutLogin } from "@/lib/logout-redirect"
@@ -114,6 +115,7 @@ export function RoleSidebar({
     }
 
     try {
+      window.sessionStorage.removeItem(SESSION_BROWSER_ACTIVE_KEY)
       const { data: session } = await authClient.getSession()
       await fetch("/api/admin/logout-activity", { method: "POST", keepalive: true }).catch(() => {})
 

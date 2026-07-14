@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react"
 import {
+  SESSION_BROWSER_ACTIVE_KEY,
   SESSION_ACTIVITY_WRITE_INTERVAL_MS,
   SESSION_IDLE_LOGOUT_KEY,
   SESSION_IDLE_TIMEOUT_MS,
@@ -20,14 +21,16 @@ const ACTIVITY_EVENTS = [
   "touchstart",
 ] as const
 
+type LogoutReason = "idle" | "browser"
+
 function getStoredTimestamp(key: string) {
-  const value = window.localStorage.getItem(key)
+  const value = window.sessionStorage.getItem(key)
   const timestamp = value ? Number(value) : NaN
   return Number.isFinite(timestamp) ? timestamp : null
 }
 
-function redirectToLogin() {
-  redirectToLoggedOutLogin("idle")
+function redirectToLogin(reason: LogoutReason = "idle") {
+  redirectToLoggedOutLogin(reason)
 }
 
 export function IdleSessionGuard() {
@@ -49,7 +52,7 @@ export function IdleSessionGuard() {
       if (stored) return stored
 
       const now = Date.now()
-      window.localStorage.setItem(SESSION_LAST_ACTIVITY_KEY, String(now))
+      window.sessionStorage.setItem(SESSION_LAST_ACTIVITY_KEY, String(now))
       return now
     }
 
@@ -76,18 +79,22 @@ export function IdleSessionGuard() {
       return refreshPromiseRef.current
     }
 
-    async function expireSession() {
+    async function expireSession(reason: LogoutReason = "idle") {
       if (expiringRef.current) return
       expiringRef.current = true
       clearScheduledCheck()
 
       try {
-        window.localStorage.setItem(SESSION_IDLE_LOGOUT_KEY, String(Date.now()))
+        window.sessionStorage.setItem(SESSION_IDLE_LOGOUT_KEY, String(Date.now()))
       } catch {
-        // localStorage is best-effort for cross-tab notification.
+        // sessionStorage is best-effort for recording local logout state.
       }
 
       try {
+        if (reason === "browser") {
+          window.sessionStorage.removeItem(SESSION_BROWSER_ACTIVE_KEY)
+        }
+
         const { data: session } = await authClient.getSession()
 
         if (session?.session?.token) {
@@ -96,11 +103,19 @@ export function IdleSessionGuard() {
 
         await authClient.signOut({
           fetchOptions: {
-            onSuccess: redirectToLogin,
+            onSuccess: () => redirectToLogin(reason),
           },
         })
       } finally {
-        redirectToLogin()
+        redirectToLogin(reason)
+      }
+    }
+
+    function hasActiveBrowserSession() {
+      try {
+        return window.sessionStorage.getItem(SESSION_BROWSER_ACTIVE_KEY) === "1"
+      } catch {
+        return false
       }
     }
 
@@ -128,7 +143,7 @@ export function IdleSessionGuard() {
       if (now - lastWriteRef.current < SESSION_ACTIVITY_WRITE_INTERVAL_MS) return
 
       lastWriteRef.current = now
-      window.localStorage.setItem(SESSION_LAST_ACTIVITY_KEY, String(now))
+      window.sessionStorage.setItem(SESSION_LAST_ACTIVITY_KEY, String(now))
       scheduleCheck()
       void refreshSession()
     }
@@ -138,26 +153,21 @@ export function IdleSessionGuard() {
       recordActivity()
     }
 
-    function handleStorage(event: StorageEvent) {
-      if (event.key === SESSION_LAST_ACTIVITY_KEY) {
-        scheduleCheck()
-        return
-      }
-
-      if (event.key === SESSION_IDLE_LOGOUT_KEY && event.newValue) {
-        void expireSession()
+    if (!hasActiveBrowserSession()) {
+      void expireSession("browser")
+      return () => {
+        clearScheduledCheck()
       }
     }
 
     if (!getStoredTimestamp(SESSION_LAST_ACTIVITY_KEY)) {
-      window.localStorage.setItem(SESSION_LAST_ACTIVITY_KEY, String(Date.now()))
+      window.sessionStorage.setItem(SESSION_LAST_ACTIVITY_KEY, String(Date.now()))
     }
 
     ACTIVITY_EVENTS.forEach((eventName) => {
       window.addEventListener(eventName, recordActivity, { passive: true })
     })
     document.addEventListener("visibilitychange", handleVisibilityChange)
-    window.addEventListener("storage", handleStorage)
     scheduleCheck()
     void refreshSession()
 
@@ -167,7 +177,6 @@ export function IdleSessionGuard() {
         window.removeEventListener(eventName, recordActivity)
       })
       document.removeEventListener("visibilitychange", handleVisibilityChange)
-      window.removeEventListener("storage", handleStorage)
     }
   }, [])
 

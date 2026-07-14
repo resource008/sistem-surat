@@ -5,6 +5,7 @@ import { requireAdmin } from "@/lib/require-admin"
 import { deleteTrackSheet, fetchTrackSheetById, showTrackSheet, updateTrackSheet } from "@/services/track-table-service"
 
 type RouteContext = { params: Promise<{ id: string }> }
+type VisibilityAction = "show" | "hide"
 
 function validationResponse(fieldErrors: Record<string, string[] | undefined>) {
   return NextResponse.json(
@@ -16,8 +17,28 @@ function validationResponse(fieldErrors: Record<string, string[] | undefined>) {
   )
 }
 
-async function updateTrackSheetResponse(req: NextRequest, id: string) {
-  const body = await req.json().catch(() => null)
+function parseVisibilityAction(body: unknown): VisibilityAction | null {
+  if (!body || typeof body !== "object" || !("action" in body)) return null
+
+  const action = (body as { action?: unknown }).action
+  return action === "show" || action === "hide" ? action : null
+}
+
+async function visibilityResponse(action: VisibilityAction, id: string) {
+  if (action === "show") {
+    await showTrackSheet(decodeURIComponent(id))
+    return NextResponse.json({
+      message: "Sheet lacak berhasil ditampilkan",
+    })
+  }
+
+  await deleteTrackSheet(decodeURIComponent(id), "hide")
+  return NextResponse.json({
+    message: "Data sheet lacak berhasil disembunyikan",
+  })
+}
+
+async function updateTrackSheetResponse(body: unknown, id: string) {
   if (!body) {
     return NextResponse.json({ error: "Body tidak valid" }, { status: 400 })
   }
@@ -29,8 +50,8 @@ async function updateTrackSheetResponse(req: NextRequest, id: string) {
 
   const sheet = await updateTrackSheet(decodeURIComponent(id), parsed.data)
   return NextResponse.json({
-    message: "Data sheet lacak berhasil diubah",
-    sheet,
+    message: "Data sheet lacak berhasil diperbarui",
+    id: sheet.id,
   })
 }
 
@@ -54,17 +75,23 @@ export async function PATCH(req: NextRequest, { params }: RouteContext) {
   try {
     await requireAdmin()
     const { id } = await params
-    const action = req.nextUrl.searchParams.get("action")
+    const queryAction = req.nextUrl.searchParams.get("action")
 
-    if (action === "show") {
-      const sheet = await showTrackSheet(decodeURIComponent(id))
-      return NextResponse.json({
-        message: "Sheet lacak berhasil ditampilkan",
-        sheet,
-      })
+    if (queryAction) {
+      return NextResponse.json(
+        { error: "Action visibility harus dikirim melalui body request" },
+        { status: 400 }
+      )
     }
 
-    return updateTrackSheetResponse(req, id)
+    const body = await req.json().catch(() => null)
+    const visibilityAction = parseVisibilityAction(body)
+
+    if (visibilityAction) {
+      return await visibilityResponse(visibilityAction, id)
+    }
+
+    return await updateTrackSheetResponse(body, id)
   } catch (error) {
     if (error instanceof AppError) {
       return NextResponse.json({ error: error.message }, { status: error.status })
@@ -79,7 +106,8 @@ export async function PUT(req: NextRequest, { params }: RouteContext) {
     await requireAdmin()
     const { id } = await params
 
-    return updateTrackSheetResponse(req, id)
+    const body = await req.json().catch(() => null)
+    return await updateTrackSheetResponse(body, id)
   } catch (error) {
     if (error instanceof AppError) {
       return NextResponse.json({ error: error.message }, { status: error.status })
@@ -93,11 +121,18 @@ export async function DELETE(req: NextRequest, { params }: RouteContext) {
   try {
     await requireAdmin()
     const { id } = await params
-    const mode = req.nextUrl.searchParams.get("mode") === "hard" ? "hard" : "hide"
+    const action = req.nextUrl.searchParams.get("action")
 
-    await deleteTrackSheet(decodeURIComponent(id), mode)
+    if (action) {
+      return NextResponse.json(
+        { error: "Endpoint hapus sheet lacak tidak menerima action visibility" },
+        { status: 400 }
+      )
+    }
+
+    await deleteTrackSheet(decodeURIComponent(id), "hard")
     return NextResponse.json({
-      message: "Data sheet lacak berhasil dihapus",
+      message: "Data sheet lacak berhasil dihapus permanen",
     })
   } catch (error) {
     if (error instanceof AppError) {
