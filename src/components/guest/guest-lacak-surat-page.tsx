@@ -88,7 +88,11 @@ function getSearchHaystack(record: TrackRecord, fields: TrackField[]) {
     })
     .map((field) => record.values[field.id] ?? "")
 
-  const allValues = fields.map((field) => record.values[field.id] ?? "")
+  const allValues = fields.flatMap((field) => {
+    const value = record.values[field.id] ?? ""
+    if (field.type !== "date") return [value]
+    return [value, formatDateDisplay(value)]
+  })
   return [...priorityValues, ...allValues].join(" ").toLowerCase()
 }
 
@@ -204,7 +208,7 @@ export function GuestLacakSuratPage({ initialSheetId = "" }: GuestLacakSuratPage
           size="icon-lg"
           onClick={() => setSearchExpanded(true)}
           aria-label="Cari"
-          className={`hidden border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-100 hover:text-neutral-700 max-md:flex ${(searchExpanded || query.trim().length > 0) ? "max-md:hidden" : ""}`}
+          className={`hidden !border-neutral-300 !bg-white !text-neutral-700 shadow-none transition-transform active:scale-95 hover:!border-neutral-300 hover:!bg-white hover:!text-neutral-700 max-md:flex ${(searchExpanded || query.trim().length > 0) ? "max-md:hidden" : ""}`}
         >
           <Search className="size-4" />
         </Button>
@@ -212,7 +216,7 @@ export function GuestLacakSuratPage({ initialSheetId = "" }: GuestLacakSuratPage
           <Button
             asChild
             variant="outline"
-            className="h-9 border-blue-100 bg-blue-100 px-4 text-[13px] font-medium text-blue-700 hover:bg-blue-200 hover:text-blue-700 max-lg:size-9 max-lg:px-0"
+            className="h-9 !border-blue-600 !bg-white px-4 text-[13px] font-medium !text-blue-600 shadow-none hover:!border-blue-600 hover:!bg-white hover:!text-blue-600 max-lg:!size-9 max-lg:px-0"
           >
             <Link href={routes.login}>
               <LogIn className="size-4" />
@@ -221,7 +225,7 @@ export function GuestLacakSuratPage({ initialSheetId = "" }: GuestLacakSuratPage
           </Button>
         </div>
         {(searchExpanded || query.trim().length > 0) ? (
-          <div className="hidden min-w-0 items-center gap-2 max-md:col-span-3 max-md:flex">
+          <div className="hidden min-w-0 animate-in items-center gap-2 fade-in slide-in-from-right-2 duration-200 max-md:col-span-3 max-md:flex">
             <div className="relative min-w-0 flex-1">
               <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-neutral-500" />
               <Input
@@ -239,7 +243,7 @@ export function GuestLacakSuratPage({ initialSheetId = "" }: GuestLacakSuratPage
               size="icon-lg"
               onClick={clearSearch}
               aria-label="Tutup pencarian"
-              className="shrink-0 border-neutral-200 bg-white text-neutral-700 hover:bg-neutral-100 hover:text-neutral-700"
+              className="shrink-0 !border-neutral-300 !bg-white !text-neutral-700 shadow-none hover:!border-neutral-300 hover:!bg-white hover:!text-neutral-700"
             >
               <X className="size-4" />
             </Button>
@@ -288,13 +292,14 @@ export function GuestLacakSuratPage({ initialSheetId = "" }: GuestLacakSuratPage
                   </div>
                 ) : null}
 
-                <div className="-mx-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0">
+                <div className="-mx-4 overflow-x-auto overscroll-x-contain px-4 pb-2 sm:mx-0 sm:px-0">
                   <div
-                    className="min-w-full overflow-hidden rounded-xl border border-neutral-200 bg-white"
+                    className="overflow-hidden rounded-xl border border-neutral-200 bg-white"
+                    style={{ minWidth: `max(100%, ${56 + group.fields.length * 168}px)` }}
                   >
                     <div
                       className="grid bg-neutral-50"
-                      style={{ gridTemplateColumns: `44px repeat(${group.fields.length}, minmax(clamp(88px, 26vw, 150px), 1fr))` }}
+                      style={{ gridTemplateColumns: `56px repeat(${group.fields.length}, minmax(168px, 1fr))` }}
                     >
                       <div className="border-r border-neutral-200 px-2 py-3 text-center text-[11px] font-bold tracking-[0px] text-neutral-600 sm:px-4 sm:text-[12px]">
                         No.
@@ -313,7 +318,7 @@ export function GuestLacakSuratPage({ initialSheetId = "" }: GuestLacakSuratPage
                         key={`${group.name}-${record.id}`}
                         href={`${routes.guest.lacakSurat}/view-detail/${buildCategorySegment(group.name)}/${encodeURIComponent(record.id)}`}
                         className="grid w-full cursor-pointer text-left outline-none transition-colors hover:bg-neutral-50 focus-visible:bg-neutral-50 focus-visible:ring-2 focus-visible:ring-blue-200"
-                        style={{ gridTemplateColumns: `44px repeat(${group.fields.length}, minmax(clamp(88px, 26vw, 150px), 1fr))` }}
+                        style={{ gridTemplateColumns: `56px repeat(${group.fields.length}, minmax(168px, 1fr))` }}
                       >
                         <div className="border-r border-t border-neutral-200 px-2 py-3 text-center text-xs sm:px-4 sm:text-sm">
                           {index + 1}

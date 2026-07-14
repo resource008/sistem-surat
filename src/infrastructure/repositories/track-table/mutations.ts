@@ -7,6 +7,8 @@ import { ensureTrackTableSchema } from "./schema"
 import type { DbClient } from "./types"
 
 type ExistingNameRow = { id: string }
+type RemovedFieldWithDataRow = { columnName: string; valueCount: number | bigint }
+type TableExistsRow = { exists: boolean }
 const DEFAULT_ID_COLUMN_NAME = "ID"
 
 function createTrackSheetId() {
@@ -113,18 +115,6 @@ function ensureUniqueCategories(input: TrackSheetInput) {
   })
 }
 
-function ensureUniqueColumns(input: TrackSheetInput) {
-  const seen = new Set<string>()
-
-  input.fields.forEach((field) => {
-    const key = field.columnName.trim().toLowerCase()
-    if (seen.has(key)) {
-      throw new AppError(409, `Nama kolom "${field.columnName}" sudah ada di sheet ini`)
-    }
-    seen.add(key)
-  })
-}
-
 async function ensureTrackSheetExists(id: string, options: { includeHidden?: boolean } = {}) {
   const rows = await prisma.$queryRaw<ExistingNameRow[]>`
     SELECT id
@@ -135,6 +125,57 @@ async function ensureTrackSheetExists(id: string, options: { includeHidden?: boo
   `
 
   if (!rows[0]) throw new AppError(404, "Sheet lacak tidak ditemukan")
+}
+
+async function ensureRemovedFieldsAreEmpty(sheetId: string, input: TrackSheetInput) {
+  const [table] = await prisma.$queryRaw<TableExistsRow[]>`
+    SELECT to_regclass('track_records') IS NOT NULL AS "exists"
+  `
+  if (!table?.exists) return
+
+  const keptFieldIds = input.fields
+    .map((field) => field.id)
+    .filter((id): id is string => Boolean(id))
+  const rows = keptFieldIds.length > 0
+    ? await prisma.$queryRaw<RemovedFieldWithDataRow[]>`
+        SELECT
+          f.column_name AS "columnName",
+          COUNT(r.id) FILTER (
+            WHERE NULLIF(BTRIM(r.values ->> f.id), '') IS NOT NULL
+          ) AS "valueCount"
+        FROM track_fields f
+        LEFT JOIN track_records r ON r.sheet_id = f.sheet_id
+        WHERE f.sheet_id = ${sheetId}
+          AND NOT (f.id = ANY(${keptFieldIds}))
+        GROUP BY f.id, f.column_name
+        HAVING COUNT(r.id) FILTER (
+          WHERE NULLIF(BTRIM(r.values ->> f.id), '') IS NOT NULL
+        ) > 0
+        LIMIT 1
+      `
+    : await prisma.$queryRaw<RemovedFieldWithDataRow[]>`
+        SELECT
+          f.column_name AS "columnName",
+          COUNT(r.id) FILTER (
+            WHERE NULLIF(BTRIM(r.values ->> f.id), '') IS NOT NULL
+          ) AS "valueCount"
+        FROM track_fields f
+        LEFT JOIN track_records r ON r.sheet_id = f.sheet_id
+        WHERE f.sheet_id = ${sheetId}
+        GROUP BY f.id, f.column_name
+        HAVING COUNT(r.id) FILTER (
+          WHERE NULLIF(BTRIM(r.values ->> f.id), '') IS NOT NULL
+        ) > 0
+        LIMIT 1
+      `
+  const removedField = rows[0]
+
+  if (removedField) {
+    throw new AppError(
+      409,
+      `Kolom "${removedField.columnName}" sudah memiliki ${Number(removedField.valueCount)} data. Sembunyikan kolom jika data tetap perlu disimpan.`
+    )
+  }
 }
 
 async function saveTrackCategories(db: DbClient, sheetId: string, input: TrackSheetInput) {
@@ -211,7 +252,6 @@ export async function createTrackSheetMutation(input: TrackSheetInput) {
   await ensureTrackTableSchema()
   const normalized = normalizeInput(input)
   ensureUniqueCategories(normalized)
-  ensureUniqueColumns(normalized)
 
   const sheetId = createTrackSheetId()
   await prisma.$transaction(async (tx) => {
@@ -240,7 +280,7 @@ export async function updateTrackSheetMutation(id: string, input: TrackSheetInpu
   const normalized = normalizeInput(input)
   await ensureTrackSheetExists(id, { includeHidden: true })
   ensureUniqueCategories(normalized)
-  ensureUniqueColumns(normalized)
+  await ensureRemovedFieldsAreEmpty(id, normalized)
 
   await prisma.$transaction(async (tx) => {
     await tx.$executeRaw`

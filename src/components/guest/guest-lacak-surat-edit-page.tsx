@@ -317,7 +317,7 @@ export function GuestLacakSuratEditPage() {
                           type="button"
                           variant="outline"
                           disabled
-                          className="min-h-10 w-full justify-start rounded-lg border-neutral-200 bg-neutral-100 px-3 text-xs font-medium text-neutral-900 shadow-none disabled:cursor-default disabled:opacity-100"
+                          className="min-h-10 w-full justify-start rounded-lg border-neutral-200 bg-neutral-100 px-3 text-xs font-medium text-neutral-900 shadow-none ring-1 ring-neutral-200 disabled:cursor-default disabled:opacity-100"
                         >
                           <CalendarIcon className="size-4 shrink-0 text-neutral-700" />
                           <span className="min-w-0 truncate">

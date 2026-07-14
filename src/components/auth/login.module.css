@@ -187,8 +187,8 @@
 .submitBtn {
   width: 100%;
   padding: 12px;
-  background:#170b67;
-  border: none;
+  background: #170b67;
+  border: 1.5px solid #170b67;
   border-radius: 10px;
   color: #ffffff;
   font-family: var(--font-figtree), sans-serif;
@@ -205,6 +205,8 @@
 }
 
 .submitBtn:hover {
+  background: #21108a;
+  border-color: #21108a;
   transform: translateY(-1px);
   box-shadow: 0 6px 20px rgba(99, 74, 168, 0.45);
 }
@@ -214,7 +216,9 @@
 }
 
 .submitBtn:disabled {
-  opacity: 0.65;
+  background: #6f66a8;
+  border-color: #6f66a8;
+  opacity: 0.85;
   cursor: not-allowed;
   transform: none;
 }

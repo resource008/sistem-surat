@@ -281,18 +281,18 @@ export function GuestLacakSuratDetailPage() {
                   key={group.category?.id ?? group.name}
                   className="gap-0 rounded-xl border-neutral-200 bg-white py-0 shadow-sm ring-0"
                 >
-                  <CardHeader className="grid-cols-[1fr_auto] gap-3 px-5 py-4 max-sm:px-4">
+                  <CardHeader className="grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-5 py-4 max-sm:grid-cols-1 max-sm:px-4">
                     <Badge
                       variant="secondary"
-                      className="h-8 w-40 rounded-lg border-0 px-4 text-sm font-semibold"
+                      className="h-8 w-40 max-w-full justify-center rounded-lg border-0 px-4 text-sm font-semibold max-sm:w-full"
                       style={getTrackCategoryStyle(group.color)}
                     >
                       {group.name}
                     </Badge>
 
-                    <CardAction>
+                    <CardAction className="max-sm:col-start-1 max-sm:row-start-2 max-sm:w-full max-sm:justify-self-stretch">
                       {isEditingGroup ? (
-                      <div className="flex flex-wrap gap-2 sm:justify-end">
+                      <div className="flex flex-wrap items-center gap-2 sm:justify-end max-sm:grid max-sm:grid-cols-2">
                         <Button
                           type="button"
                           variant="outline"
@@ -300,10 +300,10 @@ export function GuestLacakSuratDetailPage() {
                           disabled={saving}
                           aria-label="Batal"
                           title="Batal"
-                          className="h-9 rounded-lg border-neutral-200 bg-white px-4 text-sm font-semibold text-neutral-700 hover:bg-neutral-100 hover:text-neutral-700 focus-visible:text-neutral-700 max-sm:w-9 max-sm:px-0"
+                          className="h-9 rounded-lg border-neutral-200 bg-white px-4 text-sm font-semibold text-neutral-700 shadow-sm ring-1 ring-neutral-200 hover:bg-neutral-100 hover:text-neutral-800 focus-visible:text-neutral-800 max-sm:w-full"
                         >
                           <X className="size-4 sm:hidden" />
-                          <span className="max-sm:sr-only">Batal</span>
+                          <span>Batal</span>
                         </Button>
                         <Button
                           type="submit"
@@ -311,10 +311,10 @@ export function GuestLacakSuratDetailPage() {
                           disabled={saving || editableFields.length === 0}
                           aria-label={saving ? "Menyimpan" : "Simpan"}
                           title={saving ? "Menyimpan" : "Simpan"}
-                          className="h-9 rounded-lg bg-blue-600 px-4 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 hover:text-white max-sm:w-9 max-sm:px-0"
+                          className="h-9 rounded-lg bg-blue-600 px-4 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 hover:text-white max-sm:w-full"
                         >
                           <Save className="size-4" />
-                          <span className="max-sm:sr-only">{saving ? "Menyimpan" : "Simpan Data"}</span>
+                          <span>{saving ? "Menyimpan" : "Simpan Data"}</span>
                         </Button>
                       </div>
                     ) : (
@@ -325,12 +325,12 @@ export function GuestLacakSuratDetailPage() {
                         disabled={isEditButtonDisabled}
                         aria-label={editButtonLabel}
                         title={editButtonLabel}
-                        className={`h-9 w-fit rounded-lg border-neutral-200 bg-white px-4 text-sm font-semibold text-neutral-700 shadow-sm hover:bg-neutral-100 hover:text-neutral-800 ${
+                        className={`h-9 w-fit rounded-lg border-neutral-200 bg-white px-4 text-sm font-semibold text-neutral-700 shadow-sm ring-1 ring-neutral-200 hover:bg-neutral-100 hover:text-neutral-800 ${
                           lockedByActiveEdit ? "disabled:opacity-40" : "disabled:opacity-100"
-                        } max-sm:w-9 max-sm:px-0`}
+                        } max-sm:w-full`}
                       >
                         {isEditButtonDisabled ? <Eye className="size-4" /> : <Pencil className="size-4" />}
-                        <span className="max-sm:sr-only">{editButtonLabel}</span>
+                        <span>{editButtonLabel}</span>
                       </Button>
                     )}
                     </CardAction>
@@ -349,7 +349,7 @@ export function GuestLacakSuratDetailPage() {
                             <div key={field.id} className="grid gap-2">
                               <Label
                                 htmlFor={inputId}
-                                className="text-xs font-bold tracking-[0px] text-neutral-700"
+                                className="text-xs font-bold tracking-[0px] text-neutral-800"
                               >
                                 {field.columnName}
                               </Label>
@@ -360,7 +360,7 @@ export function GuestLacakSuratDetailPage() {
                                 onChange={(value) => updateValue(field.id, value)}
                                 disabled={saving}
                                 maxLength={TRACK_RECORD_VALUE_MAX_LENGTH}
-                                className="h-8 rounded-lg border-neutral-200 bg-neutral-100 text-xs font-medium shadow-none placeholder:text-neutral-500 hover:bg-neutral-100"
+                                className="h-9 rounded-lg border-neutral-200 bg-white text-sm font-medium text-neutral-900 shadow-none placeholder:text-neutral-400 hover:bg-white focus-visible:border-blue-400 focus-visible:ring-blue-200"
                               />
                             </div>
                           )
@@ -370,7 +370,7 @@ export function GuestLacakSuratDetailPage() {
                       <div className="grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
                         {fields.map((field) => (
                           <div key={field.id} className="grid gap-2">
-                            <Label className="text-xs font-bold tracking-[0px] text-neutral-700">
+                            <Label className="text-xs font-bold tracking-[0px] text-neutral-800">
                               {field.columnName}
                             </Label>
                             {field.type === "date" ? (
@@ -378,9 +378,9 @@ export function GuestLacakSuratDetailPage() {
                                 type="button"
                                 variant="outline"
                                 disabled
-                                className="h-8 w-full justify-start rounded-lg border-neutral-200 bg-neutral-100 px-3 text-xs font-medium text-neutral-900 shadow-none disabled:cursor-default disabled:opacity-100"
+                                className="h-9 w-full justify-start gap-2 rounded-lg border-neutral-200 bg-neutral-50 px-3 text-sm font-medium text-neutral-500 shadow-none ring-1 ring-neutral-200 disabled:cursor-default disabled:opacity-100"
                               >
-                                <CalendarIcon className="size-4 shrink-0 text-neutral-700" />
+                                <CalendarIcon className="size-4 shrink-0 text-neutral-500" />
                                 <span className="min-w-0 truncate">
                                   {getRecordRawValue(record, field)
                                     ? formatDateDisplay(getRecordRawValue(record, field))
@@ -391,7 +391,7 @@ export function GuestLacakSuratDetailPage() {
                               <Input
                                 value={getRecordValue(record, field, recordIndex)}
                                 readOnly
-                                className="h-8 rounded-lg border-neutral-200 bg-neutral-100 text-xs font-medium text-neutral-900 shadow-none"
+                                className="h-9 rounded-lg border-neutral-200 bg-neutral-50 text-sm font-medium text-neutral-500 shadow-none"
                               />
                             )}
                           </div>
