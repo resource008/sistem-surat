@@ -1,17 +1,25 @@
 import { NextRequest, NextResponse } from "next/server"
 import { AppError } from "@/lib/errors"
 import { requireAdmin } from "@/lib/require-admin"
-import { deleteDepartemen } from "@/services/departemen-service"
+import { hardDeleteDepartemen } from "@/services/departemen-service"
 
 type RouteContext = { params: Promise<{ id: string }> }
 
-export async function hapusDepartemen(_req: NextRequest, { params }: RouteContext) {
+export async function hapusDepartemen(req: NextRequest, { params }: RouteContext) {
   try {
     await requireAdmin()
     const { id } = await params
+    const action = req.nextUrl.searchParams.get("action")
 
-    await deleteDepartemen(decodeURIComponent(id))
-    return NextResponse.json({ message: "Departemen berhasil dihapus" })
+    if (action) {
+      return NextResponse.json(
+        { error: "Endpoint hapus departemen tidak menerima action visibility" },
+        { status: 400 }
+      )
+    }
+
+    await hardDeleteDepartemen(decodeURIComponent(id))
+    return NextResponse.json({ message: "Departemen berhasil dihapus permanen" })
   } catch (error) {
     if (error instanceof AppError) {
       return NextResponse.json({ error: error.message }, { status: error.status })

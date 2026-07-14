@@ -17,6 +17,10 @@ export function LogoutNotifier() {
         toast.info("Sesi berakhir", {
           description: "Tidak ada aktivitas selama 30 menit. Silakan login ulang.",
         })
+      } else if (searchParams.get("reason") === "browser") {
+        toast.info("Sesi berakhir", {
+          description: "Jendela sebelumnya sudah ditutup. Silakan login ulang.",
+        })
       } else {
         toast.success("Berhasil keluar")
       }

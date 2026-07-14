@@ -5,6 +5,7 @@ import { requireAdmin } from "@/lib/require-admin"
 import { deleteDepartemen, showDepartemen, updateDepartemen } from "@/services/departemen-service"
 
 type RouteContext = { params: Promise<{ id: string }> }
+type VisibilityAction = "show" | "hide"
 
 function validationResponse(fieldErrors: Record<string, string[] | undefined>) {
   return NextResponse.json(
@@ -16,6 +17,40 @@ function validationResponse(fieldErrors: Record<string, string[] | undefined>) {
   )
 }
 
+function parseVisibilityAction(body: unknown): VisibilityAction | null {
+  if (!body || typeof body !== "object" || !("action" in body)) return null
+
+  const action = (body as { action?: unknown }).action
+  return action === "show" || action === "hide" ? action : null
+}
+
+async function visibilityResponse(action: VisibilityAction, id: string) {
+  if (action === "show") {
+    await showDepartemen(id)
+    return NextResponse.json({ message: "Departemen berhasil ditampilkan" })
+  }
+
+  await deleteDepartemen(id)
+  return NextResponse.json({ message: "Departemen berhasil disembunyikan" })
+}
+
+async function updateDepartemenResponse(body: unknown, id: string) {
+  if (!body) {
+    return NextResponse.json({ error: "Body tidak valid" }, { status: 400 })
+  }
+
+  const parsed = UpdateDepartemenSchema.safeParse(body)
+  if (!parsed.success) {
+    return validationResponse(parsed.error.flatten().fieldErrors)
+  }
+
+  const departemen = await updateDepartemen(id, parsed.data)
+  return NextResponse.json({
+    message: "Data departemen berhasil diperbarui",
+    id: departemen.id,
+  })
+}
+
 async function handleEditDepartemen(req: NextRequest, { params }: RouteContext, method: "PATCH" | "PUT") {
   try {
     await requireAdmin()
@@ -23,31 +58,27 @@ async function handleEditDepartemen(req: NextRequest, { params }: RouteContext, 
     const decodedId = decodeURIComponent(id)
 
     if (method === "PATCH") {
-      const action = req.nextUrl.searchParams.get("action")
+      const queryAction = req.nextUrl.searchParams.get("action")
 
-      if (action === "show") {
-        const departemen = await showDepartemen(decodedId)
-        return NextResponse.json({ message: "Departemen berhasil ditampilkan", departemen })
+      if (queryAction) {
+        return NextResponse.json(
+          { error: "Action visibility harus dikirim melalui body request" },
+          { status: 400 }
+        )
       }
 
-      if (action === "hide") {
-        await deleteDepartemen(decodedId)
-        return NextResponse.json({ message: "Departemen berhasil disembunyikan" })
+      const body = await req.json().catch(() => null)
+      const visibilityAction = parseVisibilityAction(body)
+
+      if (visibilityAction) {
+        return await visibilityResponse(visibilityAction, decodedId)
       }
+
+      return await updateDepartemenResponse(body, decodedId)
     }
 
     const body = await req.json().catch(() => null)
-    if (!body) {
-      return NextResponse.json({ error: "Body tidak valid" }, { status: 400 })
-    }
-
-    const parsed = UpdateDepartemenSchema.safeParse(body)
-    if (!parsed.success) {
-      return validationResponse(parsed.error.flatten().fieldErrors)
-    }
-
-    await updateDepartemen(decodedId, parsed.data)
-    return NextResponse.json({ message: "Data departemen berhasil diubah" })
+    return await updateDepartemenResponse(body, decodedId)
   } catch (error) {
     if (error instanceof AppError) {
       return NextResponse.json({ error: error.message }, { status: error.status })
