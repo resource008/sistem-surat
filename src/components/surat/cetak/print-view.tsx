@@ -1,6 +1,11 @@
 import { NOMOR_DEFAULT_ID } from "@/constants/departemen-columns"
 import { isCetakRowSpanColumn } from "@/domain/surat/custom-fields"
-import { formatTanggalCetak, getCetakColumnValue } from "@/lib/surat-helpers"
+import {
+  getSuratColumnGroupValue,
+  getSuratDetailGroupCount,
+  isSuratGroupedColumn,
+} from "@/lib/surat-display"
+import { formatTanggalCetak, getCetakColumnValue, getCetakPrintColumns } from "@/lib/surat-helpers"
 import type { CetakGroup, DetailSurat, RegisterSurat } from "@/types/surat"
 
 interface Props {
@@ -13,7 +18,7 @@ export function CetakPrintView({ groups = [] }: Props) {
   return (
     <div className="print-view">
       {groups.map((group: CetakGroup) => {
-        const columns = group.columns ?? group.registers[0]?.dept?.columns ?? []
+        const columns = getCetakPrintColumns(group.registers[0])
 
         return (
           <table key={group.key} className="pt">
@@ -35,28 +40,43 @@ export function CetakPrintView({ groups = [] }: Props) {
               {group.registers.flatMap((reg: RegisterSurat) => {
                 const details = reg.detailSurat ?? []
 
-                return details.map((detail: DetailSurat, idx: number) => (
-                  <tr key={`${reg.id}-${idx}`}>
-                    {columns.map((column) => {
-                      if (isCetakRowSpanColumn(column)) {
-                        if (idx > 0) return null
+                return details.flatMap((detail: DetailSurat, idx: number) => {
+                  const groupedColumns = columns.filter((column) => isSuratGroupedColumn(column, reg, detail))
+                  const hasGroupedColumns = groupedColumns.length > 0
+                  const staticColumns = hasGroupedColumns
+                    ? columns.filter((column) => !isSuratGroupedColumn(column, reg, detail))
+                    : []
+                  const rowColumns = hasGroupedColumns ? groupedColumns : columns
+                  const groupRows = Array.from({ length: hasGroupedColumns ? getSuratDetailGroupCount(detail) : 1 })
 
+                  return groupRows.map((_, groupIndex) => (
+                  <tr key={`${reg.id}-${idx}-${groupIndex}`}>
+                    {groupIndex === 0 && staticColumns.map((column) => {
+                      if (isCetakRowSpanColumn(column)) {
                         return (
-                          <td key={column.id} rowSpan={details.length}>
+                          <td key={column.id} rowSpan={groupRows.length}>
                             {getCetakColumnValue(column, reg, detail)}
                           </td>
                         )
                       }
 
                       return (
-                        <td key={column.id} className={column.id.includes(NOMOR_DEFAULT_ID) ? "td-nomor" : undefined}>
+                        <td key={column.id} rowSpan={groupRows.length} className={column.id.includes(NOMOR_DEFAULT_ID) ? "td-nomor" : undefined}>
                           {getCetakColumnValue(column, reg, detail)}
                         </td>
                       )
                     })}
-                    {idx === 0 && <td rowSpan={details.length} className="td-ttd"></td>}
+                    {rowColumns.map((column) => (
+                      <td key={column.id} className={column.id.includes(NOMOR_DEFAULT_ID) ? "td-nomor" : undefined}>
+                        {hasGroupedColumns
+                          ? getSuratColumnGroupValue(column, reg, detail, groupIndex)
+                          : getCetakColumnValue(column, reg, detail)}
+                      </td>
+                    ))}
+                    {idx === 0 && groupIndex === 0 && <td rowSpan={details.reduce((total, item) => total + getSuratDetailGroupCount(item), 0)} className="td-ttd"></td>}
                   </tr>
-                ))
+                  ))
+                })
               })}
             </tbody>
           </table>

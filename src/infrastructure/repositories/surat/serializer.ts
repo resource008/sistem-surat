@@ -1,9 +1,12 @@
 import {
+  getCustomFieldExactValue,
   getCustomFieldInputValue,
-  getCustomFieldValue,
   getSuratBuiltInColumnKey,
+  validateCustomFieldValue,
 } from "@/domain/surat/custom-fields"
+import { getColumnAutoFill } from "@/constants/departemen-columns"
 import { formatRegisterNumber } from "@/lib/format-register-number"
+import { AppError } from "@/lib/errors"
 import type { DepartemenColumn, RegisterSurat } from "@/types"
 import { normalizeCustomFields } from "./custom-fields"
 import type { CustomFieldsMap, DepartmentColumnsMap } from "./types"
@@ -15,7 +18,7 @@ function getDynamicDetailValue(
 ) {
   if (!key) return ""
   const column = columns.find((item) => getSuratBuiltInColumnKey(item) === key)
-  return column ? getCustomFieldValue(column, customFields) ?? "" : ""
+  return column ? getCustomFieldExactValue(column, customFields) ?? "" : ""
 }
 
 function getFirstCustomFieldValue(customFields: Record<string, string>) {
@@ -26,6 +29,23 @@ function normalizeDetailDate(value: string | undefined, fallback: Date) {
   if (!value) return fallback
   const date = new Date(value)
   return Number.isNaN(date.getTime()) ? fallback : date
+}
+
+function getColumnByBuiltInKey(
+  columns: DepartemenColumn[],
+  key: ReturnType<typeof getSuratBuiltInColumnKey>
+) {
+  if (!key) return undefined
+  return columns.find((column) => getSuratBuiltInColumnKey(column) === key)
+}
+
+function requireValidManualValue(
+  column: DepartemenColumn | undefined,
+  value: string,
+) {
+  if (!column) return
+  const error = validateCustomFieldValue(column, value)
+  if (error) throw new AppError(400, error)
 }
 
 export function buildDynamicSuratDetail(
@@ -39,18 +59,35 @@ export function buildDynamicSuratDetail(
   },
   columns: DepartemenColumn[],
   tujuan: string,
-  fallbackDate: Date
+  fallbackDate: Date,
+  sequenceNumber = ""
 ) {
   const customFields = normalizeCustomFields(item.customFields ?? {})
-  const getValue = (key: ReturnType<typeof getSuratBuiltInColumnKey>) => {
-    const column = columns.find((column) => getSuratBuiltInColumnKey(column) === key)
+  const getManualValue = (key: ReturnType<typeof getSuratBuiltInColumnKey>) => {
+    const column = getColumnByBuiltInKey(columns, key)
     return column ? getCustomFieldInputValue(column, item) : getDynamicDetailValue(columns, customFields, key)
   }
-  const perihal = getValue("perihal") || getFirstCustomFieldValue(customFields) || "-"
-  const noSurat = getValue("noSurat") || null
-  const lampiran = getValue("lampiran") || null
+  const getAutoFill = (key: ReturnType<typeof getSuratBuiltInColumnKey>) => {
+    const column = getColumnByBuiltInKey(columns, key)
+    return column ? getColumnAutoFill(column.defaultValue) : "none"
+  }
+  const noSuratColumn = getColumnByBuiltInKey(columns, "noSurat")
+  const tanggalSuratColumn = getColumnByBuiltInKey(columns, "tanggalSurat")
+  const noSuratAutoFill = getAutoFill("noSurat")
+  const tanggalSuratAutoFill = getAutoFill("tanggalSurat")
+  const manualNoSurat = getManualValue("noSurat")
+  const manualTanggalSurat = getManualValue("tanggalSurat")
+
+  if (noSuratAutoFill !== "sequence") requireValidManualValue(noSuratColumn, manualNoSurat)
+  if (tanggalSuratAutoFill !== "currentDate") requireValidManualValue(tanggalSuratColumn, manualTanggalSurat)
+
+  const perihal = getManualValue("perihal") || getFirstCustomFieldValue(customFields) || "-"
+  const noSurat = noSuratAutoFill === "sequence"
+    ? sequenceNumber
+    : manualNoSurat || null
+  const lampiran = getManualValue("lampiran") || null
   const tanggalSurat = normalizeDetailDate(
-    getValue("tanggalSurat"),
+    tanggalSuratAutoFill === "currentDate" ? fallbackDate.toISOString() : manualTanggalSurat,
     fallbackDate
   )
 
@@ -58,7 +95,7 @@ export function buildDynamicSuratDetail(
     perihal,
     noSurat,
     lampiran,
-    tujuan: item.tujuan ?? tujuan,
+    tujuan: getAutoFill("tujuan") === "department" ? tujuan : getManualValue("tujuan") || item.tujuan || tujuan,
     tanggalSurat,
   }
 }
@@ -81,7 +118,8 @@ export function serializeSurat(
       printSheetName: String(dept?.printSheetName ?? ""),
       columns: departmentColumns[String(dept?.id ?? row.deptId)] ?? [],
       displayColumns: (departmentColumns[String(dept?.id ?? row.deptId)] ?? [])
-        .filter((column) => column.showInDataSurat),
+        .filter((column) => column.showInDataSurat)
+        .sort((a, b) => (a.displayOrder ?? a.sortOrder) - (b.displayOrder ?? b.sortOrder)),
     },
     asalSurat:     String(row.asalSurat ?? ""),
     tujuan:        deptShortName,

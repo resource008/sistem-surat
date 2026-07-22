@@ -2,11 +2,10 @@
 
 import { LoadingSkeleton } from "@/components/shared/loading-skeleton"
 import { AlertTriangle } from "lucide-react"
-import { Role } from "../shared"
+import type { Role } from "../shared"
 
 import { useEditSurat } from "@/hooks/use-edit-surat"
 import { FloatingActionBar } from "./action-bar"
-import { RegisterInfoPanel } from "./register-info-panel"
 import { SuratListPanel } from "./surat-list-panel"
 
 interface Props {
@@ -14,7 +13,7 @@ interface Props {
   basePath: string
 }
 
-export default function EditSuratPage({ role, basePath }: Props) {
+export default function EditSuratPage({ basePath }: Props) {
   const { state, actions } = useEditSurat(basePath)
 
   if (state.loading) return <div className="w-full">
@@ -33,14 +32,9 @@ export default function EditSuratPage({ role, basePath }: Props) {
 
   return (
     <>
-      <div className="w-full flex flex-col lg:flex-row gap-6 
-                lg:h-[calc(100vh-120px)] lg:overflow-hidden pb-28 lg:pb-0 pt-2">
-        <RegisterInfoPanel state={state} actions={actions} />
-        
-        <div className="w-full lg:w-8/12 xl:w-8/12 flex flex-col gap-4 lg:overflow-y-auto pb-10 lg:pb-32 lg:pr-2 [&::-webkit-scrollbar]:hidden">
-          <div className="flex flex-col gap-3">
-            <SuratListPanel state={state} actions={actions} />
-          </div>
+      <div className="mx-auto flex w-full max-w-[1500px] px-5 pb-28 pt-4 lg:h-[calc(100vh-120px)] lg:overflow-hidden lg:pb-0 xl:px-6">
+        <div className="flex min-w-0 flex-1 flex-col gap-4 pb-10 lg:overflow-y-auto lg:pb-32 lg:pr-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          <SuratListPanel state={state} actions={actions} />
         </div>
       </div>
       

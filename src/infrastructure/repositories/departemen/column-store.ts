@@ -1,4 +1,3 @@
-import { DEFAULT_DEPARTEMEN_COLUMNS } from "@/types"
 import type { Departemen, DepartemenColumn } from "@/types"
 import { prisma } from "@/infrastructure/databases/prisma-client"
 import {
@@ -13,7 +12,7 @@ import type { DbClient, DepartmentColumnRow, DepartmentRow } from "./types"
 export async function loadDepartmentColumnsForDepartments(departmentIds: string[]) {
   await ensureDepartmentColumnTable()
   const result = new Map<string, DepartemenColumn[]>()
-  departmentIds.forEach((id) => result.set(id, DEFAULT_DEPARTEMEN_COLUMNS.map((column) => ({ ...column }))))
+  departmentIds.forEach((id) => result.set(id, []))
 
   if (departmentIds.length === 0) return result
 
@@ -29,7 +28,8 @@ export async function loadDepartmentColumnsForDepartments(departmentIds: string[
         is_required AS "isRequired",
         show_in_data_surat AS "showInDataSurat",
         show_in_print AS "showInPrint",
-        sort_order AS "sortOrder"
+        sort_order AS "sortOrder",
+        display_order AS "displayOrder"
       FROM department_columns
       WHERE department_id = ANY($1)
       ORDER BY sort_order ASC, label ASC
@@ -55,25 +55,29 @@ export async function attachDepartmentColumns(rows: DepartmentRow[]): Promise<De
   const columnMap = await loadDepartmentColumnsForDepartments(rows.map((row) => row.id))
 
   return rows.map((row) => {
-    const columns = columnMap.get(row.id) ?? DEFAULT_DEPARTEMEN_COLUMNS.map((column) => ({ ...column }))
+    const columns = columnMap.get(row.id) ?? []
     const normalizedColumns = normalizeStoredColumns(row.id, columns)
 
     return {
       ...row,
       columns: normalizedColumns,
-      displayColumns: normalizedColumns.filter((column) => column.showInDataSurat),
+      displayColumns: normalizedColumns
+        .filter((column) => column.showInDataSurat)
+        .sort((a, b) => (a.displayOrder ?? a.sortOrder) - (b.displayOrder ?? b.sortOrder)),
     }
   })
 }
 
 export async function copyDepartmentColumnsFromDepartment(sourceDepartmentId: string): Promise<DepartemenColumn[]> {
   const columnMap = await loadDepartmentColumnsForDepartments([sourceDepartmentId])
-  const sourceColumns = columnMap.get(sourceDepartmentId) ?? DEFAULT_DEPARTEMEN_COLUMNS
+  const sourceColumns = columnMap.get(sourceDepartmentId) ?? []
 
   return sourceColumns.map((column, index) => ({
     ...column,
-    id: column.isDefault ? column.id : createDepartmentColumnId(),
+    id: createDepartmentColumnId(),
+    isDefault: false,
     sortOrder: index,
+    displayOrder: index,
   }))
 }
 
@@ -82,6 +86,14 @@ export async function saveDepartmentColumns(
   departmentId: string,
   columns: DepartemenColumn[]
 ) {
+  const displayOrderById = new Map(
+    columns
+      .filter((column) => !column.isDefault && column.showInDataSurat)
+      .slice()
+      .sort((a, b) => (a.displayOrder ?? a.sortOrder) - (b.displayOrder ?? b.sortOrder))
+      .map((column, index) => [column.id, index])
+  )
+
   await db.$executeRaw`
     DELETE FROM department_columns
     WHERE department_id = ${departmentId}
@@ -89,6 +101,9 @@ export async function saveDepartmentColumns(
 
   for (const [index, column] of columns.entries()) {
     const defaultColumn = getDefaultColumnTemplate(column)
+    const columnId = defaultColumn
+      ? `${departmentId}_${defaultColumn.id}`
+      : column.id || createDepartmentColumnId()
 
     await db.$executeRaw`
       INSERT INTO department_columns (
@@ -101,10 +116,11 @@ export async function saveDepartmentColumns(
         is_required,
         show_in_data_surat,
         show_in_print,
-        sort_order
+        sort_order,
+        display_order
       )
       VALUES (
-        ${defaultColumn ? `${departmentId}_${defaultColumn.id}` : createDepartmentColumnId()},
+        ${columnId},
         ${departmentId},
         ${column.label},
         ${column.type},
@@ -113,7 +129,8 @@ export async function saveDepartmentColumns(
         ${column.isRequired},
         ${column.showInDataSurat},
         ${column.showInPrint},
-        ${index}
+        ${index},
+        ${displayOrderById.get(column.id) ?? column.displayOrder ?? index}
       )
     `
   }

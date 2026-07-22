@@ -25,8 +25,10 @@ export class SuratRepository implements ISuratRepository {
     pagination?: { page: number; limit: number },
     date?:       string | null,
     depts?:      string[] | null,
+    search?:     string | null,
+    column?:     string | null,
   ): Promise<SuratResult[] | PaginatedResult<SuratResult>> {
-    return findAllSurat(ids, pagination, date, depts)
+    return findAllSurat(ids, pagination, date, depts, search, column)
   }
 
   async findByIdAndDept(id: number, dept: string): Promise<SuratResult | null> {
@@ -45,7 +47,7 @@ export class SuratRepository implements ISuratRepository {
     await deleteSuratMutation(id, dept)
   }
 
-  async getPreviewNomor(deptId: string): Promise<string> {
-    return getPreviewNomorForDepartment(deptId)
+  async getPreviewNomor(deptId: string, tanggalTerima?: Date): Promise<string> {
+    return getPreviewNomorForDepartment(deptId, tanggalTerima)
   }
 }

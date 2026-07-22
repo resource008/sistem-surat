@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from "next/server"
-import { headers } from "next/headers"
-import { auth } from "@/infrastructure/auth/better-auth"
 import { fetchSuratById, editSurat, removeSurat } from "@/services/surat-service"
 import { UpdateSuratSchema } from "@/app/validation/surat"
 import { Prisma } from "@/generated/prisma"
@@ -8,12 +6,6 @@ import { requireUserPermission } from "@/lib/current-user-permissions"
 import { AppError } from "@/lib/errors"
 
 type Params = { params: Promise<{ dept: string; id: string }> }
-
-// Auth helper
-
-async function getSession() {
-  return auth.api.getSession({ headers: await headers() })
-}
 
 // Parse & validate id
 
@@ -40,15 +32,12 @@ function compactSuratResponse(data: Awaited<ReturnType<typeof fetchSuratById>>) 
 
 export async function GET(req: NextRequest, { params }: Params) {
   try {
-    const session = await getSession()
-    if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
+    await requireUserPermission("canViewDataSurat")
 
     const { dept, id } = await params
     const numId = parseId(id)
     if (numId === null) {
-      return NextResponse.json({ error: "ID tidak valid" }, { status: 400 })
+      return NextResponse.json({ message: "ID tidak valid" }, { status: 400 })
     }
 
     const data = await fetchSuratById(numId, dept)
@@ -78,20 +67,22 @@ export async function PATCH(req: NextRequest, { params }: Params) {
 
     const body = await req.json().catch(() => null)
     if (!body) {
-      return NextResponse.json({ error: "Body tidak valid" }, { status: 400 })
+      return NextResponse.json({ message: "Body tidak valid" }, { status: 400 })
     }
 
     const result = UpdateSuratSchema.safeParse(body)
     if (!result.success) {
-      return NextResponse.json({ error: result.error.flatten() }, { status: 422 })
+      return NextResponse.json({ message: "Request tidak sesuai", errors: result.error.flatten() }, { status: 422 })
     }
 
     await editSurat(numId, dept, result.data)
-    return NextResponse.json({ message: "Data surat berhasil diubah" })
+    return NextResponse.json({
+      message: "Data surat berhasil diubah",
+    })
 
   } catch (error) {
     if (error instanceof AppError) {
-      return NextResponse.json({ error: error.message }, { status: error.status })
+      return NextResponse.json({ message: error.message }, { status: error.status })
     }
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === "P2025") {
@@ -101,7 +92,7 @@ export async function PATCH(req: NextRequest, { params }: Params) {
     if (error instanceof Error) {
       console.error("PATCH /api/surat/[dept]/[id]:", error.message)
     }
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
+    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 })
   }
 }
 
@@ -114,7 +105,7 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
     const { dept, id } = await params
     const numId = parseId(id)
     if (numId === null) {
-      return NextResponse.json({ error: "ID tidak valid" }, { status: 400 })
+      return NextResponse.json({ message: "ID tidak valid" }, { status: 400 })
     }
 
     await removeSurat(numId, dept)
@@ -122,7 +113,7 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
 
   } catch (error) {
     if (error instanceof AppError) {
-      return NextResponse.json({ error: error.message }, { status: error.status })
+      return NextResponse.json({ message: error.message }, { status: error.status })
     }
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === "P2025") {
@@ -132,6 +123,6 @@ export async function DELETE(_req: NextRequest, { params }: Params) {
     if (error instanceof Error) {
       console.error("DELETE /api/surat/[dept]/[id]:", error.message)
     }
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 })
+    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 })
   }
 }

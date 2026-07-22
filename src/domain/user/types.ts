@@ -2,10 +2,11 @@
 // src/domain/user/types.ts
 // ============================================================
 
-export type UserRole = "ADMIN" | "STAFF" | "PKL"
-export type DashboardRole = Extract<UserRole, "STAFF" | "PKL">
+export type UserRole = string
+export type DashboardRole = "STAFF" | "PKL"
 
 export interface UserPermissions {
+  canViewDataSurat: boolean
   canCreate: boolean
   canEdit:   boolean
   canDelete: boolean
@@ -22,7 +23,7 @@ export interface User {
   createdAt:   Date
   updatedAt:   Date
   lastLogin:   Date | null
-  status:      "Sedang Aktif" | "Tidak Aktif"
+  status:      "Online" | "Offline"
   permissions: UserPermissions | null
 }
 

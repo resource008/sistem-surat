@@ -6,7 +6,7 @@ import { hydrateDepartemenForClient } from "@/lib/departemen-columns"
 
 export type SuratResult = RegisterSurat
 export type PaginatedResult<T> = { data: T[]; hasMore: boolean }
-type SaveSuratResponse = { message: string; id: number }
+type SaveSuratResponse = { message: string }
 
 // ─── Interface ────────────────────────────────────────────────────────────────
 
@@ -17,13 +17,15 @@ export interface ISuratRepository {
     pagination?: { page: number; limit: number },
     date?:       string | null,
     depts?:      string[] | null,
+    search?:     string | null,
+    column?:     string | null,
   ): Promise<SuratResult[] | PaginatedResult<SuratResult>>
 
   findByIdAndDept(id: number, dept: string): Promise<SuratResult | null>
   create(payload: CreateSuratPayload): Promise<SuratResult>
   update(id: number, dept: string, payload: UpdateSuratPayload): Promise<SuratResult>
   delete(id: number, dept: string): Promise<void>
-  getPreviewNomor(deptId: string): Promise<string>
+  getPreviewNomor(deptId: string, tanggalTerima?: Date): Promise<string>
 }
 
 // ─── Client-side fetch helpers ────────────────────────────────────────────────
@@ -32,7 +34,7 @@ async function apiFetch<T>(url: string, init?: RequestInit): Promise<T> {
   const res = await fetch(url, init)
   if (!res.ok) {
     const body = await res.json().catch(() => ({}))
-    throw new Error(body?.error ?? `Request failed: ${res.status}`)
+    throw new Error(body?.message ?? body?.error ?? `Request failed: ${res.status}`)
   }
   return res.json() as Promise<T>
 }
@@ -94,9 +96,12 @@ export async function fetchDeptList(): Promise<DeptOption[]> {
   ) as Promise<DeptOption[]>
 }
 
-export async function fetchPreviewNomor(deptId: string): Promise<string> {
+export async function fetchPreviewNomor(deptId: string, tanggalTerima?: string): Promise<string> {
+  const params = new URLSearchParams({ deptId })
+  if (tanggalTerima) params.set("tanggalTerima", tanggalTerima)
+
   const data = await apiFetch<{ nomor: string }>(
-    `/api/surat/preview-nomor?deptId=${encodeURIComponent(deptId)}`,
+    `/api/surat/preview-nomor?${params.toString()}`,
   )
   return data.nomor
 }

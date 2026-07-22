@@ -12,6 +12,7 @@ import { loadDepartmentColumns } from "./department-columns"
 import { generateNomor } from "./numbering"
 import { buildDynamicSuratDetail, serializeSurat } from "./serializer"
 import { deptSelect } from "./types"
+import { parseDateInput } from "@/lib/date-input"
 
 export async function createSuratMutation(payload: CreateSuratPayload): Promise<SuratResult> {
   await ensureCustomFieldColumns()
@@ -24,12 +25,12 @@ export async function createSuratMutation(payload: CreateSuratPayload): Promise<
   const departmentColumns = await loadDepartmentColumns([deptId])
   const currentDepartmentColumns = departmentColumns[deptId] ?? []
 
-  const parsedTanggal = new Date(tanggalTerima)
-  if (Number.isNaN(parsedTanggal.getTime())) throw new AppError(400, "Format tanggal tidak valid")
+  const parsedTanggal = parseDateInput(tanggalTerima)
+  if (!parsedTanggal) throw new AppError(400, "Format tanggal tidak valid")
 
   if (!suratList?.length) throw new AppError(400, "suratList kosong")
   return prisma.$transaction(async (tx) => {
-    const nomor = await generateNomor(tx, deptId)
+    const nomor = await generateNomor(tx, deptId, parsedTanggal)
     const row = await tx.registerSurat.create({
       data: {
         nomor,
@@ -39,7 +40,7 @@ export async function createSuratMutation(payload: CreateSuratPayload): Promise<
         tanggalTerima: parsedTanggal,
         detailSurat: {
           create: suratList.map((surat) => ({
-            ...buildDynamicSuratDetail(surat, currentDepartmentColumns, tujuan, parsedTanggal),
+            ...buildDynamicSuratDetail(surat, currentDepartmentColumns, tujuan, parsedTanggal, nomor),
           })),
         },
       },
@@ -78,15 +79,17 @@ export async function updateSuratMutation(
   return prisma.$transaction(async (tx) => {
     const currentRegister = await tx.registerSurat.findFirst({
       where: { id, deptId: currentDeptId, dept: { is: { isActive: true } } },
-      select: { id: true },
+      select: { id: true, nomor: true },
     })
 
     if (!currentRegister) {
       throw new AppError(404, "Data tidak ditemukan")
     }
 
+    const nextTanggalTerima = tanggalTerima ? parseDateInput(tanggalTerima) : new Date()
+    if (!nextTanggalTerima) throw new AppError(400, "Format tanggal tidak valid")
     const nomor = isDeptChanged
-      ? await generateNomor(tx, nextDeptId)
+      ? await generateNomor(tx, nextDeptId, nextTanggalTerima)
       : undefined
 
     const row = await tx.registerSurat.update({
@@ -96,7 +99,7 @@ export async function updateSuratMutation(
         ...(nomor && { nomor }),
         asalSurat,
         tujuan,
-        tanggalTerima: tanggalTerima ? new Date(tanggalTerima) : undefined,
+        tanggalTerima: tanggalTerima ? nextTanggalTerima : undefined,
         detailSurat: suratList ? {
           deleteMany: {},
           create: suratList.map((surat) => ({
@@ -104,7 +107,8 @@ export async function updateSuratMutation(
               surat,
               currentDepartmentColumns,
               tujuan,
-              tanggalTerima ? new Date(tanggalTerima) : new Date()
+              nextTanggalTerima,
+              nomor ?? currentRegister.nomor
             ),
           })),
         } : undefined,

@@ -1,8 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Info } from "lucide-react"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { LoadingSkeleton } from "@/components/shared/loading-skeleton"
 import { Button } from "@/components/ui/button"
 import { useEditDepartemen } from "@/hooks/use-edit-departemen"
@@ -12,8 +12,15 @@ import { DepartemenFormInfo } from "./departemen-form-info"
 
 export default function DepartemenEditPage() {
   const { id } = useParams<{ id: string }>()
+  const router = useRouter()
   const { state, actions } = useEditDepartemen(id)
   const [helpOpen, setHelpOpen] = useState(false)
+
+  useEffect(() => {
+    const shortName = state.departemen?.shortName
+    if (!shortName || id === shortName) return
+    router.replace(`/admin/departemen/${encodeURIComponent(shortName)}/edit`)
+  }, [id, router, state.departemen?.shortName])
 
   if (state.loading) {
     return (

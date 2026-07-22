@@ -14,9 +14,9 @@ export async function hapusPermanenDepartemen(_req: NextRequest, { params }: Rou
     return NextResponse.json({ message: "Departemen berhasil dihapus permanen" })
   } catch (error) {
     if (error instanceof AppError) {
-      return NextResponse.json({ error: error.message }, { status: error.status })
+      return NextResponse.json({ message: error.message }, { status: error.status })
     }
     if (error instanceof Error) console.error("DELETE /api/admin/dept/[id]/permanent:", error.message)
-    return NextResponse.json({ error: "Gagal menghapus permanen departemen" }, { status: 500 })
+    return NextResponse.json({ message: "Gagal menghapus permanen departemen" }, { status: 500 })
   }
 }

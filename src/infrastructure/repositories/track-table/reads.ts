@@ -10,6 +10,7 @@ async function findTrackSheetRows() {
     SELECT
       id,
       name,
+      display_category_id AS "displayCategoryId",
       sort_order AS "sortOrder",
       hidden_at AS "hiddenAt"
     FROM track_sheets
@@ -26,7 +27,10 @@ async function findTrackCategoryRows(sheetIds: string[]) {
       sheet_id AS "sheetId",
       name,
       color,
-      fill_by_hrd AS "fillByHrd",
+      fill_by_hrd AS "fillRequired",
+      add_role_values AS "addRoleValues",
+      edit_role_values AS "editRoleValues",
+      delete_role_values AS "deleteRoleValues",
       sort_order AS "sortOrder"
     FROM track_categories
     WHERE sheet_id = ANY(${sheetIds})
@@ -49,7 +53,10 @@ async function findTrackFieldRows(sheetIds: string[]) {
       data_type AS "type",
       default_value AS "defaultValue",
       category_options AS "categoryOptions",
-      fill_by_hrd AS "fillByHrd",
+      fill_by_hrd AS "fillRequired",
+      add_role_values AS "addRoleValues",
+      edit_role_values AS "editRoleValues",
+      delete_role_values AS "deleteRoleValues",
       hidden_at AS "hiddenAt",
       sort_order AS "sortOrder"
     FROM track_fields
@@ -82,6 +89,7 @@ export async function findTrackSheetByIdOrThrow(id: string) {
     SELECT
       id,
       name,
+      display_category_id AS "displayCategoryId",
       sort_order AS "sortOrder",
       hidden_at AS "hiddenAt"
     FROM track_sheets

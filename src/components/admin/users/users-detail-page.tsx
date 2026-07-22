@@ -1,11 +1,12 @@
 "use client"
 
-import UsersDelete from "@/components/admin/users/users-delete"
 import { LoadingSkeleton } from "@/components/shared/loading-skeleton"
+import { FloatingActionBarShell } from "@/components/shared/floating-action-bar"
 import { UserAvatar } from "@/components/shared/user-avatar"
 import { Button } from "@/components/ui/button"
-import { USER_PERMISSION_LABELS, USER_ROLE_LABEL } from "@/constants/user"
+import { USER_PERMISSION_GROUPS, USER_ROLE_LABEL } from "@/constants/user"
 import type { User } from "@/domain/user/types"
+import UsersDelete from "./users-delete"
 import {
   AlertTriangle, ArrowLeft, FileText, KeyRound, Pencil, Trash2,
 } from "lucide-react"
@@ -14,20 +15,17 @@ import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
 function formatDate(dateStr: Date | string | null | undefined) {
-  if (!dateStr) return "-"
-  return new Date(dateStr).toLocaleDateString("id-ID", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-  })
-}
+  if (!dateStr) return "N/A"
+  const date = new Date(dateStr)
+  if (Number.isNaN(date.getTime())) return "N/A"
 
-function formatTime(dateStr: Date | string | null | undefined) {
-  if (!dateStr) return ""
-  return new Date(dateStr).toLocaleTimeString("id-ID", {
-    hour: "2-digit",
-    minute: "2-digit",
-  })
+  const day = String(date.getDate()).padStart(2, "0")
+  const month = String(date.getMonth() + 1).padStart(2, "0")
+  const year = date.getFullYear()
+  const hour = String(date.getHours()).padStart(2, "0")
+  const minute = String(date.getMinutes()).padStart(2, "0")
+
+  return `${day}/${month}/${year}, ${hour}.${minute}`
 }
 
 function Field({ label, value }: { label: string; value?: string | null }) {
@@ -41,17 +39,43 @@ function Field({ label, value }: { label: string; value?: string | null }) {
   )
 }
 
-function PermissionBadge({ active }: { active: boolean }) {
+function PermissionStatusView({ active }: { active: boolean }) {
   return (
     <span
+      role="switch"
+      aria-checked={active}
+      aria-label={active ? "Akses aktif" : "Akses nonaktif"}
       className={[
-        "relative text-xs font-semibold px-2.5 py-1 rounded-full select-none",
+        "relative inline-flex h-7 w-12 shrink-0 items-center rounded-full border px-1 transition-colors",
         active
-          ? "bg-emerald-500/10 text-emerald-400"
-          : "bg-slate-500/10 text-slate-400",
+          ? "border-primary bg-primary"
+          : "border-border bg-muted",
       ].join(" ")}
     >
-      {active ? "Aktif" : "Nonaktif"}
+      <span
+        className={[
+          "absolute left-2 text-[10px] font-semibold leading-none",
+          active ? "text-primary-foreground" : "text-muted-foreground",
+        ].join(" ")}
+      >
+        I
+      </span>
+      <span
+        className={[
+          "absolute right-2 text-[10px] font-semibold leading-none",
+          active ? "text-primary-foreground/70" : "text-foreground",
+        ].join(" ")}
+      >
+        O
+      </span>
+      <span
+        className={[
+          "relative z-10 size-5 rounded-full shadow-sm transition-transform",
+          active
+            ? "translate-x-5 bg-primary-foreground"
+            : "translate-x-0 bg-background",
+        ].join(" ")}
+      />
     </span>
   )
 }
@@ -62,12 +86,10 @@ function AccountDateInfo({ user }: { user: User }) {
       <div className="flex flex-col gap-0.5">
         <span className="text-xs text-muted-foreground">Diperbarui</span>
         <span className="text-sm font-medium">{formatDate(user.updatedAt)}</span>
-        <span className="text-xs text-muted-foreground">{formatTime(user.updatedAt)}</span>
       </div>
       <div className="flex flex-col gap-0.5">
         <span className="text-xs text-muted-foreground">Ditambahkan</span>
         <span className="text-sm font-medium">{formatDate(user.createdAt)}</span>
-        <span className="text-xs text-muted-foreground">{formatTime(user.createdAt)}</span>
       </div>
     </div>
   )
@@ -79,8 +101,8 @@ export default function UserDetailPage() {
 
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
-  const [deleteOpen, setDeleteOpen] = useState(false)
   const [adminCount, setAdminCount] = useState<number | null>(null)
+  const [deleteOpen, setDeleteOpen] = useState(false)
 
   useEffect(() => {
     let active = true
@@ -146,7 +168,7 @@ export default function UserDetailPage() {
           <AlertTriangle className="mt-0.5 size-4 shrink-0" />
           <p>
             Akun ini adalah satu-satunya admin, jadi tidak bisa dihapus.
-            Informasi akun tetap bisa diubah.
+            Informasi akun ditampilkan dalam mode view.
           </p>
         </div>
       )}
@@ -190,20 +212,29 @@ export default function UserDetailPage() {
             <span className="text-sm font-semibold">Hak Akses</span>
           </div>
           <div className="px-6 py-6">
-            <div className="flex flex-col">
-              {USER_PERMISSION_LABELS.map(({ key, label }) => {
-                const active = user.permissions?.[key] ?? false
+            <div className="flex flex-col gap-4">
+              {USER_PERMISSION_GROUPS.map((group, groupIndex) => (
+                <div key={group.label ?? `group-${groupIndex}`} className="flex flex-col">
+                  {group.items.map(({ key, label, parent }) => {
+                    const active = user.permissions?.[key] ?? false
 
-                return (
-                  <div
-                    key={key}
-                    className="flex items-center justify-between py-3 border-b border-border/30 last:border-0"
-                  >
-                    <span className="text-sm text-muted-foreground">{label}</span>
-                    <PermissionBadge active={active} />
-                  </div>
-                )
-              })}
+                    return (
+                      <div
+                        key={key}
+                        className={[
+                          "flex items-center justify-between py-3 border-b border-border/30 last:border-0",
+                          parent ? "" : "pl-4",
+                        ].join(" ")}
+                      >
+                        <span className={parent ? "text-sm font-medium text-foreground" : "text-sm text-muted-foreground"}>
+                          {label}
+                        </span>
+                        <PermissionStatusView active={active} />
+                      </div>
+                    )
+                  })}
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -213,35 +244,38 @@ export default function UserDetailPage() {
         <AccountDateInfo user={user} />
       </div>
 
-      <div className="fixed bottom-8 left-[var(--topbar-left,0px)] right-8 z-40 flex items-center justify-end gap-3 transition-[left] duration-300 ease-in-out max-sm:bottom-5 max-sm:right-5">
+      <FloatingActionBarShell contentClassName="border-slate-200 bg-white shadow-none backdrop-blur-none dark:border-neutral-700 dark:bg-neutral-950">
+        <Button
+          variant="action-neutral"
+          size="fab-action"
+          onClick={() => router.push("/admin/users")}
+        >
+          <ArrowLeft size={14} /> Kembali
+        </Button>
+        <Button
+          variant="action-edit"
+          size="fab-action"
+          onClick={() => router.push(`/admin/users/${id}/edit`)}
+        >
+          <Pencil size={14} /> Edit
+        </Button>
         {!isLastAdmin && (
           <Button
-            size="icon"
-            variant="secondary"
+            variant="action-danger"
+            size="fab-action"
+            className="px-5 font-semibold"
             onClick={() => setDeleteOpen(true)}
-            className="size-14 rounded-full shadow-lg bg-red-500 text-white hover:bg-red-600"
-            title="Hapus Pengguna"
           >
-            <Trash2 size={20} />
-            <span className="sr-only">Hapus Pengguna</span>
+            <Trash2 size={14} /> Hapus
           </Button>
         )}
-        <Button
-          size="icon"
-          onClick={() => router.push(`/admin/users/${id}/edit`)}
-          className="size-14 rounded-full shadow-lg bg-blue-600 hover:bg-blue-700"
-          title="Edit Pengguna"
-        >
-          <Pencil size={20} className="text-white" />
-          <span className="sr-only">Edit Pengguna</span>
-        </Button>
-      </div>
+      </FloatingActionBarShell>
 
       <UsersDelete
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
         user={user}
-        onSuccess={() => window.location.assign("/admin/users")}
+        onSuccess={() => router.push("/admin/users")}
       />
     </div>
   )

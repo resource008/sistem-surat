@@ -3,7 +3,7 @@
 import { useState, type FormEvent } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import { getRouteByRole } from "@/constants/routes"
+import { getLoginRedirectRoute } from "@/constants/routes"
 import {
   SESSION_BROWSER_ACTIVE_KEY,
   SESSION_IDLE_LOGOUT_KEY,
@@ -20,26 +20,57 @@ interface AuthUser {
   username: string
 }
 
+type LoginFieldErrors = {
+  username?: string
+  password?: string
+  form?: string
+}
+
 export function useLoginForm() {
   const router = useRouter()
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+  const [errors, setErrors] = useState<LoginFieldErrors>({})
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setLoading(true)
+    setErrors({})
 
     const toastId = toast.loading("Sedang masuk...")
 
     try {
+      const validationResponse = await fetch("/api/login/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      })
+      const validation = await validationResponse.json().catch(() => null)
+
+      if (!validationResponse.ok || validation?.valid === false) {
+        const message = validation?.message ?? "Data login tidak valid"
+        if (validation?.field === "credentials") {
+          setErrors({ username: message, password: message, form: message })
+        } else {
+          const field = validation?.field === "password" ? "password" : "username"
+          setErrors({ [field]: message })
+        }
+        toast.error("Login gagal", {
+          id: toastId,
+          description: message,
+        })
+        setLoading(false)
+        return
+      }
+
       const { data, error } = await authClient.signIn.username({ username, password })
 
       if (error) {
         toast.error("Login gagal", {
           id: toastId,
-          description: error.message ?? "Username atau password salah.",
+          description: error.message ?? "Login tidak valid.",
         })
         setLoading(false)
         return
@@ -62,7 +93,8 @@ export function useLoginForm() {
       }
 
       const role = (data?.user as unknown as AuthUser)?.role
-      router.push(getRouteByRole(role))
+      const callbackUrl = new URLSearchParams(window.location.search).get("callbackUrl")
+      router.push(getLoginRedirectRoute(role, callbackUrl))
     } catch {
       toast.error("Login gagal", {
         id: toastId,
@@ -77,6 +109,7 @@ export function useLoginForm() {
     password,
     loading,
     showPassword,
+    errors,
     setUsername,
     setPassword,
     setShowPassword,

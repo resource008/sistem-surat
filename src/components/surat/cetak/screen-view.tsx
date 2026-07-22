@@ -1,12 +1,16 @@
 "use client"
 
-import { useSidebar } from "@/components/ui/sidebar"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { isCetakRowSpanColumn } from "@/domain/surat/custom-fields"
+import {
+  getSuratColumnGroupValue,
+  getSuratDetailGroupCount,
+  isSuratGroupedColumn,
+} from "@/lib/surat-display"
 import { formatTanggalShort, getCetakColumnValue } from "@/lib/surat-helpers"
 import type { CetakGroup } from "@/types/surat"
 import { format } from "date-fns"
 import { id } from "date-fns/locale"
-import { useEffect, useState } from "react"
 
 interface Props {
   groups: CetakGroup[]
@@ -16,37 +20,28 @@ interface Props {
   onBersihkan: () => void
 }
 
-function useSidebarSafe() {
-  try { return useSidebar() }
-  catch { return { state: "collapsed" as const, isMobile: false } }
-}
-
-function useIsMobileViewport() {
-  const [isMobileViewport, setIsMobileViewport] = useState(false)
-
-  useEffect(() => {
-    const media = window.matchMedia("(max-width: 767px)")
-    const update = () => setIsMobileViewport(media.matches)
-
-    update()
-    media.addEventListener("change", update)
-    return () => media.removeEventListener("change", update)
-  }, [])
-
-  return isMobileViewport
-}
-
 function getGroupTitle(group: CetakGroup) {
   const date = format(new Date(group.date), "dd MMMM yyyy", { locale: id }).toUpperCase()
   return `${date} (${group.dept || group.label})`
 }
 
-export function CetakScreenView({ groups, activeFilter, tabs, onTabChange, onBersihkan }: Props) {
-  const { state, isMobile } = useSidebarSafe()
-
+export function CetakScreenView({ groups, activeFilter, tabs, onTabChange }: Props) {
   return (
-    <>
-      <div className="screen-view space-y-4 pb-24">
+    <div className="screen-view space-y-4 pb-24">
+      {tabs.length > 0 && (
+        <Tabs value={activeFilter} onValueChange={onTabChange} className="min-w-0">
+          <div className="overflow-x-auto pb-1">
+            <TabsList className="min-w-max">
+              {tabs.map((value) => (
+                <TabsTrigger key={value} value={value}>
+                  {value}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </div>
+        </Tabs>
+      )}
+
         {groups.map((group) => (
           <div key={group.key} className="overflow-hidden rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
             <div className="flex items-center gap-2 border-b border-slate-100 px-4 py-3 dark:border-slate-800/60">
@@ -58,15 +53,7 @@ export function CetakScreenView({ groups, activeFilter, tabs, onTabChange, onBer
             <DesktopTable group={group} />
           </div>
         ))}
-      </div>
-      <FloatingFilterTab
-        activeFilter={activeFilter}
-        tabs={tabs}
-        onTabChange={onTabChange}
-        sidebarState={state}
-        isMobile={isMobile}
-      />
-    </>
+    </div>
   )
 }
 
@@ -88,7 +75,7 @@ function MobileList({ group }: { group: CetakGroup }) {
                   <span className="text-[11px] text-slate-400 dark:text-slate-500">{formatTanggalShort(reg.tanggalTerima)}</span>
                 </div>
               )}
-              <p className="break-words text-[13px] font-medium leading-snug text-slate-700 dark:text-slate-300">
+              <p className="whitespace-pre-line break-words text-[13px] font-medium leading-snug text-slate-700 dark:text-slate-300">
                 {primaryColumn ? getCetakColumnValue(primaryColumn, reg, detail) : reg.nomor}
               </p>
               <div className="flex flex-wrap items-center gap-3 text-[11px] text-slate-400 dark:text-slate-500">
@@ -128,20 +115,28 @@ function DesktopTable({ group }: { group: CetakGroup }) {
         <tbody>
           {group.registers.flatMap((reg) => {
             const details = reg.detailSurat ?? []
-            return details.map((detail: any, dIdx: number) => {
-              const isLastRow = reg === group.registers.at(-1) && dIdx === details.length - 1
+            return details.flatMap((detail: any, dIdx: number) => {
+              const groupedColumns = columns.filter((column) => isSuratGroupedColumn(column, reg, detail))
+              const hasGroupedColumns = groupedColumns.length > 0
+              const staticColumns = hasGroupedColumns
+                ? columns.filter((column) => !isSuratGroupedColumn(column, reg, detail))
+                : []
+              const rowColumns = hasGroupedColumns ? groupedColumns : columns
+              const groupRows = Array.from({ length: hasGroupedColumns ? getSuratDetailGroupCount(detail) : 1 })
 
+              return groupRows.map((_, groupIndex) => {
+              const isFirstGroup = groupIndex === 0
+              const isLastGroup = groupIndex === groupRows.length - 1
+              const isLastRow = reg === group.registers.at(-1) && dIdx === details.length - 1 && isLastGroup
               return (
-                <tr key={detail.id} className={`bg-white dark:bg-slate-950 ${!isLastRow ? "border-b border-slate-100 dark:border-slate-800/50" : ""}`}>
-                  {columns.map((column) => {
+                <tr key={`${detail.id}-${groupIndex}`} className={`bg-white dark:bg-slate-950 ${!isLastRow ? "border-b border-slate-100 dark:border-slate-800/50" : ""}`}>
+                  {isFirstGroup && staticColumns.map((column) => {
                     if (isCetakRowSpanColumn(column)) {
-                      if (dIdx > 0) return null
-
                       return (
                         <td
                           key={column.id}
-                          rowSpan={details.length}
-                          className="break-words px-4 py-3.5 align-middle text-[13px] leading-snug text-slate-600 dark:text-slate-300"
+                          rowSpan={groupRows.length}
+                          className="whitespace-pre-line break-words px-4 py-3.5 align-middle text-[13px] leading-snug text-slate-600 dark:text-slate-300"
                         >
                           {getCetakColumnValue(column, reg, detail)}
                         </td>
@@ -149,51 +144,25 @@ function DesktopTable({ group }: { group: CetakGroup }) {
                     }
 
                     return (
-                      <td key={column.id} className="break-words px-4 py-3.5 text-[13px] leading-snug text-slate-600 dark:text-slate-300">
+                      <td key={column.id} rowSpan={groupRows.length} className="whitespace-pre-line break-words px-4 py-3.5 align-middle text-[13px] leading-snug text-slate-600 dark:text-slate-300">
                         {getCetakColumnValue(column, reg, detail)}
                       </td>
                     )
                   })}
+                  {rowColumns.map((column) => (
+                    <td key={column.id} className="whitespace-pre-line break-words px-4 py-3.5 text-[13px] leading-snug text-slate-600 dark:text-slate-300">
+                      {hasGroupedColumns
+                        ? getSuratColumnGroupValue(column, reg, detail, groupIndex)
+                        : getCetakColumnValue(column, reg, detail)}
+                    </td>
+                  ))}
                 </tr>
               )
+            })
             })
           })}
         </tbody>
       </table>
-    </div>
-  )
-}
-
-function FloatingFilterTab({ activeFilter, tabs, onTabChange, sidebarState, isMobile }: any) {
-  const isMobileViewport = useIsMobileViewport()
-  if (!tabs.length) return null
-
-  const shouldUseFullViewport = isMobile || isMobileViewport
-  const sidebarOffset = isMobile
-    ? "0px"
-    : sidebarState === "expanded"
-      ? "var(--sidebar-w)"
-      : "var(--sidebar-w-collapsed)"
-
-  return (
-    <div
-      className="fixed bottom-6 z-10 flex justify-center px-4 transition-[left,width,opacity] duration-300 ease-in-out"
-      style={{
-        left: shouldUseFullViewport ? "0px" : sidebarOffset,
-        width: shouldUseFullViewport ? "100dvw" : `calc(100vw - ${sidebarOffset})`,
-      }}
-    >
-      <div className="flex max-w-[calc(100vw-2rem)] items-center gap-1 overflow-x-auto rounded-2xl border border-slate-200 bg-white p-1.5 shadow-lg shadow-black/20 dark:border-slate-700 dark:bg-slate-900">
-        {tabs.map((val: string) => (
-          <button
-            key={val}
-            onClick={() => onTabChange(val)}
-            className={`min-w-16 shrink-0 rounded-xl px-5 py-2 text-sm font-semibold transition-all ${activeFilter === val ? "bg-blue-600 text-white" : "text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"}`}
-          >
-            {val}
-          </button>
-        ))}
-      </div>
     </div>
   )
 }

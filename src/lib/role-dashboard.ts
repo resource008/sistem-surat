@@ -3,11 +3,12 @@ import type { DashboardRole, UserPermissions } from "@/domain/user/types"
 export type PermissionKey = keyof UserPermissions
 
 export const ROLE_FEATURE_LABEL: Record<PermissionKey, string> = {
+  canViewDataSurat: "Data Surat",
   canPrint: "Cetak Surat",
   canCreate: "Tambah Data Surat",
   canEdit: "Edit Data Surat",
   canDelete: "Hapus Data Surat",
-  canTrack: "Lacak Surat",
+  canTrack: "Track Surat",
 }
 
 export function getRoleBasePath(role: DashboardRole) {
@@ -18,6 +19,7 @@ export function getRequiredPermission(
   pathname: string,
   basePath: string
 ): PermissionKey | null {
+  if (pathname.startsWith(`${basePath}/data-surat`)) return "canViewDataSurat"
   if (pathname.startsWith(`${basePath}/cetak`)) return "canPrint"
   if (pathname.startsWith(`${basePath}/add`)) return "canCreate"
   if (pathname.includes(`${basePath}/`) && pathname.includes("/edit/")) return "canEdit"

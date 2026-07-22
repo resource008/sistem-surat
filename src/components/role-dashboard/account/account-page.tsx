@@ -20,7 +20,7 @@ function MobileTimestampCard({
   updated: FormattedDateTime
 }) {
   return (
-    <div className="mt-5 grid grid-cols-2 gap-4 rounded-[20px] border border-border bg-transparent px-5 py-5 sm:hidden">
+    <div className="mt-4 grid grid-cols-2 gap-4 rounded-xl border border-border bg-transparent px-4 py-4 sm:hidden">
       <TimestampBlock title="Diperbarui" value={updated} />
       <TimestampBlock title="Ditambahkan" value={created} />
     </div>
@@ -58,7 +58,7 @@ export function AccountPage({ readOnly = false }: AccountPageProps) {
   }
 
   return (
-    <section className="min-h-[calc(100vh-112px)] w-full pb-24">
+    <section className="mx-auto min-h-[calc(100vh-112px)] w-full max-w-5xl pb-16">
       <AccountDataCard
         form={form}
         roleLabel={roleLabel}
@@ -68,7 +68,9 @@ export function AccountPage({ readOnly = false }: AccountPageProps) {
         onFormChange={updateForm}
       />
 
-      <PermissionsPanel user={user} />
+      {user.role !== "ADMIN" && (
+        <PermissionsPanel user={user} />
+      )}
 
       <MobileTimestampCard created={created} updated={updated} />
 

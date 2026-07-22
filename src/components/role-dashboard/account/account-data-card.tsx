@@ -26,36 +26,36 @@ export function AccountDataCard({
   const displayName = form.name || "-"
 
   return (
-    <div className="w-full overflow-hidden rounded-[20px] border border-border bg-transparent">
-      <div className="flex h-16 items-center gap-3 border-b border-border px-8 max-sm:h-14 max-sm:px-5">
-        <FileText size={18} className="text-muted-foreground" />
-        <span className="text-[15px] font-semibold text-foreground">Data Akun</span>
+    <div className="w-full overflow-hidden rounded-xl border border-border bg-transparent">
+      <div className="flex h-12 items-center gap-2.5 border-b border-border px-5 max-sm:px-4">
+        <FileText size={16} className="text-muted-foreground" />
+        <span className="text-sm font-semibold text-foreground">Data Akun</span>
       </div>
 
-      <div className="px-8 py-8 max-lg:px-6 max-lg:py-7 max-sm:px-5 max-sm:py-5">
-        <div className="flex items-start justify-between gap-8 max-md:flex-col">
-          <div className="flex items-center gap-4">
+      <div className="px-5 py-5 max-sm:px-4">
+        <div className="flex items-start justify-between gap-6 max-md:flex-col">
+          <div className="flex items-center gap-3">
             <UserAvatar
               name={form.name || "User"}
-              className="size-[52px] text-[17px] font-bold max-sm:size-12 max-sm:text-base"
+              className="size-11 text-[15px] font-bold"
             />
             <div className="min-w-0">
-              <div className="truncate text-[15px] font-bold text-foreground">
+              <div className="truncate text-sm font-bold text-foreground">
                 {displayName}
               </div>
-              <div className="mt-0.5 text-[14px] text-muted-foreground">
+              <div className="mt-0.5 text-[13px] text-muted-foreground">
                 {roleLabel}
               </div>
             </div>
           </div>
 
-          <div className="hidden grid-cols-2 gap-10 sm:grid">
+          <div className="hidden grid-cols-2 gap-8 sm:grid">
             <TimestampBlock title="Diperbarui" value={updated} />
             <TimestampBlock title="Ditambahkan" value={created} />
           </div>
         </div>
 
-        <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 max-sm:mt-7 max-sm:gap-4">
+        <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
           <AccountField
             label="Nama Lengkap"
             value={form.name}

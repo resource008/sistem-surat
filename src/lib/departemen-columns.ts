@@ -36,6 +36,7 @@ export function hydrateDepartemenColumnIds(columns: Partial<DepartemenColumn>[] 
       showInDataSurat: column.showInDataSurat ?? false,
       showInPrint: column.showInPrint ?? true,
       sortOrder: column.sortOrder ?? index,
+      displayOrder: column.displayOrder ?? column.sortOrder ?? index,
     }
   })
 }
@@ -46,6 +47,8 @@ export function hydrateDepartemenForClient(departemen: Departemen): Departemen {
   return {
     ...departemen,
     columns,
-    displayColumns: columns.filter((column) => column.showInDataSurat),
+    displayColumns: columns
+      .filter((column) => column.showInDataSurat)
+      .sort((a, b) => (a.displayOrder ?? a.sortOrder) - (b.displayOrder ?? b.sortOrder)),
   }
 }

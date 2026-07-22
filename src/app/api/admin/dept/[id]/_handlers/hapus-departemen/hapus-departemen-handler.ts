@@ -13,7 +13,7 @@ export async function hapusDepartemen(req: NextRequest, { params }: RouteContext
 
     if (action) {
       return NextResponse.json(
-        { error: "Endpoint hapus departemen tidak menerima action visibility" },
+        { message: "Parameter action tidak didukung" },
         { status: 400 }
       )
     }
@@ -22,9 +22,9 @@ export async function hapusDepartemen(req: NextRequest, { params }: RouteContext
     return NextResponse.json({ message: "Departemen berhasil dihapus permanen" })
   } catch (error) {
     if (error instanceof AppError) {
-      return NextResponse.json({ error: error.message }, { status: error.status })
+      return NextResponse.json({ message: error.message }, { status: error.status })
     }
     if (error instanceof Error) console.error("DELETE /api/admin/dept/[id]:", error.message)
-    return NextResponse.json({ error: "Gagal menghapus departemen" }, { status: 500 })
+    return NextResponse.json({ message: "Gagal menghapus departemen" }, { status: 500 })
   }
 }

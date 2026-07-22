@@ -13,7 +13,7 @@ export function FloatingActionBar({ state, actions, formId }: any) {
       >
         <X size={14} /> Batal
       </Button>
-      {(!state.deptId || state.hasFillableColumns) && (
+      {(!state.deptId || state.hasConfiguredColumns) && (
         <Button
           type="submit"
           form={formId}

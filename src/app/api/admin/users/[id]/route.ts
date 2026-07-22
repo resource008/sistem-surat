@@ -45,7 +45,7 @@ export async function PATCH(req: NextRequest, { params }: RouteContext) {
 
     const body = await req.json().catch(() => null)
     if (!body) {
-      return NextResponse.json({ error: "Body tidak valid" }, { status: 400 })
+      return NextResponse.json({ message: "Body tidak valid" }, { status: 400 })
     }
 
     const parsed = UpdateUserSchema.safeParse(body)
@@ -60,10 +60,10 @@ export async function PATCH(req: NextRequest, { params }: RouteContext) {
 
   } catch (error) {
     if (error instanceof AppError) {
-      return NextResponse.json({ error: error.message }, { status: error.status })
+      return NextResponse.json({ message: error.message }, { status: error.status })
     }
     console.error("PATCH /api/admin/users/[id]:", error)
-    return NextResponse.json({ error: "Gagal mengupdate user" }, { status: 500 })
+    return NextResponse.json({ message: "Gagal mengupdate user" }, { status: 500 })
   }
 }
 
@@ -81,9 +81,9 @@ export async function DELETE(_req: NextRequest, { params }: RouteContext) {
 
   } catch (error) {
     if (error instanceof AppError) {
-      return NextResponse.json({ error: error.message }, { status: error.status })
+      return NextResponse.json({ message: error.message }, { status: error.status })
     }
     console.error("DELETE /api/admin/users/[id]:", error)
-    return NextResponse.json({ error: "Gagal menghapus user" }, { status: 500 })
+    return NextResponse.json({ message: "Gagal menghapus user" }, { status: 500 })
   }
 }

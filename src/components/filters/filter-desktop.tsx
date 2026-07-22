@@ -18,13 +18,14 @@ interface FilterDesktopProps {
   selectedSearchColumn?: string
   onSelectSearchColumn?: (column: string) => void
   hideDepartments?: boolean
+  hideDate?: boolean
 }
 
 export function FilterDesktop({
   mounted, visible, onClose, hasFilter,
   date, onSelectDate, selectedDepts, onToggleDept,
   searchColumns, selectedSearchColumn, onSelectSearchColumn,
-  hideDepartments,
+  hideDepartments, hideDate,
 }: FilterDesktopProps) {
   if (!mounted) return null
 
@@ -84,6 +85,7 @@ export function FilterDesktop({
             selectedSearchColumn={selectedSearchColumn}
             onSelectSearchColumn={onSelectSearchColumn}
             hideDepartments={hideDepartments}
+            hideDate={hideDate}
           />
         </div>
       </div>

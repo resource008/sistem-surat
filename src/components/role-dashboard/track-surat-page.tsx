@@ -1,14 +1,24 @@
 "use client"
 
 import { Suspense, useEffect, useMemo, useRef, useState, type FormEvent, type PointerEvent } from "react"
-import { useSearchParams } from "next/navigation"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import useSWR from "swr"
 import { toast } from "sonner"
-import { CalendarIcon, ChevronLeft, ChevronRight, Eye, FileSpreadsheet, Pencil, Rows3, Save, X } from "lucide-react"
+import { CalendarIcon, ChevronLeft, ChevronRight, Eye, FileSpreadsheet, Pencil, Plus, Rows3, Save, Trash2, X } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { EmptyState } from "@/components/ui/empty-state"
 import { Label } from "@/components/ui/label"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import {
   Sheet,
   SheetContent,
@@ -16,7 +26,9 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TrackRecordFieldControl } from "@/components/shared/track-record-field-control"
+import type { DataSuratSearchColumn } from "@/components/surat/data-surat/topbar-search"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { formatDateDisplay } from "@/lib/format-date-display"
 import { getTrackCategoryStyle } from "@/lib/track-category-color"
@@ -48,57 +60,123 @@ const recordsFetcher = async (url: string): Promise<TrackRecordResponse> => {
   return json
 }
 
+const currentUserFetcher = async (url: string): Promise<{ role: string }> => {
+  const res = await fetch(url)
+  const json = await res.json().catch(() => null)
+  if (!res.ok) throw new Error(json?.error ?? "Gagal mengambil role pengguna")
+  return json
+}
+
 function isDefaultIdField(field: TrackField) {
   return field.columnName.trim().toLowerCase() === "id"
 }
 
-function getFieldValue(record: TrackRecord, field: TrackField, index: number) {
-  if (isDefaultIdField(field)) return String(index + 1)
+function getFieldValue(record: TrackRecord, field: TrackField, displayNumber: number) {
+  if (isDefaultIdField(field)) return String(displayNumber)
   const value = record.values[field.id]?.trim()
   if (!value) return "Belum diisi"
   return field.type === "date" ? formatDateDisplay(value) : value
 }
 
+function getEmptyFieldValue(field: TrackField, displayNumber: number) {
+  if (isDefaultIdField(field)) return displayNumber > 0 ? String(displayNumber) : ""
+  return "Belum diisi"
+}
+
 function isEditableTrackField(field: TrackField) {
-  return field.fillByHrd && !isDefaultIdField(field)
+  return !isDefaultIdField(field) && (field.editRoleValues ?? []).length > 0
 }
 
-function getTrackFillStatus(record: TrackRecord, fields: TrackField[]) {
-  const editableFields = fields.filter(isEditableTrackField)
-  const filledCount = editableFields.filter((field) => Boolean(record.values[field.id]?.trim())).length
-  const totalCount = editableFields.length
+function isAddableTrackField(field: TrackField, role?: string | null) {
+  if (isDefaultIdField(field)) return false
+  return hasRoleAccess(field.addRoleValues, role)
+}
 
-  if (totalCount === 0) {
-    return {
-      complete: true,
-      empty: true,
-      label: "-",
+function hasRoleAccess(roleValues: string[] | undefined, role?: string | null) {
+  if (!role) return false
+  if (role === "ADMIN") return true
+  return (roleValues ?? []).includes(role)
+}
+
+function canEditTrackField(field: TrackField, role?: string | null) {
+  if (isDefaultIdField(field)) return false
+  return hasRoleAccess(field.editRoleValues, role)
+}
+
+function canDeleteTrackField(field: TrackField, role?: string | null) {
+  if (isDefaultIdField(field)) return false
+  return hasRoleAccess(field.deleteRoleValues, role)
+}
+
+function getTrackFillCategories({
+  record,
+  groups,
+  role,
+}: {
+  record: TrackRecord
+  groups: FieldGroup[]
+  role?: string | null
+}) {
+  return groups.reduce<{ filled: FieldGroup[]; unfilled: FieldGroup[] }>((result, group) => {
+    const editableFields = group.fields.filter((field) => canEditTrackField(field, role))
+    if (editableFields.length === 0) return result
+
+    const allFieldsFilled = editableFields.every((field) => Boolean(record.values[field.id]?.trim()))
+    if (allFieldsFilled) {
+      result.filled.push(group)
+    } else {
+      result.unfilled.push(group)
     }
-  }
 
-  return {
-    complete: filledCount === totalCount,
-    empty: false,
-    label: filledCount === totalCount ? "Sudah diisi" : "Belum diisi",
-  }
+    return result
+  }, { filled: [], unfilled: [] })
 }
 
-function TrackFillStatusBadge({ record, fields }: { record: TrackRecord; fields: TrackField[] }) {
-  const status = getTrackFillStatus(record, fields)
+function TrackCategoryFillBadges({
+  groups,
+  emptyLabel,
+}: {
+  groups: FieldGroup[]
+  emptyLabel: string
+}) {
+  if (groups.length === 0) {
+    return <span className="text-muted-foreground">{emptyLabel}</span>
+  }
 
   return (
-    <Badge
-      variant={status.empty ? "outline" : status.complete ? "secondary" : "outline"}
-      className={
-        status.empty
-          ? "border-border bg-background text-muted-foreground"
-          : status.complete
-            ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300"
-            : "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900/70 dark:bg-amber-950/40 dark:text-amber-300"
-      }
-    >
-      {status.label}
-    </Badge>
+    <div className="flex flex-wrap gap-1.5 pr-4">
+      {groups.map((group) => (
+        <Badge
+          key={getGroupKey(group)}
+          variant="outline"
+          className="max-w-full truncate transition-all duration-200 animate-in fade-in zoom-in-95 hover:-translate-y-0.5 hover:shadow-sm"
+          style={getTrackCategoryStyle(group.color)}
+        >
+          {group.name}
+        </Badge>
+      ))}
+    </div>
+  )
+}
+
+function TrackCategoryStatusCell({
+  filled,
+  unfilled,
+}: {
+  filled: FieldGroup[]
+  unfilled: FieldGroup[]
+}) {
+  return (
+    <div className="grid min-w-0 gap-2 pr-4">
+      <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+        <span className="shrink-0 text-xs font-medium text-muted-foreground">Sudah Diisi:</span>
+        <TrackCategoryFillBadges groups={filled} emptyLabel="-" />
+      </div>
+      <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+        <span className="shrink-0 text-xs font-medium text-muted-foreground">Belum diisi:</span>
+        <TrackCategoryFillBadges groups={unfilled} emptyLabel="-" />
+      </div>
+    </div>
   )
 }
 
@@ -129,16 +207,52 @@ function buildFieldGroups(sheet: TrackSheet, fields: TrackField[]): FieldGroup[]
   return groups
 }
 
-function getFirstCategoryFields(sheet: TrackSheet) {
-  const firstCategory = sheet.categories[0]
-  if (!firstCategory) return sheet.fields
+function getDisplayFields(sheet: TrackSheet, fields: TrackField[]) {
+  if (sheet.categories.length === 0) return fields
 
-  const fields = sheet.fields.filter((field) => field.categoryId === firstCategory.id)
-  return fields.length > 0 ? fields : sheet.fields
+  const displayCategory = sheet.categories.find((category) => category.id === sheet.displayCategoryId)
+    ?? sheet.categories[0]
+
+  return fields.filter((field) => field.categoryId === displayCategory.id)
+}
+
+function normalizeSearchText(value: unknown) {
+  return String(value ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim()
 }
 
 function getGroupKey(group: FieldGroup) {
   return group.category?.id ?? "uncategorized"
+}
+
+function getGroupClearScope(group?: FieldGroup) {
+  return group?.category ? "kategori" : "kolom"
+}
+
+function canClearTrackGroup(group: FieldGroup, record: TrackRecord | null | undefined, role?: string | null) {
+  if (!record) return false
+
+  return group.fields.some((field) => {
+    return canDeleteTrackField(field, role) && Boolean(record.values[field.id]?.trim())
+  })
+}
+
+function getRecordSearchValue(record: TrackRecord, field: TrackField, displayNumber: number) {
+  if (isDefaultIdField(field)) return String(displayNumber)
+  return record.values[field.id] ?? ""
+}
+
+function sortTrackRecords(records: TrackRecord[]) {
+  return records
+    .slice()
+    .sort((a, b) => {
+      const sequenceDiff = (a.sequenceNo ?? 0) - (b.sequenceNo ?? 0)
+      if (sequenceDiff !== 0) return sequenceDiff
+      return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+    })
 }
 
 function TrackReadonlyFieldValue({
@@ -173,6 +287,7 @@ function TrackFormSidebar({
   record,
   recordIndex,
   sheet,
+  currentUserRole,
   onOpenChange,
   onSaved,
 }: {
@@ -181,6 +296,7 @@ function TrackFormSidebar({
   record?: TrackRecord | null
   recordIndex: number
   sheet: TrackSheet
+  currentUserRole?: string | null
   onOpenChange: (open: boolean) => void
   onSaved: (record?: TrackRecord) => void
 }) {
@@ -189,24 +305,51 @@ function TrackFormSidebar({
   const [editing, setEditing] = useState(false)
   const [editingGroupKey, setEditingGroupKey] = useState("")
   const [saving, setSaving] = useState(false)
+  const [deleteOpen, setDeleteOpen] = useState(false)
+  const [deleteGroupKey, setDeleteGroupKey] = useState("")
   const dragStartYRef = useRef(0)
   const dragPointerIdRef = useRef<number | null>(null)
   const dragLatestOffsetRef = useRef(0)
   const dragSheetElementRef = useRef<HTMLElement | null>(null)
   const dragCloseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const isAddMode = !record
   const editingGroup = editingGroupKey
     ? groups.find((group) => getGroupKey(group) === editingGroupKey)
     : undefined
+  const deleteGroup = deleteGroupKey
+    ? groups.find((group) => getGroupKey(group) === deleteGroupKey)
+    : undefined
   const editableFields = useMemo(
-    () => editingGroup?.fields.filter(isEditableTrackField) ?? [],
-    [editingGroup]
+    () => editingGroup?.fields.filter((field) => {
+      return isAddMode
+        ? isAddableTrackField(field, currentUserRole)
+        : canEditTrackField(field, currentUserRole)
+    }) ?? [],
+    [currentUserRole, editingGroup, isAddMode]
   )
+  const deletableFields = useMemo(
+    () => deleteGroup?.fields.filter((field) => canDeleteTrackField(field, currentUserRole)) ?? [],
+    [currentUserRole, deleteGroup]
+  )
+  const hasSavableChanges = useMemo(() => {
+    if (editableFields.length === 0) return false
+
+    return editableFields.some((field) => {
+      const nextValue = values[field.id]?.trim() ?? ""
+      if (isAddMode) return nextValue.length > 0
+
+      const currentValue = record?.values[field.id]?.trim() ?? ""
+      return nextValue !== currentValue
+    })
+  }, [editableFields, isAddMode, record, values])
 
   useEffect(() => {
     if (!open) {
       setEditing(false)
       setEditingGroupKey("")
       setValues({})
+      setDeleteOpen(false)
+      setDeleteGroupKey("")
       dragPointerIdRef.current = null
       dragLatestOffsetRef.current = 0
       if (dragCloseTimeoutRef.current) {
@@ -230,6 +373,16 @@ function TrackFormSidebar({
     )
   }, [editableFields, editingGroup, open, record])
 
+  useEffect(() => {
+    if (!open || !isAddMode) return
+
+    const firstWritableGroup = groups.find((group) => {
+      return group.fields.some((field) => isAddableTrackField(field, currentUserRole))
+    })
+    setEditing(true)
+    setEditingGroupKey(firstWritableGroup ? getGroupKey(firstWritableGroup) : "")
+  }, [currentUserRole, groups, isAddMode, open])
+
   function startEditingGroup(group: FieldGroup) {
     if (saving || (editing && editingGroupKey !== getGroupKey(group))) return
     setEditingGroupKey(getGroupKey(group))
@@ -241,6 +394,13 @@ function TrackFormSidebar({
     setEditing(false)
     setEditingGroupKey("")
     setValues({})
+  }
+
+  function requestDeleteGroup(group: FieldGroup) {
+    if (saving || isAddMode) return
+    if (!canClearTrackGroup(group, record, currentUserRole)) return
+    setDeleteGroupKey(getGroupKey(group))
+    setDeleteOpen(true)
   }
 
   function setFieldValue(fieldId: string, value: string) {
@@ -314,14 +474,14 @@ function TrackFormSidebar({
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    if (!editing || editableFields.length === 0) return
+    if (!editing || !hasSavableChanges) return
     setSaving(true)
 
     try {
       const payloadValues = editableFields.reduce<Record<string, string>>((acc, field) => {
         acc[field.id] = values[field.id]?.trim() ?? ""
         return acc
-      }, record ? { ...record.values } : {})
+      }, {})
 
       const res = await fetch("/api/track-records", {
         method: record ? "PATCH" : "POST",
@@ -350,14 +510,59 @@ function TrackFormSidebar({
     }
   }
 
+  async function clearCategoryData() {
+    if (!record || saving || deletableFields.length === 0) return
+
+    const clearScope = getGroupClearScope(deleteGroup)
+    setSaving(true)
+    try {
+      const payloadValues = deletableFields.reduce<Record<string, string>>((acc, field) => {
+        acc[field.id] = ""
+        return acc
+      }, {})
+      const res = await fetch("/api/track-records", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: record.id,
+          sheetId: sheet.id,
+          action: "clear",
+          values: payloadValues,
+        }),
+      })
+      const json = await res.json().catch(() => null)
+
+      if (!res.ok) {
+        throw new Error(json?.error ?? json?.message ?? `Gagal membersihkan isi ${clearScope}`)
+      }
+
+      toast.success("Data berhasil dibersihkan")
+      setDeleteOpen(false)
+      setDeleteGroupKey("")
+      setValues((current) => {
+        const next = { ...current }
+        deletableFields.forEach((field) => {
+          next[field.id] = ""
+        })
+        return next
+      })
+      onSaved(json?.record)
+    } catch (err) {
+      toast.error(getErrorMessage(err, `Gagal membersihkan isi ${clearScope}`))
+    } finally {
+      setSaving(false)
+    }
+  }
+
   if (isMobile) {
     return (
-      <Sheet open={open} onOpenChange={onOpenChange}>
-        <SheetContent
-          side="bottom"
-          showCloseButton={false}
-          className="h-[88svh] max-h-[88svh] w-full gap-0 overflow-hidden rounded-t-[22px] border-x-0 border-b-0 bg-background p-0 shadow-2xl"
-        >
+      <>
+        <Sheet open={open} onOpenChange={onOpenChange}>
+          <SheetContent
+            side="bottom"
+            showCloseButton={false}
+            className="h-[88svh] max-h-[88svh] w-full gap-0 overflow-hidden rounded-t-[22px] border-x-0 border-b-0 bg-background p-0 shadow-2xl"
+          >
           <div
             className="touch-none cursor-grab active:cursor-grabbing"
             onPointerDown={startDragging}
@@ -374,7 +579,7 @@ function TrackFormSidebar({
               <div className="flex min-w-0 items-center justify-between gap-3">
                 <div className="min-w-0 flex-1">
                   <SheetTitle className="truncate text-base font-semibold">
-                    {editing ? "Edit Data" : "Detail Surat"}
+                    {isAddMode ? "Tambah Data" : editing ? "Edit Data" : "Detail Surat"}
                   </SheetTitle>
                 </div>
                 <Button
@@ -397,12 +602,19 @@ function TrackFormSidebar({
               <div className="grid gap-4">
                 {groups.map((group) => {
                   const groupKey = getGroupKey(group)
-                  const groupEditableFields = group.fields.filter(isEditableTrackField)
+                  const groupEditableFields = group.fields.filter((field) => {
+                    return isAddMode
+                      ? isAddableTrackField(field, currentUserRole)
+                      : canEditTrackField(field, currentUserRole)
+                  })
                   const isEditingGroup = editing && editingGroupKey === groupKey
                   const isOtherGroupEditing = editing && !isEditingGroup
                   const isEditButtonDisabled = saving || isOtherGroupEditing || groupEditableFields.length === 0
-                  const editButtonLabel = isEditButtonDisabled ? "Hanya View" : "Edit"
+                  const editButtonLabel = isEditButtonDisabled ? "Hanya View" : isAddMode ? "Isi" : "Edit"
                   const lockedByActiveEdit = isOtherGroupEditing || saving
+                  const canDeleteGroup = !isAddMode && group.fields.some((field) => canDeleteTrackField(field, currentUserRole))
+                  const canClearGroup = canClearTrackGroup(group, record, currentUserRole)
+                  const clearButtonLabel = `Bersihkan isi ${getGroupClearScope(group)}`
 
                   return (
                   <section
@@ -434,7 +646,7 @@ function TrackFormSidebar({
                             type="submit"
                             variant="action-primary"
                             size="icon-lg"
-                            disabled={saving || editableFields.length === 0}
+                            disabled={saving || !hasSavableChanges}
                             aria-label={saving ? "Menyimpan" : "Simpan"}
                             title={saving ? "Menyimpan" : "Simpan"}
                           >
@@ -442,25 +654,43 @@ function TrackFormSidebar({
                           </Button>
                         </div>
                       ) : (
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="icon-lg"
-                          onClick={() => startEditingGroup(group)}
-                          disabled={isEditButtonDisabled}
-                          aria-label={editButtonLabel}
-                          title={editButtonLabel}
-                          className={`shrink-0 ${lockedByActiveEdit ? "disabled:opacity-40" : "disabled:opacity-100"}`}
-                        >
-                          {isEditButtonDisabled ? <Eye className="size-4" /> : <Pencil className="size-4" />}
-                        </Button>
+                        <div className="flex shrink-0 gap-2">
+                          {canDeleteGroup ? (
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="icon-lg"
+                              onClick={() => requestDeleteGroup(group)}
+                              disabled={saving || isOtherGroupEditing || !canClearGroup}
+                              aria-label={clearButtonLabel}
+                              title={clearButtonLabel}
+                              className={lockedByActiveEdit ? "disabled:opacity-40" : "disabled:opacity-50"}
+                            >
+                              <Trash2 className="size-4" />
+                            </Button>
+                          ) : null}
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon-lg"
+                            onClick={() => startEditingGroup(group)}
+                            disabled={isEditButtonDisabled}
+                            aria-label={editButtonLabel}
+                            title={editButtonLabel}
+                            className={`shrink-0 ${lockedByActiveEdit ? "disabled:opacity-40" : "disabled:opacity-100"}`}
+                          >
+                            {isEditButtonDisabled ? <Eye className="size-4" /> : <Pencil className="size-4" />}
+                          </Button>
+                        </div>
                       )}
                     </div>
 
                     <div className="grid gap-3 p-3">
                       {group.fields.map((field) => {
                         const inputId = `track-mobile-field-${field.id}`
-                        const editable = isEditingGroup && isEditableTrackField(field)
+                        const editable = isEditingGroup && (isAddMode
+                          ? isAddableTrackField(field, currentUserRole)
+                          : canEditTrackField(field, currentUserRole))
 
                         return (
                           <div
@@ -486,7 +716,7 @@ function TrackFormSidebar({
                               <TrackReadonlyFieldValue
                                 field={field}
                                 inputId={inputId}
-                                value={record ? getFieldValue(record, field, recordIndex) : "Belum diisi"}
+                                value={record ? getFieldValue(record, field, recordIndex) : getEmptyFieldValue(field, recordIndex)}
                                 variant="mobile"
                               />
                             )}
@@ -500,35 +730,55 @@ function TrackFormSidebar({
               </div>
             </div>
           </form>
-        </SheetContent>
-      </Sheet>
+          </SheetContent>
+        </Sheet>
+        <DeleteTrackRecordDialog
+          open={deleteOpen}
+          deleting={saving}
+          onOpenChange={(nextOpen) => {
+            setDeleteOpen(nextOpen)
+            if (!nextOpen) setDeleteGroupKey("")
+          }}
+          groupName={deleteGroup?.name}
+          clearScope={getGroupClearScope(deleteGroup)}
+          onConfirm={clearCategoryData}
+        />
+      </>
     )
   }
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent
-        side={isMobile ? "bottom" : "right"}
-        className={
-          isMobile
-            ? "h-[85svh] max-h-[85svh] w-full overflow-hidden rounded-t-2xl"
-            : "w-[92vw] overflow-hidden sm:max-w-lg"
-        }
-      >
+    <>
+      <Sheet open={open} onOpenChange={onOpenChange}>
+        <SheetContent
+          side={isMobile ? "bottom" : "right"}
+          className={
+            isMobile
+              ? "h-[85svh] max-h-[85svh] w-full overflow-hidden rounded-t-2xl"
+              : "w-[92vw] overflow-hidden sm:max-w-lg"
+          }
+        >
         <SheetHeader className="border-b border-border/40">
-          <SheetTitle className="font-semibold">{editing ? "Edit Data" : "Detail Surat"}</SheetTitle>
+          <SheetTitle className="font-semibold">{isAddMode ? "Tambah Data" : editing ? "Edit Data" : "Detail Surat"}</SheetTitle>
         </SheetHeader>
 
         <form onSubmit={submit} className="flex min-h-0 flex-1 flex-col">
           <div className="grid min-h-0 flex-1 gap-4 overflow-y-auto px-4 py-2">
             {groups.map((group) => {
               const groupKey = getGroupKey(group)
-              const groupEditableFields = group.fields.filter(isEditableTrackField)
+              const groupEditableFields = group.fields.filter((field) => {
+                return isAddMode
+                  ? isAddableTrackField(field, currentUserRole)
+                  : canEditTrackField(field, currentUserRole)
+              })
               const isEditingGroup = editing && editingGroupKey === groupKey
               const isOtherGroupEditing = editing && !isEditingGroup
               const isEditButtonDisabled = saving || isOtherGroupEditing || groupEditableFields.length === 0
-              const editButtonLabel = isEditButtonDisabled ? "Hanya View" : "Edit"
+              const editButtonLabel = isEditButtonDisabled ? "Hanya View" : isAddMode ? "Isi" : "Edit"
               const lockedByActiveEdit = isOtherGroupEditing || saving
+              const canDeleteGroup = !isAddMode && group.fields.some((field) => canDeleteTrackField(field, currentUserRole))
+              const canClearGroup = canClearTrackGroup(group, record, currentUserRole)
+              const clearButtonLabel = `Bersihkan isi ${getGroupClearScope(group)}`
 
               return (
               <section key={groupKey} className="rounded-xl border border-border/40 bg-muted/10">
@@ -544,36 +794,60 @@ function TrackFormSidebar({
                       <Button
                         type="button"
                         variant="outline"
-                        size="sm"
+                        size="icon-lg"
                         onClick={cancelEditing}
                         disabled={saving}
+                        aria-label="Batal"
+                        title="Batal"
                         className="bg-background text-foreground hover:bg-muted hover:text-foreground focus-visible:text-foreground"
                       >
-                        Batal
+                        <X className="size-4" />
                       </Button>
-                      <Button type="submit" size="sm" disabled={saving || editableFields.length === 0}>
+                      <Button
+                        type="submit"
+                        size="icon-lg"
+                        disabled={saving || !hasSavableChanges}
+                        aria-label={saving ? "Menyimpan" : "Simpan"}
+                        title={saving ? "Menyimpan" : "Simpan"}
+                      >
                         <Save className="size-4" />
-                        {saving ? "Menyimpan" : "Simpan Data"}
                       </Button>
                     </div>
                   ) : (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => startEditingGroup(group)}
-                      disabled={isEditButtonDisabled}
-                      className={`w-fit ${lockedByActiveEdit ? "disabled:opacity-40" : "disabled:opacity-100"}`}
-                    >
-                      {isEditButtonDisabled ? <Eye className="size-4" /> : <Pencil className="size-4" />}
-                      {editButtonLabel}
-                    </Button>
+                    <div className="flex flex-wrap gap-2 sm:justify-end">
+                      {canDeleteGroup ? (
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => requestDeleteGroup(group)}
+                          disabled={saving || isOtherGroupEditing || !canClearGroup}
+                          className={`w-fit ${lockedByActiveEdit ? "disabled:opacity-40" : "disabled:opacity-50"}`}
+                        >
+                          <Trash2 className="size-4" />
+                          Bersihkan
+                        </Button>
+                      ) : null}
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => startEditingGroup(group)}
+                        disabled={isEditButtonDisabled}
+                        className={`w-fit ${lockedByActiveEdit ? "disabled:opacity-40" : "disabled:opacity-100"}`}
+                      >
+                        {isEditButtonDisabled ? <Eye className="size-4" /> : <Pencil className="size-4" />}
+                        {editButtonLabel}
+                      </Button>
+                    </div>
                   )}
                 </div>
                 <div className="grid gap-3 p-3">
                   {group.fields.map((field) => {
                     const inputId = `track-field-${field.id}`
-                    const editable = isEditingGroup && isEditableTrackField(field)
+                    const editable = isEditingGroup && (isAddMode
+                      ? isAddableTrackField(field, currentUserRole)
+                      : canEditTrackField(field, currentUserRole))
 
                     return (
                       <div key={field.id} className="grid gap-2">
@@ -591,7 +865,7 @@ function TrackFormSidebar({
                           <TrackReadonlyFieldValue
                             field={field}
                             inputId={inputId}
-                            value={record ? getFieldValue(record, field, recordIndex) : "Belum diisi"}
+                            value={record ? getFieldValue(record, field, recordIndex) : getEmptyFieldValue(field, recordIndex)}
                           />
                         )}
                       </div>
@@ -603,23 +877,81 @@ function TrackFormSidebar({
             })}
           </div>
         </form>
-      </SheetContent>
-    </Sheet>
+        </SheetContent>
+      </Sheet>
+      <DeleteTrackRecordDialog
+        open={deleteOpen}
+        deleting={saving}
+        onOpenChange={(nextOpen) => {
+          setDeleteOpen(nextOpen)
+          if (!nextOpen) setDeleteGroupKey("")
+        }}
+        groupName={deleteGroup?.name}
+        clearScope={getGroupClearScope(deleteGroup)}
+        onConfirm={clearCategoryData}
+      />
+    </>
+  )
+}
+
+function DeleteTrackRecordDialog({
+  open,
+  deleting,
+  groupName,
+  clearScope,
+  onOpenChange,
+  onConfirm,
+}: {
+  open: boolean
+  deleting: boolean
+  groupName?: string
+  clearScope: "kategori" | "kolom"
+  onOpenChange: (open: boolean) => void
+  onConfirm: () => void
+}) {
+  const targetLabel = groupName ?? clearScope
+
+  return (
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Bersihkan isi {clearScope}?</AlertDialogTitle>
+          <AlertDialogDescription>
+            Seluruh data dari {targetLabel} akan dikosongkan. Apakah anda yakin?
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={deleting}>Batal</AlertDialogCancel>
+          <AlertDialogAction
+            variant="destructive"
+            disabled={deleting}
+            onClick={onConfirm}
+          >
+            {deleting ? "Membersihkan" : `Bersihkan isi ${clearScope}`}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   )
 }
 
 function TrackSuratInner() {
   const searchParams = useSearchParams()
+  const pathname = usePathname()
+  const router = useRouter()
+  const isMobile = useIsMobile()
   const selectedSheetId = searchParams.get("sheet")
   const [formOpen, setFormOpen] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
   const [selectedRecord, setSelectedRecord] = useState<TrackRecord | null>(null)
   const [selectedRecordIndex, setSelectedRecordIndex] = useState(0)
+  const closeResetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const {
     data: tableData,
     error: sheetsError,
     isLoading: sheetsLoading,
   } = useSWR<TrackTableResponse>("/api/track-sheets", sheetsFetcher)
+  const { data: currentUser } = useSWR<{ role: string }>("/api/me/permissions", currentUserFetcher)
 
   const sheets = useMemo(
     () => (tableData?.sheets ?? []).filter((sheet) => !sheet.hiddenAt),
@@ -627,18 +959,27 @@ function TrackSuratInner() {
   )
   const effectiveSelectedSheetId = selectedSheetId || sheets[0]?.id || ""
   const sheet = effectiveSelectedSheetId ? sheets.find((item) => item.id === effectiveSelectedSheetId) : undefined
-  const allFields = useMemo(
-    () => sheet?.fields ?? [],
+  const visibleFields = useMemo(
+    () => (sheet?.fields ?? []).filter((field) => !field.hiddenAt),
     [sheet]
   )
   const allGroups = useMemo(
-    () => sheet ? buildFieldGroups(sheet, allFields) : [],
-    [allFields, sheet]
+    () => sheet ? buildFieldGroups(sheet, visibleFields) : [],
+    [visibleFields, sheet]
   )
   const displayFields = useMemo(() => {
     if (!sheet) return []
-    return getFirstCategoryFields(sheet)
-  }, [sheet])
+    return getDisplayFields(sheet, visibleFields)
+  }, [sheet, visibleFields])
+  const searchColumns = useMemo<DataSuratSearchColumn[]>(
+    () => displayFields.map((field) => ({ id: field.id, label: field.columnName })),
+    [displayFields]
+  )
+  const requestedSearchColumn = searchParams.get("column")
+  const selectedSearchColumn = requestedSearchColumn && displayFields.some((field) => field.id === requestedSearchColumn)
+    ? requestedSearchColumn
+    : ""
+  const searchQuery = searchParams.get("search") ?? ""
   const tableColumnCount = displayFields.length + 1
 
   const recordsKey = sheet ? `/api/track-records?sheetId=${encodeURIComponent(sheet.id)}` : null
@@ -648,22 +989,65 @@ function TrackSuratInner() {
     isLoading: recordsLoading,
     mutate: mutateRecords,
   } = useSWR<TrackRecordResponse>(recordsKey, recordsFetcher)
-  const records = recordData?.records ?? []
-  const totalPages = Math.max(1, Math.ceil(records.length / TRACK_RECORDS_PER_PAGE))
+  const records = useMemo(
+    () => sortTrackRecords(recordData?.records ?? []),
+    [recordData?.records]
+  )
+  const nextSequenceNo = records.length + 1
+  const canAddRecord = visibleFields.some((field) => isAddableTrackField(field, currentUser?.role))
+  const filteredRecords = useMemo(() => {
+    const normalizedQuery = normalizeSearchText(searchQuery)
+    if (!normalizedQuery) return records
+
+    const fields = selectedSearchColumn
+      ? displayFields.filter((item) => item.id === selectedSearchColumn)
+      : displayFields
+    if (fields.length === 0) return records
+
+    return records.filter((record, index) => {
+      return fields.some((field) => {
+        return normalizeSearchText(getRecordSearchValue(record, field, index + 1)).includes(normalizedQuery)
+      })
+    })
+  }, [displayFields, records, searchQuery, selectedSearchColumn])
+  const totalPages = Math.max(1, Math.ceil(filteredRecords.length / TRACK_RECORDS_PER_PAGE))
   const pageStartIndex = (currentPage - 1) * TRACK_RECORDS_PER_PAGE
-  const pageEndIndex = Math.min(records.length, pageStartIndex + TRACK_RECORDS_PER_PAGE)
-  const paginatedRecords = records.slice(pageStartIndex, pageEndIndex)
-  const showPagination = records.length > TRACK_RECORDS_PER_PAGE
+  const pageEndIndex = Math.min(filteredRecords.length, pageStartIndex + TRACK_RECORDS_PER_PAGE)
+  const paginatedRecords = filteredRecords.slice(pageStartIndex, pageEndIndex)
+  const showPagination = filteredRecords.length > TRACK_RECORDS_PER_PAGE
 
   useEffect(() => {
     setCurrentPage(1)
-  }, [selectedSheetId])
+  }, [searchQuery, selectedSearchColumn, selectedSheetId])
+
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent("track-surat:search-columns", {
+      detail: { columns: searchColumns },
+    }))
+    return () => {
+      window.dispatchEvent(new CustomEvent("track-surat:search-columns", {
+        detail: { columns: [] },
+      }))
+    }
+  }, [searchColumns])
+
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent("breadcrumb:sub", { detail: null }))
+  }, [formOpen, selectedRecord])
 
   useEffect(() => {
     if (currentPage > totalPages) {
       setCurrentPage(totalPages)
     }
   }, [currentPage, totalPages])
+
+  useEffect(() => {
+    return () => {
+      if (closeResetTimeoutRef.current) {
+        clearTimeout(closeResetTimeoutRef.current)
+      }
+    }
+  }, [])
 
   if (sheetsLoading) {
     return (
@@ -704,18 +1088,48 @@ function TrackSuratInner() {
     )
   }
 
-  function openRecord(record: TrackRecord, index: number) {
+  function openRecord(record: TrackRecord, displayNumber: number) {
+    if (closeResetTimeoutRef.current) {
+      clearTimeout(closeResetTimeoutRef.current)
+      closeResetTimeoutRef.current = null
+    }
     setSelectedRecord(record)
-    setSelectedRecordIndex(index)
+    setSelectedRecordIndex(displayNumber)
     setFormOpen(true)
+  }
+
+  function openAddForm() {
+    if (closeResetTimeoutRef.current) {
+      clearTimeout(closeResetTimeoutRef.current)
+      closeResetTimeoutRef.current = null
+    }
+    setSelectedRecord(null)
+    setSelectedRecordIndex(nextSequenceNo)
+    setFormOpen(true)
+  }
+
+  function handleSheetTabChange(sheetId: string) {
+    const params = new URLSearchParams(searchParams.toString())
+    params.set("sheet", sheetId)
+    router.push(`${pathname}?${params.toString()}`, { scroll: false })
   }
 
   function handleFormOpenChange(open: boolean) {
     setFormOpen(open)
-    if (!open) {
+
+    if (open) {
+      if (closeResetTimeoutRef.current) {
+        clearTimeout(closeResetTimeoutRef.current)
+        closeResetTimeoutRef.current = null
+      }
+      return
+    }
+
+    closeResetTimeoutRef.current = setTimeout(() => {
+      closeResetTimeoutRef.current = null
       setSelectedRecord(null)
       setSelectedRecordIndex(0)
-    }
+    }, TRACK_SHEET_DISMISS_ANIMATION_MS)
   }
 
   function handleRecordSaved(record?: TrackRecord) {
@@ -729,14 +1143,30 @@ function TrackSuratInner() {
       const recordExists = current.records.some((item) => item.id === record.id)
       const nextRecords = recordExists
         ? current.records.map((item) => item.id === record.id ? record : item)
-        : [record, ...current.records]
+        : [...current.records, record]
 
-      return { ...current, records: nextRecords }
+      return { ...current, records: sortTrackRecords(nextRecords) }
     }, { revalidate: true })
   }
 
   return (
     <div className="flex flex-col gap-4 pb-24">
+      <Tabs
+        value={effectiveSelectedSheetId}
+        onValueChange={handleSheetTabChange}
+        className="min-w-0"
+      >
+        <div className="overflow-x-auto pb-1">
+          <TabsList className="min-w-max">
+            {sheets.map((item) => (
+              <TabsTrigger key={item.id} value={item.id}>
+                {item.name}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </div>
+      </Tabs>
+
       <div className="overflow-hidden rounded-2xl border border-border/40 bg-background">
         {recordsError ? (
           <EmptyState
@@ -757,6 +1187,13 @@ function TrackSuratInner() {
             description="Tidak ada data terbaru untuk saat ini. Segarkan kembali halaman ini untuk memperbarui nya."
             className="min-h-[360px]"
           />
+        ) : filteredRecords.length === 0 ? (
+          <EmptyState
+            icon={<Rows3 size={72} strokeWidth={1.25} />}
+            title="Data tidak ditemukan"
+            description="Coba ubah kata kunci atau kolom pencarian."
+            className="min-h-[360px]"
+          />
         ) : (
           <div className="overflow-x-auto">
             <div className="min-w-[640px]">
@@ -770,31 +1207,37 @@ function TrackSuratInner() {
                 <div className="truncate pr-4">Status</div>
               </div>
               {paginatedRecords.map((record, pageRecordIndex) => {
-                const recordIndex = pageStartIndex + pageRecordIndex
+                const displayNumber = pageStartIndex + pageRecordIndex + 1
+                const fillCategories = getTrackFillCategories({
+                  record,
+                  groups: allGroups,
+                  role: currentUser?.role,
+                })
 
                 return (
                   <div
                     key={record.id}
                     role="button"
                     tabIndex={0}
-                    className="grid cursor-pointer border-b border-border/40 px-4 py-3 text-sm outline-none transition-colors last:border-b-0 hover:bg-muted/25 focus-visible:bg-muted/30"
+                    className="grid cursor-pointer border-b border-border/40 px-4 py-3 text-sm outline-none transition-all duration-200 animate-in fade-in slide-in-from-bottom-1 last:border-b-0 hover:bg-muted/25 hover:shadow-[inset_3px_0_0_hsl(var(--primary))] focus-visible:bg-muted/30"
                     style={{ gridTemplateColumns: `repeat(${tableColumnCount}, minmax(140px, 1fr))` }}
-                    onClick={() => openRecord(record, recordIndex)}
+                    onClick={() => openRecord(record, displayNumber)}
                     onKeyDown={(event) => {
                       if (event.key === "Enter" || event.key === " ") {
                         event.preventDefault()
-                        openRecord(record, recordIndex)
+                        openRecord(record, displayNumber)
                       }
                     }}
                   >
                     {displayFields.map((field) => (
                       <div key={`${record.id}-${field.id}`} className="truncate pr-4">
-                        {getFieldValue(record, field, recordIndex)}
+                        {getFieldValue(record, field, displayNumber)}
                       </div>
                     ))}
-                    <div className="pr-4">
-                      <TrackFillStatusBadge record={record} fields={allFields} />
-                    </div>
+                    <TrackCategoryStatusCell
+                      filled={fillCategories.filled}
+                      unfilled={fillCategories.unfilled}
+                    />
                   </div>
                 )
               })}
@@ -806,7 +1249,7 @@ function TrackSuratInner() {
       {showPagination ? (
         <div className="flex flex-col gap-3 rounded-xl border border-border/40 bg-background px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-muted-foreground">
-            Menampilkan {pageStartIndex + 1}-{pageEndIndex} dari {records.length} data
+            Menampilkan {pageStartIndex + 1}-{pageEndIndex} dari {filteredRecords.length} data
           </p>
           <div className="flex items-center justify-between gap-3 sm:justify-end">
             <Button
@@ -844,9 +1287,21 @@ function TrackSuratInner() {
         record={selectedRecord}
         recordIndex={selectedRecordIndex}
         sheet={sheet}
+        currentUserRole={currentUser?.role}
         onOpenChange={handleFormOpenChange}
         onSaved={handleRecordSaved}
       />
+
+      {canAddRecord ? (
+        <button
+          type="button"
+          onClick={openAddForm}
+          title="Tambah Data"
+          className="fixed bottom-5 right-5 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-blue-600 text-white shadow-lg transition-all hover:bg-blue-700 hover:shadow-xl active:scale-95 active:bg-blue-800 sm:bottom-6 sm:right-6"
+        >
+          <Plus className="size-6" strokeWidth={2.5} />
+        </button>
+      ) : null}
     </div>
   )
 }

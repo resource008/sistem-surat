@@ -1,4 +1,3 @@
-import { TUJUAN_DEFAULT_ID } from "@/constants/departemen-columns"
 import { prisma } from "@/infrastructure/databases/prisma-client"
 import { DEFAULT_DEPARTEMEN_COLUMNS } from "@/types"
 import type { DepartemenColumn, DepartemenColumnType } from "@/types"
@@ -9,53 +8,22 @@ function getDefaultColumnTemplate(column: DepartemenColumn) {
   return DEFAULT_DEPARTEMEN_COLUMNS.find((defaultColumn) => column.id.includes(defaultColumn.id)) ?? null
 }
 
-export function normalizeDepartmentColumns(departmentId: string, columns: DepartemenColumn[]) {
-  const normalized = columns.map((column) => {
+export function normalizeDepartmentColumns(_departmentId: string, columns: DepartemenColumn[]) {
+  return columns.map((column) => {
     const defaultColumn = getDefaultColumnTemplate(column)
     return defaultColumn
       ? {
           ...defaultColumn,
           id: column.id,
+          showInDataSurat: column.showInDataSurat,
+          showInPrint: column.showInPrint,
+          sortOrder: column.sortOrder,
+          displayOrder: column.displayOrder ?? column.sortOrder,
         }
       : { ...column }
   })
-
-  DEFAULT_DEPARTEMEN_COLUMNS.forEach((defaultColumn) => {
-    const hasDefaultColumn = normalized.some((column) =>
-      column.isDefault && column.id.includes(defaultColumn.id)
-    )
-
-    if (!hasDefaultColumn) {
-      normalized.push({
-        ...defaultColumn,
-        id: `${departmentId}_${defaultColumn.id}`,
-      })
-    }
-  })
-
-  const defaults = DEFAULT_DEPARTEMEN_COLUMNS
-    .map((defaultColumn) =>
-      normalized.find((column) => column.isDefault && column.id.includes(defaultColumn.id))
-    )
-    .filter((column): column is DepartemenColumn => !!column)
-  const defaultBeforeTujuan = defaults.filter((column) => !column.id.includes(TUJUAN_DEFAULT_ID))
-  const tujuanColumn = defaults.find((column) => column.id.includes(TUJUAN_DEFAULT_ID))
-
-  const custom = normalized
-    .filter((column) => !column.isDefault)
     .sort((a, b) => a.sortOrder - b.sortOrder)
-    .map((column, index) => {
-      return {
-        ...column,
-        sortOrder: defaultBeforeTujuan.length + index,
-      }
-    })
-
-  return [
-    ...defaultBeforeTujuan.map((column, index) => ({ ...column, sortOrder: index })),
-    ...custom,
-    ...(tujuanColumn ? [{ ...tujuanColumn, sortOrder: defaultBeforeTujuan.length + custom.length }] : []),
-  ]
+    .map((column, index) => ({ ...column, sortOrder: index }))
 }
 
 export async function loadDepartmentColumns(departmentIds: string[]): Promise<DepartmentColumnsMap> {
@@ -77,6 +45,10 @@ export async function loadDepartmentColumns(departmentIds: string[]): Promise<De
     ALTER TABLE department_columns
     ADD COLUMN IF NOT EXISTS default_value TEXT NOT NULL DEFAULT ''
   `)
+  await prisma.$executeRawUnsafe(`
+    ALTER TABLE department_columns
+    ADD COLUMN IF NOT EXISTS display_order INTEGER NOT NULL DEFAULT 0
+  `)
 
   const rows = await prisma.$queryRawUnsafe<Array<{
     departmentId: string
@@ -89,6 +61,7 @@ export async function loadDepartmentColumns(departmentIds: string[]): Promise<De
     showInDataSurat: boolean
     showInPrint: boolean
     sortOrder: number
+    displayOrder: number
   }>>(
     `
       SELECT
@@ -101,7 +74,8 @@ export async function loadDepartmentColumns(departmentIds: string[]): Promise<De
         is_required AS "isRequired",
         show_in_data_surat AS "showInDataSurat",
         show_in_print AS "showInPrint",
-        sort_order AS "sortOrder"
+        sort_order AS "sortOrder",
+        display_order AS "displayOrder"
       FROM department_columns
       WHERE department_id = ANY($1)
       ORDER BY sort_order ASC, label ASC
@@ -121,6 +95,7 @@ export async function loadDepartmentColumns(departmentIds: string[]): Promise<De
       showInDataSurat: row.showInDataSurat,
       showInPrint: row.showInPrint,
       sortOrder: row.sortOrder,
+      displayOrder: row.displayOrder ?? row.sortOrder,
     })
     return acc
   }, {})

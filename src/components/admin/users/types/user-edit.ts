@@ -17,6 +17,7 @@ export const EMPTY_USER_EDIT_FORM: UserEditFormState = {
 }
 
 export const EMPTY_USER_PERMISSIONS: UserPermissions = {
+  canViewDataSurat: false,
   canCreate: false,
   canEdit: false,
   canDelete: false,

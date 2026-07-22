@@ -4,10 +4,12 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import useSWR from "swr"
 import { toast } from "sonner"
-import { ArrowDown, ArrowUp, ChevronLeft, ChevronRight, FileSpreadsheet } from "lucide-react"
+import { reorder } from "@atlaskit/pragmatic-drag-and-drop/reorder"
+import { ChevronLeft, ChevronRight, FileSpreadsheet, Menu } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { EmptyState } from "@/components/ui/empty-state"
+import { PragmaticSortableItem } from "@/components/shared/pragmatic-sortable-item"
 import { getErrorMessage } from "@/lib/utils"
 import type { TrackSheet, TrackTableResponse } from "@/types"
 import { TrackTableAddFab } from "./track-table-add-fab"
@@ -22,11 +24,49 @@ const fetcher = async (url: string): Promise<TrackTableResponse> => {
   return json
 }
 
-function TrackSheetStatusBadge({ sheet }: { sheet: TrackSheet }) {
+function TrackSheetStatusToggle({
+  sheet,
+  disabled,
+  onChange,
+}: {
+  sheet: TrackSheet
+  disabled?: boolean
+  onChange: (sheet: TrackSheet, nextVisible: boolean) => void
+}) {
+  const isVisible = !sheet.hiddenAt
+
   return (
-    <Badge variant={sheet.hiddenAt ? "outline" : "secondary"}>
-      {sheet.hiddenAt ? "Disembunyikan" : "Ditampilkan"}
-    </Badge>
+    <button
+      type="button"
+      role="switch"
+      aria-checked={isVisible}
+      aria-label={isVisible ? "Sembunyikan sheet lacak" : "Tampilkan sheet lacak"}
+      disabled={disabled}
+      onKeyDown={(event) => event.stopPropagation()}
+      onClick={(event) => {
+        event.stopPropagation()
+        onChange(sheet, !isVisible)
+      }}
+      className={[
+        "relative inline-flex h-7 w-12 shrink-0 items-center rounded-full border px-1",
+        "transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
+        isVisible ? "border-primary bg-primary" : "border-border bg-muted",
+        disabled ? "cursor-not-allowed opacity-55" : "",
+      ].join(" ")}
+    >
+      <span className={`absolute left-2 text-[10px] font-semibold leading-none ${isVisible ? "text-primary-foreground" : "text-muted-foreground"}`}>
+        I
+      </span>
+      <span className={`absolute right-2 text-[10px] font-semibold leading-none ${isVisible ? "text-primary-foreground/70" : "text-foreground"}`}>
+        O
+      </span>
+      <span
+        className={[
+          "relative z-10 size-5 rounded-full shadow-sm transition-transform",
+          isVisible ? "translate-x-5 bg-primary-foreground" : "translate-x-0 bg-background",
+        ].join(" ")}
+      />
+    </button>
   )
 }
 
@@ -34,6 +74,7 @@ export default function TrackTablePage() {
   const router = useRouter()
   const { data, error, isLoading, mutate } = useSWR<TrackTableResponse>("/api/admin/track-table", fetcher)
   const [reorderingId, setReorderingId] = useState<string | null>(null)
+  const [visibilityId, setVisibilityId] = useState<string | null>(null)
   const [currentPage, setCurrentPage] = useState(1)
   const sheets = data?.sheets ?? []
   const totalPages = Math.max(1, Math.ceil(sheets.length / TRACK_TABLES_PER_PAGE))
@@ -52,16 +93,24 @@ export default function TrackTablePage() {
     router.push(`/admin/lacak-surat/${encodeURIComponent(sheet.id)}`)
   }
 
-  async function moveSheet(sheetId: string, direction: -1 | 1) {
-    const currentIndex = sheets.findIndex((sheet) => sheet.id === sheetId)
-    const targetIndex = currentIndex + direction
-    if (currentIndex < 0 || targetIndex < 0 || targetIndex >= sheets.length) return
+  async function reorderSheets(startIndex: number, finishIndex: number) {
+    if (
+      startIndex < 0 ||
+      finishIndex < 0 ||
+      startIndex >= sheets.length ||
+      finishIndex >= sheets.length ||
+      startIndex === finishIndex
+    ) {
+      return
+    }
 
-    const nextSheets = [...sheets]
-    const [sheet] = nextSheets.splice(currentIndex, 1)
-    nextSheets.splice(targetIndex, 0, sheet)
+    const nextSheets = reorder({
+      list: sheets,
+      startIndex,
+      finishIndex,
+    })
 
-    setReorderingId(sheetId)
+    setReorderingId(sheets[startIndex]?.id ?? null)
     try {
       const res = await fetch("/api/admin/track-table/order", {
         method: "PATCH",
@@ -79,12 +128,38 @@ export default function TrackTablePage() {
         throw new Error(json?.error ?? json?.message ?? "Gagal mengubah urutan master tabel")
       }
 
-      toast.success(json?.message ?? "Urutan master tabel berhasil diubah")
+      toast.success(json?.message ?? "Urutan Item Sheet Berhasil dipindahkan")
       await mutate(json?.data ?? undefined, { revalidate: true })
     } catch (err) {
       toast.error(getErrorMessage(err, "Gagal mengubah urutan master tabel"))
     } finally {
       setReorderingId(null)
+    }
+  }
+
+  async function setSheetVisibility(sheet: TrackSheet, nextVisible: boolean) {
+    setVisibilityId(sheet.id)
+
+    try {
+      const res = await fetch(`/api/admin/track-table/${encodeURIComponent(sheet.id)}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: nextVisible ? "show" : "hide" }),
+      })
+      const json = await res.json().catch(() => null)
+
+      if (!res.ok) {
+        throw new Error(json?.error ?? json?.message ?? "Gagal mengubah status sheet lacak")
+      }
+
+      toast.success(json?.message ?? (
+        nextVisible ? "Sheet lacak berhasil ditampilkan" : "Data sheet lacak berhasil disembunyikan"
+      ))
+      await mutate()
+    } catch (err) {
+      toast.error(getErrorMessage(err, "Gagal mengubah status sheet lacak"))
+    } finally {
+      setVisibilityId(null)
     }
   }
 
@@ -108,62 +183,57 @@ export default function TrackTablePage() {
           />
         ) : (
           <div className="max-h-[calc(100svh-180px)] overflow-auto">
-            <div className="sticky top-0 z-10 grid min-w-[640px] grid-cols-[minmax(220px,1fr)_140px_140px_120px] border-b border-border/40 bg-muted/40 px-4 py-3 text-[12px] font-medium text-muted-foreground">
+            <div className="sticky top-0 z-10 grid min-w-[560px] grid-cols-[minmax(220px,1fr)_140px_140px] border-b border-border/40 bg-muted/40 px-4 py-3 text-[12px] font-medium text-muted-foreground">
               <div>Nama Sheet</div>
               <div>Status</div>
               <div>Kolom</div>
-              <div>Aksi</div>
             </div>
 
             {paginatedSheets.map((sheet, pageIndex) => {
               const sheetIndex = pageStartIndex + pageIndex
 
               return (
-                <div
+                <PragmaticSortableItem
                   key={sheet.id}
-                  role="button"
-                  tabIndex={0}
-                  className="grid min-w-[640px] cursor-pointer grid-cols-[minmax(220px,1fr)_140px_140px_120px] items-center border-b border-border/40 px-4 py-3 outline-none transition-colors last:border-b-0 hover:bg-muted/30 focus-visible:bg-muted/40"
-                  onClick={() => openDetail(sheet)}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter" || event.key === " ") {
-                      event.preventDefault()
-                      openDetail(sheet)
-                    }
-                  }}
+                  id={sheet.id}
+                  index={sheetIndex}
+                  type="track-sheet"
+                  disabled={Boolean(reorderingId)}
+                  dragSurfaceOnly
+                  onReorder={reorderSheets}
                 >
-                  <div className="flex min-w-0 items-center gap-2 pr-4">
-                    <span className="truncate text-[13px] font-medium">{sheet.name}</span>
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    className="grid min-w-[560px] grid-cols-[minmax(220px,1fr)_140px_140px] items-center border-b border-border/40 px-4 py-3 outline-none transition-colors last:border-b-0 hover:bg-muted/30 focus-visible:bg-muted/40"
+                    onClick={() => openDetail(sheet)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault()
+                        openDetail(sheet)
+                      }
+                    }}
+                  >
+                    <div className="flex min-w-0 items-center gap-2 pr-4">
+                      <Menu
+                        data-drag-surface="true"
+                        aria-hidden="true"
+                        className="size-4 shrink-0 cursor-grab text-muted-foreground active:cursor-grabbing"
+                      />
+                      <span className="truncate text-[13px] font-medium">{sheet.name}</span>
+                    </div>
+                    <div className="flex justify-start">
+                      <TrackSheetStatusToggle
+                        sheet={sheet}
+                        disabled={visibilityId === sheet.id}
+                        onChange={setSheetVisibility}
+                      />
+                    </div>
+                    <div>
+                      <Badge variant="secondary">{sheet.fields.length} kolom</Badge>
+                    </div>
                   </div>
-                  <div>
-                    <TrackSheetStatusBadge sheet={sheet} />
-                  </div>
-                  <div>
-                    <Badge variant="secondary">{sheet.fields.length} kolom</Badge>
-                  </div>
-                  <div className="flex items-center gap-1" onClick={(event) => event.stopPropagation()}>
-                    <Button
-                      type="button"
-                      variant="action-neutral"
-                      size="icon-sm"
-                      aria-label={`Naikkan urutan ${sheet.name}`}
-                      disabled={!!reorderingId || sheetIndex === 0}
-                      onClick={() => moveSheet(sheet.id, -1)}
-                    >
-                      <ArrowUp />
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="action-neutral"
-                      size="icon-sm"
-                      aria-label={`Turunkan urutan ${sheet.name}`}
-                      disabled={!!reorderingId || sheetIndex === sheets.length - 1}
-                      onClick={() => moveSheet(sheet.id, 1)}
-                    >
-                      <ArrowDown />
-                    </Button>
-                  </div>
-                </div>
+                </PragmaticSortableItem>
               )
             })}
           </div>
@@ -173,63 +243,52 @@ export default function TrackTablePage() {
       {sheets.length > 0 ? (
         <div className="grid max-h-[calc(100svh-170px)] gap-3 overflow-y-auto pr-1 md:hidden">
           {paginatedSheets.map((sheet, pageIndex) => {
-            const sheetIndex = pageStartIndex + pageIndex
-
             return (
-              <div
+              <PragmaticSortableItem
                 key={sheet.id}
-                role="button"
-                tabIndex={0}
-                className="overflow-hidden rounded-xl border border-border/40 bg-background outline-none transition-colors hover:bg-muted/20 focus-visible:bg-muted/30"
-                onClick={() => openDetail(sheet)}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter" || event.key === " ") {
-                    event.preventDefault()
-                    openDetail(sheet)
-                  }
-                }}
+                id={sheet.id}
+                index={pageStartIndex + pageIndex}
+                type="track-sheet"
+                disabled={Boolean(reorderingId)}
+                dragSurfaceOnly
+                onReorder={reorderSheets}
               >
-                <div className="grid gap-3 p-4">
+                <div
+                  role="button"
+                  tabIndex={0}
+                  className="grid gap-3 rounded-xl border border-border/40 bg-background p-4 outline-none transition-colors hover:bg-muted/20 focus-visible:bg-muted/30"
+                  onClick={() => openDetail(sheet)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault()
+                      openDetail(sheet)
+                    }
+                  }}
+                >
                   <div className="min-w-0">
-                    <div className="truncate text-sm font-semibold text-foreground">{sheet.name}</div>
+                    <div className="flex min-w-0 items-center gap-2">
+                      <Menu
+                        data-drag-surface="true"
+                        aria-hidden="true"
+                        className="size-4 shrink-0 cursor-grab text-muted-foreground active:cursor-grabbing"
+                      />
+                      <span className="truncate text-sm font-semibold text-foreground">{sheet.name}</span>
+                    </div>
                   </div>
                   <div className="flex items-center justify-between gap-3">
                     <span className="text-xs text-muted-foreground">Status</span>
-                    <TrackSheetStatusBadge sheet={sheet} />
+                    <TrackSheetStatusToggle
+                      sheet={sheet}
+                      disabled={visibilityId === sheet.id}
+                      onChange={setSheetVisibility}
+                    />
                   </div>
                   <div className="flex items-center justify-between gap-3">
                     <span className="text-xs text-muted-foreground">Jumlah kolom</span>
                     <Badge variant="secondary">{sheet.fields.length} kolom</Badge>
                   </div>
                 </div>
-                <div
-                  className="grid grid-cols-2 border-t border-border/40"
-                  onClick={(event) => event.stopPropagation()}
-                >
-                  <Button
-                    type="button"
-                    variant="action-neutral"
-                    className="h-10 rounded-none border-0 border-r border-border/40"
-                    aria-label={`Naikkan urutan ${sheet.name}`}
-                    disabled={!!reorderingId || sheetIndex === 0}
-                    onClick={() => moveSheet(sheet.id, -1)}
-                  >
-                    <ArrowUp />
-                    Naikkan
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="action-neutral"
-                    className="h-10 rounded-none border-0"
-                    aria-label={`Turunkan urutan ${sheet.name}`}
-                    disabled={!!reorderingId || sheetIndex === sheets.length - 1}
-                    onClick={() => moveSheet(sheet.id, 1)}
-                  >
-                    <ArrowDown />
-                    Turunkan
-                  </Button>
-                </div>
-              </div>
+              </PragmaticSortableItem>
             )
           })}
         </div>

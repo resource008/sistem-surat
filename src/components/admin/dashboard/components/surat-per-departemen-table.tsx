@@ -23,7 +23,7 @@ export function SuratPerDepartemenTable({ data }: SuratPerDepartemenTableProps) 
         <div className="grid grid-cols-[1fr_64px_72px] px-2 pb-2.5 text-xs font-medium tracking-wide text-muted-foreground sm:grid-cols-[1fr_80px_80px] sm:px-3">
           <div>Departemen</div>
           <div>Jumlah</div>
-          <div>Dalam %</div>
+          <div>Persentase</div>
         </div>
 
         {/* Rows */}

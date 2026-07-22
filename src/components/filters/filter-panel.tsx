@@ -20,6 +20,7 @@ interface FilterPanelProps {
   selectedSearchColumn?: string
   onSelectSearchColumn?: (column: string) => void
   hideDepartments?: boolean
+  hideDate?: boolean
   isMobile?: boolean
 }
 
@@ -30,6 +31,7 @@ export function FilterPanel({
   selectedSearchColumn,
   onSelectSearchColumn,
   hideDepartments,
+  hideDate,
   isMobile,
 }: FilterPanelProps) {
   return (
@@ -64,7 +66,7 @@ export function FilterPanel({
           </Select>
         </div>
       )}
-      <DateField date={date} onSelect={onSelectDate} />
+      {!hideDate && <DateField date={date} onSelect={onSelectDate} />}
       {!hideDepartments && (
         <DeptField
           selected={selectedDepts}

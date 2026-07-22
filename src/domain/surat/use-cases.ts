@@ -10,8 +10,10 @@ export async function getAllSurat(
   repository: ISuratRepository,
   date?: string | null,
   depts?: string[] | null,
+  search?: string | null,
+  column?: string | null,
 ): Promise<SuratResult[] | PaginatedResult<SuratResult>> {
-  return repository.findAll(type, ids, pagination, date, depts)
+  return repository.findAll(type, ids, pagination, date, depts, search, column)
 }
 
 export async function getSuratById(

@@ -8,7 +8,7 @@ import type { Departemen, DepartemenColumn, DepartemenFormState } from "@/types"
 
 function stripColumnId(column: DepartemenColumn) {
   const nextColumn = { ...column } as Partial<DepartemenColumn>
-  delete nextColumn.id
+  delete nextColumn.draftLabel
   return nextColumn
 }
 
@@ -27,6 +27,7 @@ export function useDepartemenList() {
   const [deleting, setDeleting] = useState<Departemen | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [savingId, setSavingId] = useState<string | null>(null)
+  const [visibilityId, setVisibilityId] = useState<string | null>(null)
 
   const departments = useMemo(() => data ?? [], [data])
 
@@ -78,7 +79,7 @@ export function useDepartemenList() {
       const json = await res.json().catch(() => null)
 
       if (!res.ok) {
-        throw new Error(json?.error ?? "Gagal menyimpan departemen")
+        throw new Error(json?.message ?? json?.error ?? "Gagal menyimpan departemen")
       }
 
       toast.success("Departemen berhasil diupdate")
@@ -90,6 +91,32 @@ export function useDepartemenList() {
     }
   }
 
+  async function setDepartemenVisibility(departemen: Departemen, nextActive: boolean) {
+    setVisibilityId(departemen.id)
+
+    try {
+      const res = await fetch(`/api/admin/dept/${encodeURIComponent(departemen.id)}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: nextActive ? "show" : "hide" }),
+      })
+      const json = await res.json().catch(() => null)
+
+      if (!res.ok) {
+        throw new Error(json?.message ?? json?.error ?? "Gagal mengubah status departemen")
+      }
+
+      toast.success(json?.message ?? (
+        nextActive ? "Departemen berhasil ditampilkan" : "Departemen berhasil disembunyikan"
+      ))
+      await mutate()
+    } catch (err) {
+      toast.error(getErrorMessage(err, "Gagal mengubah status departemen"))
+    } finally {
+      setVisibilityId(null)
+    }
+  }
+
   return {
     state: {
       departments,
@@ -98,11 +125,13 @@ export function useDepartemenList() {
       deleting,
       deletingId,
       savingId,
+      visibilityId,
     },
     actions: {
       setDeleting,
       deleteDepartemen,
       updateDepartemen,
+      setDepartemenVisibility,
     },
   }
 }

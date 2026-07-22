@@ -1,10 +1,11 @@
 "use client"
 
-import { useState } from "react"
-import { Eye, EyeOff, Loader2, Pencil, Trash2 } from "lucide-react"
+import { useEffect, useState } from "react"
+import { Pencil, Trash2 } from "lucide-react"
 import { useParams, useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { LoadingSkeleton } from "@/components/shared/loading-skeleton"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { useEditDepartemen } from "@/hooks/use-edit-departemen"
 import { getErrorMessage } from "@/lib/utils"
@@ -18,7 +19,12 @@ export default function DepartemenDetailPage() {
   const { state, actions } = useEditDepartemen(id, "Detail Departemen")
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [deletingAction, setDeletingAction] = useState<"permanent" | null>(null)
-  const [visibilityAction, setVisibilityAction] = useState<"show" | "hide" | null>(null)
+
+  useEffect(() => {
+    const shortName = state.departemen?.shortName
+    if (!shortName || id === shortName) return
+    router.replace(`/admin/departemen/${encodeURIComponent(shortName)}`)
+  }, [id, router, state.departemen?.shortName])
 
   async function deleteDepartemen() {
     if (!state.departemen) return
@@ -43,34 +49,6 @@ export default function DepartemenDetailPage() {
     }
   }
 
-  async function setDepartemenVisibility(nextActive: boolean) {
-    if (!state.departemen) return
-    const action = nextActive ? "show" : "hide"
-    setVisibilityAction(action)
-
-    try {
-      const res = await fetch(`/api/admin/dept/${encodeURIComponent(state.departemen.id)}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action }),
-      })
-      const json = await res.json().catch(() => null)
-
-      if (!res.ok) {
-        throw new Error(json?.error ?? "Gagal mengubah status departemen")
-      }
-
-      toast.success(json?.message ?? (
-        nextActive ? "Departemen berhasil ditampilkan" : "Departemen berhasil disembunyikan"
-      ))
-      actions.reload()
-    } catch (error) {
-      toast.error(getErrorMessage(error, "Gagal mengubah status departemen"))
-    } finally {
-      setVisibilityAction(null)
-    }
-  }
-
   if (state.loading) {
     return (
       <LoadingSkeleton type="departemen-form" />
@@ -92,6 +70,20 @@ export default function DepartemenDetailPage() {
 
   return (
     <div className="flex flex-col gap-4 pb-32">
+      <div className="rounded-xl border border-border/40 bg-background px-5 py-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-sm font-semibold">Status Departemen</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Kondisi tampilan departemen pada daftar dan pilihan data surat.
+            </p>
+          </div>
+          <Badge variant={isActive ? "secondary" : "outline"} className="shrink-0">
+            {isActive ? "Ditampilkan" : "Disembunyikan"}
+          </Badge>
+        </div>
+      </div>
+
       <DepartemenEditFormFields
         form={state.form}
         departments={state.departments}
@@ -104,30 +96,11 @@ export default function DepartemenDetailPage() {
         saving={state.saving}
         onCancel={actions.cancel}
         showSubmit={false}
-        secondaryAction={isActive
-          ? {
-              icon: <Pencil size={14} />,
-              label: "Edit",
-              onClick: () => router.push(`/admin/departemen/${encodeURIComponent(id)}/edit`),
-            }
-          : undefined}
-        extraActions={[
-          isActive
-            ? {
-                icon: <EyeOff size={14} />,
-                label: visibilityAction === "hide" ? "Menyembunyikan" : "Sembunyikan",
-                onClick: () => setDepartemenVisibility(false),
-                disabled: Boolean(visibilityAction),
-                variant: "action-secondary",
-              }
-            : {
-                icon: <Eye size={14} />,
-                label: visibilityAction === "show" ? "Menampilkan" : "Tampilkan",
-                onClick: () => setDepartemenVisibility(true),
-                disabled: Boolean(visibilityAction),
-                variant: "action-primary",
-              },
-        ]}
+        secondaryAction={{
+          icon: <Pencil size={14} />,
+          label: "Edit",
+          onClick: () => router.push(`/admin/departemen/${encodeURIComponent(state.departemen?.shortName || id)}/edit`),
+        }}
         dangerAction={{
           icon: <Trash2 size={14} />,
           label: "Hapus",
@@ -137,9 +110,7 @@ export default function DepartemenDetailPage() {
       <DepartemenDeleteDialog
         departemen={deleteOpen ? state.departemen : null}
         deletingAction={deletingAction}
-        allowSoftDelete={false}
         onOpenChange={setDeleteOpen}
-        onSoftDelete={() => setDepartemenVisibility(false)}
         onPermanentDelete={deleteDepartemen}
       />
     </div>

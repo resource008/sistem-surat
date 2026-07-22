@@ -70,9 +70,7 @@ export default function UserAddPage() {
       permissions: form.role === "ADMIN" ? undefined : permissions,
     })
 
-    if (result.success) {
-      router.push(result.data?.id ? `/admin/users/${result.data.id}` : "/admin/users")
-    }
+    if (result.success) router.push("/admin/users")
   }
 
   return (

@@ -42,7 +42,18 @@ export function mapUser(user: any): User {
     createdAt:   user.createdAt,
     updatedAt:   user.updatedAt,
     lastLogin,
-    status:      isActive ? "Sedang Aktif" : "Tidak Aktif",
-    permissions: user.permissions ?? null,
+    status:      isActive ? "Online" : "Offline",
+    permissions: user.permissions
+      ? {
+          canViewDataSurat: Boolean(
+            user.permissions.canViewDataSurat
+            ?? user.permissions.canCreate
+            ?? user.permissions.canEdit
+            ?? user.permissions.canDelete
+            ?? user.permissions.canPrint
+          ),
+          ...user.permissions,
+        }
+      : null,
   }
 }

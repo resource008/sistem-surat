@@ -15,6 +15,16 @@ const ROW_COLORS = [
 ]
 
 export function UserActivityTable({ users }: UserActivityTableProps) {
+  const isOnline = (status: string) => {
+    const normalized = status.trim().toLowerCase()
+    return normalized === "online" || normalized === "sedang aktif"
+  }
+
+  const sortedUsers = users.slice().sort((a, b) => {
+    if (a.status === b.status) return 0
+    return isOnline(a.status) ? -1 : 1
+  })
+
   return (
     <section className="space-y-3">
       <h2 className="text-base font-semibold tracking-normal">
@@ -31,7 +41,7 @@ export function UserActivityTable({ users }: UserActivityTableProps) {
 
           {/* Rows */}
           <div className="max-h-[300px] space-y-1.5 overflow-y-auto pr-0.5">
-            {users.map((user, index) => (
+            {sortedUsers.map((user, index) => (
               <div
                 key={user.id}
                 className={`grid grid-cols-[1fr_auto] items-center rounded-lg px-2 py-2 text-sm transition-colors sm:grid-cols-[1.8fr_1.4fr_0.8fr] sm:px-3 sm:py-2.5 ${

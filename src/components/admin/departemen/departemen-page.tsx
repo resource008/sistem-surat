@@ -8,10 +8,10 @@ import { DepartemenTable } from "./departemen-table"
 
 export default function DepartemenPage() {
   const router = useRouter()
-  const { state } = useDepartemenList()
+  const { state, actions } = useDepartemenList()
 
   function openDetail(departemen: Departemen) {
-    router.push(`/admin/departemen/${encodeURIComponent(departemen.id)}`)
+    router.push(`/admin/departemen/${encodeURIComponent(departemen.shortName || departemen.id)}`)
   }
 
   return (
@@ -20,7 +20,9 @@ export default function DepartemenPage() {
         departments={state.departments}
         error={state.error}
         isLoading={state.isLoading}
+        visibilityId={state.visibilityId}
         onOpenDetail={openDetail}
+        onToggleVisibility={actions.setDepartemenVisibility}
       />
 
       <DepartemenAddFab onClick={() => router.push("/admin/departemen/add")} />

@@ -12,6 +12,9 @@
     "lint": "eslint src"
   },
   "dependencies": {
+    "@atlaskit/pragmatic-drag-and-drop": "^2.0.1",
+    "@ionic/core": "^8.8.13",
+    "@ionic/react": "^8.8.13",
     "@noble/hashes": "2.2.0",
     "@prisma/adapter-pg": "7.8.0",
     "@prisma/client": "7.8.0",

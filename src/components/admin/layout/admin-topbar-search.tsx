@@ -50,10 +50,10 @@ export function AdminTopbarSearch({ isMobile, onExpand }: AdminTopbarSearchProps
       <div className="relative">
         <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
         <Input
-          placeholder="Cari Nama Pengguna"
+          placeholder="Cari Nama Pengguna atau Email"
           value={search}
           onChange={(event) => setSearch(event.target.value)}
-          className="h-9 w-56 rounded-xl border-border/60 bg-muted/40 pl-9 text-sm"
+          className="h-9 w-80 rounded-xl border-border/60 bg-muted/40 pl-9 text-sm xl:w-96"
         />
       </div>
     )
@@ -77,7 +77,7 @@ export function AdminTopbarSearch({ isMobile, onExpand }: AdminTopbarSearchProps
         <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
         <Input
           ref={inputRef}
-          placeholder="Cari Nama Pengguna"
+          placeholder="Cari Nama Pengguna atau Email"
           value={search}
           onChange={(event) => setSearch(event.target.value)}
           onKeyDown={(event) => event.key === "Escape" && handleCancel()}

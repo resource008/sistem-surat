@@ -5,6 +5,7 @@ export async function ensureTrackTableSchema() {
     CREATE TABLE IF NOT EXISTS track_sheets (
       id TEXT PRIMARY KEY,
       name TEXT NOT NULL,
+      display_category_id TEXT,
       sort_order INTEGER NOT NULL DEFAULT 0,
       hidden_at TIMESTAMP(3),
       created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -38,6 +39,11 @@ export async function ensureTrackTableSchema() {
 
   await prisma.$executeRaw`
     ALTER TABLE track_sheets
+    ADD COLUMN IF NOT EXISTS display_category_id TEXT
+  `
+
+  await prisma.$executeRaw`
+    ALTER TABLE track_sheets
     DROP COLUMN IF EXISTS description
   `
 
@@ -52,6 +58,9 @@ export async function ensureTrackTableSchema() {
       name TEXT NOT NULL,
       color TEXT NOT NULL DEFAULT '#ffffff',
       fill_by_hrd BOOLEAN NOT NULL DEFAULT false,
+      add_role_values TEXT NOT NULL DEFAULT '[]',
+      edit_role_values TEXT NOT NULL DEFAULT '[]',
+      delete_role_values TEXT NOT NULL DEFAULT '[]',
       sort_order INTEGER NOT NULL DEFAULT 0,
       created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -61,6 +70,21 @@ export async function ensureTrackTableSchema() {
   await prisma.$executeRaw`
     ALTER TABLE track_categories
     ADD COLUMN IF NOT EXISTS fill_by_hrd BOOLEAN NOT NULL DEFAULT false
+  `
+
+  await prisma.$executeRaw`
+    ALTER TABLE track_categories
+    ADD COLUMN IF NOT EXISTS add_role_values TEXT NOT NULL DEFAULT '[]'
+  `
+
+  await prisma.$executeRaw`
+    ALTER TABLE track_categories
+    ADD COLUMN IF NOT EXISTS edit_role_values TEXT NOT NULL DEFAULT '[]'
+  `
+
+  await prisma.$executeRaw`
+    ALTER TABLE track_categories
+    ADD COLUMN IF NOT EXISTS delete_role_values TEXT NOT NULL DEFAULT '[]'
   `
 
   await prisma.$executeRaw`
@@ -86,6 +110,9 @@ export async function ensureTrackTableSchema() {
       default_value TEXT NOT NULL DEFAULT '',
       category_options TEXT NOT NULL DEFAULT '[]',
       fill_by_hrd BOOLEAN NOT NULL DEFAULT false,
+      add_role_values TEXT NOT NULL DEFAULT '[]',
+      edit_role_values TEXT NOT NULL DEFAULT '[]',
+      delete_role_values TEXT NOT NULL DEFAULT '[]',
       hidden_at TIMESTAMP(3),
       sort_order INTEGER NOT NULL DEFAULT 0,
       created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -116,6 +143,21 @@ export async function ensureTrackTableSchema() {
   await prisma.$executeRaw`
     ALTER TABLE track_fields
     ADD COLUMN IF NOT EXISTS fill_by_hrd BOOLEAN NOT NULL DEFAULT false
+  `
+
+  await prisma.$executeRaw`
+    ALTER TABLE track_fields
+    ADD COLUMN IF NOT EXISTS add_role_values TEXT NOT NULL DEFAULT '[]'
+  `
+
+  await prisma.$executeRaw`
+    ALTER TABLE track_fields
+    ADD COLUMN IF NOT EXISTS edit_role_values TEXT NOT NULL DEFAULT '[]'
+  `
+
+  await prisma.$executeRaw`
+    ALTER TABLE track_fields
+    ADD COLUMN IF NOT EXISTS delete_role_values TEXT NOT NULL DEFAULT '[]'
   `
 
   await prisma.$executeRaw`

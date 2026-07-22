@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json().catch(() => null)
     if (!body) {
-      return NextResponse.json({ error: "Body tidak valid" }, { status: 400 })
+      return NextResponse.json({ message: "Body tidak valid" }, { status: 400 })
     }
 
     const parsed = TrackSheetSchema.safeParse(body)
@@ -42,19 +42,18 @@ export async function POST(req: NextRequest) {
       return validationResponse(parsed.error.flatten().fieldErrors)
     }
 
-    const sheet = await createTrackSheet(parsed.data)
+    await createTrackSheet(parsed.data)
     return NextResponse.json(
       {
         message: "Data sheet lacak berhasil ditambahkan",
-        id: sheet.id,
       },
       { status: 201 }
     )
   } catch (error) {
     if (error instanceof AppError) {
-      return NextResponse.json({ error: error.message }, { status: error.status })
+      return NextResponse.json({ message: error.message }, { status: error.status })
     }
     if (error instanceof Error) console.error("POST /api/admin/track-table:", error.message)
-    return NextResponse.json({ error: "Gagal membuat sheet lacak" }, { status: 500 })
+    return NextResponse.json({ message: "Gagal membuat sheet lacak" }, { status: 500 })
   }
 }

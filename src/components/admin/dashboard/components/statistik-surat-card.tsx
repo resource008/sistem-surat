@@ -26,9 +26,9 @@ interface StatistikSuratCardProps {
   departments: SuratPerDepartemen[]
   statistik: StatistikSurat
   selectedDeptId: string
-  selectedTipeWaktu: TipeWaktuStatistik | ""
+  selectedTipeWaktu: TipeWaktuStatistik
   onDeptChange: (deptId: string) => void
-  onTipeWaktuChange: (tipeWaktu: TipeWaktuStatistik | "") => void
+  onTipeWaktuChange: (tipeWaktu: TipeWaktuStatistik) => void
 }
 
 export function StatistikSuratCard({
@@ -41,7 +41,7 @@ export function StatistikSuratCard({
 }: StatistikSuratCardProps) {
   const hasDepartments = departments.length > 0
   const selectedDepartment = departments.find((item) => item.departemenId === selectedDeptId)
-  const hasSelectedFilters = Boolean(selectedDeptId && selectedTipeWaktu)
+  const hasSelectedFilters = Boolean(selectedDeptId)
   const chartData = useMemo(
     () =>
       statistik.labels.map((label: string, index: number) => ({

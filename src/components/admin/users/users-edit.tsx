@@ -48,6 +48,7 @@ export default function UserEditPage() {
           password: "",
         })
         setPermissions({
+          canViewDataSurat: data.permissions?.canViewDataSurat ?? false,
           canCreate: data.permissions?.canCreate ?? false,
           canEdit:   data.permissions?.canEdit   ?? false,
           canDelete: data.permissions?.canDelete ?? false,

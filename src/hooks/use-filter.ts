@@ -11,6 +11,17 @@ function parseDate(str: string | null): Date | undefined {
   return isValid(d) ? d : undefined
 }
 
+function sameDateValue(a: Date | undefined, b: Date | undefined) {
+  if (!a && !b) return true
+  if (!a || !b) return false
+  return format(a, "yyyy-MM-dd") === format(b, "yyyy-MM-dd")
+}
+
+function sameStringList(a: string[], b: string[]) {
+  if (a.length !== b.length) return false
+  return a.every((value, index) => value === b[index])
+}
+
 function useDebounce<T>(value: T, delay: number, skip?: boolean): T {
   const [debounced, setDebounced] = useState(value)
 
@@ -47,6 +58,22 @@ export function useFilter(
   useEffect(() => {
     searchParamsRef.current = searchParams
   }, [searchParams])
+
+  useEffect(() => {
+    const nextDate = parseDate(searchParams.get("date"))
+    const nextDepts = mode === "pi"
+      ? []
+      : (searchParams.get("dept") ?? "").split(",").filter(Boolean)
+
+    isResetting.current = true
+    setDateState((current) => sameDateValue(current, nextDate) ? current : nextDate)
+    setSelectedDepts((current) => sameStringList(current, nextDepts) ? current : nextDepts)
+
+    onFilterChangeRef.current?.({
+      date: nextDate ? format(nextDate, "yyyy-MM-dd") : null,
+      departments: nextDepts,
+    })
+  }, [mode, searchParams])
 
   const [date, setDateState] = useState<Date | undefined>(() => {
     const urlDate = searchParams.get("date")

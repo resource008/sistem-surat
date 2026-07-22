@@ -8,7 +8,7 @@ import {
   TANGGAL_DEFAULT_ID,
   TUJUAN_DEFAULT_ID,
 } from "@/constants/departemen-columns"
-import { formatCustomFieldValue, getCustomFieldValue, getSuratBuiltInFieldValue } from "@/domain/surat/custom-fields"
+import { getSuratColumnValue } from "@/lib/surat-display"
 
 const DEFAULT_ORDER = [
   NOMOR_DEFAULT_ID,
@@ -27,8 +27,31 @@ function normalizeColumns(columns?: DepartemenColumn[]) {
     .sort((a, b) => a.sortOrder - b.sortOrder)
 }
 
-function normalizePrintColumns(columns?: DepartemenColumn[]) {
-  return normalizeColumns(columns).filter((column) => column.showInPrint !== false)
+function normalizeDisplayColumns(columns?: DepartemenColumn[]) {
+  return (columns ?? [])
+    .slice()
+    .sort((a, b) => (a.displayOrder ?? a.sortOrder) - (b.displayOrder ?? b.sortOrder))
+}
+
+function orderColumnsBySplitSide(columns: DepartemenColumn[]) {
+  const defaultColumns = columns.filter((column) => column.isDefault)
+  const customColumns = columns.filter((column) => !column.isDefault)
+  const leftColumns = customColumns.filter((_, index) => index % 2 === 0)
+  const rightColumns = customColumns.filter((_, index) => index % 2 === 1)
+
+  return [...defaultColumns, ...leftColumns, ...rightColumns]
+}
+
+function orderColumnSubsetBySplitSide(
+  allColumns: DepartemenColumn[] = [],
+  subsetColumns: DepartemenColumn[] = []
+) {
+  if (allColumns.length === 0) return orderColumnsBySplitSide(normalizeDisplayColumns(subsetColumns))
+
+  const subsetIds = new Set(subsetColumns.map((column) => column.id))
+  const orderedColumns = orderColumnsBySplitSide(normalizeColumns(allColumns))
+
+  return orderedColumns.filter((column) => subsetIds.has(column.id))
 }
 
 function getPrintGroupLabel(reg: RegisterSurat) {
@@ -50,7 +73,11 @@ function columnSignaturePart(column: DepartemenColumn) {
 
 function resolveColumnForRegister(groupColumn: DepartemenColumn, reg: RegisterSurat) {
   const defaultKey = getDefaultColumnKey(groupColumn)
-  const columns = normalizeColumns(reg.dept?.columns)
+  const displayColumns = normalizeDisplayColumns(reg.dept?.displayColumns)
+  const columns = displayColumns.length > 0 ? displayColumns : normalizeColumns(reg.dept?.columns)
+  const exactColumn = columns.find((column) => column.id === groupColumn.id)
+
+  if (exactColumn) return exactColumn
 
   if (defaultKey) {
     return columns.find((column) => column.id.includes(defaultKey)) ?? groupColumn
@@ -64,7 +91,14 @@ function resolveColumnForRegister(groupColumn: DepartemenColumn, reg: RegisterSu
 }
 
 export function getCetakColumns(reg?: RegisterSurat): DepartemenColumn[] {
-  return normalizePrintColumns(reg?.dept?.columns)
+  const allColumns = reg?.dept?.columns ?? []
+  if (reg?.dept?.displayColumns) return orderColumnSubsetBySplitSide(allColumns, reg.dept.displayColumns)
+  return orderColumnSubsetBySplitSide(allColumns, allColumns.filter((column) => column.showInDataSurat))
+}
+
+export function getCetakPrintColumns(reg?: RegisterSurat): DepartemenColumn[] {
+  const columns = reg?.dept?.columns ?? []
+  return orderColumnSubsetBySplitSide(columns, columns.filter((column) => !column.isDefault && column.showInPrint))
 }
 
 export function compareRegisterNomor(a: RegisterSurat, b: RegisterSurat) {
@@ -73,7 +107,7 @@ export function compareRegisterNomor(a: RegisterSurat, b: RegisterSurat) {
 }
 
 export function getColumnStructureSignature(columns?: DepartemenColumn[]) {
-  return normalizeColumns(columns).map(columnSignaturePart).join("|")
+  return normalizeDisplayColumns(columns).map(columnSignaturePart).join("|")
 }
 
 export function getCetakColumnValue(
@@ -82,19 +116,7 @@ export function getCetakColumnValue(
   detail: DetailSurat
 ) {
   const column = resolveColumnForRegister(groupColumn, reg)
-  const defaultKey = getDefaultColumnKey(column)
-
-  if (defaultKey === NOMOR_DEFAULT_ID) return reg.nomor
-  if (defaultKey === TANGGAL_DEFAULT_ID) {
-    return formatCustomFieldValue({ ...column, type: "date" }, reg.tanggalTerima)
-  }
-  if (defaultKey === ASAL_DEFAULT_ID) return reg.asalSurat || "-"
-  if (defaultKey === TUJUAN_DEFAULT_ID) return detail.tujuan || reg.tujuan || reg.dept?.shortName || "-"
-
-  const builtInValue = getSuratBuiltInFieldValue(column, detail as unknown as Record<string, unknown>)
-  if (builtInValue !== null) return builtInValue
-
-  return formatCustomFieldValue(column, getCustomFieldValue(column, detail.customFields))
+  return getSuratColumnValue(column, reg, detail)
 }
 
 export function groupCetakData(data: RegisterSurat[]): CetakGroup[] {

@@ -1,6 +1,7 @@
 "use client"
 
 import { useRef, useEffect } from "react"
+import { createPortal } from "react-dom"
 import { X } from "lucide-react"
 import { FilterPanel } from "./filter-panel"
 import type { DataSuratSearchColumn } from "@/components/surat/data-surat/topbar-search"
@@ -18,13 +19,14 @@ interface FilterSheetProps {
   selectedSearchColumn?: string
   onSelectSearchColumn?: (column: string) => void
   hideDepartments?: boolean
+  hideDate?: boolean
 }
 
 export function FilterSheet({
   mounted, visible, onClose, hasFilter,
   date, onSelectDate, selectedDepts, onToggleDept,
   searchColumns, selectedSearchColumn, onSelectSearchColumn,
-  hideDepartments,
+  hideDepartments, hideDate,
 }: FilterSheetProps) {
   const sheetRef = useRef<HTMLDivElement>(null)
   const dragStartY = useRef<number | null>(null)
@@ -81,7 +83,7 @@ export function FilterSheet({
 
   if (!mounted) return null
 
-  return (
+  return createPortal(
     <>
       {/* Backdrop */}
       <div
@@ -140,6 +142,7 @@ export function FilterSheet({
             selectedSearchColumn={selectedSearchColumn}
             onSelectSearchColumn={onSelectSearchColumn}
             hideDepartments={hideDepartments}
+            hideDate={hideDate}
             isMobile
           />
         </div>
@@ -154,6 +157,7 @@ export function FilterSheet({
           </div>
         )}
       </div>
-    </>
+    </>,
+    document.body
   )
 }

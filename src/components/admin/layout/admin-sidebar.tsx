@@ -15,7 +15,7 @@ import { redirectToLoggedOutLogin } from "@/lib/logout-redirect"
 import type { Role }      from "@/types"
 import {
   ArrowLeftCircle, ArrowRightCircle,
-  Building2, House, LogOut, TableProperties, UserRoundCog, X,
+  Building2, ChevronDown, House, LogOut, ShieldCheck, TableProperties, UserRound, UserRoundCog, X,
 } from "lucide-react"
 import Image           from "next/image"
 import Link            from "next/link"
@@ -28,7 +28,15 @@ const LOGO_HEIGHT = 1246
 
 const navItems = [
   { label: "Dashboard",       href: "/admin/dashboard",  icon: House },
-  { label: "Kelola Pengguna", href: "/admin/users",      icon: UserRoundCog },
+  {
+    label: "Kelola Pengguna",
+    href: "/admin/users",
+    icon: UserRoundCog,
+    children: [
+      { label: "Kelola Akun", href: "/admin/users", icon: UserRound },
+      { label: "Kelola Role", href: "/admin/roles", icon: ShieldCheck },
+    ],
+  },
   { label: "Kelola Departemen", href: "/admin/departemen", icon: Building2 },
   { label: "Kelola Sheet Lacak", href: "/admin/lacak-surat", icon: TableProperties },
 ]
@@ -49,6 +57,8 @@ export function AdminSidebar({
 
   const [userData, setUserData]       = useState({ name: "", role: "ADMIN" })
   const [userLoading, setUserLoading] = useState(true)
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({})
+  const isAccountActive = pathname.startsWith("/admin/akun")
 
   useEffect(() => {
     async function fetchUser() {
@@ -64,6 +74,26 @@ export function AdminSidebar({
     }
     fetchUser()
   }, [])
+
+  useEffect(() => {
+    setOpenGroups((current) => {
+      let changed = false
+      const next = { ...current }
+
+      navItems.forEach((item) => {
+        const hasActiveChild = item.children?.some((child) =>
+          pathname === child.href || pathname.startsWith(`${child.href}/`)
+        )
+
+        if (hasActiveChild && !next[item.href]) {
+          next[item.href] = true
+          changed = true
+        }
+      })
+
+      return changed ? next : current
+    })
+  }, [pathname])
 
   async function handleLogout() {
     let redirected = false
@@ -132,17 +162,71 @@ export function AdminSidebar({
       <nav className={styles.nav}>
         {navItems.map((item) => {
           const Icon     = item.icon
-          const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`)
+          const hasChildren = Boolean(item.children?.length)
+          const hasActiveChild = Boolean(item.children?.some((child) =>
+            pathname === child.href || pathname.startsWith(`${child.href}/`)
+          ))
+          const isGroupOpen = hasChildren && (openGroups[item.href] ?? hasActiveChild)
+          const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`) || hasActiveChild
           return (
             <div key={item.href} className={styles.navItemWrapper}>
-              <Link href={item.href} className={`${styles.navItem} ${isActive ? styles.navItemActive : ""}`}>
-                <span className={styles.navIcon}>
-                  <Icon size={ICON_SIZE} strokeWidth={isActive ? 2.5 : 1.8} />
-                </span>
-                {(!collapsed || isMobile) && (
-                  <span className={styles.navLabel}>{item.label}</span>
-                )}
-              </Link>
+              {hasChildren ? (
+                <button
+                  type="button"
+                  className={`${styles.navItem} ${isActive ? styles.navItemActive : ""}`}
+                  aria-expanded={isGroupOpen}
+                  onClick={() => {
+                    if (!isMobile && collapsed) onCollapse(false)
+                    setOpenGroups((current) => ({
+                      ...current,
+                      [item.href]: !(current[item.href] ?? hasActiveChild),
+                    }))
+                  }}
+                >
+                  <span className={styles.navIcon}>
+                    <Icon size={ICON_SIZE} strokeWidth={isActive ? 2.5 : 1.8} />
+                  </span>
+                  {(!collapsed || isMobile) && (
+                    <>
+                      <span className={styles.navLabel}>{item.label}</span>
+                      <ChevronDown
+                        size={14}
+                        className={`ml-auto transition-transform ${isGroupOpen ? "rotate-180" : ""}`}
+                      />
+                    </>
+                  )}
+                </button>
+              ) : (
+                <Link href={item.href} className={`${styles.navItem} ${isActive ? styles.navItemActive : ""}`}>
+                  <span className={styles.navIcon}>
+                    <Icon size={ICON_SIZE} strokeWidth={isActive ? 2.5 : 1.8} />
+                  </span>
+                  {(!collapsed || isMobile) && (
+                    <span className={styles.navLabel}>{item.label}</span>
+                  )}
+                </Link>
+              )}
+              {item.children && (!collapsed || isMobile) && isGroupOpen ? (
+                <div className="mt-1 grid gap-1 pl-6">
+                  {item.children.map((child) => {
+                    const ChildIcon = child.icon
+                    const childActive = pathname === child.href || pathname.startsWith(`${child.href}/`)
+                    return (
+                      <Link
+                        key={child.href}
+                        href={child.href}
+                        className={`${styles.navItem} ${childActive ? styles.navItemActive : ""}`}
+                        onClick={() => isMobile && onMobileClose()}
+                      >
+                        <span className={styles.navIcon}>
+                          <ChildIcon size={16} strokeWidth={childActive ? 2.4 : 1.8} />
+                        </span>
+                        <span className={styles.navLabel}>{child.label}</span>
+                      </Link>
+                    )
+                  })}
+                </div>
+              ) : null}
             </div>
           )
         })}
@@ -153,7 +237,12 @@ export function AdminSidebar({
       </div>
 
       <div className={styles.userSection}>
-        <div className={styles.userCard}>
+        <Link
+          href="/admin/akun"
+          className={`${styles.userCard} ${styles.userCardLink} ${isAccountActive ? styles.userCardActive : ""}`}
+          onClick={() => isMobile && onMobileClose()}
+          title="Info akun admin"
+        >
           {userLoading ? (
             <>
               <div
@@ -180,7 +269,7 @@ export function AdminSidebar({
               )}
             </>
           )}
-        </div>
+        </Link>
       </div>
 
       <div className={styles.sidebarFooter}>

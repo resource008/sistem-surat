@@ -30,17 +30,18 @@ const ColumnSchema = z.object({
   showInDataSurat: z.boolean().optional().default(false),
   showInPrint: z.boolean().optional().default(true),
   sortOrder: z.number().int().nonnegative().optional().default(0),
+  displayOrder: z.number().int().nonnegative().optional().default(0),
 })
 
 export const CreateDepartemenSchema = z.object({
   shortName:          ShortNameSchema,
   tujuan:             DepartmentNameSchema,
   printSheetName:    PrintSheetNameSchema,
-  columnMode:         z.enum(["new", "existing"]).optional().default("new"),
+  columnMode:         z.enum(["new", "existing", "modified"]).optional().default("new"),
   sourceDepartmentId: z.string().optional().default(""),
   columns:            z.array(ColumnSchema).optional().default([]),
 }).superRefine((value, ctx) => {
-  if (value.columnMode === "existing" && !value.sourceDepartmentId.trim()) {
+  if ((value.columnMode === "existing" || value.columnMode === "modified") && !value.sourceDepartmentId.trim()) {
     ctx.addIssue({
       code: "custom",
       message: "Pilih departemen sumber kolom",

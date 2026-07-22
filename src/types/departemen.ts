@@ -17,11 +17,12 @@ export interface Departemen {
 }
 
 export type DepartemenColumnType = "text" | "date" | "number"
-export type DepartemenColumnMode = "new" | "existing"
+export type DepartemenColumnMode = "new" | "existing" | "modified"
 export type DepartemenPrintSheetMode = "new" | "existing"
 
 export interface DepartemenColumn {
   id: string
+  draftLabel?: string
   label: string
   type: DepartemenColumnType
   defaultValue: string
@@ -30,6 +31,7 @@ export interface DepartemenColumn {
   showInDataSurat: boolean
   showInPrint: boolean
   sortOrder: number
+  displayOrder: number
 }
 
 export type DepartemenFormState = {
@@ -50,9 +52,10 @@ export const DEFAULT_DEPARTEMEN_COLUMNS: DepartemenColumn[] = [
     defaultValue: "N/A",
     isDefault: true,
     isRequired: true,
-    showInDataSurat: true,
+    showInDataSurat: false,
     showInPrint: true,
     sortOrder: 0,
+    displayOrder: 0,
   },
   {
     id: TANGGAL_DEFAULT_ID,
@@ -64,6 +67,7 @@ export const DEFAULT_DEPARTEMEN_COLUMNS: DepartemenColumn[] = [
     showInDataSurat: false,
     showInPrint: true,
     sortOrder: 1,
+    displayOrder: 1,
   },
   {
     id: ASAL_DEFAULT_ID,
@@ -72,9 +76,10 @@ export const DEFAULT_DEPARTEMEN_COLUMNS: DepartemenColumn[] = [
     defaultValue: "N/A",
     isDefault: true,
     isRequired: true,
-    showInDataSurat: true,
+    showInDataSurat: false,
     showInPrint: true,
     sortOrder: 2,
+    displayOrder: 2,
   },
   {
     id: TUJUAN_DEFAULT_ID,
@@ -83,9 +88,10 @@ export const DEFAULT_DEPARTEMEN_COLUMNS: DepartemenColumn[] = [
     defaultValue: "N/A",
     isDefault: true,
     isRequired: true,
-    showInDataSurat: true,
+    showInDataSurat: false,
     showInPrint: true,
     sortOrder: 3,
+    displayOrder: 3,
   },
 ]
 
@@ -96,5 +102,5 @@ export const EMPTY_DEPARTEMEN_FORM: DepartemenFormState = {
   printSheetMode: "new",
   columnMode: "new",
   sourceDepartmentId: "",
-  columns: DEFAULT_DEPARTEMEN_COLUMNS,
+  columns: [],
 }

@@ -9,6 +9,7 @@ import { requireUserPermission } from "@/lib/current-user-permissions"
 type TrackRecordRow = {
   id: string
   sheetId: string
+  sequenceNo: number
   values: unknown
   createdById: string | null
   createdAt: Date
@@ -17,8 +18,16 @@ type TrackRecordRow = {
 
 type TrackFieldMeta = {
   id: string
+  categoryId: string | null
+  columnName: string
   type: string
   defaultValue: string
+  addRoleValues: string
+  editRoleValues: string
+  deleteRoleValues: string
+  categoryAddRoleValues: string | null
+  categoryEditRoleValues: string | null
+  categoryDeleteRoleValues: string | null
 }
 
 const TrackRecordSchema = z.object({
@@ -28,6 +37,7 @@ const TrackRecordSchema = z.object({
 
 const TrackRecordUpdateSchema = TrackRecordSchema.extend({
   id: z.string().min(1, "Data track wajib dipilih"),
+  action: z.enum(["save", "clear"]).optional(),
 })
 
 function createTrackRecordId() {
@@ -41,6 +51,7 @@ async function ensureTrackRecordSchema() {
     CREATE TABLE IF NOT EXISTS track_records (
       id TEXT PRIMARY KEY,
       sheet_id TEXT NOT NULL REFERENCES track_sheets(id) ON DELETE CASCADE,
+      sequence_no INTEGER NOT NULL DEFAULT 0,
       values JSONB NOT NULL DEFAULT '{}',
       created_by_id TEXT,
       created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -51,6 +62,25 @@ async function ensureTrackRecordSchema() {
   await prisma.$executeRaw`
     CREATE INDEX IF NOT EXISTS track_records_sheet_id_idx
     ON track_records(sheet_id)
+  `
+
+  await prisma.$executeRaw`
+    ALTER TABLE track_records
+    ADD COLUMN IF NOT EXISTS sequence_no INTEGER NOT NULL DEFAULT 0
+  `
+
+  await prisma.$executeRaw`
+    WITH numbered AS (
+      SELECT
+        id,
+        ROW_NUMBER() OVER (PARTITION BY sheet_id ORDER BY created_at ASC, id ASC) AS sequence_no
+      FROM track_records
+      WHERE sequence_no = 0
+    )
+    UPDATE track_records record
+    SET sequence_no = numbered.sequence_no
+    FROM numbered
+    WHERE record.id = numbered.id
   `
 }
 
@@ -69,13 +99,79 @@ async function ensureSheetExists(sheetId: string) {
 async function getVisibleFields(sheetId: string) {
   return prisma.$queryRaw<TrackFieldMeta[]>`
     SELECT
-      id,
-      data_type AS "type",
-      default_value AS "defaultValue"
-    FROM track_fields
-    WHERE sheet_id = ${sheetId}
-      AND hidden_at IS NULL
+      f.id,
+      f.category_id AS "categoryId",
+      f.column_name AS "columnName",
+      f.data_type AS "type",
+      f.default_value AS "defaultValue",
+      f.add_role_values AS "addRoleValues",
+      f.edit_role_values AS "editRoleValues",
+      f.delete_role_values AS "deleteRoleValues",
+      c.add_role_values AS "categoryAddRoleValues",
+      c.edit_role_values AS "categoryEditRoleValues",
+      c.delete_role_values AS "categoryDeleteRoleValues"
+    FROM track_fields f
+    LEFT JOIN track_categories c
+      ON c.id = f.category_id
+      AND c.sheet_id = f.sheet_id
+    WHERE f.sheet_id = ${sheetId}
+      AND f.hidden_at IS NULL
   `
+}
+
+async function renumberTrackRecords(sheetId: string) {
+  await prisma.$executeRaw`
+    WITH numbered AS (
+      SELECT
+        id,
+        ROW_NUMBER() OVER (
+          ORDER BY sequence_no ASC, created_at ASC, id ASC
+        ) AS next_sequence_no
+      FROM track_records
+      WHERE sheet_id = ${sheetId}
+    )
+    UPDATE track_records record
+    SET
+      sequence_no = numbered.next_sequence_no,
+      updated_at = CURRENT_TIMESTAMP
+    FROM numbered
+    WHERE record.id = numbered.id
+  `
+}
+
+function parseRoleValues(value: string) {
+  try {
+    const parsed = JSON.parse(value)
+    if (!Array.isArray(parsed)) return []
+    return parsed.filter((item): item is string => typeof item === "string")
+  } catch {
+    return []
+  }
+}
+
+function hasRoleAccess(roleValues: string, role?: string | null) {
+  if (!role) return false
+  if (role === "ADMIN") return true
+  return parseRoleValues(roleValues).includes(role)
+}
+
+function canWriteField(field: TrackFieldMeta, role: string | undefined, action: "add" | "edit" | "delete") {
+  if (field.columnName.trim().toLowerCase() === "id") return false
+  if (role === "ADMIN") return true
+
+  const roleValues = field.categoryId
+    ? action === "add"
+      ? field.categoryAddRoleValues ?? "[]"
+      : action === "edit"
+        ? field.categoryEditRoleValues ?? "[]"
+        : field.categoryDeleteRoleValues ?? "[]"
+    : action === "add"
+      ? field.addRoleValues
+      : action === "edit"
+        ? field.editRoleValues
+        : field.deleteRoleValues
+
+  return hasRoleAccess(roleValues, role)
 }
 
 function appendDefaultValue(value: string, field: TrackFieldMeta) {
@@ -107,6 +203,32 @@ function normalizeTrackValues(inputValues: Record<string, string>, fields: Track
   return nextValues
 }
 
+function assertWritableTrackValues(
+  inputValues: Record<string, string>,
+  fields: TrackFieldMeta[],
+  role: string | undefined,
+  action: "add" | "edit" | "delete"
+) {
+  const fieldById = new Map(fields.map((field) => [field.id, field]))
+
+  Object.keys(inputValues).forEach((fieldId) => {
+    const field = fieldById.get(fieldId)
+    if (!field) return
+    if (!canWriteField(field, role, action)) {
+      throw new AppError(403, action === "delete"
+        ? "Role Anda tidak memiliki akses untuk menghapus kolom ini"
+        : "Role Anda tidak memiliki akses untuk mengubah kolom ini"
+      )
+    }
+  })
+}
+
+function assertCanDeleteTrackRecord(fields: TrackFieldMeta[], role: string | undefined) {
+  if (role === "ADMIN") return
+  if (fields.some((field) => canWriteField(field, role, "delete"))) return
+  throw new AppError(403, "Role Anda tidak memiliki akses untuk menghapus data track surat")
+}
+
 function mapTrackRecord(row: TrackRecordRow) {
   const values = row.values && typeof row.values === "object" && !Array.isArray(row.values)
     ? row.values as Record<string, string>
@@ -115,6 +237,7 @@ function mapTrackRecord(row: TrackRecordRow) {
   return {
     id: row.id,
     sheetId: row.sheetId,
+    sequenceNo: Number(row.sequenceNo),
     values,
     createdById: row.createdById,
     createdAt: row.createdAt.toISOString(),
@@ -138,13 +261,14 @@ export async function GET(req: NextRequest) {
       SELECT
         id,
         sheet_id AS "sheetId",
+        sequence_no AS "sequenceNo",
         values,
         created_by_id AS "createdById",
         created_at AS "createdAt",
         updated_at AS "updatedAt"
       FROM track_records
       WHERE sheet_id = ${sheetId}
-      ORDER BY created_at DESC, id DESC
+      ORDER BY sequence_no ASC, created_at ASC, id ASC
     `
 
     return NextResponse.json({ records: rows.map(mapTrackRecord) })
@@ -170,33 +294,44 @@ export async function POST(req: NextRequest) {
       const firstError = Object.values(parsed.error.flatten().fieldErrors).flat()[0]
         ?? parsed.error.flatten().formErrors[0]
         ?? "Data tidak valid"
-      return NextResponse.json({ error: firstError }, { status: 422 })
+      return NextResponse.json({ message: firstError }, { status: 422 })
     }
 
     await ensureSheetExists(parsed.data.sheetId)
 
     const id = createTrackRecordId()
     const visibleFields = await getVisibleFields(parsed.data.sheetId)
+    const role = (session.user as { role?: string }).role
+    assertWritableTrackValues(parsed.data.values, visibleFields, role, "add")
     const payloadValues = normalizeTrackValues(parsed.data.values, visibleFields)
     const values = JSON.stringify(payloadValues)
     const userId = (session.user as { id?: string }).id ?? null
+    const sequenceRows = await prisma.$queryRaw<Array<{ nextSequenceNo: number | bigint }>>`
+      SELECT COALESCE(MAX(sequence_no), 0) + 1 AS "nextSequenceNo"
+      FROM track_records
+      WHERE sheet_id = ${parsed.data.sheetId}
+    `
+    const sequenceNo = Number(sequenceRows[0]?.nextSequenceNo ?? 1)
 
-    const rows = await prisma.$queryRaw<TrackRecordRow[]>`
+    await prisma.$queryRaw<TrackRecordRow[]>`
       INSERT INTO track_records (
         id,
         sheet_id,
+        sequence_no,
         values,
         created_by_id
       )
       VALUES (
         ${id},
         ${parsed.data.sheetId},
+        ${sequenceNo},
         CAST(${values} AS JSONB),
         ${userId}
       )
       RETURNING
         id,
         sheet_id AS "sheetId",
+        sequence_no AS "sequenceNo",
         values,
         created_by_id AS "createdById",
         created_at AS "createdAt",
@@ -206,23 +341,22 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         message: "Data track surat berhasil disimpan",
-        record: mapTrackRecord(rows[0]),
       },
       { status: 201 }
     )
   } catch (error) {
     if (error instanceof AppError) {
-      return NextResponse.json({ error: error.message }, { status: error.status })
+      return NextResponse.json({ message: error.message }, { status: error.status })
     }
 
     if (error instanceof Error) console.error("POST /api/track-records:", error.message)
-    return NextResponse.json({ error: "Gagal menyimpan data track surat" }, { status: 500 })
+    return NextResponse.json({ message: "Gagal menyimpan data track surat" }, { status: 500 })
   }
 }
 
 export async function PATCH(req: NextRequest) {
   try {
-    await requireUserPermission("canTrack")
+    const session = await requireUserPermission("canTrack")
     await ensureTrackRecordSchema()
 
     const body = await req.json().catch(() => null)
@@ -232,7 +366,7 @@ export async function PATCH(req: NextRequest) {
       const firstError = Object.values(parsed.error.flatten().fieldErrors).flat()[0]
         ?? parsed.error.flatten().formErrors[0]
         ?? "Data tidak valid"
-      return NextResponse.json({ error: firstError }, { status: 422 })
+      return NextResponse.json({ message: firstError }, { status: 422 })
     }
 
     await ensureSheetExists(parsed.data.sheetId)
@@ -241,6 +375,7 @@ export async function PATCH(req: NextRequest) {
       SELECT
         id,
         sheet_id AS "sheetId",
+        sequence_no AS "sequenceNo",
         values,
         created_by_id AS "createdById",
         created_at AS "createdAt",
@@ -254,6 +389,9 @@ export async function PATCH(req: NextRequest) {
     if (!current) throw new AppError(404, "Data track surat tidak ditemukan")
 
     const visibleFields = await getVisibleFields(parsed.data.sheetId)
+    const role = (session.user as { role?: string }).role
+    const isClearAction = parsed.data.action === "clear"
+    assertWritableTrackValues(parsed.data.values, visibleFields, role, isClearAction ? "delete" : "edit")
     const visibleFieldIds = new Set(visibleFields.map((field) => field.id))
     const visibleFieldById = new Map(visibleFields.map((field) => [field.id, field]))
     const nextValues = { ...mapTrackRecord(current).values }
@@ -263,7 +401,7 @@ export async function PATCH(req: NextRequest) {
       nextValues[fieldId] = field ? appendDefaultValue(value, field) : value.trim()
     })
     const values = JSON.stringify(nextValues)
-    const rows = await prisma.$queryRaw<TrackRecordRow[]>`
+    await prisma.$queryRaw<TrackRecordRow[]>`
       UPDATE track_records
       SET
         values = CAST(${values} AS JSONB),
@@ -273,6 +411,7 @@ export async function PATCH(req: NextRequest) {
       RETURNING
         id,
         sheet_id AS "sheetId",
+        sequence_no AS "sequenceNo",
         values,
         created_by_id AS "createdById",
         created_at AS "createdAt",
@@ -281,14 +420,64 @@ export async function PATCH(req: NextRequest) {
 
     return NextResponse.json({
       message: "Data track surat berhasil diperbarui",
-      record: mapTrackRecord(rows[0]),
     })
   } catch (error) {
     if (error instanceof AppError) {
-      return NextResponse.json({ error: error.message }, { status: error.status })
+      return NextResponse.json({ message: error.message }, { status: error.status })
     }
 
     if (error instanceof Error) console.error("PATCH /api/track-records:", error.message)
-    return NextResponse.json({ error: "Gagal memperbarui data track surat" }, { status: 500 })
+    return NextResponse.json({ message: "Gagal memperbarui data track surat" }, { status: 500 })
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const session = await requireUserPermission("canTrack")
+    await ensureTrackRecordSchema()
+
+    const sheetId = req.nextUrl.searchParams.get("sheetId")?.trim()
+    const id = req.nextUrl.searchParams.get("id")?.trim()
+    if (!sheetId || !id) {
+      return NextResponse.json({ message: "Data track wajib dipilih" }, { status: 422 })
+    }
+
+    await ensureSheetExists(sheetId)
+
+    const currentRows = await prisma.$queryRaw<TrackRecordRow[]>`
+      SELECT
+        id,
+        sheet_id AS "sheetId",
+        sequence_no AS "sequenceNo",
+        values,
+        created_by_id AS "createdById",
+        created_at AS "createdAt",
+        updated_at AS "updatedAt"
+      FROM track_records
+      WHERE id = ${id}
+        AND sheet_id = ${sheetId}
+      LIMIT 1
+    `
+    if (!currentRows[0]) throw new AppError(404, "Data track surat tidak ditemukan")
+
+    const visibleFields = await getVisibleFields(sheetId)
+    const role = (session.user as { role?: string }).role
+    assertCanDeleteTrackRecord(visibleFields, role)
+
+    await prisma.$executeRaw`
+      DELETE FROM track_records
+      WHERE id = ${id}
+        AND sheet_id = ${sheetId}
+    `
+    await renumberTrackRecords(sheetId)
+
+    return NextResponse.json({ message: "Data track surat berhasil dihapus" })
+  } catch (error) {
+    if (error instanceof AppError) {
+      return NextResponse.json({ message: error.message }, { status: error.status })
+    }
+
+    if (error instanceof Error) console.error("DELETE /api/track-records:", error.message)
+    return NextResponse.json({ message: "Gagal menghapus data track surat" }, { status: 500 })
   }
 }

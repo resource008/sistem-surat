@@ -29,15 +29,13 @@ export default function TambahForm({ role, basePath }: Props) {
       <form
         id={formId}
         onSubmit={actions.handleSubmit}
-        className="max-w-7xl mx-auto px-4 xl:px-0 flex flex-col lg:flex-row gap-6 lg:h-[calc(100vh-120px)] lg:overflow-hidden pb-28 lg:pb-0 pt-2 animate-in fade-in duration-300"
+        className="mx-auto flex w-full max-w-[1500px] animate-in flex-col gap-6 px-5 pb-28 pt-4 duration-300 fade-in lg:h-[calc(100vh-120px)] lg:overflow-hidden lg:pb-0 xl:px-6"
       >
-        {/* SISI KIRI: Register Info */}
         <RegisterInfoPanel state={state} actions={actions} />
 
-        {/* SISI KANAN: Daftar Form */}
-        <div className="w-full lg:w-8/12 xl:w-8/12 flex flex-col gap-4 lg:overflow-y-auto pb-10 lg:pb-32 lg:pr-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-4 pb-10 lg:overflow-y-auto lg:pb-32 lg:pr-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {!state.deptId ? (
-            <div className="rounded-2xl border border-dashed border-slate-200 dark:border-neutral-800 px-6 py-12 text-center lg:h-full flex flex-col items-center justify-center min-h-[200px]">
+            <div className="flex min-h-[360px] flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 px-6 py-12 text-center dark:border-neutral-800 lg:h-full">
               <FileText className="mb-3 h-8 w-8 text-slate-300 dark:text-slate-700" />
               <p className="text-[13px] text-slate-400 dark:text-slate-500">
                 Silakan pilih <strong>Departemen</strong> terlebih dahulu untuk menambahkan data.

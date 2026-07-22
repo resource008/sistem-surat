@@ -8,6 +8,7 @@ export type TrackSheetRow = {
   id: string
   name: string
   sortOrder: number
+  displayCategoryId: string | null
   hiddenAt: Date | null
 }
 
@@ -16,7 +17,10 @@ export type TrackCategoryRow = {
   sheetId: string
   name: string
   color: string
-  fillByHrd: boolean
+  fillRequired: boolean
+  addRoleValues: string
+  editRoleValues: string
+  deleteRoleValues: string
   sortOrder: number
 }
 
@@ -31,7 +35,10 @@ export type TrackFieldRow = {
   type: TrackFieldType
   defaultValue: string
   categoryOptions: string
-  fillByHrd: boolean
+  fillRequired: boolean
+  addRoleValues: string
+  editRoleValues: string
+  deleteRoleValues: string
   hiddenAt: Date | null
   sortOrder: number
 }

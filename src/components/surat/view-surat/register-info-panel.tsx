@@ -1,13 +1,17 @@
 import { Badge } from "@/components/ui/badge"
 import { Field } from "./field"
-import { RegisterSurat, formatTanggal } from "@/components/surat/shared"
-import { getSuratTujuan } from "@/lib/surat-helpers"
+import { RegisterSurat } from "@/components/surat/shared"
+import { getSuratColumnValue, getSuratDisplayParts, getSuratDisplayTitle, getSuratDisplayColumns } from "@/lib/surat-display"
 
 interface Props {
   register: RegisterSurat
 }
 
 export function RegisterInfoPanel({ register }: Props) {
+  const displayTitle = getSuratDisplayTitle(register)
+  const [primaryPart] = getSuratDisplayParts(register, 1)
+  const displayColumns = getSuratDisplayColumns(register)
+
   return (
     <div className="w-full lg:w-4/12 xl:w-4/12 flex flex-col gap-4 lg:h-full lg:pb-6">
       <div className="rounded-2xl border border-slate-200 dark:border-neutral-800
@@ -20,19 +24,21 @@ export function RegisterInfoPanel({ register }: Props) {
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="text-[12px] font-medium text-slate-400 dark:text-slate-500 mb-1">
-                Nomor Register
+                {primaryPart?.label ?? "Data Surat"}
               </p>
               <p className="text-[22px] font-mono font-bold text-slate-800
                             dark:text-slate-100 leading-none">
-                {register.nomor}
+                {displayTitle}
               </p>
             </div>
-            <Badge className="text-[12px] font-medium px-2.5 py-0.5 rounded-full
-                              bg-slate-100 dark:bg-neutral-800
-                              text-slate-700 dark:text-slate-300
-                              border border-slate-200 dark:border-neutral-700 mt-0.5">
-              {register.dept.shortName}
-            </Badge>
+            {primaryPart ? (
+              <Badge className="text-[12px] font-medium px-2.5 py-0.5 rounded-full
+                                bg-slate-100 dark:bg-neutral-800
+                                text-slate-700 dark:text-slate-300
+                                border border-slate-200 dark:border-neutral-700 mt-0.5">
+                {primaryPart.label}
+              </Badge>
+            ) : null}
           </div>
         </div>
 
@@ -42,9 +48,14 @@ export function RegisterInfoPanel({ register }: Props) {
                         [-ms-overflow-style:none]
                         [scrollbar-width:none]">
           <div className="flex flex-col gap-4">
-            <Field label="Asal Surat" value={register.asalSurat} fullWidth />
-            <Field label="Tanggal Terima" value={formatTanggal(register.tanggalTerima)} fullWidth />
-            <Field label="Tujuan" value={getSuratTujuan(register)} fullWidth />
+            {displayColumns.map((column) => (
+              <Field
+                key={column.id}
+                label={column.label}
+                value={getSuratColumnValue(column, register, register.detailSurat?.[0])}
+                fullWidth
+              />
+            ))}
           </div>
         </div>
 

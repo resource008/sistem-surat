@@ -7,7 +7,6 @@ import { getErrorMessage } from "@/lib/utils"
 import { hydrateDepartemenForClient } from "@/lib/departemen-columns"
 import {
   EMPTY_DEPARTEMEN_FORM,
-  DEFAULT_DEPARTEMEN_COLUMNS,
   type Departemen,
   type DepartemenColumn,
   type DepartemenPrintSheetMode,
@@ -16,7 +15,7 @@ import {
 
 function stripColumnId(column: DepartemenColumn) {
   const nextColumn = { ...column } as Partial<DepartemenColumn>
-  delete nextColumn.id
+  delete nextColumn.draftLabel
   return nextColumn
 }
 
@@ -89,9 +88,7 @@ export function useEditDepartemen(id: string, breadcrumbTitle = "Edit Departemen
           printSheetMode: inferPrintSheetMode(data, deptList),
           columnMode: "new",
           sourceDepartmentId: "",
-          columns: data.columns?.length
-            ? data.columns
-            : DEFAULT_DEPARTEMEN_COLUMNS.map((column) => ({ ...column })),
+          columns: data.columns ?? [],
         })
       } catch (err) {
         if (!ignore) toast.error(getErrorMessage(err, "Gagal mengambil data departemen"))

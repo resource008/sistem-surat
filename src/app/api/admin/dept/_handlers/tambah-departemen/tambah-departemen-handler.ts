@@ -20,7 +20,7 @@ export async function tambahDepartemen(req: NextRequest) {
 
     const body = await req.json().catch(() => null)
     if (!body) {
-      return NextResponse.json({ error: "Body tidak valid" }, { status: 400 })
+      return NextResponse.json({ message: "Body tidak valid" }, { status: 400 })
     }
 
     const parsed = CreateDepartemenSchema.safeParse(body)
@@ -28,19 +28,18 @@ export async function tambahDepartemen(req: NextRequest) {
       return validationResponse(parsed.error.flatten().fieldErrors)
     }
 
-    const departemen = await createDepartemen(parsed.data)
+    await createDepartemen(parsed.data)
     return NextResponse.json(
       {
         message: "Departemen berhasil ditambahkan",
-        id: departemen.id,
       },
       { status: 201 }
     )
   } catch (error) {
     if (error instanceof AppError) {
-      return NextResponse.json({ error: error.message }, { status: error.status })
+      return NextResponse.json({ message: error.message }, { status: error.status })
     }
     if (error instanceof Error) console.error("POST /api/admin/dept:", error.message)
-    return NextResponse.json({ error: "Gagal membuat departemen" }, { status: 500 })
+    return NextResponse.json({ message: "Gagal membuat departemen" }, { status: 500 })
   }
 }

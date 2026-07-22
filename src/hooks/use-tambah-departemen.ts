@@ -6,16 +6,21 @@ import { toast } from "sonner"
 import { getErrorMessage } from "@/lib/utils"
 import { hydrateDepartemenForClient } from "@/lib/departemen-columns"
 import {
-  EMPTY_DEPARTEMEN_FORM,
   DEFAULT_DEPARTEMEN_COLUMNS,
+  EMPTY_DEPARTEMEN_FORM,
   type Departemen,
   type DepartemenColumn,
   type DepartemenFormState,
 } from "@/types"
 
+const INITIAL_DEPARTEMEN_FORM: DepartemenFormState = {
+  ...EMPTY_DEPARTEMEN_FORM,
+  columns: DEFAULT_DEPARTEMEN_COLUMNS.map((column) => ({ ...column })),
+}
+
 function stripColumnId(column: DepartemenColumn) {
   const nextColumn = { ...column } as Partial<DepartemenColumn>
-  delete nextColumn.id
+  delete nextColumn.draftLabel
   return nextColumn
 }
 
@@ -31,10 +36,7 @@ async function fetchDepartemenDetails(departments: Departemen[]) {
 
 export function useTambahDepartemen() {
   const router = useRouter()
-  const [form, setForm] = useState<DepartemenFormState>({
-    ...EMPTY_DEPARTEMEN_FORM,
-    columns: DEFAULT_DEPARTEMEN_COLUMNS.map((column) => ({ ...column })),
-  })
+  const [form, setForm] = useState<DepartemenFormState>(INITIAL_DEPARTEMEN_FORM)
   const [departments, setDepartments] = useState<Departemen[]>([])
   const [saving, setSaving] = useState(false)
 
@@ -72,7 +74,7 @@ export function useTambahDepartemen() {
       toast.error("Identifikasi nama lembar wajib diisi")
       return
     }
-    if (form.columnMode === "existing" && !form.sourceDepartmentId.trim()) {
+    if ((form.columnMode === "existing" || form.columnMode === "modified") && !form.sourceDepartmentId.trim()) {
       toast.error("Pilih departemen sumber kolom")
       return
     }
