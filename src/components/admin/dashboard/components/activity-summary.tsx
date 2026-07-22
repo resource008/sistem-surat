@@ -1,4 +1,7 @@
-import type { ElementType } from "react"
+import { Card, CardContent } from "@/components/ui/card"
+import { ACTIVITY_CARD_STYLES } from "@/constants/admin-dashboard"
+import type { DashboardStatsResult } from "@/domain/admin-dashboard/types"
+import { formatNumber } from "@/lib/admin-dashboard"
 import {
   ArrowDownRight,
   ArrowUpRight,
@@ -7,10 +10,7 @@ import {
   Inbox,
   Minus,
 } from "lucide-react"
-import { Card, CardContent } from "@/components/ui/card"
-import type { DashboardStatsResult } from "@/domain/admin-dashboard/types"
-import { ACTIVITY_CARD_STYLES } from "@/constants/admin-dashboard"
-import { formatNumber } from "@/lib/admin-dashboard"
+import type { ElementType } from "react"
 
 interface ActivitySummaryProps {
   aktivitas: DashboardStatsResult["aktivitas"]
@@ -77,7 +77,7 @@ export function ActivitySummary({ aktivitas }: ActivitySummaryProps) {
   return (
     <div className="grid h-full grid-cols-1 gap-2.5 sm:grid-cols-2 sm:gap-3 xl:grid-cols-3">
       <ActivityCard
-        title="Jumlah akun"
+        title="Jumlah Pengguna"
         value={aktivitas.jumlahAkun}
         icon={CircleUserRound}
         surface={ACTIVITY_CARD_STYLES[0].surface}
@@ -85,7 +85,7 @@ export function ActivitySummary({ aktivitas }: ActivitySummaryProps) {
         iconColor={ACTIVITY_CARD_STYLES[0].iconColor}
       />
       <ActivityCard
-        title="Total departemen"
+        title="Total Departemen"
         value={aktivitas.totalDepartemen}
         icon={Building2}
         surface={ACTIVITY_CARD_STYLES[1].surface}

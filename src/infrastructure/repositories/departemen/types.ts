@@ -22,6 +22,7 @@ export type DepartmentColumnRow = {
   showInDataSurat: boolean
   showInPrint: boolean
   sortOrder: number
+  displayOrder: number
 }
 
 export type DbClient = Prisma.TransactionClient | typeof prisma

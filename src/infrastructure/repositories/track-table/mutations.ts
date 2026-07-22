@@ -51,7 +51,10 @@ function createDefaultIdField(): TrackSheetInput["fields"][number] {
     type: "number",
     defaultValue: "",
     categoryOptions: [],
-    fillByHrd: false,
+    fillRequired: false,
+    addRoleValues: [],
+    editRoleValues: [],
+    deleteRoleValues: [],
     hiddenAt: null,
     sortOrder: 0,
   }
@@ -63,10 +66,16 @@ function normalizeInput(input: TrackSheetInput): TrackSheetInput {
     id: category.id || createTrackCategoryId(),
     name: category.name.trim(),
     color: category.color || DEFAULT_TRACK_CATEGORY_COLOR,
-    fillByHrd: category.fillByHrd ?? false,
+    fillRequired: category.fillRequired ?? false,
+    addRoleValues: category.addRoleValues ?? [],
+    editRoleValues: category.editRoleValues ?? [],
+    deleteRoleValues: category.deleteRoleValues ?? [],
     sortOrder: index,
   }))
   const fallbackCategory = categories[0]
+  const displayCategoryId = categories.some((category) => category.id === input.displayCategoryId)
+    ? input.displayCategoryId
+    : fallbackCategory?.id ?? ""
   const categoryById = new Map(categories.map((category) => [category.id, category]))
   const defaultIdField = input.fields.find(isDefaultIdField) ?? createDefaultIdField()
   const inputFields = [
@@ -77,6 +86,7 @@ function normalizeInput(input: TrackSheetInput): TrackSheetInput {
   return {
     ...input,
     name: input.name.trim(),
+    displayCategoryId,
     categories,
     fields: inputFields.map((field, index) => {
       const isDefaultId = isDefaultIdField(field)
@@ -95,7 +105,10 @@ function normalizeInput(input: TrackSheetInput): TrackSheetInput {
         type: isDefaultId ? "number" : field.type,
         defaultValue: isDefaultId ? "" : (field.defaultValue ?? "").trim(),
         categoryOptions: !isDefaultId && field.type === "category" ? normalizeCategoryOptions(field.categoryOptions ?? []) : [],
-        fillByHrd: isDefaultId ? false : category?.fillByHrd ?? field.fillByHrd ?? false,
+        fillRequired: isDefaultId ? false : category?.fillRequired ?? field.fillRequired ?? false,
+        addRoleValues: isDefaultId ? [] : category?.addRoleValues ?? field.addRoleValues ?? [],
+        editRoleValues: isDefaultId ? [] : category?.editRoleValues ?? field.editRoleValues ?? [],
+        deleteRoleValues: isDefaultId ? [] : category?.deleteRoleValues ?? field.deleteRoleValues ?? [],
         hiddenAt: isDefaultId ? null : field.hiddenAt ?? null,
         sortOrder: index,
       }
@@ -192,6 +205,9 @@ async function saveTrackCategories(db: DbClient, sheetId: string, input: TrackSh
         name,
         color,
         fill_by_hrd,
+        add_role_values,
+        edit_role_values,
+        delete_role_values,
         sort_order
       )
       VALUES (
@@ -199,7 +215,10 @@ async function saveTrackCategories(db: DbClient, sheetId: string, input: TrackSh
         ${sheetId},
         ${category.name},
         ${category.color},
-        ${category.fillByHrd},
+        ${category.fillRequired},
+        ${JSON.stringify(category.addRoleValues ?? [])},
+        ${JSON.stringify(category.editRoleValues ?? [])},
+        ${JSON.stringify(category.deleteRoleValues ?? [])},
         ${index}
       )
     `
@@ -226,6 +245,9 @@ async function saveTrackFields(db: DbClient, sheetId: string, input: TrackSheetI
         default_value,
         category_options,
         fill_by_hrd,
+        add_role_values,
+        edit_role_values,
+        delete_role_values,
         hidden_at,
         sort_order
       )
@@ -240,7 +262,10 @@ async function saveTrackFields(db: DbClient, sheetId: string, input: TrackSheetI
         ${field.type},
         ${field.defaultValue},
         ${JSON.stringify(field.categoryOptions ?? [])},
-        ${field.fillByHrd},
+        ${field.fillRequired},
+        ${JSON.stringify(field.addRoleValues ?? [])},
+        ${JSON.stringify(field.editRoleValues ?? [])},
+        ${JSON.stringify(field.deleteRoleValues ?? [])},
         ${field.hiddenAt ? new Date(field.hiddenAt) : null},
         ${index}
       )
@@ -259,11 +284,13 @@ export async function createTrackSheetMutation(input: TrackSheetInput) {
       INSERT INTO track_sheets (
         id,
         name,
+        display_category_id,
         sort_order
       )
       VALUES (
         ${sheetId},
         ${normalized.name},
+        ${normalized.displayCategoryId || null},
         ${normalized.sortOrder}
       )
     `
@@ -287,6 +314,7 @@ export async function updateTrackSheetMutation(id: string, input: TrackSheetInpu
       UPDATE track_sheets
       SET
         name = ${normalized.name},
+        display_category_id = ${normalized.displayCategoryId || null},
         sort_order = ${normalized.sortOrder},
         updated_at = CURRENT_TIMESTAMP
       WHERE id = ${id}

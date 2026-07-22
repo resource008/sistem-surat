@@ -32,15 +32,17 @@ export function DepartemenEditFormFields({
     orderedColumns,
     customColumns,
     openColumnIds,
-    fixedNomor,
-    fixedTujuan,
     selectableDisplayColumns,
     selectedMiddleColumns,
     updateColumn,
     addColumn,
     removeColumn,
     moveCustomColumn,
+    reorderCustomColumns,
     setDisplaySlot,
+    addDisplaySlot,
+    removeDisplaySlot,
+    reorderDisplayColumns,
     toggleColumn,
   } = useDepartemenKolomForm(form.columns, onChange)
 
@@ -49,6 +51,7 @@ export function DepartemenEditFormFields({
       <DepartemenIdentitasFields
         form={form}
         disabled={disabled || readOnly}
+        readOnly={readOnly}
         onChange={onChange}
       />
 
@@ -64,19 +67,21 @@ export function DepartemenEditFormFields({
         onAddColumn={addColumn}
         onRemoveColumn={removeColumn}
         onMoveColumn={moveCustomColumn}
+        onReorderColumn={reorderCustomColumns}
         onUpdateColumn={updateColumn}
       />
 
       <DepartemenTampilanKolomPanel
         open={openDisplay}
-        fixedNomor={fixedNomor}
-        fixedTujuan={fixedTujuan}
         selectableDisplayColumns={selectableDisplayColumns}
         selectedMiddleColumns={selectedMiddleColumns}
         disabled={disabled}
         readOnly={readOnly}
         onToggle={() => setOpenDisplay((current) => !current)}
         onDisplaySlotChange={setDisplaySlot}
+        onDisplaySlotAdd={addDisplaySlot}
+        onDisplaySlotRemove={removeDisplaySlot}
+        onDisplaySlotReorder={reorderDisplayColumns}
       />
 
       <DepartemenIdentifikasiNamaLembarPanel

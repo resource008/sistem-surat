@@ -20,7 +20,7 @@ export async function PATCH(req: NextRequest) {
 
     const body = await req.json().catch(() => null)
     if (!body) {
-      return NextResponse.json({ error: "Body tidak valid" }, { status: 400 })
+      return NextResponse.json({ message: "Body tidak valid" }, { status: 400 })
     }
 
     const parsed = TrackSheetOrderSchema.safeParse(body)
@@ -28,16 +28,15 @@ export async function PATCH(req: NextRequest) {
       return validationResponse(parsed.error.flatten().fieldErrors)
     }
 
-    const data = await updateTrackSheetOrder(parsed.data)
+    await updateTrackSheetOrder(parsed.data)
     return NextResponse.json({
-      message: "Urutan master tabel berhasil diubah",
-      data,
+      message: "Urutan Item Sheet Berhasil dipindahkan",
     })
   } catch (error) {
     if (error instanceof AppError) {
-      return NextResponse.json({ error: error.message }, { status: error.status })
+      return NextResponse.json({ message: error.message }, { status: error.status })
     }
     if (error instanceof Error) console.error("PATCH /api/admin/track-table/order:", error.message)
-    return NextResponse.json({ error: "Gagal mengubah urutan master tabel" }, { status: 500 })
+    return NextResponse.json({ message: "Gagal mengubah urutan master tabel" }, { status: 500 })
   }
 }

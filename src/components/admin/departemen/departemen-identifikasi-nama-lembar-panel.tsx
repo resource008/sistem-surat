@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Printer } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -41,13 +41,20 @@ export function DepartemenIdentifikasiNamaLembarPanel({
   const existingIdentities = Array.from(
     new Set(departments.map((department) => department.printSheetName?.trim()).filter(Boolean))
   ) as string[]
+  const hasExistingIdentities = existingIdentities.length > 0
+
+  useEffect(() => {
+    if (mode !== "existing" || hasExistingIdentities) return
+    onModeChange?.("new")
+    onChange?.("")
+  }, [hasExistingIdentities, mode, onChange, onModeChange])
 
   return (
     <div className={panelClass}>
       <DepartemenSectionToggle
         icon={<Printer size={21} />}
-        title="Identifikasi nama lembar"
-        description="Tentukan nama lembar untuk pengelompokan halaman cetak"
+        title="Nama cetak"
+        description="Tentukan nama lembar pengelompokan saat data surat dicetak atau diekspor"
         open={openPrintIdentity}
         onClick={() => setOpenPrintIdentity((current) => !current)}
       />
@@ -89,21 +96,48 @@ export function DepartemenIdentifikasiNamaLembarPanel({
             ) : (
               <>
                 <DepartemenFormFieldRow label="Jenis nama lembar">
-                  <Select
-                    value={mode}
-                    onValueChange={(value) => {
-                      onModeChange?.(value as DepartemenFormState["printSheetMode"])
-                    }}
+                  <fieldset
+                    className="grid gap-2 sm:grid-cols-2"
                     disabled={disabled}
                   >
-                    <SelectTrigger className={`${fieldClass} w-full`}>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="new">Buat baru</SelectItem>
-                      <SelectItem value="existing">Yang sudah ada</SelectItem>
-                    </SelectContent>
-                  </Select>
+                    <legend className="sr-only">Jenis nama lembar</legend>
+                    {[
+                      { value: "existing", label: "Yang sudah ada", disabled: !hasExistingIdentities },
+                      { value: "new", label: "Buat baru", disabled: false },
+                    ].map((option) => {
+                      const checked = mode === option.value
+                      const optionDisabled = disabled || option.disabled
+
+                      return (
+                        <label
+                          key={option.value}
+                          className={[
+                            "flex h-10 cursor-pointer items-center gap-3 rounded-lg border px-3 text-sm font-medium transition-colors",
+                            checked
+                              ? "border-primary bg-muted/60 text-foreground"
+                              : "border-border/70 bg-background text-muted-foreground hover:bg-muted/30 hover:text-foreground",
+                            optionDisabled ? "cursor-not-allowed opacity-60 hover:bg-background hover:text-muted-foreground" : "",
+                          ].join(" ")}
+                          title={option.disabled ? "Belum ada nama lembar yang bisa dipilih" : undefined}
+                        >
+                          <input
+                            type="radio"
+                            name="print-sheet-mode"
+                            value={option.value}
+                            checked={checked}
+                            disabled={optionDisabled}
+                            onChange={() => {
+                              if (option.disabled) return
+                              onModeChange?.(option.value as DepartemenFormState["printSheetMode"])
+                              onChange?.("")
+                            }}
+                            className="size-4 accent-primary"
+                          />
+                          <span>{option.label}</span>
+                        </label>
+                      )
+                    })}
+                  </fieldset>
                 </DepartemenFormFieldRow>
 
                 <DepartemenFormFieldRow label="Nama lembar">
@@ -111,7 +145,7 @@ export function DepartemenIdentifikasiNamaLembarPanel({
                     <Select
                       value={value}
                       onValueChange={(value) => onChange?.(value)}
-                      disabled={disabled || existingIdentities.length === 0}
+                      disabled={disabled || !hasExistingIdentities}
                     >
                       <SelectTrigger className={`${fieldClass} w-full`}>
                         <SelectValue placeholder="Pilih nama lembar" />

@@ -9,12 +9,8 @@ import {
   TANGGAL_DEFAULT_ID,
 } from "@/constants/departemen-columns"
 import { compareRegisterNomor } from "@/lib/surat-helpers"
-import {
-  formatCustomFieldValue,
-  getCustomFieldValue,
-  getSuratBuiltInFieldValue,
-  isTujuanColumn,
-} from "@/domain/surat/custom-fields"
+import { isTujuanColumn } from "@/domain/surat/custom-fields"
+import { getSuratColumnValue } from "@/lib/surat-display"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { toast } from "sonner"
@@ -22,12 +18,7 @@ import { toast } from "sonner"
 const CETAK_IDS_KEY = "cetak:ids"
 const LIMIT = 20
 const SEARCH_COLUMN_ALL = "all"
-
-const STATIC_SEARCH_COLUMNS = [
-  { id: "nomor_register", label: "Nomor Register" },
-  { id: "asal_surat", label: "Asal Surat" },
-]
-const HIDDEN_SEARCH_COLUMN_OPTIONS = new Set([SEARCH_COLUMN_ALL, "tanggal_terima", "tujuan"])
+const DETAIL_COLUMN_PREFIX = "kolom_"
 
 function isClient() { return typeof window !== "undefined" }
 
@@ -51,6 +42,23 @@ function normalizeSearchText(value: unknown) {
 
 function normalizeColumnLabel(label: string) {
   return normalizeSearchText(label).replace(/[^a-z0-9]+/g, " ").trim()
+}
+
+function getDetailColumnSearchId(label: string) {
+  return `${DETAIL_COLUMN_PREFIX}${normalizeColumnLabel(label).replace(/\s+/g, "_")}`
+}
+
+function getDetailColumnSearchLabel(columnId: string) {
+  if (columnId.startsWith("column:")) return columnId.replace(/^column:/, "")
+  if (columnId.startsWith(DETAIL_COLUMN_PREFIX)) {
+    return columnId.slice(DETAIL_COLUMN_PREFIX.length).replace(/_/g, " ")
+  }
+  return null
+}
+
+function isSelectedDetailColumn(column: { id: string; label: string }, selectedColumn: string) {
+  return getColumnSearchId(column) === selectedColumn
+    || getDetailColumnSearchLabel(selectedColumn) === normalizeColumnLabel(column.label)
 }
 
 function dedupeSearchValues(values: unknown[]) {
@@ -94,35 +102,23 @@ function getCustomFieldSearchValues(detail: DetailSurat, selectedColumn?: string
 
 function getColumnSearchId(column: { id: string; label: string }) {
   const columnId = String(column.id)
+  const normalizedLabel = normalizeColumnLabel(column.label)
   if (columnId.includes(NOMOR_DEFAULT_ID)) return "nomor_register"
-  if (columnId.includes(TANGGAL_DEFAULT_ID)) return "tanggal_terima"
+  if (
+    columnId.includes(TANGGAL_DEFAULT_ID)
+    && (normalizedLabel === "tanggal terima" || normalizedLabel === "tgl terima")
+  ) return "tanggal_terima"
   if (columnId.includes(ASAL_DEFAULT_ID)) return "asal_surat"
   if (isTujuanColumn(column)) return "tujuan"
-  return `column:${normalizeColumnLabel(column.label)}`
+  return getDetailColumnSearchId(normalizedLabel)
 }
 
 function canShowSearchColumnOption(columnId: string) {
-  if (HIDDEN_SEARCH_COLUMN_OPTIONS.has(columnId)) return false
-
-  if (columnId.startsWith("column:")) {
-    const columnLabel = columnId.replace(/^column:/, "")
-    return !["tanggal", "tanggal surat", "tgl surat"].includes(columnLabel)
-  }
-
-  return true
+  return columnId !== SEARCH_COLUMN_ALL
 }
 
 function getColumnValue(column: any, reg: RegisterSurat, detail: DetailSurat) {
-  if (String(column.id).includes(TANGGAL_DEFAULT_ID)) {
-    return formatCustomFieldValue({ ...column, type: "date" }, reg.tanggalTerima)
-  }
-  if (String(column.id).includes(ASAL_DEFAULT_ID)) return reg.asalSurat || "-"
-  if (isTujuanColumn(column)) return detail.tujuan || reg.dept.shortName || "-"
-
-  const builtInValue = getSuratBuiltInFieldValue(column, detail as unknown as Record<string, unknown>)
-  if (builtInValue !== null) return builtInValue
-
-  return formatCustomFieldValue(column, getCustomFieldValue(column, detail.customFields))
+  return getSuratColumnValue(column, reg, detail)
 }
 
 function getStaticColumnValue(columnId: string, reg: RegisterSurat, detail: any) {
@@ -138,9 +134,9 @@ function getStaticColumnValue(columnId: string, reg: RegisterSurat, detail: any)
   return ""
 }
 
-function getSingleSelectedPrintSheetName(data: RegisterSurat[], selectedIds: Set<number>) {
+function getSelectedPrintSheetNames(data: RegisterSurat[], selectedIds: Set<number>) {
   const selectedRows = data.filter((reg) => selectedIds.has(reg.id))
-  if (selectedRows.length !== selectedIds.size) return ""
+  if (selectedRows.length !== selectedIds.size) return []
 
   const sheetNames = new Set(
     selectedRows
@@ -148,24 +144,25 @@ function getSingleSelectedPrintSheetName(data: RegisterSurat[], selectedIds: Set
       .filter(Boolean)
   )
 
-  return sheetNames.size === 1 ? Array.from(sheetNames)[0] : ""
+  return Array.from(sheetNames)
 }
 
 function getDetailColumnTexts(reg: RegisterSurat, detail: DetailSurat, selectedColumn: string) {
-  if (selectedColumn !== SEARCH_COLUMN_ALL && !selectedColumn.startsWith("column:")) {
+  const detailColumnLabel = getDetailColumnSearchLabel(selectedColumn)
+
+  if (selectedColumn !== SEARCH_COLUMN_ALL && !detailColumnLabel) {
     return [getStaticColumnValue(selectedColumn, reg, detail)]
   }
 
   const displayColumns = reg.dept.displayColumns ?? []
   const values: unknown[] = displayColumns
-    .filter((column) => selectedColumn === SEARCH_COLUMN_ALL || getColumnSearchId(column) === selectedColumn)
+    .filter((column) => selectedColumn === SEARCH_COLUMN_ALL || isSelectedDetailColumn(column, selectedColumn))
     .map((column) => getColumnValue(column, reg, detail))
 
-  if (selectedColumn.startsWith("column:")) {
-    const columnLabel = selectedColumn.replace(/^column:/, "")
+  if (detailColumnLabel) {
     values.push(
-      ...getBuiltInDetailSearchValues(columnLabel, detail),
-      ...getCustomFieldSearchValues(detail, columnLabel)
+      ...getBuiltInDetailSearchValues(detailColumnLabel, detail),
+      ...getCustomFieldSearchValues(detail, detailColumnLabel)
     )
   }
 
@@ -228,19 +225,23 @@ export function useDataSurat(printPath: string) {
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
 
   // ✅ Gunakan ref untuk track filter aktif — hindari stale closure di fetchPage
-  const filterRef = useRef({ filterDate, filterDeptsRaw })
+  const filterRef = useRef({ filterDate, filterDeptsRaw, searchQuery, requestedSearchColumn })
   useEffect(() => {
-    filterRef.current = { filterDate, filterDeptsRaw }
-  }, [filterDate, filterDeptsRaw])
+    filterRef.current = { filterDate, filterDeptsRaw, searchQuery, requestedSearchColumn }
+  }, [filterDate, filterDeptsRaw, searchQuery, requestedSearchColumn])
 
   // ✅ fetchPage sekarang kirim filter ke API — bukan filter di client
   const fetchPage = useCallback(async (pageNum: number, replace = false) => {
     try {
-      const { filterDate, filterDeptsRaw } = filterRef.current
+      const { filterDate, filterDeptsRaw, searchQuery, requestedSearchColumn } = filterRef.current
 
       const params = new URLSearchParams()
       if (filterDate)    params.set("date",  filterDate)           // ✅ kirim ke API
       if (filterDeptsRaw) params.set("dept", filterDeptsRaw)      // ✅ kirim ke API
+      if (searchQuery.trim()) params.set("search", searchQuery.trim())
+      if (requestedSearchColumn && requestedSearchColumn !== SEARCH_COLUMN_ALL) {
+        params.set("column", requestedSearchColumn)
+      }
       params.set("page",  String(pageNum))
       params.set("limit", String(LIMIT))
 
@@ -280,7 +281,7 @@ export function useDataSurat(printPath: string) {
 
     window.dispatchEvent(new CustomEvent("breadcrumb:sub",    { detail: null }))
     window.dispatchEvent(new CustomEvent("breadcrumb:subsub", { detail: null }))
-  }, [filterDate, filterDeptsRaw, fetchPage])
+  }, [filterDate, filterDeptsRaw, searchQuery, requestedSearchColumn, fetchPage])
 
   // Load more saat page bertambah (bukan page 1 — sudah ditangani effect atas)
   useEffect(() => {
@@ -293,7 +294,6 @@ export function useDataSurat(printPath: string) {
   //    karena filter sudah dilakukan di server/API)
   const searchColumns = useMemo(() => {
     const options = new Map<string, string>()
-    STATIC_SEARCH_COLUMNS.forEach((column) => options.set(column.id, column.label))
 
     data.forEach((reg) => {
       ;(reg.dept.displayColumns ?? []).forEach((column) => {
@@ -304,39 +304,27 @@ export function useDataSurat(printPath: string) {
       })
     })
 
-    return Array.from(options, ([id, label]) => ({ id, label }))
-  }, [data])
+    const columns = Array.from(options, ([id, label]) => ({ id, label }))
 
-  const searchColumn = useMemo(
-    () => searchColumns.some((column) => column.id === requestedSearchColumn)
-      ? requestedSearchColumn
-      : SEARCH_COLUMN_ALL,
-    [requestedSearchColumn, searchColumns]
-  )
+    data.forEach((reg) => {
+      ;(reg.dept.displayColumns ?? []).forEach((column) => {
+        const columnId = getColumnSearchId(column)
+        const option = columns.find((item) => item.id === columnId)
+        if (option && !("type" in option)) {
+          Object.assign(option, { type: column.type })
+        }
+      })
+    })
+
+    return columns
+  }, [data])
 
   const visibleBeforeSearch = useMemo(
     () => data.filter(hasVisibleDetails),
     [data]
   )
 
-  const visibleData = useMemo(() => {
-    const normalizedQuery = normalizeSearchText(searchQuery)
-    if (!normalizedQuery) return visibleBeforeSearch
-
-    return visibleBeforeSearch
-      .map((reg) => {
-        const registerText = normalizeSearchText(getRegisterSearchText(reg, searchColumn))
-        if (registerText.includes(normalizedQuery)) return reg
-
-        const matchingDetails = (reg.detailSurat ?? [])
-          .filter((detail) => detailMatchesSearch(reg, detail, searchColumn, normalizedQuery))
-
-        return matchingDetails.length > 0
-          ? { ...reg, detailSurat: matchingDetails }
-          : null
-      })
-      .filter((reg): reg is RegisterSurat => reg !== null)
-  }, [searchColumn, searchQuery, visibleBeforeSearch])
+  const visibleData = visibleBeforeSearch
 
   const groupedData = useMemo(() => {
     const grouped = visibleData.reduce((acc: Record<string, RegisterSurat[]>, reg) => {
@@ -375,13 +363,17 @@ export function useDataSurat(printPath: string) {
       const idsString = Array.from(selectedIds).join(",")
       if (!isClient()) return
       try { sessionStorage.setItem(CETAK_IDS_KEY, idsString) } catch {}
-      const printSheetName = getSingleSelectedPrintSheetName(data, selectedIds)
-      if (!printSheetName) {
-        toast.error("Pilih data dari satu nama lembar cetak yang sama")
+      const printSheetNames = getSelectedPrintSheetNames(data, selectedIds)
+      if (printSheetNames.length === 0) {
+        toast.error("Data yang dipilih belum memiliki identitas cetak")
         return
       }
 
-      router.push(`${printPath}/${encodeURIComponent(printSheetName)}`)
+      const targetPath = printSheetNames.length === 1
+        ? `${printPath}/${encodeURIComponent(printSheetNames[0])}`
+        : printPath
+
+      router.push(targetPath)
     },
     loadMore: () => {
       if (!loadingMore && hasMore) setPage(p => p + 1)
@@ -393,7 +385,7 @@ export function useDataSurat(printPath: string) {
       loading, loadingMore, hasMore,
       filterDate, filterDepts,
       searchColumns,
-      hasLoadedData: visibleBeforeSearch.length > 0,
+      hasLoadedData: visibleBeforeSearch.length > 0 || Boolean(filterDate || filterDepts.length > 0 || searchQuery.trim()),
       filteredData: visibleData,   // ✅ tidak perlu filteredData terpisah lagi
       groupedData, sortedGroupKeys, selectedIds,
     },

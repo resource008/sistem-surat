@@ -163,6 +163,7 @@ exports.Prisma.AccountScalarFieldEnum = {
 exports.Prisma.UserPermissionScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
+  canViewDataSurat: 'canViewDataSurat',
   canCreate: 'canCreate',
   canEdit: 'canEdit',
   canDelete: 'canDelete',
@@ -178,6 +179,15 @@ exports.Prisma.DepartmentScalarFieldEnum = {
   isActive: 'isActive'
 };
 
+exports.Prisma.RoleDefinitionScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  value: 'value',
+  isSystem: 'isSystem',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.DepartmentColumnScalarFieldEnum = {
   id: 'id',
   departmentId: 'departmentId',
@@ -189,6 +199,7 @@ exports.Prisma.DepartmentColumnScalarFieldEnum = {
   showInDataSurat: 'showInDataSurat',
   showInPrint: 'showInPrint',
   sortOrder: 'sortOrder',
+  displayOrder: 'displayOrder',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -219,6 +230,7 @@ exports.Prisma.DetailSuratScalarFieldEnum = {
 
 exports.Prisma.NomorCounterScalarFieldEnum = {
   deptId: 'deptId',
+  year: 'year',
   counter: 'counter'
 };
 
@@ -236,7 +248,10 @@ exports.Prisma.TrackCategoryScalarFieldEnum = {
   sheetId: 'sheetId',
   name: 'name',
   color: 'color',
-  fillByHrd: 'fillByHrd',
+  fillRequired: 'fillRequired',
+  addRoleValues: 'addRoleValues',
+  editRoleValues: 'editRoleValues',
+  deleteRoleValues: 'deleteRoleValues',
   sortOrder: 'sortOrder',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -253,7 +268,10 @@ exports.Prisma.TrackFieldScalarFieldEnum = {
   dataType: 'dataType',
   defaultValue: 'defaultValue',
   categoryOptions: 'categoryOptions',
-  fillByHrd: 'fillByHrd',
+  fillRequired: 'fillRequired',
+  addRoleValues: 'addRoleValues',
+  editRoleValues: 'editRoleValues',
+  deleteRoleValues: 'deleteRoleValues',
   sortOrder: 'sortOrder',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -262,6 +280,7 @@ exports.Prisma.TrackFieldScalarFieldEnum = {
 exports.Prisma.TrackRecordScalarFieldEnum = {
   id: 'id',
   sheetId: 'sheetId',
+  sequenceNo: 'sequenceNo',
   values: 'values',
   createdById: 'createdById',
   createdAt: 'createdAt',
@@ -292,11 +311,7 @@ exports.Prisma.JsonNullValueFilter = {
   JsonNull: Prisma.JsonNull,
   AnyNull: Prisma.AnyNull
 };
-exports.Role = exports.$Enums.Role = {
-  ADMIN: 'ADMIN',
-  STAFF: 'STAFF',
-  PKL: 'PKL'
-};
+
 
 exports.Prisma.ModelName = {
   User: 'User',
@@ -304,6 +319,7 @@ exports.Prisma.ModelName = {
   Account: 'Account',
   UserPermission: 'UserPermission',
   Department: 'Department',
+  RoleDefinition: 'RoleDefinition',
   DepartmentColumn: 'DepartmentColumn',
   RegisterSurat: 'RegisterSurat',
   DetailSurat: 'DetailSurat',

@@ -19,6 +19,7 @@ export const EMPTY_USER_FORM: UserAddFormState = {
 }
 
 export const DISABLED_PERMISSIONS: UserPermissions = {
+  canViewDataSurat: false,
   canCreate: false,
   canEdit: false,
   canDelete: false,

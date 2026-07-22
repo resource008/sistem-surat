@@ -14,6 +14,7 @@ type DeptColumnOption = {
   showInDataSurat: boolean
   showInPrint: boolean
   sortOrder: number
+  displayOrder: number
 }
 
 export interface DeptOption {

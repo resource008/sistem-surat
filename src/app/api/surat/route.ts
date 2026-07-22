@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse }  from "next/server"
-import { headers }                    from "next/headers"
-import { auth }                       from "@/infrastructure/auth/better-auth"
 import { fetchAllSurat, saveSurat }   from "@/services/surat-service"
 import { CreateSuratSchema }          from "@/app/validation/surat"
 import { AppError }                   from "@/lib/errors"
@@ -40,8 +38,7 @@ function parsePositiveInt(value: string | null, fallback: number) {
 
 export async function GET(req: NextRequest) {
   try {
-    const session = await auth.api.getSession({ headers: await headers() })
-    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    await requireUserPermission("canViewDataSurat")
 
     const type     = req.nextUrl.searchParams.get("type")
     const idsParam = req.nextUrl.searchParams.get("ids")
@@ -60,8 +57,10 @@ export async function GET(req: NextRequest) {
     const date = req.nextUrl.searchParams.get("date") ?? null
     const dept = req.nextUrl.searchParams.get("dept") ?? null
     const depts = dept ? dept.split(",").filter(Boolean) : null
+    const search = req.nextUrl.searchParams.get("search") ?? null
+    const column = req.nextUrl.searchParams.get("column") ?? null
 
-    const data = await fetchAllSurat(type, ids, pagination, date, depts)
+    const data = await fetchAllSurat(type, ids, pagination, date, depts, search, column)
     return NextResponse.json(data)
 
   } catch (error) {
@@ -78,7 +77,7 @@ export async function POST(req: NextRequest) {
     await requireUserPermission("canCreate")
 
     const body = await req.json().catch(() => null)
-    if (!body) return NextResponse.json({ error: "Body tidak valid" }, { status: 400 })
+    if (!body) return NextResponse.json({ message: "Body tidak valid" }, { status: 400 })
 
     const result = CreateSuratSchema.safeParse(body)
     if (!result.success) {
@@ -86,21 +85,20 @@ export async function POST(req: NextRequest) {
       const firstError  = Object.values(fieldErrors).flat()[0]
                           ?? result.error.flatten().formErrors[0]
                           ?? "Data tidak valid"
-      return NextResponse.json({ error: firstError }, { status: 422 })
+      return NextResponse.json({ message: firstError }, { status: 422 })
     }
 
-    const surat = await saveSurat(result.data)
+    await saveSurat(result.data)
     return NextResponse.json(
       {
         message: "Data surat berhasil ditambahkan",
-        id: surat.id,
       },
       { status: 201 }
     )
 
-  } catch (error) {
+    } catch (error) {
     if (error instanceof AppError) {
-      return NextResponse.json({ error: error.message }, { status: error.status })
+      return NextResponse.json({ message: error.message }, { status: error.status })
     }
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       const prismaErrors: Record<string, { message: string; status: number }> = {
@@ -110,7 +108,7 @@ export async function POST(req: NextRequest) {
       }
       const matched = prismaErrors[error.code]
       if (matched) {
-        return NextResponse.json({ error: matched.message }, { status: matched.status })
+        return NextResponse.json({ message: matched.message }, { status: matched.status })
       }
     }
     if (error instanceof Error) {
@@ -120,15 +118,15 @@ export async function POST(req: NextRequest) {
         error.message.toLowerCase().includes("tidak ditemukan")
       ) {
         return NextResponse.json(
-          { error: "Departemen tidak ditemukan. Hubungi administrator untuk menambahkannya." },
+          { message: "Departemen tidak ditemukan. Hubungi administrator untuk menambahkannya." },
           { status: 404 }
         )
       }
 
       if (process.env.NODE_ENV === "development") {
-        return NextResponse.json({ error: error.message }, { status: 500 })
+        return NextResponse.json({ message: error.message }, { status: 500 })
       }
     }
-    return NextResponse.json({ error: "Gagal menyimpan data" }, { status: 500 })
+    return NextResponse.json({ message: "Gagal menyimpan data" }, { status: 500 })
   }
 }

@@ -33,6 +33,7 @@ export async function ensureDepartmentColumnTable() {
       show_in_data_surat BOOLEAN NOT NULL DEFAULT false,
       show_in_print BOOLEAN NOT NULL DEFAULT true,
       sort_order INTEGER NOT NULL DEFAULT 0,
+      display_order INTEGER NOT NULL DEFAULT 0,
       created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP
     )
@@ -48,6 +49,10 @@ export async function ensureDepartmentColumnTable() {
   await prisma.$executeRawUnsafe(`
     ALTER TABLE department_columns
     ADD COLUMN IF NOT EXISTS default_value TEXT NOT NULL DEFAULT ''
+  `)
+  await prisma.$executeRawUnsafe(`
+    ALTER TABLE department_columns
+    ADD COLUMN IF NOT EXISTS display_order INTEGER NOT NULL DEFAULT 0
   `)
   await prisma.$executeRawUnsafe(`
     CREATE INDEX IF NOT EXISTS department_columns_department_id_idx

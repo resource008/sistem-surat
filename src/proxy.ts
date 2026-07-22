@@ -1,6 +1,7 @@
 import { betterFetch } from "@better-fetch/fetch"
 import { NextRequest, NextResponse } from "next/server"
 import { SESSION_LOGOUT_REDIRECT_COOKIE } from "@/constants/session"
+import { getTrackRouteByRole } from "@/constants/routes"
 import { type ExtendedSession } from "@/types/auth"
 
 // ── Protected paths (Harus Login) ─────────────────────────────────
@@ -8,6 +9,7 @@ const PROTECTED_PATHS = [
   "/staff",
   "/admin",
   "/pkl",
+  "/guest/lacak-surat",
 ]
 
 // ── Admin only paths ──────────────────────────────────────────────
@@ -52,7 +54,7 @@ export default async function middleware(request: NextRequest) {
     const isLogoutRedirect = request.cookies.get(SESSION_LOGOUT_REDIRECT_COOKIE)?.value === "1"
 
     if (!isLogoutRedirect) {
-      loginUrl.searchParams.set("callbackUrl", pathname)
+      loginUrl.searchParams.set("callbackUrl", `${pathname}${request.nextUrl.search}`)
     }
 
     const response = NextResponse.redirect(loginUrl)
@@ -69,6 +71,12 @@ export default async function middleware(request: NextRequest) {
   // Ambil Role User
   const role = session?.user?.role
 
+  if (pathname.startsWith("/guest/lacak-surat")) {
+    return NextResponse.redirect(
+      new URL(`${getTrackRouteByRole(role)}${request.nextUrl.search}`, request.url)
+    )
+  }
+
   // ── 4. Logika RBAC (Role-Based Access Control) ──────────────────
 
   // A. Cek Role ADMIN untuk Admin Paths & /admin
@@ -76,8 +84,8 @@ export default async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/forbidden", request.url))
   }
 
-  // B. Cek Role STAFF (Hanya Staff dan Admin yang boleh ke /staff)
-  if (pathname.startsWith("/staff") && role !== "STAFF" && role !== "ADMIN") {
+  // B. Jalur /staff dipakai sebagai dashboard default untuk semua role non-admin custom
+  if (pathname.startsWith("/staff") && role === "PKL") {
     return NextResponse.redirect(new URL("/forbidden", request.url))
   }
 

@@ -20,10 +20,10 @@ export function usePanel() {
 
   // Deteksi mobile + handle resize
   useEffect(() => {
-    let prevMobile = window.innerWidth < 768
+    let prevMobile = window.innerWidth < 1024
 
     const check = () => {
-      const nowMobile = window.innerWidth < 768
+      const nowMobile = window.innerWidth < 1024
       setIsMobile(nowMobile)
       if (nowMobile === prevMobile) return
       prevMobile = nowMobile

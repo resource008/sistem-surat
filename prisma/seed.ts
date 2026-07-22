@@ -5,7 +5,7 @@ import { PrismaPg } from "@prisma/adapter-pg"
 import 'dotenv/config'
 import { randomUUID } from "node:crypto"
 import { Pool } from "pg"
-import { PrismaClient, Role } from "../src/generated/prisma"
+import { PrismaClient } from "../src/generated/prisma"
 
 const pool    = new Pool({ connectionString: process.env.DATABASE_URL! })
 const adapter = new PrismaPg(pool as any)
@@ -23,9 +23,25 @@ async function hashPassword(password: string): Promise<string> {
 async function main() {
   console.log("🌱 Memulai seeding...")
 
+  await prisma.roleDefinition.upsert({
+    where: { value: "ADMIN" },
+    update: { name: "Admin", isSystem: true },
+    create: { id: "role_admin", name: "Admin", value: "ADMIN", isSystem: true },
+  })
+  await prisma.roleDefinition.upsert({
+    where: { value: "STAFF" },
+    update: { name: "Staff", isSystem: false },
+    create: { id: "role_staff", name: "Staff", value: "STAFF", isSystem: false },
+  })
+  await prisma.roleDefinition.upsert({
+    where: { value: "PKL" },
+    update: { name: "PKL", isSystem: false },
+    create: { id: "role_pkl", name: "PKL", value: "PKL", isSystem: false },
+  })
+
   console.log("👥 Membuat data users...")
   const users = [
-    { name: "Admin",      email: "admin@admin.com", username: "admin",  password: "admin123", role: Role.ADMIN },
+    { name: "Admin",      email: "admin@admin.com", username: "admin",  password: "admin123", role: "ADMIN" },
   ]
   for (const u of users) {
     const existing = await prisma.user.findUnique({ where: { email: u.email } })

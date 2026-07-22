@@ -6,7 +6,6 @@ import TopbarFilter from "@/components/filters/index"
 import type { Filters } from "@/hooks/use-filter"
 import { PermissionDenied } from "@/components/shared/permission"
 import { RoleSidebar } from "@/components/role-dashboard/role-sidebar"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import {
   TopbarDataSuratSearch,
   type DataSuratSearchColumn,
@@ -14,7 +13,7 @@ import {
 import type { DashboardRole, UserPermissions } from "@/domain/user/types"
 import { usePresenceHeartbeat } from "@/hooks/use-presence-heartbeat"
 import { useSession } from "@/infrastructure/auth/auth-client"
-import type { Role, TrackTableResponse } from "@/types"
+import type { Role } from "@/types"
 import {
   ChevronRight, Menu, Plus, Printer, X,
 } from "lucide-react"
@@ -52,25 +51,20 @@ const fetchDepartments = async (url: string): Promise<DepartmentOption[]> => {
   return Array.isArray(json) ? json : []
 }
 
-const fetchTrackTables = async (url: string): Promise<TrackTableResponse> => {
-  const res = await fetch(url)
-  const json = await res.json().catch(() => null)
-  if (!res.ok) throw new Error(json?.error ?? "Gagal mengambil sheet lacak")
-  return json
-}
-
 const FEATURE_LABEL: Record<string, string> = {
+  canViewDataSurat: "Data Surat",
   canPrint: "Cetak Surat",
   canCreate: "Tambah Data Surat",
   canEdit: "Edit Data Surat",
   canDelete: "Hapus Data Surat",
-  canTrack: "Lacak Surat",
+  canTrack: "Track Surat",
 }
 
 function getRequiredPermission(
   pathname: string,
   base: string
 ): PermissionKey | null {
+  if (pathname.startsWith(`${base}/data-surat`)) return "canViewDataSurat"
   if (pathname.startsWith(`${base}/cetak`)) return "canPrint"
   if (pathname.startsWith(`${base}/add`)) return "canCreate"
   if (pathname.includes(`${base}/`) && pathname.includes("/edit/")) return "canEdit"
@@ -119,6 +113,8 @@ function RoleLayoutInner({ role, children }: Props) {
   const [selectedDataSuratCount, setSelectedDataSuratCount] = useState(0)
   const [dataSuratSearchColumns, setDataSuratSearchColumns] = useState<DataSuratSearchColumn[]>([])
   const [dataSuratSearchExpanded, setDataSuratSearchExpanded] = useState(false)
+  const [trackSearchColumns, setTrackSearchColumns] = useState<DataSuratSearchColumn[]>([])
+  const [trackSearchExpanded, setTrackSearchExpanded] = useState(false)
 
   const isDataSuratPage = pathname === `${base}/data-surat`
   const isDataSuratSubPage =
@@ -133,10 +129,14 @@ function RoleLayoutInner({ role, children }: Props) {
     filters.departments.length > 0 ||
     Boolean(
       activeSearchColumn &&
-      activeSearchColumn !== "all" &&
-      activeSearchColumn !== "tanggal_terima" &&
-      activeSearchColumn !== "tujuan"
+      activeSearchColumn !== "all"
     )
+  const hasActiveDataSuratSearchFilter = isDataSuratPage && hasActiveFilters
+  const hasActiveTrackSearchFilter = isTrackPage && Boolean(
+    activeSearchColumn &&
+    activeSearchColumn !== "all" &&
+    trackSearchColumns.some((column) => column.id === activeSearchColumn)
+  )
   const {
     data: departments,
     isLoading: departmentsLoading,
@@ -150,21 +150,9 @@ function RoleLayoutInner({ role, children }: Props) {
   )
   const hasNoDepartments =
     isDataSuratPage && !departmentsLoading && !departmentsError && (departments?.length ?? 0) === 0
-  const { data: trackTableData, isLoading: trackSheetsLoading } = useSWR<TrackTableResponse>(
-    isTrackPage ? "/api/track-sheets" : null,
-    fetchTrackTables,
-    {
-      revalidateOnFocus: true,
-    }
-  )
-  const trackSheets = (trackTableData?.sheets ?? []).filter((sheet) => !sheet.hiddenAt)
-  const selectedTrackSheetId = searchParams.get("sheet") ?? ""
-  const firstTrackSheetId = trackSheets[0]?.id ?? ""
-  const effectiveSelectedTrackSheetId = selectedTrackSheetId || firstTrackSheetId
-
   useEffect(() => {
     const saved = localStorage.getItem("sidebar_collapsed")
-    if (saved !== null && window.innerWidth >= 768) setCollapsed(JSON.parse(saved))
+    if (saved !== null && window.innerWidth >= 1024) setCollapsed(JSON.parse(saved))
     try {
       const savedFilters = localStorage.getItem("topbar_filters")
       const parsed = savedFilters ? JSON.parse(savedFilters) : {}
@@ -184,7 +172,7 @@ function RoleLayoutInner({ role, children }: Props) {
 
   useEffect(() => {
     const check = () => {
-      const mobile = window.innerWidth < 768
+      const mobile = window.innerWidth < 1024
       setIsMobile(mobile)
       if (mobile) {
         setCollapsed(false)
@@ -251,6 +239,13 @@ function RoleLayoutInner({ role, children }: Props) {
   }, [isDataSuratPage])
 
   useEffect(() => {
+    if (!isTrackPage) {
+      setTrackSearchColumns([])
+      setTrackSearchExpanded(false)
+    }
+  }, [isTrackPage])
+
+  useEffect(() => {
     const handler = (event: Event) => {
       const columns = (event as CustomEvent<{ columns: DataSuratSearchColumn[] }>).detail.columns
       setDataSuratSearchColumns(Array.isArray(columns) ? columns : [])
@@ -264,36 +259,29 @@ function RoleLayoutInner({ role, children }: Props) {
   }, [isDataSuratPage])
 
   useEffect(() => {
-    if (!isTrackPage || trackSheetsLoading || trackSheets.length === 0) return
-
-    const selectedExists = trackSheets.some((sheet) => sheet.id === selectedTrackSheetId)
-    if (selectedTrackSheetId && selectedExists) return
-
-    const params = new URLSearchParams(searchParams.toString())
-    params.set("sheet", trackSheets[0].id)
-    router.replace(`${base}/track?${params.toString()}`)
-  }, [base, isTrackPage, router, searchParams, selectedTrackSheetId, trackSheets, trackSheetsLoading])
+    const handler = (event: Event) => {
+      const columns = (event as CustomEvent<{ columns: DataSuratSearchColumn[] }>).detail.columns
+      setTrackSearchColumns(Array.isArray(columns) ? columns : [])
+    }
+    window.addEventListener("track-surat:search-columns", handler)
+    return () => window.removeEventListener("track-surat:search-columns", handler)
+  }, [])
 
   function handleClearFilters() {
     const next: Filters = { date: null, departments: [] }
     setFilters(next)
+    setDataSuratSearchExpanded(false)
     localStorage.removeItem("topbar_filters")
-    const params = new URLSearchParams(searchParams.toString())
-    params.delete("date")
-    params.delete("dept")
-    params.delete("column")
-    const query = params.toString()
-    router.push(query ? `${base}/data-surat?${query}` : `${base}/data-surat`)
+    router.replace(`${base}/data-surat`, { scroll: false })
+  }
+
+  function handleClearTrackFilters() {
+    setTrackSearchExpanded(false)
+    router.replace(`${base}/track`, { scroll: false })
   }
 
   function handleClearCetak() {
     window.dispatchEvent(new CustomEvent("cetak:clear"))
-  }
-
-  function handleTrackSheetChange(sheetId: string) {
-    const params = new URLSearchParams(searchParams.toString())
-    params.set("sheet", sheetId)
-    router.push(`${base}/track?${params.toString()}`)
   }
 
   function handleBreadcrumbParentClick() {
@@ -366,7 +354,7 @@ function RoleLayoutInner({ role, children }: Props) {
               isTrackPage ? styles.topbarLeftTrack : "",
             ].join(" ")}
           >
-            {isMobile && (!isDataSuratPage || !dataSuratSearchExpanded) && (
+            {isMobile && (
               <button
                 className={styles.hamburger}
                 onClick={() => setMobileOpen(true)}
@@ -376,7 +364,6 @@ function RoleLayoutInner({ role, children }: Props) {
               </button>
             )}
 
-            {!(isMobile && isDataSuratPage && dataSuratSearchExpanded) && (
             <nav className={styles.breadcrumb} aria-label="breadcrumb">
               {effectiveSubtitle && effectiveSubsubtitle ? (
                 <>
@@ -411,7 +398,6 @@ function RoleLayoutInner({ role, children }: Props) {
                 <span className={styles.topbarTitle}>{currentPage}</span>
               )}
             </nav>
-            )}
           </div>
 
           {isDataSuratPage && (
@@ -420,42 +406,81 @@ function RoleLayoutInner({ role, children }: Props) {
                 dataSuratSearchExpanded ? styles.topbarCenterExpanded : ""
               }`}
             >
-              <TopbarDataSuratSearch
-                disabled={hasNoDepartments}
-                requireSearchColumn
-                searchColumns={dataSuratSearchColumns}
-                onMobileExpandedChange={setDataSuratSearchExpanded}
-              />
+              <div className="flex min-w-0 items-center gap-2">
+                <TopbarDataSuratSearch
+                  disabled={hasNoDepartments}
+                  includeDefaultSearchColumns={false}
+                  searchColumns={dataSuratSearchColumns}
+                  rightSlot={
+                    <div className="flex items-center gap-2">
+                      <TopbarFilter
+                        initialFilters={filters}
+                        mode="surat"
+                        searchColumns={dataSuratSearchColumns}
+                        showSearchColumnFilter
+                        includeDefaultSearchColumns={false}
+                        presentation="panel"
+                        disabled={hasNoDepartments}
+                        onFilterChange={(nextFilters) => {
+                          setFilters(nextFilters)
+                          localStorage.setItem("topbar_filters", JSON.stringify(nextFilters))
+                        }}
+                      />
+                      {hasActiveDataSuratSearchFilter ? (
+                        <button
+                          type="button"
+                          onClick={handleClearFilters}
+                          aria-label="Reset filter"
+                          title="Reset filter"
+                          className="flex size-9 items-center justify-center rounded-lg border border-border/70 bg-background text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                        >
+                          <X className="size-4" />
+                        </button>
+                      ) : null}
+                    </div>
+                  }
+                  onMobileExpandedChange={setDataSuratSearchExpanded}
+                />
+              </div>
             </div>
           )}
 
-          {isDataSuratPage && (
-            <div className={styles.topbarRight}>
-              <TopbarFilter
-                initialFilters={filters}
-                mode="surat"
-                searchColumns={dataSuratSearchColumns}
-                showSearchColumnFilter
-                onFilterChange={(nextFilters) => {
-                  setFilters(nextFilters)
-                  localStorage.setItem("topbar_filters", JSON.stringify(nextFilters))
-                }}
+          {isTrackPage && !isDenied && (
+            <div
+              className={`${styles.topbarCenter} ${
+                trackSearchExpanded ? styles.topbarCenterExpanded : ""
+              }`}
+            >
+              <TopbarDataSuratSearch
+                includeDefaultSearchColumns={false}
+                searchColumns={trackSearchColumns}
+                rightSlot={
+                  <div className="flex items-center gap-2">
+                    <TopbarFilter
+                      mode="surat"
+                      searchColumns={trackSearchColumns}
+                      showSearchColumnFilter
+                      includeDefaultSearchColumns={false}
+                      hideDate
+                      hideDepartments
+                      presentation="panel"
+                      disabled={trackSearchColumns.length === 0}
+                    />
+                    {hasActiveTrackSearchFilter ? (
+                      <button
+                        type="button"
+                        onClick={handleClearTrackFilters}
+                        aria-label="Reset filter"
+                        title="Reset filter"
+                        className="flex size-9 items-center justify-center rounded-lg border border-border/70 bg-background text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                      >
+                        <X className="size-4" />
+                      </button>
+                    ) : null}
+                  </div>
+                }
+                onMobileExpandedChange={setTrackSearchExpanded}
               />
-
-              {hasActiveFilters && (
-                <button
-                  onClick={handleClearFilters}
-                  title="Bersihkan filter"
-                  className="flex items-center justify-center w-9 h-9 rounded-lg
-                    border border-red-200 dark:border-red-800
-                    bg-red-50 dark:bg-red-900/20
-                    text-red-500 dark:text-red-400
-                    hover:bg-red-100 dark:hover:bg-red-900/40
-                    transition-colors shrink-0"
-                >
-                  <X size={15} />
-                </button>
-              )}
             </div>
           )}
 
@@ -502,26 +527,6 @@ function RoleLayoutInner({ role, children }: Props) {
             </div>
           )}
 
-          {isTrackPage && !isDenied && (
-            <div className={`${styles.topbarRight} ${styles.topbarRightTrack}`}>
-              <Select
-                value={effectiveSelectedTrackSheetId}
-                onValueChange={handleTrackSheetChange}
-                disabled={trackSheetsLoading || trackSheets.length === 0}
-              >
-                <SelectTrigger className="h-9 w-[clamp(132px,42vw,180px)] text-[13px] sm:w-[220px]">
-                  <SelectValue placeholder="Pilih Sheet" />
-                </SelectTrigger>
-                <SelectContent>
-                  {trackSheets.map((sheet) => (
-                    <SelectItem key={sheet.id} value={sheet.id}>
-                      {sheet.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
         </div>
 
         <div className={styles.content}>
@@ -539,7 +544,7 @@ function RoleLayoutInner({ role, children }: Props) {
               router.push(`${base}/add`)
             }}
             title="Tambah Surat"
-            className="fixed bottom-6 right-6 z-30
+            className="fixed bottom-5 right-5 z-30 sm:bottom-6 sm:right-6
               flex items-center justify-center
               w-14 h-14 rounded-full
               bg-blue-600 hover:bg-blue-700 active:bg-blue-800

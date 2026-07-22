@@ -1,8 +1,18 @@
 import { FloatingActionBarShell } from "@/components/shared/floating-action-bar"
 import { Button } from "@/components/ui/button"
+import { ADD_RIGHT_SURAT_GROUP_EVENT, getCustomSuratColumns } from "../custom-fields"
 import { Loader2, Plus, Save, X } from "lucide-react"
 
 export function FloatingActionBar({ state, actions }: any) {
+  const rightColumns = getCustomSuratColumns(state.selectedCustomColumns, true)
+    .filter((_: unknown, index: number) => index % 2 === 1)
+  const canAddRightData = rightColumns.length > 0
+
+  const handleAddData = () => {
+    if (!canAddRightData) return
+    window.dispatchEvent(new Event(ADD_RIGHT_SURAT_GROUP_EVENT))
+  }
+
   return (
     <FloatingActionBarShell contentClassName="border-slate-200 bg-white shadow-none backdrop-blur-none dark:border-neutral-700 dark:bg-neutral-950">
       <Button
@@ -15,7 +25,9 @@ export function FloatingActionBar({ state, actions }: any) {
       <Button
         variant="action-secondary"
         size="fab-action"
-        onClick={actions.addSurat}
+        disabled={!canAddRightData}
+        onClick={handleAddData}
+        title={canAddRightData ? "Tambah data tambahan" : "Tidak ada kolom tambahan di sisi kanan"}
       >
         <Plus size={14} strokeWidth={2.5} /> Tambah
       </Button>

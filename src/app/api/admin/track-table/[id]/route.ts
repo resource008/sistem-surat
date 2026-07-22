@@ -40,7 +40,7 @@ async function visibilityResponse(action: VisibilityAction, id: string) {
 
 async function updateTrackSheetResponse(body: unknown, id: string) {
   if (!body) {
-    return NextResponse.json({ error: "Body tidak valid" }, { status: 400 })
+    return NextResponse.json({ message: "Body tidak valid" }, { status: 400 })
   }
 
   const parsed = TrackSheetSchema.safeParse(body)
@@ -48,10 +48,9 @@ async function updateTrackSheetResponse(body: unknown, id: string) {
     return validationResponse(parsed.error.flatten().fieldErrors)
   }
 
-  const sheet = await updateTrackSheet(decodeURIComponent(id), parsed.data)
+  await updateTrackSheet(decodeURIComponent(id), parsed.data)
   return NextResponse.json({
     message: "Data sheet lacak berhasil diperbarui",
-    id: sheet.id,
   })
 }
 
@@ -79,7 +78,7 @@ export async function PATCH(req: NextRequest, { params }: RouteContext) {
 
     if (queryAction) {
       return NextResponse.json(
-        { error: "Action visibility harus dikirim melalui body request" },
+        { message: "Action visibility harus dikirim melalui body request" },
         { status: 400 }
       )
     }
@@ -94,10 +93,10 @@ export async function PATCH(req: NextRequest, { params }: RouteContext) {
     return await updateTrackSheetResponse(body, id)
   } catch (error) {
     if (error instanceof AppError) {
-      return NextResponse.json({ error: error.message }, { status: error.status })
+      return NextResponse.json({ message: error.message }, { status: error.status })
     }
     if (error instanceof Error) console.error("PATCH /api/admin/track-table/[id]:", error.message)
-    return NextResponse.json({ error: "Gagal mengubah sheet lacak" }, { status: 500 })
+    return NextResponse.json({ message: "Gagal mengubah sheet lacak" }, { status: 500 })
   }
 }
 
@@ -110,10 +109,10 @@ export async function PUT(req: NextRequest, { params }: RouteContext) {
     return await updateTrackSheetResponse(body, id)
   } catch (error) {
     if (error instanceof AppError) {
-      return NextResponse.json({ error: error.message }, { status: error.status })
+      return NextResponse.json({ message: error.message }, { status: error.status })
     }
     if (error instanceof Error) console.error("PUT /api/admin/track-table/[id]:", error.message)
-    return NextResponse.json({ error: "Gagal mengubah sheet lacak" }, { status: 500 })
+    return NextResponse.json({ message: "Gagal mengubah sheet lacak" }, { status: 500 })
   }
 }
 
@@ -125,7 +124,7 @@ export async function DELETE(req: NextRequest, { params }: RouteContext) {
 
     if (action) {
       return NextResponse.json(
-        { error: "Endpoint hapus sheet lacak tidak menerima action visibility" },
+        { message: "Endpoint hapus sheet lacak tidak menerima action visibility" },
         { status: 400 }
       )
     }
@@ -136,9 +135,9 @@ export async function DELETE(req: NextRequest, { params }: RouteContext) {
     })
   } catch (error) {
     if (error instanceof AppError) {
-      return NextResponse.json({ error: error.message }, { status: error.status })
+      return NextResponse.json({ message: error.message }, { status: error.status })
     }
     if (error instanceof Error) console.error("DELETE /api/admin/track-table/[id]:", error.message)
-    return NextResponse.json({ error: "Gagal memproses sheet lacak" }, { status: 500 })
+    return NextResponse.json({ message: "Gagal memproses sheet lacak" }, { status: 500 })
   }
 }

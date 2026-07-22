@@ -1,7 +1,7 @@
 import { createRandomId } from "@/lib/random-id"
 import type { DepartemenColumn } from "./departemen"
 
-export type Role = "ADMIN" | "STAFF" | "PKL"
+export type Role = string
 
 export interface DetailSurat {
   id: number

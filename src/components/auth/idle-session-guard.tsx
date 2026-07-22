@@ -111,14 +111,6 @@ export function IdleSessionGuard() {
       }
     }
 
-    function hasActiveBrowserSession() {
-      try {
-        return window.sessionStorage.getItem(SESSION_BROWSER_ACTIVE_KEY) === "1"
-      } catch {
-        return false
-      }
-    }
-
     function scheduleCheck() {
       if (expiringRef.current) return
 
@@ -151,13 +143,6 @@ export function IdleSessionGuard() {
     function handleVisibilityChange() {
       if (document.hidden) return
       recordActivity()
-    }
-
-    if (!hasActiveBrowserSession()) {
-      void expireSession("browser")
-      return () => {
-        clearScheduledCheck()
-      }
     }
 
     if (!getStoredTimestamp(SESSION_LAST_ACTIVITY_KEY)) {

@@ -8,11 +8,11 @@ type UserStatusBadgeProps = {
 
 export function UserStatusBadge({ status, className }: UserStatusBadgeProps) {
   const normalized = status?.trim().toLowerCase()
-  const active = normalized === "sedang aktif"
+  const active = normalized === "online" || normalized === "sedang aktif"
   const label = active
-    ? "Sedang Aktif"
-    : normalized === "tidak aktif" || !status
-      ? "Tidak Aktif"
+    ? "Online"
+    : normalized === "offline" || normalized === "tidak aktif" || !status
+      ? "Offline"
       : status
 
   return (

@@ -47,8 +47,8 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: firstError }, { status: 422 })
     }
 
-    const user = await userService.update(userId, parsed.data, userId)
-    return NextResponse.json(user)
+    await userService.update(userId, parsed.data, userId)
+    return NextResponse.json({ message: "Akun berhasil disimpan" })
   } catch (error) {
     if (error instanceof AppError) {
       return NextResponse.json({ error: error.message }, { status: error.status })

@@ -52,7 +52,7 @@ export function RoleSidebar({
   const isAccountActive = pathname.startsWith(`${base}/akun`)
 
   const navItems = [
-    { label: "Data Surat", icon: FileText, href: `${base}/data-surat`, permission: null },
+    { label: "Data Surat", icon: FileText, href: `${base}/data-surat`, permission: "canViewDataSurat" },
     { label: "Cetak", icon: Printer, href: `${base}/cetak`, permission: "canPrint" },
     { label: "Track Surat", icon: RefreshCcw, href: `${base}/track`, permission: "canTrack" },
   ]

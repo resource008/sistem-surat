@@ -10,6 +10,7 @@ export function LoginForm() {
     password,
     loading,
     showPassword,
+    errors,
     setUsername,
     setPassword,
     setShowPassword,
@@ -23,15 +24,20 @@ export function LoginForm() {
         <div className={styles.inputWrapper}>
           <User className={styles.inputIcon} size={16} />
           <input
-            className={styles.fieldInput}
+            className={`${styles.fieldInput} ${errors.username ? styles.fieldInputError : ""}`}
             type="text"
             placeholder="Masukkan username"
             value={username}
             onChange={(event) => setUsername(event.target.value)}
             required
             autoComplete="username"
+            aria-invalid={Boolean(errors.username)}
+            aria-describedby={errors.username ? "login-username-error" : undefined}
           />
         </div>
+        {errors.username && !errors.form ? (
+          <p id="login-username-error" className={styles.fieldError}>{errors.username}</p>
+        ) : null}
       </div>
 
       <div className={styles.field}>
@@ -39,13 +45,15 @@ export function LoginForm() {
         <div className={styles.inputWrapper}>
           <Lock className={styles.inputIcon} size={16} />
           <input
-            className={styles.fieldInput}
+            className={`${styles.fieldInput} ${errors.password ? styles.fieldInputError : ""}`}
             type={showPassword ? "text" : "password"}
             placeholder="Masukkan password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             required
             autoComplete="current-password"
+            aria-invalid={Boolean(errors.password)}
+            aria-describedby={errors.password ? "login-password-error" : undefined}
           />
           <button
             type="button"
@@ -57,7 +65,14 @@ export function LoginForm() {
             {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
           </button>
         </div>
+        {errors.password && !errors.form ? (
+          <p id="login-password-error" className={styles.fieldError}>{errors.password}</p>
+        ) : null}
       </div>
+
+      {errors.form ? (
+        <p className={styles.formError}>{errors.form}</p>
+      ) : null}
 
       <button type="submit" disabled={loading} className={styles.submitBtn}>
         {loading ? <Loader2 size={16} className={styles.spinner} /> : "Masuk"}

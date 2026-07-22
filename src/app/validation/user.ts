@@ -2,11 +2,14 @@ import { z } from "zod"
 
 // Shared 
 
-const RoleEnum = z.enum(["ADMIN", "STAFF", "PKL"] as const, {
-  error: "Role harus ADMIN, STAFF, atau PKL",
-})
+const RoleSchema = z
+  .string({ error: "Role wajib diisi" })
+  .min(2, "Role minimal 2 karakter")
+  .max(40, "Role maksimal 40 karakter")
+  .regex(/^[A-Z0-9_]+$/, "Role hanya boleh huruf kapital, angka, dan underscore")
 
 const PermissionSchema = z.object({
+  canViewDataSurat: z.boolean().optional(),
   canCreate: z.boolean().optional(),
   canEdit:   z.boolean().optional(),
   canDelete: z.boolean().optional(),
@@ -41,7 +44,7 @@ export const CreateUserSchema = z.object({
     .min(8,  "Password minimal 8 karakter")
     .max(72, "Password maksimal 72 karakter"),
 
-  role: RoleEnum,
+  role: RoleSchema,
   permissions: PermissionSchema.optional(),
 })
 
@@ -79,7 +82,7 @@ export const UpdateUserSchema = z
       .max(72, "Password maksimal 72 karakter")
       .optional(),
 
-    role:        RoleEnum.optional(),
+    role:        RoleSchema.optional(),
     permissions: PermissionSchema.optional(),
   })
   .refine(
@@ -149,7 +152,7 @@ export const GetUsersQuerySchema = z.object({
     .trim()
     .optional(),
 
-  role: RoleEnum.optional(),
+  role: RoleSchema.optional(),
 })
 
 export type GetUsersQuery = z.infer<typeof GetUsersQuerySchema>

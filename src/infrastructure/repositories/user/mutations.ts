@@ -6,9 +6,18 @@ import type {
 } from "@/domain/user/types"
 import { prisma } from "@/infrastructure/databases/prisma-client"
 import { getDefaultPermission } from "@/lib/permission"
-import type { Role } from "@/types"
 import { mapUser, userSelect } from "./mapper"
 import { hashPassword } from "./password"
+
+async function saveDataSuratPermission(userId: string, value?: boolean) {
+  if (value === undefined) return
+
+  await prisma.$executeRaw`
+    UPDATE user_permissions
+    SET can_view_data_surat = ${value}
+    WHERE "userId" = ${userId}
+  `
+}
 
 export async function createUser(input: CreateUserInput): Promise<User> {
   const hashedPassword = await hashPassword(input.password)
@@ -16,6 +25,7 @@ export async function createUser(input: CreateUserInput): Promise<User> {
     ...getDefaultPermission(input.role),
     ...input.permissions,
   }
+  const { canViewDataSurat, ...prismaPermissions } = permissions
 
   const user = await prisma.user.create({
     data: {
@@ -25,7 +35,7 @@ export async function createUser(input: CreateUserInput): Promise<User> {
       username:      input.username,
       role:          input.role,
       permissions: {
-        create: permissions,
+        create: prismaPermissions,
       },
       accounts: {
         create: {
@@ -39,7 +49,13 @@ export async function createUser(input: CreateUserInput): Promise<User> {
     select: userSelect(),
   })
 
-  return mapUser(user)
+  await saveDataSuratPermission(user.id, canViewDataSurat)
+  return mapUser({
+    ...user,
+    permissions: user.permissions
+      ? { ...user.permissions, canViewDataSurat }
+      : user.permissions,
+  })
 }
 
 export async function updateUser(id: string, input: UpdateUserInput): Promise<User> {
@@ -51,7 +67,7 @@ export async function updateUser(id: string, input: UpdateUserInput): Promise<Us
   const currentUser = permissions
     ? await prisma.user.findUnique({ where: { id }, select: { role: true } })
     : null
-  const permissionBaseRole = (fields.role ?? currentUser?.role ?? "STAFF") as Role
+  const permissionBaseRole = fields.role ?? currentUser?.role ?? "STAFF"
   const permissionCreateData = permissions
     ? { ...getDefaultPermission(permissionBaseRole), ...permissions }
     : null
@@ -92,7 +108,13 @@ export async function updateUser(id: string, input: UpdateUserInput): Promise<Us
     })
   }
 
-  return mapUser(user)
+  await saveDataSuratPermission(id, permissions?.canViewDataSurat)
+  return mapUser({
+    ...user,
+    permissions: user.permissions && permissions
+      ? { ...user.permissions, canViewDataSurat: permissions.canViewDataSurat }
+      : user.permissions,
+  })
 }
 
 export async function deleteUser(id: string): Promise<void> {

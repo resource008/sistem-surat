@@ -13,8 +13,8 @@ import {
 
 import { RegisterSurat, Role } from "@/components/surat/shared"
 import { LoadingSkeleton }     from "@/components/shared/loading-skeleton"
+import { getSuratDisplayParts, getSuratDisplayTitle } from "@/lib/surat-display"
 
-import { RegisterInfoPanel } from "./register-info-panel"
 import { SuratListPanel }    from "./surat-list-panel"
 import { ViewActionBar }     from "./action-bar"
 
@@ -59,7 +59,7 @@ export default function ViewSuratPage({ role, basePath }: Props) {
       .then(data => {
         setRegister(data)
         window.dispatchEvent(new CustomEvent("breadcrumb:sub", {
-          detail: `${data.dept.shortName} / ${data.nomor}`,
+          detail: "Detail Surat",
         }))
         window.dispatchEvent(new CustomEvent("breadcrumb:subsub", { detail: null }))
       })
@@ -85,8 +85,9 @@ export default function ViewSuratPage({ role, basePath }: Props) {
         throw new Error("FORBIDDEN")
       }
       if (!res.ok) throw new Error(json?.message)
+      const displayTitle = getSuratDisplayTitle(register)
       toast.success(json?.message ?? "Data surat berhasil dihapus", {
-        description: `Data ${register?.nomor} telah dihapus permanen.`,
+        description: `${displayTitle} telah dihapus permanen.`,
       })
       router.push(basePath)
     } catch (error) {
@@ -131,6 +132,10 @@ export default function ViewSuratPage({ role, basePath }: Props) {
     </div>
   )
 
+  const displayTitle = getSuratDisplayTitle(register)
+  const displayParts = getSuratDisplayParts(register, 3)
+  const departmentPathSegment = encodeURIComponent(register.dept?.shortName || dept)
+
   /* Render -------------------------------------------------------- */
   return (
     <>
@@ -142,15 +147,25 @@ export default function ViewSuratPage({ role, basePath }: Props) {
           <AlertDialogHeader>
             <AlertDialogTitle className="text-slate-900 dark:text-slate-100
                                          text-[15px] font-semibold">
-              Hapus Register Surat?
+              Hapus Data Surat?
             </AlertDialogTitle>
             <AlertDialogDescription className="text-slate-500 dark:text-slate-400
                                                 text-[13px] leading-relaxed">
-              Seluruh data dalam register&nbsp;
+              Seluruh data surat&nbsp;
               <span className="font-semibold text-slate-800 dark:text-slate-200">
-                {register.nomor}
+                {displayTitle}
               </span>
               &nbsp;akan terhapus <strong>permanen</strong> dan tidak dapat dipulihkan.
+              {displayParts.length > 0 ? (
+                <span className="mt-3 block space-y-1">
+                  {displayParts.map((part, index) => (
+                    <span key={`${part.label}-${index}`} className="block">
+                      <span className="text-slate-400 dark:text-slate-500">{part.label}: </span>
+                      <span className="font-medium text-slate-700 dark:text-slate-300">{part.value}</span>
+                    </span>
+                  ))}
+                </span>
+              ) : null}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -178,25 +193,15 @@ export default function ViewSuratPage({ role, basePath }: Props) {
         canEdit={canEdit}
         canDelete={canDelete}
         onBack={()          => router.push(basePath)}
-        onEdit={()          => router.push(`${basePath}/edit/${dept}/${id}`)}
+        onEdit={()          => router.push(`${basePath}/edit/${departmentPathSegment}/${id}`)}
         onDeleteRequest={() => setShowDeleteConf(true)}
       />
 
       {/* Layout Utama */}
-      <div className="w-full flex flex-col lg:flex-row gap-6
-                      lg:h-[calc(100vh-120px)] lg:overflow-hidden
-                      pb-28 lg:pb-0 pt-2">
-
-        <RegisterInfoPanel register={register} />
-
-        <div className="w-full lg:w-8/12 xl:w-8/12 flex flex-col gap-4
-                        lg:overflow-y-auto pb-10 lg:pb-32 lg:pr-2
-                        [&::-webkit-scrollbar]:hidden
-                        [-ms-overflow-style:none]
-                        [scrollbar-width:none]">
+      <div className="mx-auto flex w-full max-w-[1500px] px-5 pb-28 pt-4 lg:h-[calc(100vh-120px)] lg:overflow-hidden lg:pb-0 xl:px-6">
+        <div className="flex min-w-0 flex-1 flex-col gap-4 pb-10 lg:overflow-y-auto lg:pb-32 lg:pr-2 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           <SuratListPanel register={register} />
         </div>
-
       </div>
     </>
   )

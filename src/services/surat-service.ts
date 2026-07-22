@@ -11,8 +11,10 @@ export function fetchAllSurat(
   pagination?: { page: number; limit: number },
   date?:       string | null,
   depts?:      string[] | null,
+  search?:     string | null,
+  column?:     string | null,
 ): Promise<SuratResult[] | PaginatedResult<SuratResult>> {
-  return getAllSurat(type ?? null, ids ?? null, pagination, repository, date, depts)
+  return getAllSurat(type ?? null, ids ?? null, pagination, repository, date, depts, search, column)
 }
 
 export function fetchSuratById(
@@ -38,6 +40,6 @@ export function removeSurat(id: number, dept: string): Promise<void> {
   return deleteSurat(id, dept, repository)
 }
 
-export function fetchPreviewNomor(deptId: string): Promise<string> {
-  return repository.getPreviewNomor(deptId)
+export function fetchPreviewNomor(deptId: string, tanggalTerima?: Date): Promise<string> {
+  return repository.getPreviewNomor(deptId, tanggalTerima)
 }

@@ -34,7 +34,19 @@ export async function getUserPermissions(
     },
   })
 
-  return permissions ?? getDefaultPermission(role)
+  if (!permissions) return getDefaultPermission(role)
+
+  const rows = await prisma.$queryRaw<Array<{ canViewDataSurat: boolean }>>`
+    SELECT can_view_data_surat AS "canViewDataSurat"
+    FROM user_permissions
+    WHERE "userId" = ${userId}
+    LIMIT 1
+  `
+
+  return {
+    canViewDataSurat: rows[0]?.canViewDataSurat ?? false,
+    ...permissions,
+  }
 }
 
 export async function requireUserPermission(permission: PermissionKey) {

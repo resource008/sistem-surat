@@ -18,7 +18,10 @@ const TrackFieldSchema = z.object({
   type: z.enum(["text", "date", "number", "category"]),
   defaultValue: z.string().max(120, "Isian awal maksimal 120 karakter").optional().default(""),
   categoryOptions: z.array(z.string().max(80, "Pilihan kategori maksimal 80 karakter")).optional().default([]),
-  fillByHrd: z.boolean().optional().default(false),
+  fillRequired: z.boolean().optional().default(false),
+  addRoleValues: z.array(z.string().max(40)).optional().default([]),
+  editRoleValues: z.array(z.string().max(40)).optional().default([]),
+  deleteRoleValues: z.array(z.string().max(40)).optional().default([]),
   hiddenAt: z.union([z.string(), z.date(), z.null()]).optional().default(null),
   sortOrder: z.number().int().nonnegative().optional().default(0),
 })
@@ -27,13 +30,17 @@ const TrackCategorySchema = z.object({
   id: z.string().optional(),
   name: z.string().min(1, "Nama kategori wajib diisi").max(80, "Nama kategori maksimal 80 karakter").trim(),
   color: TrackCategoryColorSchema.optional().default(DEFAULT_TRACK_CATEGORY_COLOR),
-  fillByHrd: z.boolean().optional().default(false),
+  fillRequired: z.boolean().optional().default(false),
+  addRoleValues: z.array(z.string().max(40)).optional().default([]),
+  editRoleValues: z.array(z.string().max(40)).optional().default([]),
+  deleteRoleValues: z.array(z.string().max(40)).optional().default([]),
   sortOrder: z.number().int().nonnegative().optional().default(0),
 })
 
 export const TrackSheetSchema = z.object({
   name: z.string().min(1, "Nama sheet wajib diisi").max(100, "Nama sheet maksimal 100 karakter").trim(),
   sortOrder: z.number().int().nonnegative().optional().default(0),
+  displayCategoryId: z.string().optional().default(""),
   categories: z.array(TrackCategorySchema).optional().default([]),
   fields: z.array(TrackFieldSchema).min(1, "Tambahkan minimal satu field"),
 }).superRefine((value, ctx) => {
@@ -45,6 +52,14 @@ export const TrackSheetSchema = z.object({
       code: "custom",
       message: "Nama kategori tidak boleh duplikat",
       path: ["categories"],
+    })
+  }
+
+  if (value.displayCategoryId && !categoryIds.has(value.displayCategoryId)) {
+    ctx.addIssue({
+      code: "custom",
+      message: "Pilih kategori tampilan yang tersedia",
+      path: ["displayCategoryId"],
     })
   }
 

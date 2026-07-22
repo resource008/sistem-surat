@@ -1,12 +1,14 @@
 import {
   ASAL_DEFAULT_ID,
+  COLUMN_AUTO_FILL_TOKENS,
+  getColumnAutoFill,
   NOMOR_DEFAULT_ID,
   TANGGAL_DEFAULT_ID,
   TUJUAN_DEFAULT_ID,
 } from "@/constants/departemen-columns"
 import type { DepartemenColumn } from "@/types"
 
-export type SuratBuiltInColumnKey = "perihal" | "noSurat" | "lampiran" | "tanggalSurat"
+export type SuratBuiltInColumnKey = "perihal" | "noSurat" | "lampiran" | "tanggalSurat" | "tujuan"
 
 function normalizeColumnLabel(label: string) {
   return label
@@ -17,12 +19,18 @@ function normalizeColumnLabel(label: string) {
 }
 
 export function getSuratBuiltInColumnKey(column: DepartemenColumn): SuratBuiltInColumnKey | null {
+  const autoFill = getColumnAutoFill(column.defaultValue)
+  if (autoFill === "sequence") return "noSurat"
+  if (autoFill === "currentDate") return "tanggalSurat"
+  if (autoFill === "department") return "tujuan"
+
   const label = normalizeColumnLabel(column.label)
 
   if (label === "perihal" || label === "perihal surat") return "perihal"
   if (label === "nomor surat" || label === "no surat" || label === "no surat") return "noSurat"
   if (label === "lampiran") return "lampiran"
   if (label === "tanggal surat" || label === "tgl surat") return "tanggalSurat"
+  if (label === "tujuan" || label === "tujuan surat") return "tujuan"
 
   return null
 }
@@ -37,6 +45,16 @@ export function isDetailBuiltInColumn(column: DepartemenColumn) {
 
 export function isTujuanColumn(column: Pick<DepartemenColumn, "id">) {
   return String(column.id).includes(TUJUAN_DEFAULT_ID)
+}
+
+export function isAutoFilledSuratColumn(column: DepartemenColumn) {
+  if (getColumnAutoFill(column.defaultValue) !== "none") return true
+
+  return isTujuanColumn(column)
+}
+
+export function isFillableSuratColumn(column: DepartemenColumn) {
+  return !column.isDefault && !isAutoFilledSuratColumn(column)
 }
 
 export function isCetakRowSpanColumn(column: Pick<DepartemenColumn, "id" | "label">) {
@@ -54,6 +72,7 @@ export function isCetakRowSpanColumn(column: Pick<DepartemenColumn, "id" | "labe
 
 function getNumberSuffix(column: DepartemenColumn) {
   if (column.type !== "number") return ""
+  if (Object.values(COLUMN_AUTO_FILL_TOKENS).includes(column.defaultValue as never)) return ""
   return (column.defaultValue ?? "").trim()
 }
 
@@ -79,11 +98,21 @@ export function formatNumberFieldInput(column: DepartemenColumn, value?: string)
   return suffix ? `${numberPart} ${suffix}` : numberPart
 }
 
-export function validateCustomFieldValue(column: DepartemenColumn, value?: string) {
+export function validateCustomFieldValue(
+  column: DepartemenColumn,
+  value?: string,
+  options: { requireValue?: boolean } = {}
+) {
   const text = (value ?? "").trim()
+  const builtInKey = getSuratBuiltInColumnKey(column)
+  const requiresBuiltInValue = builtInKey === "tanggalSurat"
 
-  if (column.isRequired && !text) {
-    return `${column.label} wajib diisi`
+  if ((column.isRequired || requiresBuiltInValue) && !text) {
+    return `Kolom ${column.label} tidak boleh kosong`
+  }
+
+  if (options.requireValue && !text) {
+    return `Kolom ${column.label} masih kosong`
   }
 
   if (!text) return null
@@ -96,7 +125,7 @@ export function validateCustomFieldValue(column: DepartemenColumn, value?: strin
     }
   }
 
-  if (column.type === "date" && Number.isNaN(new Date(text).getTime())) {
+  if ((column.type === "date" || builtInKey === "tanggalSurat") && Number.isNaN(new Date(text).getTime())) {
     return `${column.label} harus berupa tanggal`
   }
 
@@ -107,17 +136,22 @@ export function getCustomFieldInputValue(
   column: DepartemenColumn,
   item: { customFields?: Record<string, string> } & Partial<Record<SuratBuiltInColumnKey, unknown>>
 ) {
-  const customValue = getCustomFieldValue(column, item.customFields)
+  const customValue = getCustomFieldExactValue(column, item.customFields)
   if (customValue !== undefined) return customValue
 
   const builtInKey = getSuratBuiltInColumnKey(column)
   return builtInKey ? String(item[builtInKey] ?? "") : ""
 }
 
+export function getCustomFieldExactValue(column: DepartemenColumn, values?: Record<string, string>) {
+  if (!values) return undefined
+  return values[column.id] ?? values[column.label]
+}
+
 export function getCustomFieldValue(column: DepartemenColumn, values?: Record<string, string>) {
   if (!values) return undefined
 
-  const directValue = values[column.id] ?? values[column.label]
+  const directValue = getCustomFieldExactValue(column, values)
 
   const columnLabel = normalizeColumnLabel(column.label)
   const matchingEntry = Object.entries(values).find(([key]) => {
@@ -158,6 +192,9 @@ export function getSuratBuiltInFieldValue(column: DepartemenColumn, detail: Reco
   const value = detail[key]
   if (key === "tanggalSurat") {
     return formatCustomFieldValue({ ...column, type: "date" }, value == null ? "" : String(value))
+  }
+  if (key === "tujuan") {
+    return value == null ? "-" : String(value).trim() || "-"
   }
 
   return value == null ? "-" : String(value).trim() || "-"

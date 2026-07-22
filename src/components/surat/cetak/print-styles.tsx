@@ -117,6 +117,7 @@ export function CetakPrintStyles() {
           vertical-align: middle;
           text-align: left;
           line-height: 1.4;
+          white-space: pre-line;
           word-break: break-word;
           color: #000 !important;
           background-color: #ffffff !important;

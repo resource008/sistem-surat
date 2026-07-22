@@ -1,43 +1,36 @@
 import { RegisterSurat } from "@/components/surat/shared"
 import { Checkbox } from "@/components/ui/checkbox"
-import {
-  ASAL_DEFAULT_ID,
-  NOMOR_DEFAULT_ID,
-  TANGGAL_DEFAULT_ID,
-} from "@/constants/departemen-columns"
-import { formatCustomFieldValue, getCustomFieldValue, getSuratBuiltInFieldValue, isTujuanColumn } from "@/domain/surat/custom-fields"
+import { getSuratColumnValue, getSuratDisplayColumns, getSuratDisplayParts, getSuratDisplayTitle } from "@/lib/surat-display"
 import { useRouter } from "next/navigation"
 
 export function MobileList({ registers, selectedIds, basePath, actions }: any) {
   const router = useRouter()
-
-  const getColumnValue = (column: any, reg: any, detail: any) => {
-    if (String(column.id).includes(TANGGAL_DEFAULT_ID)) {
-      return formatCustomFieldValue({ ...column, type: "date" }, reg.tanggalTerima)
-    }
-    if (String(column.id).includes(ASAL_DEFAULT_ID)) return reg.asalSurat || "-"
-    if (isTujuanColumn(column)) return detail.tujuan || reg.dept.shortName || "-"
-
-    const builtInValue = getSuratBuiltInFieldValue(column, detail)
-    if (builtInValue !== null) return builtInValue
-
-    return formatCustomFieldValue(column, getCustomFieldValue(column, detail.customFields))
-  }
+  const getDepartmentPathSegment = (reg: RegisterSurat) => encodeURIComponent(reg.dept?.shortName || reg.deptId)
 
   return (
     <div className="xl:hidden divide-y divide-slate-100 dark:divide-slate-800">
-      {registers.map((reg: RegisterSurat) => (
+      {registers.map((reg: RegisterSurat) => {
+        const displayParts = getSuratDisplayParts(reg, 2)
+        const [primaryPart, secondaryPart] = displayParts
+
+        return (
         <div key={reg.id} className="px-4 py-3">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
+          <div className="mb-2 flex items-center justify-between gap-3">
+            <div className="flex min-w-0 items-center gap-2" onClick={e => e.stopPropagation()}>
               <Checkbox
                 checked={selectedIds.has(reg.id)}
                 onCheckedChange={() => actions.toggleSelect(reg.id)}
                 className="border-slate-300 dark:border-slate-600 rounded-sm"
               />
-              <span className="font-mono text-[12px] font-bold text-blue-600 dark:text-blue-400">{reg.nomor}</span>
+              <span className="truncate text-[12px] font-bold text-blue-600 dark:text-blue-400">
+                {primaryPart?.value ?? getSuratDisplayTitle(reg)}
+              </span>
             </div>
-            <span className="text-[11px] text-slate-400 dark:text-slate-500 shrink-0">{reg.dept.shortName}</span>
+            {secondaryPart ? (
+              <span className="shrink-0 truncate text-[11px] text-slate-400 dark:text-slate-500">
+                {secondaryPart.value}
+              </span>
+            ) : null}
           </div>
 
           <div className={(reg.detailSurat ?? []).length > 1
@@ -45,27 +38,26 @@ export function MobileList({ registers, selectedIds, basePath, actions }: any) {
             : ""
           }>
             {(reg.detailSurat ?? []).map((detail: any) => {
-              const detailDisplayColumns = (reg.dept.displayColumns ?? [])
-                .filter((column: any) => !String(column.id).includes(NOMOR_DEFAULT_ID))
+              const detailDisplayColumns = getSuratDisplayColumns(reg)
               const primaryColumn = detailDisplayColumns[0]
               const primaryText = primaryColumn
-                ? getColumnValue(primaryColumn, reg, detail)
+                ? getSuratColumnValue(primaryColumn, reg, detail)
                 : detail.perihal
               return (
                 <div
                   key={detail.id}
-                  onClick={() => router.push(`${basePath}/view/${reg.deptId}/${reg.id}`)}
+                  onClick={() => router.push(`${basePath}/view/${getDepartmentPathSegment(reg)}/${reg.id}`)}
                   className="flex items-start gap-3 px-3 py-2.5 hover:bg-blue-50/50 dark:hover:bg-blue-900/10 cursor-pointer active:bg-blue-100/50 transition-colors"
                 >
                   <div className="flex-1 min-w-0">
-                    <p className="text-[13px] text-slate-700 dark:text-slate-300 leading-snug mb-1 break-words whitespace-normal">
+                    <p className="text-[13px] text-slate-700 dark:text-slate-300 leading-snug mb-1 break-words whitespace-pre-line">
                       {primaryText}
                     </p>
                     <div className="flex items-center gap-3 flex-wrap">
                       {detailDisplayColumns.slice(1).map((column: any) => (
-                        <span key={column.id} className="text-[11px] text-slate-400 dark:text-slate-500">
+                        <span key={column.id} className="whitespace-pre-line text-[11px] text-slate-400 dark:text-slate-500">
                           <span className="text-slate-500 dark:text-slate-400">{column.label}: </span>
-                          {getColumnValue(column, reg, detail)}
+                          {getSuratColumnValue(column, reg, detail)}
                         </span>
                       ))}
                     </div>
@@ -78,7 +70,8 @@ export function MobileList({ registers, selectedIds, basePath, actions }: any) {
             })}
           </div>
         </div>
-      ))}
+        )
+      })}
     </div>
   )
 }

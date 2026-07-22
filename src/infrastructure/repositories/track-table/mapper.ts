@@ -10,6 +10,10 @@ export function normalizeTrackFieldType(value: string): TrackFieldType {
 }
 
 function parseCategoryOptions(value: string) {
+  return parseStringArray(value)
+}
+
+function parseStringArray(value: string) {
   try {
     const options = JSON.parse(value)
     if (!Array.isArray(options)) return []
@@ -27,7 +31,10 @@ function mapTrackCategory(row: TrackCategoryRow): TrackCategory {
     id: row.id,
     name: row.name,
     color: row.color,
-    fillByHrd: row.fillByHrd,
+    fillRequired: row.fillRequired,
+    addRoleValues: parseStringArray(row.addRoleValues ?? "[]"),
+    editRoleValues: parseStringArray(row.editRoleValues ?? "[]"),
+    deleteRoleValues: parseStringArray(row.deleteRoleValues ?? "[]"),
     sortOrder: row.sortOrder,
   }
 }
@@ -45,7 +52,10 @@ export function mapTrackField(row: TrackFieldRow): TrackField {
     type: isDefaultId ? "number" : normalizeTrackFieldType(row.type),
     defaultValue: isDefaultId ? "" : row.defaultValue,
     categoryOptions: isDefaultId ? [] : parseCategoryOptions(row.categoryOptions),
-    fillByHrd: isDefaultId ? false : row.fillByHrd,
+    fillRequired: isDefaultId ? false : row.fillRequired,
+    addRoleValues: isDefaultId ? [] : parseStringArray(row.addRoleValues ?? "[]"),
+    editRoleValues: isDefaultId ? [] : parseStringArray(row.editRoleValues ?? "[]"),
+    deleteRoleValues: isDefaultId ? [] : parseStringArray(row.deleteRoleValues ?? "[]"),
     hiddenAt: isDefaultId ? null : row.hiddenAt,
     sortOrder: row.sortOrder,
   }
@@ -67,7 +77,10 @@ function deriveCategoriesFromFields(fields: TrackField[]) {
       id: field.categoryId || `derived_${key.replace(/[^a-z0-9]+/g, "_")}`,
       name,
       color: field.categoryColor || DEFAULT_TRACK_CATEGORY_COLOR,
-      fillByHrd: field.fillByHrd,
+      fillRequired: field.fillRequired,
+      addRoleValues: field.addRoleValues,
+      editRoleValues: field.editRoleValues,
+      deleteRoleValues: field.deleteRoleValues,
       sortOrder: categories.length,
     })
   })
@@ -95,7 +108,10 @@ function syncFieldsWithCategories(fields: TrackField[], categories: TrackCategor
       category: category.name,
       categoryColor: category.color,
       region: category.name,
-      fillByHrd: isDefaultId ? false : category.fillByHrd,
+      fillRequired: isDefaultId ? false : category.fillRequired,
+      addRoleValues: isDefaultId ? [] : category.addRoleValues,
+      editRoleValues: isDefaultId ? [] : category.editRoleValues,
+      deleteRoleValues: isDefaultId ? [] : category.deleteRoleValues,
     }
   })
 }
@@ -123,11 +139,15 @@ export function attachTrackData(
   return sheets.map((sheet) => {
     const sheetFields = groupedFields.get(sheet.id) ?? []
     const sheetCategories = groupedCategories.get(sheet.id) ?? deriveCategoriesFromFields(sheetFields)
+    const displayCategoryId = sheetCategories.some((category) => category.id === sheet.displayCategoryId)
+      ? sheet.displayCategoryId ?? ""
+      : sheetCategories[0]?.id ?? ""
 
     return {
       id: sheet.id,
       name: sheet.name,
       sortOrder: sheet.sortOrder,
+      displayCategoryId,
       hiddenAt: sheet.hiddenAt,
       categories: sheetCategories,
       fields: syncFieldsWithCategories(sheetFields, sheetCategories),

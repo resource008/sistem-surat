@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json().catch(() => null)
     if (!body) {
-      return NextResponse.json({ error: "Body tidak valid" }, { status: 400 })
+      return NextResponse.json({ message: "Body tidak valid" }, { status: 400 })
     }
 
     const parsed = CreateUserSchema.safeParse(body)
@@ -56,20 +56,19 @@ export async function POST(req: NextRequest) {
       return validationResponse(parsed.error.flatten().fieldErrors)
     }
 
-    const user = await userService.create(parsed.data)
+    await userService.create(parsed.data)
     return NextResponse.json(
       {
         message: "Akun berhasil ditambahkan",
-        id: user.id,
       },
       { status: 201 }
     )
 
   } catch (error) {
     if (error instanceof AppError) {
-      return NextResponse.json({ error: error.message }, { status: error.status })
+      return NextResponse.json({ message: error.message }, { status: error.status })
     }
     console.error("POST /api/admin/users:", error)
-    return NextResponse.json({ error: "Gagal membuat user" }, { status: 500 })
+    return NextResponse.json({ message: "Gagal membuat user" }, { status: 500 })
   }
 }

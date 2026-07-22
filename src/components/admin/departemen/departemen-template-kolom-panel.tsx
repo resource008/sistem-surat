@@ -1,4 +1,4 @@
-import { List } from "lucide-react"
+import { Copy } from "lucide-react"
 import {
   Card,
   CardContent,
@@ -27,26 +27,32 @@ export function DepartemenTemplateKolomPanel({
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center gap-2">
-          <List className="size-4 text-muted-foreground" />
-          <CardTitle>Pilih departemen</CardTitle>
+        <div className="flex items-start gap-3">
+          <Copy className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+          <div className="min-w-0">
+            <CardTitle>Pilih departemen sumber</CardTitle>
+            <CardDescription className="mt-1">
+              Ambil struktur kolom dari departemen lain sebagai acuan pengaturan departemen ini.
+            </CardDescription>
+          </div>
         </div>
-        <CardDescription>
-          Gunakan susunan kolom dari departemen yang sudah ada.
-        </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid gap-2 lg:grid-cols-[minmax(0,1fr)_minmax(260px,360px)] lg:items-center">
+        <div className="grid gap-2 lg:grid-cols-[minmax(0,1fr)_minmax(320px,450px)] lg:items-center">
           <Label className="text-sm font-medium">Departemen sumber</Label>
           <Select
             value={value}
             onValueChange={onChange}
             disabled={disabled || departments.length === 0}
           >
-            <SelectTrigger className={`${fieldClass} w-full`}>
-              <SelectValue placeholder="Pilih departemen" />
+            <SelectTrigger className={`${fieldClass} h-11 w-full`}>
+              <SelectValue
+                placeholder={departments.length === 0
+                  ? "Belum ada departemen"
+                  : "Pilih departemen"}
+              />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="max-h-72">
               {departments.map((department) => (
                 <SelectItem key={department.id} value={department.id}>
                   {department.shortName} - {department.tujuan}

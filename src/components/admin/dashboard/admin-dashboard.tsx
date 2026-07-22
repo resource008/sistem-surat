@@ -16,11 +16,11 @@ import { UserActivityTable }       from "./components/user-activity-table"
 export default function AdminDashboard() {
   const now = new Date()
   const [deptId, setDeptId]       = useState("")
-  const [tipeWaktu, setTipeWaktu] = useState<TipeWaktuStatistik | "">("")
+  const [tipeWaktu, setTipeWaktu] = useState<TipeWaktuStatistik>("mingguan")
 
   const params: StatistikFilter = {
     deptId:    deptId || DEFAULT_STATS_DEPT_ID,
-    tipeWaktu: tipeWaktu || "mingguan",
+    tipeWaktu,
     bulan: now.getMonth() + 1,
     tahun: now.getFullYear(),
   }
@@ -29,10 +29,13 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     const selectedDeptId = data?.statistikSurat.departemenId
-    if (deptId && selectedDeptId && selectedDeptId !== deptId) {
-      setDeptId(selectedDeptId)
+    const firstDeptId = data?.suratPerDepartemen[0]?.departemenId
+    const nextDeptId = selectedDeptId || firstDeptId
+
+    if (nextDeptId && nextDeptId !== deptId) {
+      setDeptId(nextDeptId)
     }
-  }, [data?.statistikSurat.departemenId, deptId])
+  }, [data?.statistikSurat.departemenId, data?.suratPerDepartemen, deptId])
 
   return (
     <div className="flex w-full max-w-none flex-col gap-5 pb-6">

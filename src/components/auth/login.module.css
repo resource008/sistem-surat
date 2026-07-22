@@ -87,10 +87,11 @@
 }
 
 .cardTitle {
-  font-size: 22px;
+  font-size: 20px;
+  line-height: 1.25;
   font-weight: 700;
   color: #111827;
-  letter-spacing: -0.3px;
+  letter-spacing: 0;
   margin: 0 0 6px 0;
 }
 
@@ -167,6 +168,31 @@
   box-shadow: 0 0 0 3px rgba(115, 101, 216, 0.471);
 }
 
+.fieldInputError,
+.fieldInputError:focus {
+  background: #fff7f7;
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
+}
+
+.fieldError {
+  margin: 0;
+  color: #dc2626;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.formError {
+  margin: -4px 0 0;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  background: #fef2f2;
+  color: #b91c1c;
+  padding: 10px 12px;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
 .togglePassword {
   position: absolute;
   right: 13px;
@@ -221,36 +247,6 @@
   opacity: 0.85;
   cursor: not-allowed;
   transform: none;
-}
-
-.trackBtn {
-  width: 100%;
-  min-height: 44px;
-  margin-top: 14px;
-  border: 1.5px solid #d9ddf3;
-  border-radius: 10px;
-  background: #f7f8ff;
-  color: #170b67;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  font-family: var(--font-figtree), sans-serif;
-  font-size: 14.5px;
-  font-weight: 600;
-  text-decoration: none;
-  transition: all 0.2s ease;
-}
-
-.trackBtn:hover {
-  background: #ffffff;
-  border-color: #170b67;
-  transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(23, 11, 103, 0.14);
-}
-
-.trackBtn:active {
-  transform: translateY(0);
 }
 
 .spinner {
@@ -330,17 +326,12 @@
     padding-bottom: 10px;
   }
 
-  .submitBtn,
-  .trackBtn {
+  .submitBtn {
     min-height: 42px;
   }
 
   .submitBtn {
     margin-top: 2px;
-  }
-
-  .trackBtn {
-    margin-top: 10px;
   }
 
   .cardFooter {
@@ -368,10 +359,6 @@
 
   .form {
     gap: 12px;
-  }
-
-  .trackBtn {
-    margin-top: 8px;
   }
 
   .cardFooter {

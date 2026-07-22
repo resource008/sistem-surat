@@ -3,24 +3,9 @@ import { headers } from "next/headers"
 import { AppError } from "@/lib/errors"
 import { auth } from "@/infrastructure/auth/better-auth"
 import { fetchDepartemenById } from "@/services/departemen-service"
-import type { Departemen, DepartemenColumn } from "@/types"
 import type { ExtendedSession } from "@/types/auth"
 
 type RouteContext = { params: Promise<{ id: string }> }
-
-function stripColumnId(column: DepartemenColumn) {
-  const nextColumn = { ...column } as Partial<DepartemenColumn>
-  delete nextColumn.id
-  return nextColumn
-}
-
-function stripColumnIds<T extends Departemen>(departemen: T) {
-  return {
-    ...departemen,
-    columns: departemen.columns?.map(stripColumnId),
-    displayColumns: departemen.displayColumns?.map(stripColumnId),
-  }
-}
 
 export async function detailDepartemen(_req: NextRequest, { params }: RouteContext) {
   try {
@@ -35,7 +20,7 @@ export async function detailDepartemen(_req: NextRequest, { params }: RouteConte
     const { id } = await params
 
     const data = await fetchDepartemenById(decodeURIComponent(id), { includeInactive: true })
-    return NextResponse.json(stripColumnIds(data))
+    return NextResponse.json(data)
   } catch (error) {
     if (error instanceof AppError) {
       return NextResponse.json({ error: error.message }, { status: error.status })

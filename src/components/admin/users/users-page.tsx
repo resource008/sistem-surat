@@ -72,6 +72,13 @@ export default function UsersPage() {
   })
 
   useEffect(() => {
+    window.dispatchEvent(new CustomEvent("breadcrumb:sub", { detail: "Kelola Akun" }))
+    return () => {
+      window.dispatchEvent(new CustomEvent("breadcrumb:sub", { detail: null }))
+    }
+  }, [])
+
+  useEffect(() => {
     setPage(1)
   }, [debouncedSearch])
 

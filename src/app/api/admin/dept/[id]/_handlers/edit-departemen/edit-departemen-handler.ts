@@ -36,7 +36,7 @@ async function visibilityResponse(action: VisibilityAction, id: string) {
 
 async function updateDepartemenResponse(body: unknown, id: string) {
   if (!body) {
-    return NextResponse.json({ error: "Body tidak valid" }, { status: 400 })
+    return NextResponse.json({ message: "Body tidak valid" }, { status: 400 })
   }
 
   const parsed = UpdateDepartemenSchema.safeParse(body)
@@ -44,10 +44,9 @@ async function updateDepartemenResponse(body: unknown, id: string) {
     return validationResponse(parsed.error.flatten().fieldErrors)
   }
 
-  const departemen = await updateDepartemen(id, parsed.data)
+  await updateDepartemen(id, parsed.data)
   return NextResponse.json({
     message: "Data departemen berhasil diperbarui",
-    id: departemen.id,
   })
 }
 
@@ -62,7 +61,7 @@ async function handleEditDepartemen(req: NextRequest, { params }: RouteContext, 
 
       if (queryAction) {
         return NextResponse.json(
-          { error: "Action visibility harus dikirim melalui body request" },
+          { message: "Action visibility harus dikirim melalui body request" },
           { status: 400 }
         )
       }
@@ -81,10 +80,10 @@ async function handleEditDepartemen(req: NextRequest, { params }: RouteContext, 
     return await updateDepartemenResponse(body, decodedId)
   } catch (error) {
     if (error instanceof AppError) {
-      return NextResponse.json({ error: error.message }, { status: error.status })
+      return NextResponse.json({ message: error.message }, { status: error.status })
     }
     if (error instanceof Error) console.error(`${method} /api/admin/dept/[id]:`, error.message)
-    return NextResponse.json({ error: "Gagal mengupdate departemen" }, { status: 500 })
+    return NextResponse.json({ message: "Gagal mengupdate departemen" }, { status: 500 })
   }
 }
 

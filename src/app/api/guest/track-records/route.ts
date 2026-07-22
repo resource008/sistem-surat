@@ -9,6 +9,7 @@ export const dynamic = "force-dynamic"
 type TrackRecordRow = {
   id: string
   sheetId: string
+  sequenceNo: number
   values: unknown
   createdById: string | null
   createdAt: Date
@@ -41,6 +42,7 @@ async function ensureTrackRecordSchema() {
     CREATE TABLE IF NOT EXISTS track_records (
       id TEXT PRIMARY KEY,
       sheet_id TEXT NOT NULL REFERENCES track_sheets(id) ON DELETE CASCADE,
+      sequence_no INTEGER NOT NULL DEFAULT 0,
       values JSONB NOT NULL DEFAULT '{}',
       created_by_id TEXT,
       created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -51,6 +53,25 @@ async function ensureTrackRecordSchema() {
   await prisma.$executeRaw`
     CREATE INDEX IF NOT EXISTS track_records_sheet_id_idx
     ON track_records(sheet_id)
+  `
+
+  await prisma.$executeRaw`
+    ALTER TABLE track_records
+    ADD COLUMN IF NOT EXISTS sequence_no INTEGER NOT NULL DEFAULT 0
+  `
+
+  await prisma.$executeRaw`
+    WITH numbered AS (
+      SELECT
+        id,
+        ROW_NUMBER() OVER (PARTITION BY sheet_id ORDER BY created_at ASC, id ASC) AS sequence_no
+      FROM track_records
+      WHERE sequence_no = 0
+    )
+    UPDATE track_records record
+    SET sequence_no = numbered.sequence_no
+    FROM numbered
+    WHERE record.id = numbered.id
   `
 }
 
@@ -71,6 +92,7 @@ async function findRecord(id: string, sheetId: string) {
     SELECT
       id,
       sheet_id AS "sheetId",
+      sequence_no AS "sequenceNo",
       values,
       created_by_id AS "createdById",
       created_at AS "createdAt",
@@ -89,6 +111,7 @@ async function findVisibleRecordById(id: string) {
     SELECT
       r.id,
       r.sheet_id AS "sheetId",
+      r.sequence_no AS "sequenceNo",
       r.values,
       r.created_by_id AS "createdById",
       r.created_at AS "createdAt",
@@ -156,6 +179,7 @@ function mapTrackRecord(row: TrackRecordRow) {
   return {
     id: row.id,
     sheetId: row.sheetId,
+    sequenceNo: Number(row.sequenceNo),
     values,
     createdById: row.createdById,
     createdAt: row.createdAt.toISOString(),
@@ -190,13 +214,14 @@ export async function GET(req: NextRequest) {
       SELECT
         id,
         sheet_id AS "sheetId",
+        sequence_no AS "sequenceNo",
         values,
         created_by_id AS "createdById",
         created_at AS "createdAt",
         updated_at AS "updatedAt"
       FROM track_records
       WHERE sheet_id = ${sheetId}
-      ORDER BY created_at DESC, id DESC
+      ORDER BY sequence_no ASC, created_at ASC, id ASC
     `
 
     return NextResponse.json({ records: rows.map(mapTrackRecord) }, {
@@ -221,33 +246,42 @@ export async function POST(req: NextRequest) {
       const firstError = Object.values(parsed.error.flatten().fieldErrors).flat()[0]
         ?? parsed.error.flatten().formErrors[0]
         ?? "Data tidak valid"
-      return NextResponse.json({ error: firstError }, { status: 422 })
+      return NextResponse.json({ message: firstError }, { status: 422 })
     }
 
     if (!(await visibleSheetExists(parsed.data.sheetId))) {
-      return NextResponse.json({ error: "Sheet lacak tidak ditemukan" }, { status: 404 })
+      return NextResponse.json({ message: "Sheet lacak tidak ditemukan" }, { status: 404 })
     }
 
     const id = createTrackRecordId()
     const editableFields = await getGuestEditableFields(parsed.data.sheetId)
     const payloadValues = normalizeTrackValues(parsed.data.values, editableFields)
     const values = JSON.stringify(payloadValues)
-    const rows = await prisma.$queryRaw<TrackRecordRow[]>`
+    const sequenceRows = await prisma.$queryRaw<Array<{ nextSequenceNo: number | bigint }>>`
+      SELECT COALESCE(MAX(sequence_no), 0) + 1 AS "nextSequenceNo"
+      FROM track_records
+      WHERE sheet_id = ${parsed.data.sheetId}
+    `
+    const sequenceNo = Number(sequenceRows[0]?.nextSequenceNo ?? 1)
+    await prisma.$queryRaw<TrackRecordRow[]>`
       INSERT INTO track_records (
         id,
         sheet_id,
+        sequence_no,
         values,
         created_by_id
       )
       VALUES (
         ${id},
         ${parsed.data.sheetId},
+        ${sequenceNo},
         CAST(${values} AS JSONB),
         ${null}
       )
       RETURNING
         id,
         sheet_id AS "sheetId",
+        sequence_no AS "sequenceNo",
         values,
         created_by_id AS "createdById",
         created_at AS "createdAt",
@@ -257,13 +291,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       {
         message: "Data lacak surat berhasil ditambahkan",
-        record: mapTrackRecord(rows[0]),
       },
       { status: 201 }
     )
   } catch (error) {
     if (error instanceof Error) console.error("POST /api/guest/track-records:", error.message)
-    return NextResponse.json({ error: "Gagal menambahkan data lacak surat" }, { status: 500 })
+    return NextResponse.json({ message: "Gagal menambahkan data lacak surat" }, { status: 500 })
   }
 }
 
@@ -278,16 +311,16 @@ export async function PATCH(req: NextRequest) {
       const firstError = Object.values(parsed.error.flatten().fieldErrors).flat()[0]
         ?? parsed.error.flatten().formErrors[0]
         ?? "Data tidak valid"
-      return NextResponse.json({ error: firstError }, { status: 422 })
+      return NextResponse.json({ message: firstError }, { status: 422 })
     }
 
     if (!(await visibleSheetExists(parsed.data.sheetId))) {
-      return NextResponse.json({ error: "Sheet lacak tidak ditemukan" }, { status: 404 })
+      return NextResponse.json({ message: "Sheet lacak tidak ditemukan" }, { status: 404 })
     }
 
     const current = await findRecord(parsed.data.id, parsed.data.sheetId)
     if (!current) {
-      return NextResponse.json({ error: "Data lacak surat tidak ditemukan" }, { status: 404 })
+      return NextResponse.json({ message: "Data lacak surat tidak ditemukan" }, { status: 404 })
     }
 
     const currentValues = mapTrackRecord(current).values
@@ -303,7 +336,7 @@ export async function PATCH(req: NextRequest) {
     })
 
     const values = JSON.stringify(nextValues)
-    const rows = await prisma.$queryRaw<TrackRecordRow[]>`
+    await prisma.$queryRaw<TrackRecordRow[]>`
       UPDATE track_records
       SET
         values = CAST(${values} AS JSONB),
@@ -313,6 +346,7 @@ export async function PATCH(req: NextRequest) {
       RETURNING
         id,
         sheet_id AS "sheetId",
+        sequence_no AS "sequenceNo",
         values,
         created_by_id AS "createdById",
         created_at AS "createdAt",
@@ -321,10 +355,9 @@ export async function PATCH(req: NextRequest) {
 
     return NextResponse.json({
       message: "Data lacak surat berhasil diperbarui",
-      record: mapTrackRecord(rows[0]),
     })
   } catch (error) {
     if (error instanceof Error) console.error("PATCH /api/guest/track-records:", error.message)
-    return NextResponse.json({ error: "Gagal memperbarui data lacak surat" }, { status: 500 })
+    return NextResponse.json({ message: "Gagal memperbarui data lacak surat" }, { status: 500 })
   }
 }

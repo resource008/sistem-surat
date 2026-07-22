@@ -4,7 +4,10 @@ export interface TrackCategory {
   id: string
   name: string
   color: string
-  fillByHrd: boolean
+  fillRequired: boolean
+  addRoleValues: string[]
+  editRoleValues: string[]
+  deleteRoleValues: string[]
   sortOrder: number
 }
 
@@ -18,8 +21,12 @@ export interface TrackField {
   type: TrackFieldType
   defaultValue: string
   categoryOptions: string[]
-  fillByHrd: boolean
+  fillRequired: boolean
+  addRoleValues: string[]
+  editRoleValues: string[]
+  deleteRoleValues: string[]
   hiddenAt?: string | Date | null
+  draftLabel?: string
   sortOrder: number
 }
 
@@ -27,6 +34,7 @@ export interface TrackSheet {
   id: string
   name: string
   sortOrder: number
+  displayCategoryId?: string
   hiddenAt?: string | Date | null
   categories: TrackCategory[]
   fields: TrackField[]
@@ -40,6 +48,7 @@ export interface TrackTableResponse {
 export interface TrackRecord {
   id: string
   sheetId: string
+  sequenceNo: number
   values: Record<string, string>
   createdById?: string | null
   createdAt: string
@@ -67,7 +76,10 @@ export const EMPTY_TRACK_FIELD: TrackField = {
   type: "text",
   defaultValue: "",
   categoryOptions: [],
-  fillByHrd: false,
+  fillRequired: false,
+  addRoleValues: [],
+  editRoleValues: [],
+  deleteRoleValues: [],
   hiddenAt: null,
   sortOrder: 0,
 }
@@ -76,6 +88,7 @@ export const EMPTY_TRACK_SHEET: TrackSheet = {
   id: "",
   name: "",
   sortOrder: 0,
+  displayCategoryId: "",
   categories: [],
   fields: [],
 }

@@ -1,14 +1,12 @@
 import type { DepartemenColumn } from "@/types"
-import {
-  NOMOR_DEFAULT_ID,
-  TANGGAL_DEFAULT_ID,
-  TUJUAN_DEFAULT_ID,
-  TYPE_LABEL,
-} from "@/constants/departemen-columns"
+import { TYPE_LABEL } from "@/constants/departemen-columns"
 
-export function createColumn(sortOrder: number): DepartemenColumn {
+export function createColumn(sortOrder: number, draftIndex = sortOrder): DepartemenColumn {
+  const draftLabel = `Kolom ${draftIndex + 1}`
+
   return {
     id: `draft_${Date.now()}_${Math.random().toString(16).slice(2)}`,
+    draftLabel,
     label: "",
     type: "text",
     defaultValue: "",
@@ -17,39 +15,80 @@ export function createColumn(sortOrder: number): DepartemenColumn {
     showInDataSurat: false,
     showInPrint: true,
     sortOrder,
+    displayOrder: sortOrder,
   }
 }
 
-export function orderColumnsWithTujuanLast(columns: DepartemenColumn[]) {
-  const defaultBeforeTujuan = columns.filter((column) =>
-    column.isDefault && !column.id.includes(TUJUAN_DEFAULT_ID)
-  )
-  const custom = columns.filter((column) => !column.isDefault)
-  const tujuanColumn = columns.find((column) =>
-    column.isDefault && column.id.includes(TUJUAN_DEFAULT_ID)
-  )
+function getDraftLabelIndex(column: DepartemenColumn) {
+  const match = column.draftLabel?.trim().match(/^Kolom\s+(\d+)$/i)
+  if (!match) return null
 
-  return [
-    ...defaultBeforeTujuan.map((column, index) => ({ ...column, sortOrder: index })),
-    ...custom.map((column, index) => ({ ...column, sortOrder: defaultBeforeTujuan.length + index })),
-    ...(tujuanColumn ? [{ ...tujuanColumn, sortOrder: defaultBeforeTujuan.length + custom.length }] : []),
-  ]
+  const number = Number(match[1])
+  return Number.isInteger(number) && number > 0 ? number - 1 : null
+}
+
+export function getNextDraftColumnIndex(columns: DepartemenColumn[]) {
+  const indexes = columns
+    .filter((column) => !column.isDefault)
+    .map(getDraftLabelIndex)
+    .filter((index): index is number => index !== null)
+
+  return indexes.length > 0
+    ? Math.max(...indexes) + 1
+    : columns.filter((column) => !column.isDefault).length
+}
+
+export function ensureDraftColumnLabels(columns: DepartemenColumn[]) {
+  const usedIndexes = new Set(
+    columns
+      .filter((column) => !column.isDefault)
+      .map(getDraftLabelIndex)
+      .filter((index): index is number => index !== null)
+  )
+  let nextIndex = 0
+
+  return columns.map((column) => {
+    if (column.isDefault || column.label.trim() || column.draftLabel) return column
+
+    while (usedIndexes.has(nextIndex)) nextIndex += 1
+    usedIndexes.add(nextIndex)
+
+    return {
+      ...column,
+      draftLabel: `Kolom ${nextIndex + 1}`,
+    }
+  })
+}
+
+export function orderColumnsWithTujuanLast(columns: DepartemenColumn[]) {
+  return columns
+    .slice()
+    .sort((a, b) => a.sortOrder - b.sortOrder)
+    .map((column, index) => ({ ...column, sortOrder: index }))
+}
+
+export function renumberColumns(columns: DepartemenColumn[]) {
+  return columns.map((column, index) => ({ ...column, sortOrder: index }))
 }
 
 export function getColumnLabel(column?: DepartemenColumn | null) {
   if (!column) return ""
-  if (column.id.includes(NOMOR_DEFAULT_ID)) return "Nomor Registrasi"
   return column.label
 }
 
+export function isDisplayColumnHelperLabel(column?: DepartemenColumn | null) {
+  const label = getColumnLabel(column).trim().toLowerCase()
+  return label === "tampilkan kolom data surat" || label === "tampilan kolom data surat"
+}
+
+export function getColumnTitle(column: DepartemenColumn, fallbackIndex: number) {
+  return getColumnLabel(column) || column.draftLabel || `Kolom ${fallbackIndex + 1}`
+}
+
 export function getTypeLabel(column: DepartemenColumn) {
-  if (column.id.includes(NOMOR_DEFAULT_ID)) return "Angka (otomatis)"
-  if (column.id.includes(TANGGAL_DEFAULT_ID)) return "Tanggal (otomatis)"
-  if (column.isDefault) return "Teks (otomatis)"
   return TYPE_LABEL[column.type]
 }
 
 export function getDefaultValueLabel(column: DepartemenColumn) {
-  if (column.isDefault) return column.defaultValue || "N/A"
   return column.defaultValue
 }

@@ -32,7 +32,7 @@ export function useAccountPage() {
   const created = formatDateTime(user?.createdAt)
   const updated = useMemo(() => {
     if (!user || isSameTimestamp(user.updatedAt, user.createdAt)) {
-      return { date: "-", time: "" }
+      return { date: "N/A", time: "" }
     }
 
     return formatDateTime(user.updatedAt)
@@ -91,7 +91,7 @@ export function useAccountPage() {
         }),
       })
       const json = await response.json()
-      if (!response.ok) throw new Error(json.error ?? "Gagal menyimpan akun")
+      if (!response.ok) throw new Error(json.message ?? json.error ?? "Gagal menyimpan akun")
 
       setUser(json)
       setForm(userToForm(json))

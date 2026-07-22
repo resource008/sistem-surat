@@ -7,12 +7,6 @@ datasource db {
   provider = "postgresql"
 }
 
-enum Role {
-  ADMIN
-  STAFF
-  PKL
-}
-
 model User {
   id            String    @id @default(cuid())
   name          String
@@ -20,7 +14,7 @@ model User {
   emailVerified Boolean   @default(false) // Wajib untuk Better Auth
   username      String?   @unique        // Ini yang tadi hilang!
   image         String?
-  role          Role      @default(STAFF)
+  role          String    @default("STAFF")
   lastLoginAt   DateTime? @map("last_login_at")
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -66,14 +60,15 @@ model Account {
 }
 
 model UserPermission {
-  id        String  @id @default(cuid())
-  userId    String  @unique
-  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  canCreate Boolean @default(false) @map("can_create")
-  canEdit   Boolean @default(false) @map("can_edit")
-  canDelete Boolean @default(false) @map("can_delete")
-  canPrint  Boolean @default(false) @map("can_print")
-  canTrack  Boolean @default(false) @map("can_track")
+  id               String  @id @default(cuid())
+  userId           String  @unique
+  user             User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  canViewDataSurat Boolean @default(false) @map("can_view_data_surat")
+  canCreate        Boolean @default(false) @map("can_create")
+  canEdit          Boolean @default(false) @map("can_edit")
+  canDelete        Boolean @default(false) @map("can_delete")
+  canPrint         Boolean @default(false) @map("can_print")
+  canTrack         Boolean @default(false) @map("can_track")
 
   @@map("user_permissions")
 }
@@ -86,10 +81,21 @@ model Department {
   isActive       Boolean         @default(true) @map("is_active")
 
   registerSurat  RegisterSurat[]
-  nomorCounter   NomorCounter?
+  nomorCounter   NomorCounter[]
   columns        DepartmentColumn[]
 
   @@map("departments")
+}
+
+model RoleDefinition {
+  id        String   @id @default(cuid())
+  name      String
+  value     String   @unique
+  isSystem  Boolean  @default(false) @map("is_system")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("role_definitions")
 }
 
 model DepartmentColumn {
@@ -104,6 +110,7 @@ model DepartmentColumn {
   showInDataSurat  Boolean    @default(false) @map("show_in_data_surat")
   showInPrint      Boolean    @default(true) @map("show_in_print")
   sortOrder        Int        @default(0) @map("sort_order")
+  displayOrder     Int        @default(0) @map("display_order")
   createdAt        DateTime   @default(now()) @map("created_at")
   updatedAt        DateTime   @updatedAt @map("updated_at")
 
@@ -144,10 +151,12 @@ model DetailSurat {
 }
 
 model NomorCounter {
-  deptId  String     @id @map("dept_id")
+  deptId  String     @map("dept_id")
+  year    Int
   dept    Department @relation(fields: [deptId], references: [id])
   counter Int        @default(0)
 
+  @@id([deptId, year])
   @@map("nomor_counter")
 }
 
@@ -171,7 +180,10 @@ model TrackCategory {
   sheet     TrackSheet @relation(fields: [sheetId], references: [id], onDelete: Cascade)
   name      String
   color     String     @default("#ffffff")
-  fillByHrd Boolean    @default(false) @map("fill_by_hrd")
+  fillRequired Boolean    @default(false) @map("fill_by_hrd")
+  addRoleValues String  @default("[]") @map("add_role_values")
+  editRoleValues String @default("[]") @map("edit_role_values")
+  deleteRoleValues String @default("[]") @map("delete_role_values")
   sortOrder Int        @default(0) @map("sort_order")
   createdAt DateTime   @default(now()) @map("created_at")
   updatedAt DateTime   @updatedAt @map("updated_at")
@@ -192,7 +204,10 @@ model TrackField {
   dataType   String     @map("data_type")
   defaultValue String   @default("") @map("default_value")
   categoryOptions String @default("[]") @map("category_options")
-  fillByHrd Boolean     @default(false) @map("fill_by_hrd")
+  fillRequired Boolean     @default(false) @map("fill_by_hrd")
+  addRoleValues String   @default("[]") @map("add_role_values")
+  editRoleValues String  @default("[]") @map("edit_role_values")
+  deleteRoleValues String @default("[]") @map("delete_role_values")
   sortOrder  Int        @default(0) @map("sort_order")
   createdAt  DateTime   @default(now()) @map("created_at")
   updatedAt  DateTime   @updatedAt @map("updated_at")
@@ -205,6 +220,7 @@ model TrackRecord {
   id          String     @id
   sheetId     String     @map("sheet_id")
   sheet       TrackSheet @relation(fields: [sheetId], references: [id], onDelete: Cascade)
+  sequenceNo  Int        @default(0) @map("sequence_no")
   values      Json       @default("{}")
   createdById String?    @map("created_by_id")
   createdAt   DateTime   @default(now()) @map("created_at")

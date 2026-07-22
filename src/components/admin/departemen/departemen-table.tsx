@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react"
 import { Building2, ChevronLeft, ChevronRight } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { EmptyState } from "@/components/ui/empty-state"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -12,9 +11,9 @@ import type { Departemen } from "@/types"
 const DEPARTMENTS_PER_PAGE = 10
 const tableGridClass = [
   "grid min-w-[560px]",
-  "grid-cols-[70px_minmax(190px,1fr)_130px_140px]",
+  "grid-cols-[70px_minmax(190px,1fr)_130px_100px]",
   "md:min-w-[640px]",
-  "md:grid-cols-[90px_minmax(240px,1fr)_150px_150px]",
+  "md:grid-cols-[90px_minmax(240px,1fr)_150px_120px]",
 ].join(" ")
 const mobileCardClass = [
   "w-full rounded-xl border border-border/40 bg-background p-4 text-left",
@@ -30,13 +29,61 @@ function getDisplayName(departemen: Departemen) {
   return departemen.fullName ?? departemen.tujuan
 }
 
-function DepartemenStatusBadge({ departemen }: { departemen: Departemen }) {
+function DepartemenStatusToggle({
+  departemen,
+  disabled,
+  onChange,
+}: {
+  departemen: Departemen
+  disabled?: boolean
+  onChange: (departemen: Departemen, nextActive: boolean) => void
+}) {
   const isActive = departemen.isActive !== false
 
   return (
-    <Badge variant={isActive ? "secondary" : "outline"}>
-      {isActive ? "Ditampilkan" : "Disembunyikan"}
-    </Badge>
+    <div className="flex items-center">
+      <button
+        type="button"
+        role="switch"
+        aria-checked={isActive}
+        aria-label={isActive ? "Sembunyikan departemen" : "Tampilkan departemen"}
+        disabled={disabled}
+        onKeyDown={(event) => event.stopPropagation()}
+        onClick={(event) => {
+          event.stopPropagation()
+          onChange(departemen, !isActive)
+        }}
+        className={cn(
+          "relative inline-flex h-7 w-12 shrink-0 items-center rounded-full border px-1",
+          "transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
+          isActive ? "border-primary bg-primary" : "border-border bg-muted",
+          disabled && "cursor-not-allowed opacity-55"
+        )}
+      >
+        <span
+          className={cn(
+            "absolute left-2 text-[10px] font-semibold leading-none",
+            isActive ? "text-primary-foreground" : "text-muted-foreground"
+          )}
+        >
+          I
+        </span>
+        <span
+          className={cn(
+            "absolute right-2 text-[10px] font-semibold leading-none",
+            isActive ? "text-primary-foreground/70" : "text-foreground"
+          )}
+        >
+          O
+        </span>
+        <span
+          className={cn(
+            "relative z-10 size-5 rounded-full shadow-sm transition-transform",
+            isActive ? "translate-x-5 bg-primary-foreground" : "translate-x-0 bg-background"
+          )}
+        />
+      </button>
+    </div>
   )
 }
 
@@ -44,14 +91,18 @@ interface Props {
   departments: Departemen[]
   error?: Error
   isLoading: boolean
+  visibilityId?: string | null
   onOpenDetail: (departemen: Departemen) => void
+  onToggleVisibility: (departemen: Departemen, nextActive: boolean) => void
 }
 
 export function DepartemenTable({
   departments,
   error,
   isLoading,
+  visibilityId,
   onOpenDetail,
+  onToggleVisibility,
 }: Props) {
   const [currentPage, setCurrentPage] = useState(1)
   const totalPages = Math.max(1, Math.ceil(departments.length / DEPARTMENTS_PER_PAGE))
@@ -90,17 +141,24 @@ export function DepartemenTable({
                   <Skeleton className="mt-3 h-4 w-3/4" />
                   <Skeleton className="mt-3 h-3 w-16" />
                 </div>
-                <Skeleton className="h-6 w-24 rounded-full" />
+                <Skeleton className="h-7 w-12 rounded-full" />
               </div>
             </div>
           ))
         ) : (
           paginatedDepartments.map((departemen, pageIndex) => (
-            <button
+            <div
               key={departemen.id}
-              type="button"
+              role="button"
+              tabIndex={0}
               className={mobileCardClass}
               onClick={() => onOpenDetail(departemen)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault()
+                  onOpenDetail(departemen)
+                }
+              }}
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
@@ -115,10 +173,14 @@ export function DepartemenTable({
                   </div>
                 </div>
                 <div className="shrink-0">
-                  <DepartemenStatusBadge departemen={departemen} />
+                  <DepartemenStatusToggle
+                    departemen={departemen}
+                    disabled={visibilityId === departemen.id}
+                    onChange={onToggleVisibility}
+                  />
                 </div>
               </div>
-            </button>
+            </div>
           ))
         )}
       </div>
@@ -149,7 +211,7 @@ export function DepartemenTable({
                 <Skeleton className="h-4 w-10" />
                 <Skeleton className="h-4 w-1/2" />
                 <Skeleton className="h-4 w-16" />
-                <Skeleton className="h-5 w-24 rounded-full" />
+                <Skeleton className="h-7 w-12 rounded-full" />
               </div>
             ))
           ) : (
@@ -178,7 +240,11 @@ export function DepartemenTable({
                   <span>{departemen.shortName}</span>
                 </div>
                 <div>
-                  <DepartemenStatusBadge departemen={departemen} />
+                  <DepartemenStatusToggle
+                    departemen={departemen}
+                    disabled={visibilityId === departemen.id}
+                    onChange={onToggleVisibility}
+                  />
                 </div>
               </div>
             ))

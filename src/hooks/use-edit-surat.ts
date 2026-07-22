@@ -7,6 +7,7 @@ import type { RegisterSurat, SuratItem } from "@/types"
 import type { DeptOption } from "@/domain/surat/types"
 import {
   getCustomFieldInputValue,
+  isFillableSuratColumn,
   validateCustomFieldValue,
 } from "@/domain/surat/custom-fields"
 import {
@@ -23,6 +24,10 @@ import { getErrorMessage } from "@/lib/utils"
 
 const DEPT_NOT_FOUND_MESSAGE = "Departemen tidak ditemukan. Hubungi administrator untuk menambahkannya."
 
+function getDepartmentPathSegment(department?: { id?: string; shortName?: string } | null, fallback = "") {
+  return encodeURIComponent(department?.shortName || fallback || department?.id || "")
+}
+
 function getSubmitErrorMessage(error: unknown) {
   const message = getErrorMessage(error)
   return message.toLowerCase().includes("departemen") && message.toLowerCase().includes("tidak ditemukan")
@@ -37,7 +42,7 @@ interface FormState {
   tanggalTerima: string
 }
 
-export function useEditSurat(basePath: string) {
+export function useEditSurat(basePath: string, breadcrumbTitle = "Edit Data Surat") {
   const { dept, id } = useParams<{ dept: string; id: string }>()
   const router = useRouter()
 
@@ -48,6 +53,7 @@ export function useEditSurat(basePath: string) {
   const [formErrors, setFormErrors] = useState<Record<string, string>>({})
   const [previewNomor, setPreviewNomor] = useState<string | null>(null)
   const [deptList, setDeptList] = useState<DeptOption[]>([])
+  const [isMovingDepartment, setIsMovingDepartment] = useState(false)
 
   const [form, setForm] = useState<FormState>({
     deptId: "",
@@ -57,8 +63,10 @@ export function useEditSurat(basePath: string) {
   })
 
   const [suratList, setSuratList] = useState<SuratItem[]>([])
-  const selectedDept = deptList.find((item) => item.id === form.deptId)
+  const originalDept = original?.dept?.id === form.deptId ? original.dept : undefined
+  const selectedDept = deptList.find((item) => item.id === form.deptId) ?? originalDept
   const selectedCustomColumns = (selectedDept?.columns ?? []).filter((column) => !column.isDefault)
+  const selectedFillableColumns = selectedCustomColumns.filter(isFillableSuratColumn)
 
   useEffect(() => {
     fetchDeptList()
@@ -80,6 +88,7 @@ export function useEditSurat(basePath: string) {
 
         const d = data as RegisterSurat
         setOriginal(d)
+        setIsMovingDepartment(false)
         setForm({
           deptId: d.dept?.id ?? "",
           asalSurat: d.asalSurat ?? "",
@@ -98,13 +107,13 @@ export function useEditSurat(basePath: string) {
         })))
 
         window.dispatchEvent(new CustomEvent("breadcrumb:sub", {
-          detail: `Edit - ${d.dept?.shortName ?? d.tujuan} / ${d.nomor}`,
+          detail: breadcrumbTitle,
         }))
         window.dispatchEvent(new CustomEvent("breadcrumb:subsub", { detail: null }))
       })
       .catch((e: unknown) => setError(getErrorMessage(e)))
       .finally(() => setLoading(false))
-  }, [dept, id])
+  }, [breadcrumbTitle, dept, id])
 
   function validate(): boolean {
     const missing = validateSuratForm({
@@ -114,7 +123,7 @@ export function useEditSurat(basePath: string) {
 
     const errs: Record<string, string> = {}
     missing.forEach((msg: string) => { errs[msg] = msg })
-    selectedCustomColumns.forEach((column) => {
+    selectedFillableColumns.forEach((column) => {
       suratList.forEach((item, index) => {
         const value = getCustomFieldInputValue(column, item)
         const error = validateCustomFieldValue(column, value)
@@ -135,6 +144,19 @@ export function useEditSurat(basePath: string) {
   }
 
   const actions = {
+    startMoveDepartment: () => setIsMovingDepartment(true),
+    cancelMoveDepartment: () => {
+      if (!original) return
+
+      setIsMovingDepartment(false)
+      setPreviewNomor(null)
+      setForm((prev) => ({
+        ...prev,
+        deptId: original.dept?.id ?? "",
+        tujuan: original.dept?.shortName ?? original.tujuan ?? "",
+      }))
+      setSuratList((prev) => applyTujuanToSuratList(prev, original.dept?.shortName ?? original.tujuan ?? ""))
+    },
     setField: (key: keyof FormState, value: string) => {
       const nextTujuan = key === "deptId"
         ? deptList.find((item) => item.id === value)?.shortName ?? ""
@@ -158,13 +180,28 @@ export function useEditSurat(basePath: string) {
 
       if (key === "deptId") {
         if (value && value !== original?.dept?.id) {
-          fetch(`/api/surat/preview-nomor?deptId=${value}`)
+          const params = new URLSearchParams({
+            deptId: value,
+            tanggalTerima: form.tanggalTerima,
+          })
+          fetch(`/api/surat/preview-nomor?${params.toString()}`)
             .then((res) => res.json())
             .then((data) => setPreviewNomor(data.nomor))
             .catch(() => setPreviewNomor(null))
         } else {
           setPreviewNomor(null)
         }
+      }
+
+      if (key === "tanggalTerima" && form.deptId && form.deptId !== original?.dept?.id) {
+        const params = new URLSearchParams({
+          deptId: form.deptId,
+          tanggalTerima: value,
+        })
+        fetch(`/api/surat/preview-nomor?${params.toString()}`)
+          .then((res) => res.json())
+          .then((data) => setPreviewNomor(data.nomor))
+          .catch(() => setPreviewNomor(null))
       }
     },
 
@@ -193,7 +230,7 @@ export function useEditSurat(basePath: string) {
     addSurat: () => setSuratList((prev) => [...prev, emptySuratItem(form.tujuan)]),
     removeSurat: (idx: number) => setSuratList((prev) => prev.filter((_, i) => i !== idx)),
 
-    handleBack: () => router.push(`${basePath}/view/${dept}/${id}`),
+    handleBack: () => router.push(`${basePath}/view/${getDepartmentPathSegment(original?.dept, dept)}/${id}`),
 
     handleSave: async () => {
       if (!validate()) return
@@ -216,8 +253,10 @@ export function useEditSurat(basePath: string) {
         const result = await res.json().catch(() => null) as { message?: string } | null
         if (!res.ok) throw new Error(result?.message ?? "Gagal menyimpan")
 
+        const redirectDept = deptList.find((item) => item.id === payload.deptId) ?? selectedDept
+
         toast.success(result?.message ?? "Data surat berhasil diubah")
-        router.push(`${basePath}/view/${payload.deptId}/${id}`)
+        router.push(`${basePath}/view/${getDepartmentPathSegment(redirectDept, payload.deptId)}/${id}`)
       } catch (e: unknown) {
         toast.error("Gagal Menyimpan", { description: getSubmitErrorMessage(e) })
       } finally {
@@ -239,6 +278,7 @@ export function useEditSurat(basePath: string) {
       deptList,
       selectedDept,
       selectedCustomColumns,
+      isMovingDepartment,
     },
     actions,
   }

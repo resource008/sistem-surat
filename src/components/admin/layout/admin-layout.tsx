@@ -108,6 +108,11 @@ export function AdminLayout({ children }: AdminLayoutProps) {
       : "var(--sidebar-w)"
 
   function handleBreadcrumbBack() {
+    if (pathname.includes("/roles")) {
+      router.push("/admin/users")
+      return
+    }
+
     if (pathname.includes("/users")) {
       router.push("/admin/users")
       return

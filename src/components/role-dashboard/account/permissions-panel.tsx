@@ -1,5 +1,5 @@
 import { KeyRound } from "lucide-react"
-import { USER_PERMISSION_LABELS } from "@/constants/user"
+import { USER_PERMISSION_GROUPS } from "@/constants/user"
 import type { User } from "@/domain/user/types"
 import { PermissionBadge } from "./permission-badge"
 
@@ -9,21 +9,30 @@ type PermissionsPanelProps = {
 
 export function PermissionsPanel({ user }: PermissionsPanelProps) {
   return (
-    <div className="mt-5 w-full overflow-hidden rounded-[20px] border border-border bg-transparent">
-      <div className="flex h-16 items-center gap-3 border-b border-border px-8 max-sm:h-14 max-sm:px-5">
-        <KeyRound size={18} className="text-muted-foreground" />
-        <span className="text-[15px] font-semibold text-foreground">Hak Akses</span>
+    <div className="mt-4 w-full overflow-hidden rounded-xl border border-border bg-transparent">
+      <div className="flex h-12 items-center gap-2.5 border-b border-border px-5 max-sm:px-4">
+        <KeyRound size={16} className="text-muted-foreground" />
+        <span className="text-sm font-semibold text-foreground">Hak Akses</span>
       </div>
 
-      <div className="px-8 py-5 max-lg:px-6 max-sm:px-5">
-        <div className="flex flex-col">
-          {USER_PERMISSION_LABELS.map(({ key, label }) => (
-            <div
-              key={key}
-              className="flex items-center justify-between gap-4 border-b border-border/70 py-3 last:border-0"
-            >
-              <span className="text-sm text-muted-foreground">{label}</span>
-              <PermissionBadge active={user.permissions?.[key] ?? false} />
+      <div className="px-5 py-3 max-sm:px-4">
+        <div className="flex flex-col gap-3">
+          {USER_PERMISSION_GROUPS.map((group, groupIndex) => (
+            <div key={group.label ?? `group-${groupIndex}`} className="flex flex-col">
+              {group.items.map(({ key, label, parent }) => (
+                <div
+                  key={key}
+                  className={[
+                    "flex items-center justify-between gap-4 border-b border-border/70 py-2.5 last:border-0",
+                    parent ? "" : "pl-4",
+                  ].join(" ")}
+                >
+                  <span className={parent ? "text-[13px] font-medium text-foreground" : "text-[13px] text-muted-foreground"}>
+                    {label}
+                  </span>
+                  <PermissionBadge active={user.permissions?.[key] ?? false} />
+                </div>
+              ))}
             </div>
           ))}
         </div>

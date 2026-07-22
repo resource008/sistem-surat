@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import useSWR from "swr"
 import { toast } from "sonner"
-import { ArrowLeft, Eye, EyeOff, FileSpreadsheet, Pencil, Trash2 } from "lucide-react"
+import { ArrowLeft, FileSpreadsheet, Pencil, Trash2 } from "lucide-react"
 import {
   AlertDialog,
   AlertDialogContent,
@@ -48,11 +48,6 @@ function getFieldExtraItems(field: TrackField) {
   return [field.defaultValue || "-"]
 }
 
-function getPermissionLabel(field: TrackField) {
-  if (isDefaultIdField(field)) return "Sistem"
-  return field.fillByHrd ? "User lihat, HRD edit" : "User edit, HRD lihat"
-}
-
 function FieldExtraBadges({ field, className = "" }: { field: TrackField; className?: string }) {
   return (
     <div className={`flex flex-wrap items-center gap-1 ${className}`}>
@@ -65,16 +60,68 @@ function FieldExtraBadges({ field, className = "" }: { field: TrackField; classN
   )
 }
 
+function getRoleBadgeLabel(values: string[]) {
+  if (values.length === 0) return "Tidak ada"
+  if (values.length <= 2) return values.join(", ")
+  return `${values.slice(0, 2).join(", ")} +${values.length - 2}`
+}
+
+function getPermissionBadgeClass(type: "add" | "edit" | "delete") {
+  const classes = {
+    add: "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900/70 dark:bg-emerald-950/40 dark:text-emerald-300",
+    edit: "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900/70 dark:bg-blue-950/40 dark:text-blue-300",
+    delete: "border-red-200 bg-red-50 text-red-700 dark:border-red-900/70 dark:bg-red-950/40 dark:text-red-300",
+  }
+
+  return `w-fit ${classes[type]}`
+}
+
+function PermissionBadges({ field }: { field: TrackField }) {
+  if (isDefaultIdField(field)) {
+    return (
+      <Badge variant="outline" className="text-muted-foreground">
+        Sistem
+      </Badge>
+    )
+  }
+
+  const addValues = field.addRoleValues ?? []
+  const editValues = field.editRoleValues ?? []
+  const deleteValues = field.deleteRoleValues ?? []
+
+  return (
+    <div className="flex flex-col items-start gap-1.5">
+      <Badge
+        variant="outline"
+        className={getPermissionBadgeClass("add")}
+      >
+        Tambah: {getRoleBadgeLabel(addValues)}
+      </Badge>
+      <Badge
+        variant="outline"
+        className={getPermissionBadgeClass("edit")}
+      >
+        Edit: {getRoleBadgeLabel(editValues)}
+      </Badge>
+      <Badge
+        variant="outline"
+        className={getPermissionBadgeClass("delete")}
+      >
+        Hapus: {getRoleBadgeLabel(deleteValues)}
+      </Badge>
+    </div>
+  )
+}
+
 export default function TrackTableDetailPage() {
   const { id } = useParams<{ id: string }>()
   const router = useRouter()
-  const { data: sheet, error, isLoading, mutate } = useSWR<TrackSheet>(
+  const { data: sheet, error, isLoading } = useSWR<TrackSheet>(
     id ? `/api/admin/track-table/${encodeURIComponent(id)}` : null,
     fetcher,
   )
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [deleting, setDeleting] = useState(false)
-  const [visibilityAction, setVisibilityAction] = useState<"show" | "hide" | null>(null)
 
   useEffect(() => {
     window.dispatchEvent(new CustomEvent("breadcrumb:sub", { detail: "Detail Sheet Lacak" }))
@@ -94,7 +141,7 @@ export default function TrackTableDetailPage() {
       const json = await res.json().catch(() => null)
 
       if (!res.ok) {
-        throw new Error(json?.error ?? "Gagal memproses sheet lacak")
+        throw new Error(json?.message ?? json?.error ?? "Gagal memproses sheet lacak")
       }
 
       toast.success(json?.message ?? "Data sheet lacak berhasil dihapus permanen")
@@ -110,33 +157,6 @@ export default function TrackTableDetailPage() {
     return <TrackTableDetailSkeleton />
   }
 
-  async function setSheetVisibility(action: "show" | "hide") {
-    if (!sheet) return
-    setVisibilityAction(action)
-
-    try {
-      const res = await fetch(`/api/admin/track-table/${encodeURIComponent(sheet.id)}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action }),
-      })
-      const json = await res.json().catch(() => null)
-
-      if (!res.ok) {
-        throw new Error(json?.error ?? json?.message ?? "Gagal mengubah status sheet lacak")
-      }
-
-      toast.success(json?.message ?? (
-        action === "show" ? "Sheet lacak berhasil ditampilkan" : "Data sheet lacak berhasil disembunyikan"
-      ))
-      await mutate()
-    } catch (err) {
-      toast.error(getErrorMessage(err, "Gagal mengubah status sheet lacak"))
-    } finally {
-      setVisibilityAction(null)
-    }
-  }
-
   if (error || !sheet) {
     return (
       <div className="flex min-h-[360px] flex-col items-center justify-center gap-3">
@@ -148,17 +168,22 @@ export default function TrackTableDetailPage() {
     )
   }
 
-  const hrdFieldsCount = sheet.fields.filter((field) => field.fillByHrd).length
+  const requiredFieldsCount = sheet.fields.filter((field) => field.fillRequired).length
 
   return (
     <div className="flex flex-col gap-4 pb-32">
       <div className="rounded-xl border border-border/40 bg-background">
         <div className="border-b border-border/40 px-4 py-4">
-          <div className="flex items-center gap-3">
-            <span className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-border/50 bg-muted/40 text-muted-foreground">
-              <FileSpreadsheet className="size-4" />
-            </span>
-            <h2 className="text-base font-semibold">Informasi Sheet</h2>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-border/50 bg-muted/40 text-muted-foreground">
+                <FileSpreadsheet className="size-4" />
+              </span>
+              <h2 className="text-base font-semibold">Informasi Sheet</h2>
+            </div>
+            <Badge variant={sheet.hiddenAt ? "outline" : "secondary"} className="shrink-0">
+              {sheet.hiddenAt ? "Disembunyikan" : "Ditampilkan"}
+            </Badge>
           </div>
         </div>
 
@@ -178,10 +203,10 @@ export default function TrackTableDetailPage() {
             </div>
           </div>
           <div className="grid gap-1 sm:grid-cols-[140px_minmax(0,1fr)]">
-            <span className="text-muted-foreground">Izin HRD</span>
+            <span className="text-muted-foreground">Wajib Diisi</span>
             <div>
-              <Badge variant={hrdFieldsCount > 0 ? "secondary" : "outline"}>
-                {hrdFieldsCount} kolom
+              <Badge variant={requiredFieldsCount > 0 ? "secondary" : "outline"}>
+                {requiredFieldsCount} kolom
               </Badge>
             </div>
           </div>
@@ -235,7 +260,6 @@ export default function TrackTableDetailPage() {
                       <span className="truncate font-semibold">{field.columnName}</span>
                       {field.hiddenAt ? <Badge variant="outline">Disembunyikan</Badge> : null}
                     </div>
-                    <div className="mt-0.5 truncate text-xs text-muted-foreground">{field.region || "Global"}</div>
                   </div>
                   <div className="min-w-0 pr-4">
                     {field.category ? (
@@ -253,12 +277,7 @@ export default function TrackTableDetailPage() {
                     <Badge variant="outline">{getTypeLabel(field.type)}</Badge>
                   </div>
                   <div>
-                    <Badge
-                      variant={field.fillByHrd ? "secondary" : "outline"}
-                      className={field.fillByHrd ? "bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300" : "text-muted-foreground"}
-                    >
-                      {getPermissionLabel(field)}
-                    </Badge>
+                    <PermissionBadges field={field} />
                   </div>
                   <FieldExtraBadges field={field} className="pr-2" />
                 </div>
@@ -294,41 +313,15 @@ export default function TrackTableDetailPage() {
           >
             <Pencil /> Edit
           </Button>
-          {sheet.hiddenAt ? (
-            <Button
-              type="button"
-              variant="action-primary"
-              size="fab-action"
-              onClick={() => setSheetVisibility("show")}
-              disabled={Boolean(visibilityAction)}
-              className="shrink-0"
-            >
-              <Eye /> {visibilityAction === "show" ? "Menampilkan" : "Tampilkan"}
-            </Button>
-          ) : null}
-          {!sheet.hiddenAt ? (
-            <>
-              <Button
-                type="button"
-                variant="action-secondary"
-                size="fab-action"
-                onClick={() => setSheetVisibility("hide")}
-                disabled={Boolean(visibilityAction)}
-                className="shrink-0"
-              >
-                <EyeOff /> {visibilityAction === "hide" ? "Menyembunyikan" : "Sembunyikan"}
-              </Button>
-              <Button
-                type="button"
-                variant="action-danger"
-                size="fab-action"
-                onClick={() => setDeleteOpen(true)}
-                className="shrink-0"
-              >
-                <Trash2 /> Hapus
-              </Button>
-            </>
-          ) : null}
+          <Button
+            type="button"
+            variant="action-danger"
+            size="fab-action"
+            onClick={() => setDeleteOpen(true)}
+            className="shrink-0"
+          >
+            <Trash2 /> Hapus
+          </Button>
         </div>
       </div>
 

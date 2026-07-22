@@ -2,16 +2,10 @@ import { UserAvatar } from "@/components/shared/user-avatar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { Eye, EyeOff, FileText, Shuffle } from "lucide-react"
 import { useState } from "react"
 import type { UserAddFormState } from "./types/user-add"
+import { UserRoleSelect } from "./user-role-select"
 import { generatePassword } from "./utils/password"
 
 type UserAddAccountSectionProps = {
@@ -83,22 +77,13 @@ export function UserAddAccountSection({
           </Field>
 
           <Field label="Role">
-            <Select
+            <UserRoleSelect
               value={form.role}
-              onValueChange={(value) => {
+              onChange={(value) => {
                 onFieldChange("role", value as UserAddFormState["role"])
                 onPermissionsReset()
               }}
-            >
-              <SelectTrigger className="h-10 rounded-xl text-sm">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="rounded-xl">
-                <SelectItem value="ADMIN">Admin</SelectItem>
-                <SelectItem value="STAFF">Staff</SelectItem>
-                <SelectItem value="PKL">PKL</SelectItem>
-              </SelectContent>
-            </Select>
+            />
           </Field>
 
           <Field label="Password">

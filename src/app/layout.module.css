@@ -168,7 +168,9 @@
 .navItemWrapper {
   position: relative;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
 }
 
 .navItem {
@@ -371,8 +373,23 @@
 }
 
 .topbarTrack {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  display: flex;
+}
+
+.topbarTrack .topbarLeft {
+  min-width: 0;
+}
+
+.topbarTrack .topbarCenter {
+  position: absolute;
+  left: 50%;
+  width: min(620px, calc(100% - 520px));
+  min-width: 320px;
+  transform: translateX(-50%);
+}
+
+.topbarTrack .topbarRight {
+  margin-left: auto;
 }
 
 /* Kiri topbar */
@@ -542,11 +559,22 @@
   .content { padding: 20px; padding-top: calc(64px + 20px); }
 }
 
-@media (max-width: 768px) {
-  .topbar { padding: 0 16px; height: 56px; left: 0; }
+@media (max-width: 1280px) {
+  .topbarTrack .topbarCenter {
+    width: min(520px, calc(100% - 420px));
+    min-width: 260px;
+  }
+}
+
+@media (max-width: 1023px) {
+  .topbar {
+    padding: 0 16px;
+    height: 56px;
+    left: var(--topbar-left, var(--sidebar-w-collapsed));
+  }
   .topbarTrack {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: auto minmax(0, 1fr) auto;
     gap: 10px;
   }
   .topbarDataSurat {
@@ -558,11 +586,15 @@
     flex: 1 1 auto;
     max-width: none;
   }
-  .topbarLeftDataSurat { max-width: 160px; }
+  .topbarLeftDataSurat {
+    flex: 0 1 auto;
+    max-width: none;
+    overflow: hidden;
+  }
   .topbarLeftDataSuratSubPage { max-width: none; }
   .topbarLeftCetak { max-width: none; }
   .topbarLeftTrack {
-    flex: 1 1 auto;
+    flex: 0 1 auto;
     max-width: none;
     min-width: 0;
   }
@@ -577,22 +609,33 @@
     right: auto;
     z-index: 3;
     justify-content: center;
-    width: 36px;
+    width: auto;
     min-width: 36px;
-    max-width: 36px;
+    max-width: none;
     margin-left: auto;
     transform: none;
   }
   .topbarDataSurat .topbarCenter {
     position: relative;
-    width: 36px;
+    width: auto;
     min-width: 36px;
-    max-width: 36px;
+    max-width: none;
     margin-left: auto;
+  }
+  .topbarDataSurat .topbarCenter,
+  .topbarTrack .topbarCenter {
+    justify-content: flex-end;
+  }
+  .topbarTrack .topbarCenter {
+    position: relative;
+    left: auto;
+    width: auto;
+    min-width: 36px;
+    transform: none;
   }
   .topbarCenter > * {
     flex: 0 0 auto;
-    width: 36px;
+    width: auto;
   }
   .topbarCenterExpanded {
     position: relative;
@@ -617,6 +660,9 @@
     flex: 1 1 auto;
     width: 100%;
   }
+  .topbarTrack:has(.topbarCenterExpanded) .topbarRightTrack {
+    display: none;
+  }
   .topbarRight {
     flex: 0 0 auto;
     width: auto;
@@ -638,11 +684,27 @@
   .content { padding: 16px; padding-top: calc(56px + 16px); }
 }
 
+@media (max-width: 640px) {
+  .topbarDataSurat,
+  .topbarTrack {
+    gap: 8px;
+  }
+
+  .topbarTrack .topbarCenter,
+  .topbarDataSurat .topbarCenter {
+    margin-left: 0;
+  }
+
+  .topbarRightTrack :global([role="combobox"]) {
+    width: clamp(120px, 34vw, 160px);
+  }
+}
+
 @media (max-width: 480px) {
   .topbar { gap: 8px; }
   .topbarLeft { max-width: 44px; }
   .topbarLeftAdmin { max-width: none; }
-  .topbarLeftDataSurat { max-width: 132px; }
+  .topbarLeftDataSurat { max-width: none; }
   .topbarLeftDataSuratSubPage { max-width: none; }
   .topbarLeftCetak { max-width: none; }
   .topbarLeftTrack {
@@ -651,6 +713,16 @@
   }
   .topbarLeftSearchPage { max-width: none; }
   .content { padding: 12px; padding-top: calc(56px + 12px); }
+}
+
+@media (max-width: 380px) {
+  .topbar {
+    padding-inline: 10px;
+  }
+
+  .topbarRightTrack :global([role="combobox"]) {
+    width: 112px;
+  }
 }
 
 /* ── Breadcrumb ── */
