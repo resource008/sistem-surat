@@ -5,11 +5,12 @@ on:
     branches:
       - staging
       - main
-  
+      - dev
   pull_request:
     branches:
       - staging
       - main
+      - dev
 
 jobs:
   validate:
@@ -20,13 +21,13 @@ jobs:
       DATABASE_URL: "postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@localhost:5432/${{ secrets.POSTGRES_DB }}"
       BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
       BETTER_AUTH_URL: "http://localhost:3001"
-    
+
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: 'npm'
@@ -47,5 +48,4 @@ jobs:
         run: npm run build
 
       - name: Pengecekan berhasil
-        run: echo "Semua pengecekan berhasil! Tidak ada error yang ditemukan. Kode siap untuk di merge ke main."
-
+        run: echo "Semua pengecekan berhasil! Tidak ada error yang ditemukan."
