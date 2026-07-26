@@ -1,24 +1,5 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import useSWR from "swr"
-import { toast } from "sonner"
-import { Edit3, Plus, ShieldCheck, Trash2 } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Skeleton } from "@/components/ui/skeleton"
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,6 +11,21 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   Table,
   TableBody,
@@ -38,6 +34,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { Edit3, Plus, ShieldCheck, Trash2 } from "lucide-react"
+import { useEffect, useState } from "react"
+import { toast } from "sonner"
+import useSWR from "swr"
 
 type RoleItem = {
   id: string
@@ -285,7 +285,7 @@ export function RolesPage() {
                             <DialogHeader>
                               <DialogTitle>Edit role</DialogTitle>
                               <DialogDescription>
-                                Ubah nama role. Kode role akan disesuaikan otomatis dari nama baru.
+                                Silahkan edit nama role sesuai kebutuhan.
                               </DialogDescription>
                             </DialogHeader>
                             <form
