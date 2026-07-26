@@ -6,11 +6,15 @@ on:
       - staging
 
 jobs:
+  # 1. Build & Push Image ke Docker Hub (Dijalankan di Cloud GitHub)
   build-and-push:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -24,20 +28,30 @@ jobs:
           context: .
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/sistem-surat:staging
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
+  # 2. Deploy Langsung dari VPS (Dijalankan oleh Runner Lokal)
   deploy:
     name: Pembaruan Container di VPS
     needs: build-and-push
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, vps-staging] # <-- Memanggil Runner di VPS IDCloudHost
     steps:
-      - name: Eksekusi Remote SSH Via Tabby key
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          script: |
-            cd /var/www/docker-staging
-            DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }} docker compose -f docker-compose.staging.yml pull
-            DOCKERHUB_USERNAME=${{ secrets.DOCKERHUB_USERNAME }} docker compose -f docker-compose.staging.yml up -d
-            docker image prune -f
+      - name: Eksekusi Update Container & Prisma Migration
+        run: |
+          cd /var/www/docker-staging
+          
+          # Login ke Docker Hub dari dalam VPS
+          echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+          
+          # Pull image terbaru
+          docker compose -f docker-compose.staging.yml pull
+          
+          # Jalankan migrasi database Prisma
+          docker compose -f docker-compose.staging.yml run --rm web_app npx prisma migrate deploy
+          
+          # Restart container web_app
+          docker compose -f docker-compose.staging.yml up -d
+          
+          # Bersihkan image lama yang tidak terpakai
+          docker image prune -f
