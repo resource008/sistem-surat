@@ -40,20 +40,44 @@ jobs:
     runs-on: [self-hosted, vps-staging]
     steps:
       - name: Eksekusi Update Container & Prisma Migration
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
+          BETTER_AUTH_URL: ${{ secrets.BETTER_AUTH_URL }}
+          BETTER_AUTH_TRUSTED_ORIGINS: ${{ secrets.BETTER_AUTH_TRUSTED_ORIGINS }}
         run: |
           cd /var/www/docker-staging
           
-          # Login ke Docker Hub dari dalam VPS
+          # 1. Buat file .env secara dinamis dari GitHub Secrets
+          cat <<EOF > .env
+          DOCKERHUB_USERNAME=$DOCKERHUB_USERNAME
+          POSTGRES_USER=$POSTGRES_USER
+          POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+          POSTGRES_DB=$POSTGRES_DB
+          DATABASE_URL=$DATABASE_URL
+          BETTER_AUTH_SECRET=$BETTER_AUTH_SECRET
+          BETTER_AUTH_URL=$BETTER_AUTH_URL
+          BETTER_AUTH_TRUSTED_ORIGINS=$BETTER_AUTH_TRUSTED_ORIGINS
+          EOF
+
+          # 2. Amankan izin akses file .env (rw-------)
+          chmod 600 .env
+          
+          # 3. Login ke Docker Hub dari dalam VPS
           echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
           
-          # Pull image terbaru
+          # 4. Pull image terbaru
           docker compose -f docker-compose.staging.yml pull
           
-          # Jalankan migrasi database Prisma
+          # 5. Jalankan migrasi database Prisma
           docker compose -f docker-compose.staging.yml run --rm web_app npx prisma migrate deploy
           
-          # Restart container web_app
+          # 6. Restart container web_app
           docker compose -f docker-compose.staging.yml up -d
           
-          # Bersihkan image lama yang tidak terpakai
+          # 7. Bersihkan image lama yang tidak terpakai
           docker image prune -f
