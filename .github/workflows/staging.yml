@@ -52,7 +52,7 @@ jobs:
         run: |
           cd /var/www/docker-staging
           
-          # 1. Buat file .env secara dinamis dari GitHub Secrets
+          # 1. Generate .env persis seperti variabel di docker-compose.staging.yml
           cat <<EOF > .env
           DOCKERHUB_USERNAME=$DOCKERHUB_USERNAME
           POSTGRES_USER=$POSTGRES_USER
@@ -64,20 +64,18 @@ jobs:
           BETTER_AUTH_TRUSTED_ORIGINS=$BETTER_AUTH_TRUSTED_ORIGINS
           EOF
 
-          # 2. Amankan izin akses file .env (rw-------)
+          # 2. Amankan izin akses file .env
           chmod 600 .env
-          
-          # 3. Login ke Docker Hub dari dalam VPS
+
+          # 3. Login & Pull Image
           echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+          docker compose --env-file .env -f docker-compose.staging.yml pull
           
-          # 4. Pull image terbaru
-          docker compose -f docker-compose.staging.yml pull
+          # 4. Jalankan Migrasi Prisma
+          docker compose --env-file .env -f docker-compose.staging.yml run --rm web_app npx prisma migrate deploy
           
-          # 5. Jalankan migrasi database Prisma
-          docker compose -f docker-compose.staging.yml run --rm web_app npx prisma migrate deploy
+          # 5. Jalankan Service Utama
+          docker compose --env-file .env -f docker-compose.staging.yml up -d
           
-          # 6. Restart container web_app
-          docker compose -f docker-compose.staging.yml up -d
-          
-          # 7. Bersihkan image lama yang tidak terpakai
+          # 6. Bersihkan image gantung
           docker image prune -f
