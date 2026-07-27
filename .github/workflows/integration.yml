@@ -10,7 +10,6 @@ on:
     branches:
       - staging
       - main
-      - dev
 
 jobs:
   validate:
@@ -33,7 +32,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: Generate Prisma Client
         run: npx prisma generate

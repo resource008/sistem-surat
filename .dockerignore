@@ -7,7 +7,6 @@ out
 
 # Environment files — jangan masuk ke image
 .env*
-!.env.example
 
 # Git
 .git
