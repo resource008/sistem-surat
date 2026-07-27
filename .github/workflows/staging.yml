@@ -54,7 +54,7 @@ jobs:
 
           # 4. Eksekusi migrasi Prisma di dalam container web_app yang sudah berjalan
           DATABASE_URL_VAL=$(grep '^DATABASE_URL=' .env | cut -d '=' -f2-)
-          docker compose -f docker-compose.staging.yml exec -T web_app npx prisma migrate deploy
+          docker compose -f docker-compose.staging.yml exec -T -e DATABASE_URL="$DATABASE_URL_VAL" web_app npx prisma migrate deploy
 
           # 5. Bersihkan image lama
           docker image prune -f
