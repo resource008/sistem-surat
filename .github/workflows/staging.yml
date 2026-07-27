@@ -43,18 +43,36 @@ jobs:
         run: |
           cd /var/www/docker-staging
 
-          # 1. Login ke Docker Hub
+          # 1. Bersihkan artefak lama agar disk VPS tidak penuh
+          find "$HOME/actions-runner/_diag" -type f -mtime +7 -delete 2>/dev/null || true
+          docker container prune -f --filter "until=24h"
+          docker image prune -af --filter "until=24h"
+          docker builder prune -af --filter "until=24h"
+
+          # 2. Login ke Docker Hub
           echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
-          # 2. Pull image terbaru (Docker Compose otomatis membaca .env lokal VPS)
+          # 3. Pull image terbaru (Docker Compose otomatis membaca .env lokal VPS)
           docker compose -f docker-compose.staging.yml pull
 
-          # 3. Jalankan/Update Container
+          # 4. Jalankan/Update Container
           docker compose -f docker-compose.staging.yml up -d
 
-          # 4. Eksekusi migrasi Prisma di dalam container web_app yang sudah berjalan
+          # 5. Eksekusi migrasi Prisma di dalam container web_app yang sudah berjalan
           DATABASE_URL_VAL=$(grep '^DATABASE_URL=' .env | cut -d '=' -f2-)
-          docker compose -f docker-compose.staging.yml exec -T -e DATABASE_URL="$DATABASE_URL_VAL" web_app npx prisma migrate deploy
+          for attempt in $(seq 1 30); do
+            if docker compose -f docker-compose.staging.yml exec -T -e DATABASE_URL="$DATABASE_URL_VAL" web_app npx prisma migrate deploy; then
+              break
+            fi
 
-          # 5. Bersihkan image lama
+            if [ "$attempt" -eq 30 ]; then
+              echo "Prisma migration failed after waiting for database readiness."
+              exit 1
+            fi
+
+            echo "Database is not ready yet. Retrying migration in 2 seconds... ($attempt/30)"
+            sleep 2
+          done
+
+          # 6. Bersihkan image lama
           docker image prune -f
