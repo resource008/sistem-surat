@@ -74,5 +74,8 @@ jobs:
             sleep 2
           done
 
-          # 6. Bersihkan image lama
+          # 6. Isi data awal yang aman dijalankan berulang
+          docker compose -f docker-compose.staging.yml exec -T -e DATABASE_URL="$DATABASE_URL_VAL" web_app npm run seed
+
+          # 7. Bersihkan image lama
           docker image prune -f
