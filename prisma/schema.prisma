@@ -93,7 +93,7 @@ model RoleDefinition {
   value     String   @unique
   isSystem  Boolean  @default(false) @map("is_system")
   createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
   @@map("role_definitions")
 }
@@ -112,7 +112,7 @@ model DepartmentColumn {
   sortOrder        Int        @default(0) @map("sort_order")
   displayOrder     Int        @default(0) @map("display_order")
   createdAt        DateTime   @default(now()) @map("created_at")
-  updatedAt        DateTime   @updatedAt @map("updated_at")
+  updatedAt        DateTime   @default(now()) @updatedAt @map("updated_at")
 
   @@index([departmentId])
   @@map("department_columns")
@@ -127,7 +127,7 @@ model RegisterSurat {
   asalSurat     String        @map("asal_surat")
   tujuan        String        @default("")
   createdAt     DateTime      @default(now()) @map("created_at")
-  updatedAt     DateTime      @updatedAt @map("updated_at")
+  updatedAt     DateTime      @default(now()) @updatedAt @map("updated_at")
 
   detailSurat   DetailSurat[]
 
@@ -145,7 +145,7 @@ model DetailSurat {
   tujuan          String?
   customFields    Json           @default("{}") @map("custom_fields")
   createdAt       DateTime       @default(now()) @map("created_at")
-  updatedAt       DateTime       @updatedAt @map("updated_at")
+  updatedAt       DateTime       @default(now()) @updatedAt @map("updated_at")
 
   @@map("detail_surat")
 }
@@ -165,7 +165,7 @@ model TrackSheet {
   name        String
   sortOrder   Int          @default(0) @map("sort_order")
   createdAt   DateTime     @default(now()) @map("created_at")
-  updatedAt   DateTime     @updatedAt @map("updated_at")
+  updatedAt   DateTime     @default(now()) @updatedAt @map("updated_at")
   hiddenAt    DateTime?    @map("hidden_at")
   categories  TrackCategory[]
   fields      TrackField[]
@@ -186,7 +186,7 @@ model TrackCategory {
   deleteRoleValues String @default("[]") @map("delete_role_values")
   sortOrder Int        @default(0) @map("sort_order")
   createdAt DateTime   @default(now()) @map("created_at")
-  updatedAt DateTime   @updatedAt @map("updated_at")
+  updatedAt DateTime   @default(now()) @updatedAt @map("updated_at")
 
   @@index([sheetId])
   @@map("track_categories")
@@ -210,7 +210,7 @@ model TrackField {
   deleteRoleValues String @default("[]") @map("delete_role_values")
   sortOrder  Int        @default(0) @map("sort_order")
   createdAt  DateTime   @default(now()) @map("created_at")
-  updatedAt  DateTime   @updatedAt @map("updated_at")
+  updatedAt  DateTime   @default(now()) @updatedAt @map("updated_at")
 
   @@index([sheetId])
   @@map("track_fields")
@@ -224,7 +224,7 @@ model TrackRecord {
   values      Json       @default("{}")
   createdById String?    @map("created_by_id")
   createdAt   DateTime   @default(now()) @map("created_at")
-  updatedAt   DateTime   @updatedAt @map("updated_at")
+  updatedAt   DateTime   @default(now()) @updatedAt @map("updated_at")
 
   @@index([sheetId])
   @@map("track_records")
